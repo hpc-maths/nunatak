@@ -18,7 +18,7 @@ Une spec complète + architecture pour une librairie open source (BSD-3/MIT) de 
   - Distribué = MPI uniquement en v1.
   - Langages profilés v1 : compilés (C/C++/Fortran/Rust) via DWARF + Python via un chemin dédié.
   - Moteur d'analyse déterministe (roofline, classification des kernels, détection des bottlenecks calculés par la librairie) ; le LLM explique et suggère, il ne diagnostique pas.
-  - Provider LLM : pi.dev (choix ferme).
+  - Provider LLM : initialement « pi.dev, choix ferme » - invalidé par le ticket 01 (pi.dev n'est pas un provider d'inférence) ; re-décision ouverte au ticket 12.
   - Sortie : résumé terminal + rapport HTML auto-contenu (fonctionne sur cluster sans serveur).
   - Stack : cœur Python ; rapport HTML = mini-app TypeScript compilée, embarquée comme asset statique.
   - Priorité qualité/robustesse/maintenabilité sur coût de développement (préférence utilisateur).
@@ -26,6 +26,8 @@ Une spec complète + architecture pour une librairie open source (BSD-3/MIT) de 
 ## Decisions so far
 
 <!-- une ligne par ticket résolu : gist + lien -->
+
+- [Recherche : pi.dev comme provider LLM](issues/01-recherche-pi-dev.md) - pi.dev n'est pas un provider d'inférence mais le toolkit d'agents "Pi" (TypeScript) ; le choix du vrai provider est rouvert au ticket 12 ; détails sur la branche `research/pi-dev`.
 
 ## Not yet specified
 
