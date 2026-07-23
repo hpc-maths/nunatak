@@ -34,10 +34,10 @@ Une spec complète + architecture pour une librairie open source (BSD-3/MIT) de 
 - [Décision : choix du provider LLM et de la couche d'accès](issues/12-choix-provider-llm.md) - la config de Pi est la source unique des modèles ; pilotage en subprocess RPC (« exec + parse » étendu au LLM) ; Node.js + pi requis à l'installation.
 - [Prototype : pipeline LLM](issues/08-prototype-pipeline-llm.md) - qualité validée sur 2 kernels ; latence 24-60 s/kernel donc appels parallèles + streaming terminal ; détection obligatoire des erreurs provider ; prototype sur la branche `prototype/llm-pipeline`.
 - [Décision : fine-tuning ou prompt engineering](issues/09-fine-tuning-ou-prompt.md) - prompt engineering seul ; la spec recommandera une classe de modèle (orienté code, thinking), pas un modèle figé.
+- [Décision : modèle de données pivot](issues/06-modele-de-donnees.md) - pivot mesuré unifié (Hotspot/Locus/Mesure/Compteur/Métrique dérivée/Qualité/Événement/Run/Machine), analyse déterministe recalculée, Explication LLM à part ; persistance Parquet + manifeste JSON. Glossaire dans `CONTEXT.md`, arbitrage dans `docs/adr/0001-modele-de-donnees-pivot.md`.
 
 ## Not yet specified
 
-- Design détaillé du rapport HTML (vues, timeline, interactions) - dépend du modèle de données.
 - Stratégie de test et CI sur du hardware hétérogène (CPU variés, GPU des deux vendeurs, cluster MPI, Mac).
 - Contenu et structure de la spec finale elle-même (l'assemblage) - graduable quand la majorité des décisions seront prises.
 - Gestion des erreurs et dégradation gracieuse quand un collecteur manque sur la machine cible.
