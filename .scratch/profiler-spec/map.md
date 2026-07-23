@@ -28,6 +28,7 @@ Une spec complète + architecture pour une librairie open source (BSD-3/MIT) de 
 <!-- une ligne par ticket résolu : gist + lien -->
 
 - [Recherche : pi.dev comme provider LLM](issues/01-recherche-pi-dev.md) - pi.dev n'est pas un provider d'inférence mais le toolkit d'agents "Pi" (TypeScript) ; le choix du vrai provider est rouvert au ticket 12 ; détails sur la branche `research/pi-dev`.
+- [Recherche : inventaire des collecteurs](issues/04-recherche-collecteurs.md) - "exec + parse, jamais link" (GPL) ; perf/likwid-perfctr, nsys/ncu, rocprofv3, mpiP, perf-trampoline/py-spy ; détails sur la branche `research/collecteurs`.
 
 ## Not yet specified
 

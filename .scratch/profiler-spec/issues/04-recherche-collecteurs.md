@@ -1,7 +1,7 @@
 # Recherche : inventaire des collecteurs à orchestrer
 
 Type: research
-Status: claimed
+Status: resolved
 
 ## Question
 
@@ -14,3 +14,18 @@ Quel collecteur précis orchestrer pour chaque plateforme/métrique de la v1, et
 - MPI : interception PMPI maison vs Score-P/OTF2 vs mpiP - lequel donne les latences réseau par rang avec le moins de friction d'installation.
 - Python : py-spy, perf avec perf-trampoline (CPython 3.12+), viztracer - quel chemin pour attribuer les échantillons au code Python.
 - Pour chaque choix : format de sortie parsable, stabilité de l'interface, licence compatible BSD-3/MIT, besoin de droits root/capabilities.
+
+## Answer
+
+Principe transverse : architecture **"exec + parse", jamais "link"**. Exécuter perf/LIKWID en sous-processus laisse les programmes séparés (FAQ GPL de la FSF) ; lier pylikwid (GPL-2) rendrait l'œuvre combinée GPL - interdit pour un projet BSD-3/MIT.
+
+Recommandations par domaine (principal / secours) :
+- **CPU Linux** : perf CLI (`perf stat -j` JSON, `perf script` ; per-process user-space sans privilège même à paranoid=2, CAP_PERFMON pour le reste) / likwid-perfctr (GPL-3, CLI seulement) pour énergie, uncore et métriques dérivées.
+- **GPU NVIDIA** : nsys (export sqlite/jsonlines/arrow/parquet, pas de root en mode process-tree) / ncu pour les compteurs par kernel (`--csv`, `.ncu-rep`), avec gestion explicite d'ERR_NVGPUCTRPERM (compteurs réservés admin depuis le pilote 418.43). CUPTI direct écarté en v1 (lib C, couplage ABI, EULA).
+- **GPU AMD** : rocprofv3 / rocprofiler-sdk (MIT ; sorties rocpd/SQLite, CSV, JSON, OTF2, pftrace) en principal ; rocprof v1 en secours pour les ROCm anciens. Dépôt migré dans le monorepo ROCm/rocm-systems.
+- **MPI** : mpiP (BSD, LD_PRELOAD sans recompilation, temps/volumes par rang et site d'appel) / shim PMPI maison en évolution. Score-P/OTF2 hors chemin par défaut (installation lourde), Caliper rejeté (annotation source requise).
+- **Python** : perf + perf-trampoline (CPython 3.12+, `python -X perf`) - seul chemin unifiant piles Python et natives dans un même perf.data / py-spy (MIT, `--native`) pour CPython < 3.12. viztracer écarté (traceur déterministe, autre modèle de données).
+
+Pour la spec : parseurs versionnés par version d'outil détectée, commande "doctor" de diagnostic des permissions, chemin nominal garanti sans root.
+
+Détails sourcés et tableau récapitulatif : `docs/research/collecteurs.md` sur la branche `research/collecteurs` (commit 73bf896).
