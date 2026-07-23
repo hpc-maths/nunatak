@@ -32,6 +32,8 @@ Une spec complète + architecture pour une librairie open source (BSD-3/MIT) de 
 - [Recherche : Apple Silicon](issues/02-recherche-apple-silicon.md) - pas de compteur FLOPs ni de bande passante DRAM exposée : roofline estimé, mode launch sudo, xctrace si Xcode présent, kperf optionnel ; détails sur la branche `research/apple-silicon`.
 - [Recherche : état de l'art roofline](issues/03-recherche-roofline-etat-art.md) - plafonds mesurés par microbenchmarks partout ; jeux de compteurs minimaux validés par plateforme ; fiabilité des compteurs variable par microarchitecture ; CQA (MAQAO) comme brique de diagnostic au-delà du roofline ; détails sur la branche `research/roofline-etat-art`.
 - [Décision : choix du provider LLM et de la couche d'accès](issues/12-choix-provider-llm.md) - la config de Pi est la source unique des modèles ; pilotage en subprocess RPC (« exec + parse » étendu au LLM) ; Node.js + pi requis à l'installation.
+- [Prototype : pipeline LLM](issues/08-prototype-pipeline-llm.md) - qualité validée sur 2 kernels ; latence 24-60 s/kernel donc appels parallèles + streaming terminal ; détection obligatoire des erreurs provider ; prototype sur la branche `prototype/llm-pipeline`.
+- [Décision : fine-tuning ou prompt engineering](issues/09-fine-tuning-ou-prompt.md) - prompt engineering seul ; la spec recommandera une classe de modèle (orienté code, thinking), pas un modèle figé.
 
 ## Not yet specified
 
