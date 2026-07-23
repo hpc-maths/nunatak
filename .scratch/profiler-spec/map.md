@@ -30,11 +30,11 @@ Une spec complète + architecture pour une librairie open source (BSD-3/MIT) de 
 - [Recherche : pi.dev comme provider LLM](issues/01-recherche-pi-dev.md) - pi.dev n'est pas un provider d'inférence mais le toolkit d'agents "Pi" (TypeScript) ; le choix du vrai provider est rouvert au ticket 12 ; détails sur la branche `research/pi-dev`.
 - [Recherche : inventaire des collecteurs](issues/04-recherche-collecteurs.md) - "exec + parse, jamais link" (GPL) ; perf/likwid-perfctr, nsys/ncu, rocprofv3, mpiP, perf-trampoline/py-spy ; détails sur la branche `research/collecteurs`.
 - [Recherche : Apple Silicon](issues/02-recherche-apple-silicon.md) - pas de compteur FLOPs ni de bande passante DRAM exposée : roofline estimé, mode launch sudo, xctrace si Xcode présent, kperf optionnel ; détails sur la branche `research/apple-silicon`.
+- [Recherche : état de l'art roofline](issues/03-recherche-roofline-etat-art.md) - plafonds mesurés par microbenchmarks partout ; jeux de compteurs minimaux validés par plateforme ; fiabilité des compteurs variable par microarchitecture ; CQA (MAQAO) comme brique de diagnostic au-delà du roofline ; détails sur la branche `research/roofline-etat-art`.
 
 ## Not yet specified
 
 - Design détaillé du rapport HTML (vues, timeline, interactions) - dépend du modèle de données.
-- Packaging et distribution (pip, spack, modules d'environnement, binaire ?) - dépend des dépendances aux collecteurs.
 - Stratégie de test et CI sur du hardware hétérogène (CPU variés, GPU des deux vendeurs, cluster MPI, Mac).
 - Contenu et structure de la spec finale elle-même (l'assemblage) - graduable quand la majorité des décisions seront prises.
 - Gestion des erreurs et dégradation gracieuse quand un collecteur manque sur la machine cible.
