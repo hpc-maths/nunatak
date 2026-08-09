@@ -7,6 +7,7 @@ wraps or replaces the executor, never the adapters.
 
 from __future__ import annotations
 
+import platform
 import subprocess
 from dataclasses import dataclass
 
@@ -29,6 +30,11 @@ class Executor:
     `capture=False` leaves stdout/stderr connected to the caller's - the
     profiled application's output is never swallowed.
     """
+
+    @property
+    def system(self) -> str:
+        """The platform tools run on; a replay reports the recorded one."""
+        return platform.system()
 
     def run(
         self,

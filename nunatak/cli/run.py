@@ -16,8 +16,9 @@ import re
 import shutil
 from pathlib import Path
 
-from nunatak import machine, provenance
+from nunatak import corpus, machine, provenance
 from nunatak.cli import doctor
+from nunatak.collect import cpu_collector
 from nunatak.collect.execution import Executor, SubprocessExecutor
 from nunatak.config import Config, load
 from nunatak.console import Console
@@ -27,8 +28,10 @@ from nunatak.exit_codes import (
     FAILURE_BEFORE_LAUNCH,
     STRICT_VIOLATION,
 )
-from nunatak.pivot import Pass, Run, write_run
+from nunatak.pivot import Collector, Pass, Run, write_run
 from nunatak.target import real_target
+
+COLLECT_DIR = "collect"
 
 
 def _now() -> str:
@@ -102,9 +105,16 @@ def execute(args, command: list[str], console: Console) -> int:
 
     cwd = Path.cwd()
     config, effective = load(cwd, name=args.name)
-    executor = SubprocessExecutor()
+    replaying = args.replay is not None
+    if replaying:
+        executor: Executor = corpus.ReplayExecutor(Path(args.replay))
+    elif args.record:
+        executor = corpus.RecordingExecutor(SubprocessExecutor(), Path(args.record))
+    else:
+        executor = SubprocessExecutor()
 
-    checks = doctor.light_checks(executor, config, command)
+    adapter, version = cpu_collector(executor, config)
+    checks = doctor.light_checks(executor, config, command, cpu=(adapter, version))
     degradations = doctor.degradations(checks)
     for degradation in degradations:
         console.degradation(degradation)
@@ -114,20 +124,37 @@ def execute(args, command: list[str], console: Console) -> int:
         )
         return STRICT_VIOLATION
 
-    status = executable_status(command[0])
-    if status is not None:
-        code, message = status
-        console.error(message)
-        return code
+    if not replaying:
+        # A replayed command does not exist here; its recorded exit code
+        # is the truth.
+        status = executable_status(command[0])
+        if status is not None:
+            code, message = status
+            console.error(message)
+            return code
 
     name = project_name(executor, config, command, cwd)
     directory = run_directory(args.output, config, name, cwd)
 
     started = _now()
-    console.info(f"launching: {' '.join(command)}")
-    invocation = executor.run(command, capture=False)
+    collectors: tuple[Collector, ...] = ()
+    if adapter is not None:
+        console.info(f"collecting with {adapter.tool} {version}: {' '.join(command)}")
+        exit_code = adapter.collect(
+            command, directory / COLLECT_DIR, executor, config.sampling_frequency
+        )
+        collectors = (Collector(tool=adapter.tool, version=version),)
+    else:
+        console.info(f"launching: {' '.join(command)}")
+        exit_code = executor.run(command, capture=False).exit_code
     ended = _now()
-    exit_code = invocation.exit_code
+
+    if args.record:
+        corpus.write_meta(
+            Path(args.record),
+            list(command),
+            [{"tool": c.tool, "version": c.version} for c in collectors],
+        )
 
     run = Run(
         name=directory.name,
@@ -136,7 +163,15 @@ def execute(args, command: list[str], console: Console) -> int:
         exit_code=exit_code,
         machine=machine.snapshot(executor),
         provenance=provenance.collect(executor, cwd, effective),
-        passes=[Pass(index=0, exit_code=exit_code, start=started, end=ended)],
+        passes=[
+            Pass(
+                index=0,
+                exit_code=exit_code,
+                collectors=collectors,
+                start=started,
+                end=ended,
+            )
+        ],
         degradations=list(degradations),
     )
     write_run(directory, run)
