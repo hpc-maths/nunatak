@@ -21,3 +21,5 @@ La recherche pi.dev (ticket 01) a montré que pi.dev n'est pas un provider d'inf
 3. **Statut de la dépendance : requise.** Node.js + pi sont des prérequis d'installation du profiler (décision utilisateur, contre la recommandation « optionnelle »). La commande `doctor` vérifie leur présence et la validité de la config Pi. Conséquence propagée au ticket 13 (packaging).
 
 Le prototype (ticket 08) validera la qualité et la latence des réponses à travers ce chemin RPC ; il est maintenant débloqué.
+
+Assoupli par le ticket 13 : Node.js et pi ne sont plus des prérequis **durs**. Ils sont alignés sur le motif de dégradation fonctionnelle nommée qui régit tout le reste (piles d'appels, LLVM, source, collecteurs) - déclarés en dépendances sur conda-forge et spack donc présents par défaut, mais leur absence produit « Explication indisponible » plutôt qu'un refus d'installation. L'architecture le commande : le Diagnostic déterministe ne dépend en rien du LLM, et un prérequis dur refuserait l'outil à un utilisateur sur cluster coupé du réseau, à qui tout le cœur serait utile.

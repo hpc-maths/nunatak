@@ -31,3 +31,5 @@ Pour la spec : parseurs versionnés par version d'outil détectée, commande "do
 Précision apportée par le ticket 10 : côté NVIDIA, `nsys` et `ncu` sont combinés dans **une même exécution**, `ncu` étant borné à quelques lancements par nom de kernel pour contenir le coût du rejeu. Côté macOS, la découverte des Hotspots passe par de l'échantillonnage temporel (`xctrace`, ou `/usr/bin/sample` du système de base quand Xcode est absent), à ajouter à l'inventaire.
 
 Détails sourcés et tableau récapitulatif : `docs/research/collecteurs.md` sur la branche `research/collecteurs` (commit 73bf896).
+
+Précisions apportées par le ticket 13 : **mpiP se lie lui aussi à la pile MPI du site**. Le `LD_PRELOAD` évite de recompiler l'application, pas de compiler mpiP - il relève donc du même mécanisme de construction au premier usage et de cache par pile que la sonde réseau. Par ailleurs, le principe des « parseurs versionnés par version d'outil détectée » gagne son déclencheur : un job de CI sur chaque nouvelle version d'outil orchestré rejoue un corpus de non-régression figé.

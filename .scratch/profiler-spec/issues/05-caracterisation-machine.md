@@ -27,3 +27,5 @@ Décision prise en session /grilling ; arbitrage complet dans `docs/adr/0002-car
 **Repli théorique** : table par microarchitecture (quelques dizaines d'entrées) croisée avec les valeurs lues à l'exécution ; microarchitecture inconnue → « indisponible », jamais d'extrapolation.
 
 Point clarifié au passage : macOS n'est pas un mode dégradé pour la calibration (le noyau maison y mesure de vrais plafonds en NEON) - la dégradation du ticket 02 porte sur le numérateur du roofline, pas sur son dénominateur.
+
+Précision apportée par le ticket 13 : le noyau de calibration est un **exécutable autonome invoqué en sous-processus**, pas un module d'extension Python. Outre l'effondrement de la matrice de build (un artefact par plateforme au lieu d'un par version de Python), c'est un gain de justesse : la Calibration cherche une borne supérieure, et la mesurer avec l'interpréteur Python résident, son allocateur et son GIL polluerait précisément la grandeur visée.
