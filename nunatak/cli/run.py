@@ -12,11 +12,12 @@ from __future__ import annotations
 import datetime
 import json
 import os
+import platform
 import re
 import shutil
 from pathlib import Path
 
-from nunatak import corpus, machine, provenance
+from nunatak import corpus, ingestion, machine, provenance
 from nunatak.cli import doctor
 from nunatak.collect import cpu_collector
 from nunatak.collect.execution import Executor, SubprocessExecutor
@@ -138,12 +139,19 @@ def execute(args, command: list[str], console: Console) -> int:
 
     started = _now()
     collectors: tuple[Collector, ...] = ()
+    measurements = []
     if adapter is not None:
         console.info(f"collecting with {adapter.tool} {version}: {' '.join(command)}")
         exit_code = adapter.collect(
             command, directory / COLLECT_DIR, executor, config.sampling_frequency
         )
         collectors = (Collector(tool=adapter.tool, version=version),)
+        measurements, ingest_degradations = ingestion.ingest(
+            adapter.tool, version, directory / COLLECT_DIR, node=platform.node()
+        )
+        for degradation in ingest_degradations:
+            console.degradation(degradation)
+        degradations = degradations + ingest_degradations
     else:
         console.info(f"launching: {' '.join(command)}")
         exit_code = executor.run(command, capture=False).exit_code
@@ -173,8 +181,15 @@ def execute(args, command: list[str], console: Console) -> int:
             )
         ],
         degradations=list(degradations),
+        measurements=measurements,
     )
     write_run(directory, run)
+
+    hotspot_count = len(
+        {(m.hotspot.logical_identity, m.hotspot.offset) for m in measurements}
+    )
+    if measurements:
+        console.info(f"{len(measurements)} measurements across {hotspot_count} hotspots")
 
     if args.json:
         print(
@@ -184,6 +199,7 @@ def execute(args, command: list[str], console: Console) -> int:
                     "name": run.name,
                     "exit_code": exit_code,
                     "measurements": len(run.measurements),
+                    "hotspots": hotspot_count,
                     "degradations": [
                         {"name": d.name, "message": d.message, "remedy": d.remedy}
                         for d in degradations
@@ -192,4 +208,13 @@ def execute(args, command: list[str], console: Console) -> int:
             )
         )
     console.info(f"Run: {directory}")
+
+    if args.strict and degradations:
+        # Degradations met after launch (ingestion): the Run is written and
+        # the JSON summary carries the application's exit code, but a strict
+        # invocation still fails.
+        console.error(
+            f"--strict: {len(degradations)} degradation(s) turned into an error"
+        )
+        return STRICT_VIOLATION
     return exit_code
