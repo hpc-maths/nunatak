@@ -20,6 +20,7 @@ nunatak = "nunatak.cli:principal"
 
 [dependency-groups]
 dev = ["pytest>=8"]
+docs = ["sphinx>=8", "myst-parser>=4", "furo>=2024"]
 
 [tool.hatch.version]
 path = "nunatak/__init__.py"

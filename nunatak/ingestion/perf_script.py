@@ -47,7 +47,7 @@ def supports(version: str) -> bool:
 
 
 def parse_samples(text: str):
-    """Parse sample lines into `ingestion.Sample`s.
+    """Parse sample lines into `Sample` objects.
 
     Returns (samples, unparsed lines). A dso without a `+0x` offset (pseudo
     modules such as `[vdso]`) yields a sample with offset None: the module
