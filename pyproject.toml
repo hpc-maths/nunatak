@@ -1,0 +1,31 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "nunatak"
+dynamic = ["version"]
+description = "Zero-instrumentation profiler for high-performance computing"
+readme = "README.md"
+license = "BSD-3-Clause"
+license-files = ["LICENSE"]
+requires-python = ">=3.10"
+dependencies = [
+    "pyarrow>=17",
+    "tomli>=2; python_version < '3.11'",
+]
+
+[project.scripts]
+nunatak = "nunatak.cli:principal"
+
+[dependency-groups]
+dev = ["pytest>=8"]
+
+[tool.hatch.version]
+path = "nunatak/__init__.py"
+
+[tool.hatch.build.targets.wheel]
+packages = ["nunatak"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
