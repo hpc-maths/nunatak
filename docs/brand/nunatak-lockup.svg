@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 96" width="300" height="96" role="img" aria-label="nunatak">
+  <title>nunatak</title>
+  <defs>
+    <clipPath id="nkl-ice"><rect x="0" y="70" width="96" height="16"/></clipPath>
+  </defs>
+  <path d="M4 86 L36 14 H62 L70 44 L78 31 L92 86 Z" fill="#14324A"/>
+  <rect x="0" y="70" width="96" height="16" fill="#BFE6F7"/>
+  <path d="M4 86 L36 14 H62 L70 44 L78 31 L92 86 Z" fill="#14324A" opacity="0.18" clip-path="url(#nkl-ice)"/>
+  <circle cx="36" cy="14" r="5" fill="#E2701F"/>
+  <!-- Le mot-symbole est en chasse fixe : ce nom est d'abord une commande qu'on
+       tape. Convertir ce texte en courbes avant toute diffusion du logo. -->
+  <text x="120" y="62" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace"
+        font-size="34" font-weight="600" letter-spacing="1.5" fill="#14324A">nunatak</text>
+</svg>

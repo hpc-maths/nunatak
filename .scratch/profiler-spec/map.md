@@ -1,13 +1,14 @@
-# Carte wayfinder : spec du profiler
+# Carte wayfinder : spec de nunatak
 
 Label: wayfinder:map
 
 ## Destination
 
-Une spec complète + architecture pour une librairie open source (BSD-3/MIT) de profiling : CLI zéro-instrumentation (`profiler run -- mpirun ./app`) qui orchestre des collecteurs existants, place les kernels sur un roofline model, diagnostique les latences mémoire et réseau, et fait expliquer les bottlenecks par un LLM via pi.dev. La carte est terminée quand la spec peut être remise à une équipe d'implémentation sans décision ouverte.
+Une spec complète + architecture pour une librairie open source (BSD-3/MIT) de profiling : CLI zéro-instrumentation (`nunatak run -- mpirun ./app`) qui orchestre des collecteurs existants, place les kernels sur un roofline model, diagnostique les latences mémoire et réseau, et fait expliquer les bottlenecks par un LLM via pi.dev. La carte est terminée quand la spec peut être remise à une équipe d'implémentation sans décision ouverte.
 
 ## Notes
 
+- Le projet s'appelle **nunatak** depuis le ticket 11 ; la commande est `nunatak`, et le placeholder `profiler` a été remplacé partout. Identité visuelle dans `docs/brand/`.
 - Tracker : local-markdown (`.scratch/profiler-spec/`), tickets dans `issues/`.
 - Skills à consulter : `/grilling` et `/domain-modeling` pour les tickets de décision, `/research` pour les tickets de recherche, `/prototype` pour les prototypes.
 - Langue de travail : français.
@@ -40,7 +41,8 @@ Une spec complète + architecture pour une librairie open source (BSD-3/MIT) de 
 - [Décision : fine-tuning ou prompt engineering](issues/09-fine-tuning-ou-prompt.md) - prompt engineering seul ; la spec recommandera une classe de modèle (orienté code, thinking), pas un modèle figé.
 - [Décision : caractérisation machine](issues/05-caracterisation-machine.md) - plafonds mesurés par un noyau de microbenchmark maison embarqué (likwid-bench en raffinement optionnel), calibration automatique au premier Run, identité Machine = matériel + forme d'allocation, instantané embarqué dans le manifeste du Run, repli théorique par table de microarchitectures. Arbitrage dans `docs/adr/0002-caracterisation-machine.md`.
 - [Décision : modes de profiling et budget d'overhead](issues/10-modes-de-profiling.md) - une exécution par défaut (multiplexing), multi-passes explicite protégé par un groupe témoin, GPU en une passe avec `ncu` borné en lancements, budget de 10 % tenu par construction, plancher statistique par Hotspot, comptage partout + échantillonnage sur un rang par nœud au-delà de ~64 rangs, macOS en échantillonnage temporel, ordre de sacrifice fixe. Arbitrage dans `docs/adr/0003-modes-de-profiling.md`.
-- [Décision : attribution kernel vers code source](issues/07-attribution-source.md) - double identité du Hotspot (physique pour agréger, logique pour afficher et comparer), Hotspot ancré sur la fonction physique avec lignes et inlining en détail interne, Niveau de résolution comme attribut distinct de la Qualité, règle d'étendue interdisant d'attribuer dans un trou entre symboles, symboliseur embarqué dans la wheel, aucun assembleur au LLM mais une analyse statique de boucle maison, « pas de source, pas d'Explication », Provenance du Run, et `profiler compare` minimal en v1. Arbitrage dans `docs/adr/0004-attribution-source.md`.
+- [Décision : nom du projet](issues/11-nom-du-projet.md) - **nunatak**, le sommet qui émerge de la calotte glaciaire. Libre sur PyPI, npm, Homebrew et Debian, sans collision dans le profilage. `ridgeline` disqualifié par un profileur roofline homonyme, `esker` abandonné parce qu'une société de logiciel française détient toute la surface publique du nom, `cuesta` parce qu'il signifie « ça coûte » en espagnol. Identité visuelle dans `docs/brand/`.
+- [Décision : attribution kernel vers code source](issues/07-attribution-source.md) - double identité du Hotspot (physique pour agréger, logique pour afficher et comparer), Hotspot ancré sur la fonction physique avec lignes et inlining en détail interne, Niveau de résolution comme attribut distinct de la Qualité, règle d'étendue interdisant d'attribuer dans un trou entre symboles, symboliseur embarqué dans la wheel, aucun assembleur au LLM mais une analyse statique de boucle maison, « pas de source, pas d'Explication », Provenance du Run, et `nunatak compare` minimal en v1. Arbitrage dans `docs/adr/0004-attribution-source.md`.
 - [Décision : modèle de données pivot](issues/06-modele-de-donnees.md) - pivot mesuré unifié (Hotspot/Locus/Mesure/Compteur/Métrique dérivée/Qualité/Événement/Run/Machine), analyse déterministe recalculée, Explication LLM à part ; persistance Parquet + manifeste JSON. Glossaire dans `CONTEXT.md`, arbitrage dans `docs/adr/0001-modele-de-donnees-pivot.md`.
 
 ## Not yet specified

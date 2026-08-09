@@ -45,7 +45,7 @@ Jusqu'où l'attribution d'un Hotspot a pu descendre : « ligne », « fonction �
 _Avoid_: qualité de symbolisation, précision d'attribution, confiance
 
 **Passe**:
-Une exécution de l'application au sein d'un même Run. Le mode nominal n'en compte qu'une ; le mode multi-passes en enchaîne plusieurs, avec des groupes de compteurs disjoints, pour éviter le multiplexing. Un Run reste une invocation de `profiler run`, quel que soit le nombre de Passes, et chaque Mesure sait de quelle Passe elle vient.
+Une exécution de l'application au sein d'un même Run. Le mode nominal n'en compte qu'une ; le mode multi-passes en enchaîne plusieurs, avec des groupes de compteurs disjoints, pour éviter le multiplexing. Un Run reste une invocation de `nunatak run`, quel que soit le nombre de Passes, et chaque Mesure sait de quelle Passe elle vient.
 _Avoid_: run (réservé au conteneur), exécution, itération, replay (le replay est le rejeu d'un kernel par ncu, à l'intérieur d'une Passe)
 
 **Événement**:
@@ -53,7 +53,7 @@ Un fait horodaté avec une durée : un lancement de kernel GPU, un appel MPI ave
 _Avoid_: span, trace, sample, record
 
 **Run**:
-Une session de profiling - une invocation de `profiler run -- ...`. C'est le conteneur persisté du pivot mesuré : ses Hotspots, Loci, Mesures et Événements, plus une référence à la Machine et sa Provenance. Ne contient aucune sortie d'analyse (recalculées) ni Explication (persistée à part).
+Une session de profiling - une invocation de `nunatak run -- ...`. C'est le conteneur persisté du pivot mesuré : ses Hotspots, Loci, Mesures et Événements, plus une référence à la Machine et sa Provenance. Ne contient aucune sortie d'analyse (recalculées) ni Explication (persistée à part).
 _Avoid_: session, profil, trace, expérience
 
 **Provenance**:

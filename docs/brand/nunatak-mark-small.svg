@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 96 96" width="96" height="96" role="img" aria-label="nunatak">
+  <title>nunatak</title>
+  <!-- Variante pour 24 px et moins : la masse immergee disparait, le point de
+       rupture grossit pour rester la signature colorimetrique de la marque. -->
+  <path d="M4 88 L36 10 H62 L70 44 L78 30 L92 88 Z" fill="#14324A"/>
+  <rect x="0" y="70" width="96" height="18" fill="#BFE6F7"/>
+  <circle cx="36" cy="11" r="7.5" fill="#E2701F"/>
+</svg>
