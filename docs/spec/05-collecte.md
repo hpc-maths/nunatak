@@ -1,0 +1,80 @@
+# 05 - Collecte
+
+Référence : [ADR 0003](../adr/0003-modes-de-profiling.md), [ADR 0005](../adr/0005-packaging-distribution.md).
+
+## Le cadre imposé
+
+Le comptage par région exige des marqueurs dans le source : il est hors jeu pour un outil zéro-instrumentation. Attribuer des Compteurs bruts à un Hotspot sans toucher au code n'a donc qu'une voie, **l'échantillonnage déclenché par événement**. Tout ce chapitre se pose dans ce cadre.
+
+## Une exécution par défaut
+
+`nunatak run` **exécute l'application une seule fois**. Les groupes d'événements qui ne tiennent pas dans les compteurs du PMU sont multiplexés par le noyau.
+
+Un **mode multi-passes explicite** relance l'application avec des groupes disjoints pour qui veut des compteurs exacts. Il n'est jamais activé d'office : relancer une application dans une allocation que l'utilisateur paie n'est pas une décision que l'outil prend seul.
+
+En mode multi-passes, un **groupe témoin** (cycles et instructions retirées) est répliqué dans chaque Passe et comparé à la fin. Un écart au-delà du seuil signe une application non reproductible - critère de convergence, ordonnancement dynamique, MPI non déterministe - et les Mesures fusionnées sont rétrogradées en `estimé` avec la raison.
+
+Une invocation reste **un seul Run** quel que soit le nombre de Passes, et chaque Mesure garde la trace de sa Passe d'origine.
+
+## Budget d'overhead
+
+**10 % du temps mural, tenu par construction et jamais vérifié après coup** : le mesurer exigerait une exécution de référence non profilée, ce qui doublerait le coût de l'utilisateur.
+
+Les seuls leviers sont la fréquence d'échantillonnage, le nombre de lancements GPU instrumentés et la taille des tampons. La fréquence est **adaptative** à la durée et au débit observés : une fréquence fixe produit trop peu d'échantillons sur une application de trois secondes et des dizaines de millions d'échantillons inutiles sur une application de six heures.
+
+**Ordre de sacrifice, fixe et documenté**, quand budget, compteurs disponibles et durée entrent en conflit :
+
+1. temps par Hotspot et agrégats par rang ;
+2. trafic mémoire (qui tranche memory-bound) ;
+3. FLOPs par précision (qui complète le roofline) ;
+4. niveaux de cache, détail par kernel GPU, assembleur.
+
+Sans cet ordre, c'est la configuration du collecteur qui déciderait en silence de ce que l'utilisateur perd.
+
+## Deux couches, deux coûts
+
+| Couche | Ce qu'elle donne | Coût | Portée |
+|---|---|---|---|
+| **Comptage** | agrégats par rang : temps, cycles, instructions, volumes MPI | constant, quelques dizaines d'octets par rang | **tous** les rangs |
+| **Échantillonnage** | Compteurs bruts attribués à des Hotspots | proportionnel | sous-ensemble au-delà du seuil |
+
+Au-delà d'un seuil de l'ordre de 64 rangs, l'échantillonnage porte sur **un rang par nœud plus le rang 0** ; en deçà, tout est échantillonné.
+
+**La couche de comptage n'a rien à attribuer** : elle ne produit pas de Hotspot. C'est elle qui révèle le déséquilibre de charge et les volumes MPI, et c'est pourquoi une part importante du temps d'un run peut n'avoir aucun Hotspot associé sans que ce soit une lacune.
+
+Les Mesures au niveau Hotspot sur les Loci non échantillonnés sont `indisponible`, **jamais extrapolées**.
+
+## Plancher statistique
+
+Chaque Mesure porte son **nombre d'échantillons et son erreur relative**, décroissante en `1/racine(n)`.
+
+- sous un plancher, la Mesure passe `estimé` ;
+- bien en dessous, le Hotspot rejoint un agrégat **« autres »** qui préserve les totaux sans polluer les vues ;
+- **le modèle ne reçoit jamais un Hotspot sous le plancher.**
+
+## Collecteurs par plateforme
+
+| Domaine | Principal | Secours |
+|---|---|---|
+| CPU Linux | `perf` (JSON, `perf script`) | `likwid-perfctr` pour énergie, uncore, métriques dérivées |
+| GPU NVIDIA | `nsys` sur toute la timeline | `ncu` borné en lancements pour les compteurs par kernel |
+| GPU AMD | `rocprofv3` | `rocprof` v1 pour les ROCm anciens |
+| MPI | `mpiP` (`LD_PRELOAD`) | shim PMPI maison |
+| Python | `perf` + trampolines CPython 3.12+ | py-spy |
+| macOS | `xctrace` si Xcode | `/usr/bin/sample`, plus `powermetrics` pour les agrégats |
+
+**GPU en une seule exécution** : `nsys` couvre toute la timeline à faible overhead, `ncu` n'instrumente que quelques lancements par nom de kernel, le premier (warm-up, non représentatif) étant exclu. Le rejeu de kernel, qui coûte de 10 à 100 fois, ne s'applique donc qu'à une poignée de lancements. Le roofline GPU est disponible par défaut, sur un échantillon dont **la couverture est annoncée dans le rapport**.
+
+**Un compteur multiplexé reste `mesuré`** tant que sa couverture `time_running / time_enabled` dépasse le seuil (de l'ordre de 80 %, configurable) ; en dessous il est rétrogradé. Étiqueter `estimé` tout ce qui est multiplexé rendrait le rapport uniformément gris et priverait l'étiquette de son pouvoir discriminant.
+
+## macOS
+
+Pas d'échantillonnage déclenché par événement. Le mode nominal est l'échantillonnage **temporel** - `xctrace` et son Time Profiler si Xcode est présent, `/usr/bin/sample` sinon - complété par `powermetrics` pour les agrégats par processus. Les Compteurs bruts par Hotspot y sont `indisponible` et le roofline reste estimé, l'intensité arithmétique L1 étant fournie par l'analyse statique (chapitre 08).
+
+kperf demeure un backend expert, opt-in, jamais automatique.
+
+## Contraintes d'orchestration
+
+- **`PYTHONPERFSUPPORT=1`** est posé dans l'environnement du lancement quand l'application est en Python 3.12 ou plus. Aucune ligne de code à toucher.
+- Les cartes de trampolines `/tmp/perf-<pid>.map` sont **locales à chaque nœud et indexées par PID** : elles doivent être rapatriées comme artefacts du Run **avant l'épilogue du job**, sans quoi les Hotspots Python d'un run multi-nœuds sont irrécupérables.
+- Les parseurs sont **versionnés par version d'outil détectée**. Un adaptateur qui ne reconnaît pas la version de son outil le déclare plutôt que de parser au hasard.

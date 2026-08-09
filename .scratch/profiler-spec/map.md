@@ -6,6 +6,8 @@ Label: wayfinder:map
 
 Une spec complète + architecture pour une librairie open source (BSD-3/MIT) de profiling : CLI zéro-instrumentation (`nunatak run -- mpirun ./app`) qui orchestre des collecteurs existants, place les kernels sur un roofline model, diagnostique les latences mémoire et réseau, et fait expliquer les bottlenecks par un LLM via pi.dev. La carte est terminée quand la spec peut être remise à une équipe d'implémentation sans décision ouverte.
 
+**Destination atteinte.** 16 tickets résolus, 8 ADR, et la spec assemblée dans [`docs/spec/`](../../docs/spec/README.md) : 14 chapitres plus un index. Elle ne laisse aucune décision de conception ouverte ; l'unique point encore ouvert (jeux d'événements macOS) est documenté au chapitre 14 comme angle mort connu, sans effet sur le chemin nominal.
+
 ## Notes
 
 - Le projet s'appelle **nunatak** depuis le ticket 11 ; la commande est `nunatak`, et le placeholder `profiler` a été remplacé partout. Identité visuelle dans `docs/brand/`.
@@ -54,9 +56,9 @@ Une spec complète + architecture pour une librairie open source (BSD-3/MIT) de 
 
 - ~~Stratégie de test et CI sur du hardware hétérogène.~~ Résolue par le ticket 16.
 - ~~Surface CLI complète et cohérente.~~ Résolue par le ticket 15.
-- Contenu et structure de la spec finale elle-même (l'assemblage) - **les 16 tickets sont résolus et les 8 ADR écrits**. C'est désormais le seul travail qui sépare la carte de sa destination.
+- ~~Contenu et structure de la spec finale elle-même (l'assemblage).~~ **Écrite** : `docs/spec/`, 14 chapitres plus un index. La spec est normative, les ADR portent le raisonnement.
 - ~~Gestion des erreurs et dégradation gracieuse quand un collecteur manque sur la machine cible.~~ Réglé : volet attribution par le ticket 07 (niveaux de résolution, absence de piles, source introuvable), volet « collecteur absent » par le ticket 13 (taxonomie en trois catégories, dégradation nommée annoncée par `doctor` avant le run, `--strict`).
-- Équivalent macOS/Apple Silicon des jeux d'événements par microarchitecture que LIKWID fournit ailleurs (les `.plist` de `/usr/share/kpep` sont la matière première). Le volet microbenchmarks de plafonds est réglé par le ticket 05 : le noyau maison couvre macOS.
+- **Seul point encore ouvert.** Équivalent macOS/Apple Silicon des jeux d'événements par microarchitecture que LIKWID fournit ailleurs (les `.plist` de `/usr/share/kpep` sont la matière première). Le volet microbenchmarks de plafonds est réglé par le ticket 05 : le noyau maison couvre macOS.
 
 ## Out of scope
 
