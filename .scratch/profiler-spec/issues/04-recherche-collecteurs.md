@@ -28,4 +28,6 @@ Recommandations par domaine (principal / secours) :
 
 Pour la spec : parseurs versionnés par version d'outil détectée, commande "doctor" de diagnostic des permissions, chemin nominal garanti sans root.
 
+Précision apportée par le ticket 10 : côté NVIDIA, `nsys` et `ncu` sont combinés dans **une même exécution**, `ncu` étant borné à quelques lancements par nom de kernel pour contenir le coût du rejeu. Côté macOS, la découverte des Hotspots passe par de l'échantillonnage temporel (`xctrace`, ou `/usr/bin/sample` du système de base quand Xcode est absent), à ajouter à l'inventaire.
+
 Détails sourcés et tableau récapitulatif : `docs/research/collecteurs.md` sur la branche `research/collecteurs` (commit 73bf896).

@@ -2,7 +2,9 @@
 
 ## Contexte et décision
 
-Tous les collecteurs hétérogènes (perf, nsys/ncu, rocprofv3, mpiP, perf-trampoline) convergent vers un pivot unique. Ce pivot ne contient que des **données mesurées** : des Hotspots (unité atomique : fonction CPU / kernel GPU / frame Python), observés à des Loci (nœud > rang MPI > thread, ou nœud > device > stream), portant des Mesures agrégées et un flux d'Événements horodatés, plus une référence à la Machine (porteuse des plafonds roofline). Le Placement roofline et le Diagnostic déterministe sont **recalculés à la demande** depuis ce pivot ; l'Explication du LLM est persistée **à part** et étiquetée « conseil ». Le pivot est persisté en **Parquet** (Mesures et Événements colonnaires) + un **manifeste JSON** décrivant le Run et pointant la Machine ; les jointures se font à la volée via DuckDB, sans serveur.
+Tous les collecteurs hétérogènes (perf, nsys/ncu, rocprofv3, mpiP, perf-trampoline) convergent vers un pivot unique. Ce pivot ne contient que des **données mesurées** : des Hotspots (unité atomique : fonction CPU / kernel GPU / frame Python), observés à des Loci (nœud > rang MPI > thread, ou nœud > device > stream), portant des Mesures agrégées et un flux d'Événements horodatés, plus une référence à la Machine (porteuse des plafonds roofline). Le Placement roofline et le Diagnostic déterministe sont **recalculés à la demande** depuis ce pivot ; l'Explication du LLM est persistée **à part** et étiquetée « conseil ». Le pivot est persisté en **Parquet** (Mesures et Événements colonnaires) + un **manifeste JSON** décrivant le Run et embarquant un instantané complet de la Machine ; les jointures se font à la volée via DuckDB, sans serveur.
+
+> Amendement (ticket 05, ADR 0002) : le manifeste *pointait* initialement la Machine. Comme le Placement roofline est recalculé à la demande, un Run privé de ses Plafonds cesse d'être analysable ; le manifeste embarque donc l'instantané complet du profil Machine, et le cache de calibration n'est plus qu'une optimisation.
 
 ## Options considérées
 
