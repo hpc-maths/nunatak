@@ -26,8 +26,10 @@ from nunatak.attribution.symbolizer import (
 )
 from nunatak.collect.execution import Executor
 from nunatak.pivot import (
+    AddressDetail,
     Degradation,
     Hotspot,
+    InlineFrame,
     LogicalIdentity,
     Measurement,
     PhysicalIdentity,
@@ -123,14 +125,32 @@ def _merged(measurements: list[Measurement]) -> list[Measurement]:
     return merged
 
 
+def _inline_frames(chain: AttributionChain) -> tuple[InlineFrame, ...]:
+    """The persisted form of a chain: names and source positions only, the
+    symbol start already lives in the physical identity."""
+    return tuple(
+        InlineFrame(
+            function=frame.function,
+            file=frame.file,
+            line=frame.line,
+            declaration_line=frame.declaration_line,
+        )
+        for frame in chain.frames
+    )
+
+
 def attribute(
     measurements: list[Measurement],
     symbolizer: Symbolizer | None,
     executor: Executor,
-) -> tuple[list[Measurement], list[Degradation]]:
+) -> tuple[list[Measurement], list[AddressDetail], list[Degradation]]:
     """Name the unresolved Hotspots of `measurements`.
 
-    Returns the new Measurements and the degradations met on the way.
+    Returns the new Measurements, the internal detail of the named
+    Hotspots - the inlining chain and the weight of each sampled address,
+    what a report needs to ventilate a Hotspot by line on a machine where
+    the binary no longer exists - and the degradations met on the way.
+
     Symbolization runs once per module, on its distinct sampled offsets;
     modules that only yield bare names are then inspected once to tell
     `function` (a `.symtab` name) from `symbol` (a `.dynsym`-only module).
@@ -140,7 +160,7 @@ def attribute(
     degradation.
     """
     if symbolizer is None or not measurements:
-        return measurements, []
+        return measurements, [], []
 
     offsets: dict[str, set[int]] = {}
     for measurement in measurements:
@@ -179,6 +199,8 @@ def attribute(
             symbol_only.add(module)
 
     renamed = []
+    frames_by_address: dict[tuple[str, int], tuple[InlineFrame, ...]] = {}
+    weights: dict[tuple, list] = {}
     for measurement in measurements:
         hotspot = measurement.hotspot
         module = hotspot.logical_identity.module
@@ -193,9 +215,44 @@ def attribute(
         level = chain.resolution_level
         if level is ResolutionLevel.FUNCTION and module in symbol_only:
             level = ResolutionLevel.SYMBOL
-        renamed.append(
-            dataclasses.replace(measurement, hotspot=_named(hotspot, chain, level))
+        named = _named(hotspot, chain, level)
+        renamed.append(dataclasses.replace(measurement, hotspot=named))
+
+        # The detail aggregates over Loci: the per-line view says where
+        # time goes inside a function, imbalance stays at the Measurement
+        # grain.
+        address = (module, hotspot.offset)
+        if address not in frames_by_address:
+            frames_by_address[address] = _inline_frames(chain)
+        key = (named, hotspot.offset, measurement.counter, measurement.pass_index)
+        entry = weights.setdefault(key, [0.0, 0, False, frames_by_address[address]])
+        entry[0] += measurement.value
+        if measurement.sample_count is not None:
+            entry[1] += measurement.sample_count
+            entry[2] = True
+
+    details = [
+        AddressDetail(
+            hotspot=named,
+            offset=offset,
+            counter=counter,
+            value=value,
+            sample_count=count if counted else None,
+            frames=frames,
+            pass_index=pass_index,
         )
+        for (named, offset, counter, pass_index), (value, count, counted, frames)
+        in weights.items()
+    ]
+    details.sort(
+        key=lambda d: (
+            d.hotspot.logical_identity.module,
+            d.hotspot.display_name,
+            d.counter,
+            d.pass_index,
+            d.offset,
+        )
+    )
 
     degradations = []
     if errors:
@@ -209,4 +266,4 @@ def attribute(
                 "files must be readable at analysis time",
             )
         )
-    return _merged(renamed), degradations
+    return _merged(renamed), details, degradations

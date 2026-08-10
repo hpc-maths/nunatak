@@ -181,6 +181,46 @@ class Measurement:
 
 
 @dataclass(frozen=True)
+class InlineFrame:
+    """One step of a persisted inlining chain: a name, a source position.
+
+    An inline frame is nothing but a line come from another file: it is an
+    internal detail of the Hotspot, never a unit of analysis. `line` is
+    where the sampled address falls, `declaration_line` where the function
+    starts; both are None, and the file with them, when the module carried
+    no debug information.
+    """
+
+    function: str
+    file: str | None = None
+    line: int | None = None
+    declaration_line: int | None = None
+
+
+@dataclass(frozen=True)
+class AddressDetail:
+    """The internal detail of a named Hotspot at one sampled address: the
+    inlining chain seen there and the weight it carries.
+
+    Frames are innermost first, the physical function last. Weights are
+    aggregated over Loci: the per-line view says where time goes inside a
+    function, imbalance stays at the Measurement grain. This is what lets
+    a report ventilate a Hotspot by line and by inline frame - and build
+    the transverse per-inline-frame view, the only view stable across a
+    recompilation - on a machine where the binary and the symbolizer no
+    longer exist.
+    """
+
+    hotspot: Hotspot
+    offset: int
+    counter: str
+    value: float
+    frames: tuple[InlineFrame, ...]
+    sample_count: int | None = None
+    pass_index: int = 0
+
+
+@dataclass(frozen=True)
 class Event:
     """A timestamped fact with a duration: GPU kernel launch, MPI call.
 
@@ -299,3 +339,4 @@ class Run:
     degradations: list[Degradation] = field(default_factory=list)
     measurements: list[Measurement] = field(default_factory=list)
     events: list[Event] = field(default_factory=list)
+    address_details: list[AddressDetail] = field(default_factory=list)

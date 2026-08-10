@@ -6,11 +6,13 @@ import pyarrow.parquet as pq
 import pytest
 
 from nunatak.pivot import (
+    AddressDetail,
     Ceiling,
     Collector,
     Degradation,
     Event,
     Hotspot,
+    InlineFrame,
     LogicalIdentity,
     Locus,
     Machine,
@@ -145,6 +147,8 @@ def test_a_run_is_a_single_directory(tmp_path):
         directory / "pivot" / "loci.parquet",
         directory / "pivot" / "measurements.parquet",
         directory / "pivot" / "events.parquet",
+        directory / "pivot" / "addresses.parquet",
+        directory / "pivot" / "frames.parquet",
     }
 
 
@@ -206,3 +210,88 @@ def test_newer_schema_is_refused(tmp_path):
 def test_a_directory_without_manifest_is_not_a_run(tmp_path):
     with pytest.raises(ValueError, match="not a Run"):
         read_run(tmp_path)
+
+
+def named_hotspot() -> Hotspot:
+    return Hotspot(
+        logical_identity=LogicalIdentity(
+            module="/opt/app/solver", name="main", source_file="/src/solver.c"
+        ),
+        resolution_level=ResolutionLevel.LINE,
+        physical_identity=PhysicalIdentity(module_id="deadbeef", offset=0x10C0),
+    )
+
+
+def test_round_trip_preserves_the_attribution_detail(tmp_path):
+    # The inlining chain and per-address weights must survive persistence:
+    # they are what a report ventilates a Hotspot by line with, on a
+    # machine where the binary no longer exists.
+    run = sample_run()
+    hotspot = named_hotspot()
+    run.measurements = []
+    run.address_details = [
+        AddressDetail(
+            hotspot=hotspot,
+            offset=0x10F4,
+            counter="cycles",
+            value=800.0,
+            sample_count=8,
+            frames=(
+                InlineFrame(
+                    function="axpy",
+                    file="/src/axpy.h",
+                    line=12,
+                    declaration_line=10,
+                ),
+                InlineFrame(
+                    function="main",
+                    file="/src/solver.c",
+                    line=40,
+                    declaration_line=35,
+                ),
+            ),
+        ),
+        AddressDetail(
+            hotspot=hotspot,
+            offset=0x10F4,
+            counter="instructions",
+            value=3200.0,
+            sample_count=8,
+            frames=(
+                InlineFrame(
+                    function="axpy",
+                    file="/src/axpy.h",
+                    line=12,
+                    declaration_line=10,
+                ),
+                InlineFrame(
+                    function="main",
+                    file="/src/solver.c",
+                    line=40,
+                    declaration_line=35,
+                ),
+            ),
+        ),
+    ]
+    directory = write_run(tmp_path / "run", run)
+    read = read_run(directory)
+    assert read.address_details == run.address_details
+
+    # The chain is stored once per address, not once per counter.
+    frames = pq.read_table(directory / "pivot" / "frames.parquet").to_pylist()
+    assert len(frames) == 2
+
+
+def test_a_run_written_before_the_detail_tables_reads_back(tmp_path):
+    # The manifest says which tables a Run carries: dropping the new files
+    # and their manifest entries reproduces a Run written by an older
+    # nunatak, and it must read back without them.
+    directory = write_run(tmp_path / "run", sample_run())
+    manifest = json.loads((directory / "manifest.json").read_text())
+    for name in ("addresses", "frames"):
+        (directory / manifest["files"].pop(name)).unlink()
+    (directory / "manifest.json").write_text(json.dumps(manifest))
+
+    run = read_run(directory)
+    assert run.address_details == []
+    assert run.measurements == sample_run().measurements

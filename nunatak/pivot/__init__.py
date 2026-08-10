@@ -6,11 +6,13 @@ modifies it.
 """
 
 from nunatak.pivot.model import (
+    AddressDetail,
     Ceiling,
     Collector,
     Degradation,
     Event,
     Hotspot,
+    InlineFrame,
     LogicalIdentity,
     Locus,
     Machine,
@@ -25,11 +27,13 @@ from nunatak.pivot.model import (
 from nunatak.pivot.persistence import MANIFEST, SCHEMA, read_run, write_run
 
 __all__ = [
+    "AddressDetail",
     "Ceiling",
     "Collector",
     "Degradation",
     "Event",
     "Hotspot",
+    "InlineFrame",
     "LogicalIdentity",
     "Locus",
     "Machine",

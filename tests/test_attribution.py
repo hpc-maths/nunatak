@@ -231,7 +231,7 @@ class TestAttribute:
             unresolved("/tmp/workload", 0x10F0, 20.0, samples=2),
         ]
         executor = ScriptedExecutor().on("llvm-symbolizer", stdout=BATCH)
-        attributed, degradations = attribute(measurements, SYMBOLIZER, executor)
+        attributed, details, degradations = attribute(measurements, SYMBOLIZER, executor)
         assert degradations == []
         (merged,) = attributed
         assert merged.hotspot.display_name == "main"
@@ -242,13 +242,37 @@ class TestAttribute:
         assert merged.value == 100.0
         assert merged.sample_count == 10
 
+
+    def test_the_detail_carries_the_chain_and_aggregates_over_loci(self):
+        measurements = [
+            unresolved("/tmp/workload", 0x10C0, 30.0, tid=1, samples=3),
+            unresolved("/tmp/workload", 0x10C0, 20.0, tid=2, samples=2),
+            unresolved("/tmp/workload", 0x10E8, 50.0, tid=1, samples=5),
+        ]
+        executor = ScriptedExecutor().on("llvm-symbolizer", stdout=BATCH)
+        _, details, _ = attribute(measurements, SYMBOLIZER, executor)
+        assert [d.offset for d in details] == [0x10C0, 0x10E8]
+        first, second = details
+        assert first.value == 50.0
+        assert first.sample_count == 5
+        assert first.hotspot.display_name == "main"
+        assert [(f.function, f.line) for f in first.frames] == [("main", 15)]
+        assert second.value == 50.0
+        assert [(f.function, f.line) for f in second.frames] == [("main", 17)]
+
+    def test_unresolved_hotspots_leave_no_detail(self):
+        measurements = [unresolved("/tmp/workload", 0x2, 1.0)]
+        executor = ScriptedExecutor().on("llvm-symbolizer", stdout=GAP)
+        _, details, _ = attribute(measurements, SYMBOLIZER, executor)
+        assert details == []
+
     def test_loci_stay_apart_when_their_hotspot_fuses(self):
         measurements = [
             unresolved("/tmp/workload", 0x10C0, 30.0, tid=1),
             unresolved("/tmp/workload", 0x10E8, 50.0, tid=2),
         ]
         executor = ScriptedExecutor().on("llvm-symbolizer", stdout=BATCH)
-        attributed, _ = attribute(measurements, SYMBOLIZER, executor)
+        attributed, _, _ = attribute(measurements, SYMBOLIZER, executor)
         assert len(attributed) == 2
         assert len({m.hotspot for m in attributed}) == 1
         assert {m.locus.thread for m in attributed} == {1, 2}
@@ -258,7 +282,7 @@ class TestAttribute:
     def test_without_a_symbolizer_measurements_come_back_untouched(self):
         measurements = [unresolved("/tmp/workload", 0x10C0, 30.0)]
         executor = ScriptedExecutor()
-        attributed, degradations = attribute(measurements, None, executor)
+        attributed, details, degradations = attribute(measurements, None, executor)
         assert attributed == measurements
         assert degradations == []
         assert executor.calls == []
@@ -269,7 +293,7 @@ class TestAttribute:
             unresolved("[vdso]", 0x9A0, 1.0, module_id=None),
         ]
         executor = ScriptedExecutor()
-        attributed, degradations = attribute(measurements, SYMBOLIZER, executor)
+        attributed, details, degradations = attribute(measurements, SYMBOLIZER, executor)
         assert executor.calls == []
         assert degradations == []
         assert all(
@@ -282,7 +306,7 @@ class TestAttribute:
         executor = ScriptedExecutor().on(
             "llvm-symbolizer", stdout=MISSING_MODULE, exit_code=1
         )
-        attributed, (degradation,) = attribute(measurements, SYMBOLIZER, executor)
+        attributed, details, (degradation,) = attribute(measurements, SYMBOLIZER, executor)
         assert attributed == measurements
         assert degradation.name == "symbolization-failed"
         assert "No such file or directory" in degradation.message
@@ -291,7 +315,7 @@ class TestAttribute:
     def test_a_gap_address_stays_unresolved_with_its_honest_display(self):
         measurements = [unresolved("/tmp/workload", 0x2, 1.0)]
         executor = ScriptedExecutor().on("llvm-symbolizer", stdout=GAP)
-        (measurement,), degradations = attribute(measurements, SYMBOLIZER, executor)
+        (measurement,), details, degradations = attribute(measurements, SYMBOLIZER, executor)
         assert degradations == []
         assert measurement.hotspot.resolution_level is ResolutionLevel.UNRESOLVED
         assert measurement.hotspot.display_name == "workload+0x2"
@@ -390,6 +414,30 @@ class TestReplayedAttribution:
         samples, _ = parse_samples(script)
         assert sum(m.value for m in run.measurements) == sum(s.period for s in samples)
 
+
+    def test_the_inline_chain_survives_into_the_persisted_detail(self, capsys):
+        # gcc -O2 fused reduce into main: the recorded chain must land in
+        # the Run, one detail per sampled address, weights matching the
+        # fused Measurement.
+        assert principal(["run", "--replay", str(CORPUS), "--json", "--", "./workload"]) == 0
+        summary = json.loads(capsys.readouterr().out)
+        run = read_run(summary["run"])
+
+        details = [
+            d for d in run.address_details if d.hotspot.display_name == "main"
+        ]
+        assert [d.offset for d in details] == [0x1174, 0x1178]
+        assert all(
+            [f.function for f in d.frames] == ["reduce", "main"] for d in details
+        )
+        assert {f.file for d in details for f in d.frames} == {
+            "/tmp/nunatak-capture-debug/workload.c"
+        }
+
+        (fused,) = [m for m in run.measurements if m.hotspot.display_name == "main"]
+        assert sum(d.value for d in details) == fused.value
+        assert sum(d.sample_count for d in details) == fused.sample_count
+
     def test_kernel_samples_stay_honestly_unresolved(self, capsys):
         assert principal(["run", "--replay", str(CORPUS), "--json", "--", "./workload"]) == 0
         summary = json.loads(capsys.readouterr().out)
@@ -451,7 +499,7 @@ class TestSymbolLevel:
             .on("llvm-symbolizer", stdout=DYNSYM_ONLY)
             .on("llvm-readelf", stdout=READELF_STRIPPED_LIB)
         )
-        (named,), degradations = attribute(measurements, SYMBOLIZER, executor)
+        (named,), details, degradations = attribute(measurements, SYMBOLIZER, executor)
         assert degradations == []
         assert named.hotspot.display_name == "reduce"
         assert named.hotspot.resolution_level is ResolutionLevel.SYMBOL
@@ -464,7 +512,7 @@ class TestSymbolLevel:
             .on("llvm-symbolizer", stdout=NO_DEBUG)
             .on("llvm-readelf", stdout=READELF_WITH_SYMTAB)
         )
-        (named,), _ = attribute(measurements, SYMBOLIZER, executor)
+        (named,), _, _ = attribute(measurements, SYMBOLIZER, executor)
         assert named.hotspot.resolution_level is ResolutionLevel.FUNCTION
 
     def test_without_a_readable_inventory_the_symbolizer_verdict_stands(self):
@@ -474,7 +522,7 @@ class TestSymbolLevel:
             .on("llvm-symbolizer", stdout=NO_DEBUG)
             .on("llvm-readelf", stderr="not found", exit_code=127)
         )
-        (named,), degradations = attribute(measurements, SYMBOLIZER, executor)
+        (named,), details, degradations = attribute(measurements, SYMBOLIZER, executor)
         assert named.hotspot.resolution_level is ResolutionLevel.FUNCTION
         assert degradations == []
 

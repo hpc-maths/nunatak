@@ -15,11 +15,13 @@ import pyarrow.parquet as pq
 
 import nunatak
 from nunatak.pivot.model import (
+    AddressDetail,
     Ceiling,
     Collector,
     Degradation,
     Event,
     Hotspot,
+    InlineFrame,
     LogicalIdentity,
     Locus,
     Machine,
@@ -86,11 +88,39 @@ _EVENTS = pa.schema(
     ]
 )
 
+# The internal detail of named Hotspots, normalized in two tables joined
+# by (hotspot, offset): the weight of each sampled address, and its
+# inlining chain one frame per row.
+_ADDRESSES = pa.schema(
+    [
+        ("hotspot", pa.int32()),
+        ("offset", pa.int64()),
+        ("pass_index", pa.int32()),
+        ("counter", pa.string()),
+        ("value", pa.float64()),
+        ("sample_count", pa.int64()),
+    ]
+)
+
+_FRAMES = pa.schema(
+    [
+        ("hotspot", pa.int32()),
+        ("offset", pa.int64()),
+        ("depth", pa.int32()),
+        ("function", pa.string()),
+        ("file", pa.string()),
+        ("line", pa.int64()),
+        ("declaration_line", pa.int64()),
+    ]
+)
+
 _FILES = {
     "hotspots": f"{PIVOT_DIR}/hotspots.parquet",
     "loci": f"{PIVOT_DIR}/loci.parquet",
     "measurements": f"{PIVOT_DIR}/measurements.parquet",
     "events": f"{PIVOT_DIR}/events.parquet",
+    "addresses": f"{PIVOT_DIR}/addresses.parquet",
+    "frames": f"{PIVOT_DIR}/frames.parquet",
 }
 
 
@@ -115,6 +145,8 @@ def write_run(directory: Path, run: Run) -> Path:
     for measurement in run.measurements:
         hotspots.setdefault(_hotspot_key(measurement.hotspot), (len(hotspots), measurement.hotspot))
         loci.setdefault(measurement.locus, len(loci))
+    for detail in run.address_details:
+        hotspots.setdefault(_hotspot_key(detail.hotspot), (len(hotspots), detail.hotspot))
     for event in run.events:
         loci.setdefault(event.locus, len(loci))
 
@@ -171,12 +203,44 @@ def write_run(directory: Path, run: Run) -> Path:
         }
         for e in run.events
     ]
+    address_rows = [
+        {
+            "hotspot": hotspots[_hotspot_key(d.hotspot)][0],
+            "offset": d.offset,
+            "pass_index": d.pass_index,
+            "counter": d.counter,
+            "value": d.value,
+            "sample_count": d.sample_count,
+        }
+        for d in run.address_details
+    ]
+    # The chain is a property of the address, shared by every counter
+    # measured there: one set of frame rows per (hotspot, offset).
+    chains = {
+        (hotspots[_hotspot_key(d.hotspot)][0], d.offset): d.frames
+        for d in run.address_details
+    }
+    frame_rows = [
+        {
+            "hotspot": hotspot_id,
+            "offset": offset,
+            "depth": depth,
+            "function": frame.function,
+            "file": frame.file,
+            "line": frame.line,
+            "declaration_line": frame.declaration_line,
+        }
+        for (hotspot_id, offset), frames in chains.items()
+        for depth, frame in enumerate(frames)
+    ]
 
     for name, schema, rows in (
         ("hotspots", _HOTSPOTS, hotspot_rows),
         ("loci", _LOCI, locus_rows),
         ("measurements", _MEASUREMENTS, measurement_rows),
         ("events", _EVENTS, event_rows),
+        ("addresses", _ADDRESSES, address_rows),
+        ("frames", _FRAMES, frame_rows),
     ):
         pq.write_table(pa.Table.from_pylist(rows, schema=schema), directory / _FILES[name])
 
@@ -263,8 +327,11 @@ def read_run(directory: Path) -> Run:
             "upgrade nunatak to read it"
         )
 
+    # The manifest says which tables this Run carries: a Run written before
+    # a table existed simply reads back without it.
     tables = {
-        name: pq.read_table(directory / path).to_pylist() for name, path in _FILES.items()
+        name: pq.read_table(directory / path).to_pylist()
+        for name, path in manifest["files"].items()
     }
 
     hotspots = {}
@@ -327,6 +394,32 @@ def read_run(directory: Path) -> Run:
         for row in tables["events"]
     ]
 
+    chains: dict[tuple[int, int], dict[int, InlineFrame]] = {}
+    for row in tables.get("frames", []):
+        chains.setdefault((row["hotspot"], row["offset"]), {})[row["depth"]] = InlineFrame(
+            function=row["function"],
+            file=row["file"],
+            line=row["line"],
+            declaration_line=row["declaration_line"],
+        )
+    address_details = [
+        AddressDetail(
+            hotspot=hotspots[row["hotspot"]],
+            offset=row["offset"],
+            counter=row["counter"],
+            value=row["value"],
+            sample_count=row["sample_count"],
+            pass_index=row["pass_index"],
+            frames=tuple(
+                frame
+                for _, frame in sorted(
+                    chains.get((row["hotspot"], row["offset"]), {}).items()
+                )
+            ),
+        )
+        for row in tables.get("addresses", [])
+    ]
+
     machine_data = manifest["machine"]
     machine = Machine(
         system=machine_data["system"],
@@ -378,4 +471,5 @@ def read_run(directory: Path) -> Run:
         ],
         measurements=measurements,
         events=events,
+        address_details=address_details,
     )
