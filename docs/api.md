@@ -48,6 +48,9 @@
 
 .. automodule:: nunatak.attribution.symbolizer
    :members:
+
+.. automodule:: nunatak.attribution.inspection
+   :members:
 ```
 
 ## Configuration

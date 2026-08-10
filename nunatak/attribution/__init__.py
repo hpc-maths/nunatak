@@ -16,6 +16,7 @@ from __future__ import annotations
 
 import dataclasses
 
+from nunatak.attribution import inspection
 from nunatak.attribution.symbolizer import (
     AttributionChain,
     Frame,
@@ -53,7 +54,9 @@ def _symbolizable(module: str) -> bool:
     return module.startswith("/") and not module.startswith("/proc/")
 
 
-def _named(hotspot: Hotspot, chain: AttributionChain) -> Hotspot:
+def _named(
+    hotspot: Hotspot, chain: AttributionChain, level: ResolutionLevel
+) -> Hotspot:
     """The same Hotspot carrying the identity the chain established.
 
     The physical identity moves from the sampled address to the symbol's
@@ -77,7 +80,7 @@ def _named(hotspot: Hotspot, chain: AttributionChain) -> Hotspot:
             name=chain.physical.function,
             source_file=chain.physical.file,
         ),
-        resolution_level=chain.resolution_level,
+        resolution_level=level,
         physical_identity=physical,
     )
 
@@ -128,7 +131,9 @@ def attribute(
     """Name the unresolved Hotspots of `measurements`.
 
     Returns the new Measurements and the degradations met on the way.
-    Symbolization runs once per module, on its distinct sampled offsets.
+    Symbolization runs once per module, on its distinct sampled offsets;
+    modules that only yield bare names are then inspected once to tell
+    `function` (a `.symtab` name) from `symbol` (a `.dynsym`-only module).
     Without a symbolizer the Measurements come back untouched: doctor has
     already announced the missing capability. A module the symbolizer
     cannot read leaves its Hotspots unresolved and is declared, once, in a
@@ -158,18 +163,38 @@ def attribute(
             if chain.frames:
                 chains[(module, offset)] = chain
 
+    # A bare name may come from .symtab (level `function`) or from a
+    # .dynsym-only module (level `symbol`): only the section inventory can
+    # tell, so it is taken once per module that needs the distinction.
+    needing_inspection = {
+        module
+        for (module, _), chain in chains.items()
+        if chain.resolution_level is ResolutionLevel.FUNCTION
+    }
+    symbol_only = set()
+    readelf = inspection.readelf_path(symbolizer.path)
+    for module in sorted(needing_inspection):
+        sections = inspection.inspect(executor, readelf, module)
+        if sections is not None and sections.dynsym and not sections.symtab:
+            symbol_only.add(module)
+
     renamed = []
     for measurement in measurements:
         hotspot = measurement.hotspot
+        module = hotspot.logical_identity.module
         chain = (
-            chains.get((hotspot.logical_identity.module, hotspot.offset))
+            chains.get((module, hotspot.offset))
             if hotspot.resolution_level is ResolutionLevel.UNRESOLVED
             else None
         )
+        if chain is None:
+            renamed.append(measurement)
+            continue
+        level = chain.resolution_level
+        if level is ResolutionLevel.FUNCTION and module in symbol_only:
+            level = ResolutionLevel.SYMBOL
         renamed.append(
-            measurement
-            if chain is None
-            else dataclasses.replace(measurement, hotspot=_named(hotspot, chain))
+            dataclasses.replace(measurement, hotspot=_named(hotspot, chain, level))
         )
 
     degradations = []

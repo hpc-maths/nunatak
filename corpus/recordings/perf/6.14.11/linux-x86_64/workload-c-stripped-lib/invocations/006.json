@@ -1,0 +1,14 @@
+{
+  "argv": [
+    "/usr/lib/llvm-19/bin/llvm-symbolizer",
+    "--output-style=JSON",
+    "--obj=/tmp/nunatak-capture-stripped/libwork.so",
+    "0x1148",
+    "0x1150",
+    "0x1154",
+    "0x1158",
+    "0x115c"
+  ],
+  "exit_code": 0,
+  "captured": true
+}
