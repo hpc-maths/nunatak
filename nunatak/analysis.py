@@ -29,10 +29,17 @@ LATENCY_FRACTION = 0.5
 IMBALANCE_RATIO = 2.0
 
 # Canonical counter names the engine consumes; the collection side owns
-# the mapping from vendor events to these.
-FLOP_COUNTERS = ("flops_dp",)
+# the mapping from vendor events to these. "flops" is the all-precision
+# fallback of microarchitectures that do not split by precision: usable,
+# but only as an estimate against the double-precision peak.
+FLOP_COUNTERS = ("flops_dp", "flops")
 BYTE_COUNTERS = ("dram_bytes",)
 CLOCK_COUNTERS = ("task-clock", "cpu-clock")
+
+PRECISION_REASON = (
+    "FLOPs not split by precision on this microarchitecture; "
+    "compared against the double-precision peak"
+)
 
 
 @dataclass(frozen=True)
@@ -61,6 +68,8 @@ class Derived:
                 raise ValueError("an unavailable derived metric always says why")
         elif self.value is None:
             raise ValueError(f"a {self.quality.value} derived metric needs a value")
+        elif self.quality is Quality.ESTIMATED and self.reason is None:
+            raise ValueError("a downgrade to 'estimated' is always motivated")
 
 
 @dataclass(frozen=True)
@@ -86,12 +95,12 @@ class Diagnostic:
 
 def envelope(
     intensity: float, ceilings: dict[str, Ceiling]
-) -> tuple[float, tuple[str, ...], Quality] | None:
+) -> tuple[float, tuple[str, ...], Quality, str | None] | None:
     """The roofline: `min(compute peak, bandwidth x intensity)`.
 
     The memory diagonal stops at the break point, it never crosses it -
     that formula is a testable invariant. Returns (value, lineage,
-    quality), or None when either Ceiling is missing.
+    quality, downgrade reason), or None when either Ceiling is missing.
     """
     peak = ceilings.get("flops_dp")
     bandwidth = ceilings.get("dram_bandwidth")
@@ -101,6 +110,7 @@ def envelope(
         min(peak.value, bandwidth.value * intensity),
         ("flops_dp", "dram_bandwidth"),
         Quality.worst(peak.quality, bandwidth.quality),
+        peak.reason or bandwidth.reason,
     )
 
 
@@ -116,14 +126,19 @@ def _unavailable(name: str, unit: str, reason: str, lineage=()) -> Derived:
     )
 
 
-def _sum(measurements: list[Measurement]) -> tuple[float, Quality] | None:
-    """Total value over Loci and Passes, with the worst input Quality."""
+def _sum(
+    measurements: list[Measurement],
+) -> tuple[float, Quality, str | None] | None:
+    """Total value over Loci and Passes, with the worst input Quality and
+    the reason of the first downgraded input - a motivated downgrade
+    travels with its motive."""
     values = [m for m in measurements if m.value is not None]
     if not values:
         return None
     return (
         sum(m.value for m in values),
         Quality.worst(*(m.quality for m in values)),
+        next((m.reason for m in values if m.reason is not None), None),
     )
 
 
@@ -267,7 +282,7 @@ def _share(by_counter: dict, time_base: str | None, totals: dict) -> Derived:
     total = totals.get(time_base, 0.0)
     if summed is None or total <= 0:
         return _unavailable("share", "fraction", f"no {time_base} value")
-    value, quality = summed
+    value, quality, reason = summed
     return Derived(
         name="share",
         value=value / total,
@@ -275,6 +290,7 @@ def _share(by_counter: dict, time_base: str | None, totals: dict) -> Derived:
         quality=quality,
         lineage=(time_base,),
         formula=f"{time_base} of the Hotspot / {time_base} of the Run",
+        reason=reason,
     )
 
 
@@ -294,13 +310,19 @@ def _intensity(by_counter: dict, flops: str | None, bytes_: str | None) -> Deriv
         return _unavailable(
             "dram_intensity", "flop/byte", "no usable flop or byte value"
         )
+    quality = Quality.worst(flop_sum[1], byte_sum[1])
+    reasons = [r for r in (flop_sum[2], byte_sum[2]) if r is not None]
+    if flops == "flops":
+        quality = Quality.worst(quality, Quality.ESTIMATED)
+        reasons.append(PRECISION_REASON)
     return Derived(
         name="dram_intensity",
         value=flop_sum[0] / byte_sum[0],
         unit="flop/byte",
-        quality=Quality.worst(flop_sum[1], byte_sum[1]),
+        quality=quality,
         lineage=(flops, bytes_),
         formula=f"{flops} / {bytes_}",
+        reason="; ".join(dict.fromkeys(reasons)) if reasons else None,
     )
 
 
@@ -331,13 +353,19 @@ def _achieved(by_counter: dict, flops: str | None) -> Derived:
     clock_quality = Quality.worst(
         *(m.quality for m in by_counter[clock] if m.value is not None)
     )
+    quality = Quality.worst(flop_sum[1], clock_quality)
+    reasons = [r for r in (flop_sum[2],) if r is not None]
+    if flops == "flops":
+        quality = Quality.worst(quality, Quality.ESTIMATED)
+        reasons.append(PRECISION_REASON)
     return Derived(
         name="achieved",
         value=flop_sum[0] / wall_seconds,
         unit="flop/s",
-        quality=Quality.worst(flop_sum[1], clock_quality),
+        quality=quality,
         lineage=(flops, clock),
         formula=f"{flops} / max {clock} over Loci",
+        reason="; ".join(dict.fromkeys(reasons)) if reasons else None,
     )
 
 
@@ -358,7 +386,8 @@ def _placement(
             _unavailable("attainable", "flop/s", reason),
             _unavailable("envelope_fraction", "fraction", reason),
         )
-    value, lineage, ceiling_quality = bound
+    value, lineage, ceiling_quality, ceiling_reason = bound
+    attainable_reason = intensity.reason or ceiling_reason
     attainable = Derived(
         name="attainable",
         value=value,
@@ -366,16 +395,23 @@ def _placement(
         quality=Quality.worst(intensity.quality, ceiling_quality),
         lineage=intensity.lineage + lineage,
         formula="min(flops_dp, dram_bandwidth x dram_intensity)",
+        reason=attainable_reason
+        if Quality.worst(intensity.quality, ceiling_quality) is Quality.ESTIMATED
+        else None,
     )
     if achieved.value is None:
         return attainable, _unavailable(
             "envelope_fraction", "fraction", achieved.reason
         )
+    fraction_quality = Quality.worst(achieved.quality, attainable.quality)
     return attainable, Derived(
         name="envelope_fraction",
         value=achieved.value / value,
         unit="fraction",
-        quality=Quality.worst(achieved.quality, attainable.quality),
+        quality=fraction_quality,
         lineage=achieved.lineage + attainable.lineage,
         formula="achieved / attainable",
+        reason=(achieved.reason or attainable.reason)
+        if fraction_quality is Quality.ESTIMATED
+        else None,
     )

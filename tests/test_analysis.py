@@ -101,9 +101,9 @@ class TestEnvelope:
     def test_the_diagonal_stops_at_the_break_point_never_crosses_it(self):
         ceilings = {c.name: c for c in machine().ceilings}
         ridge = 1.0e12 / 1.0e11
-        below, _, _ = analysis.envelope(ridge / 2, ceilings)
-        at, _, _ = analysis.envelope(ridge, ceilings)
-        far_beyond, _, _ = analysis.envelope(ridge * 100, ceilings)
+        below, _, _, _ = analysis.envelope(ridge / 2, ceilings)
+        at, _, _, _ = analysis.envelope(ridge, ceilings)
+        far_beyond, _, _, _ = analysis.envelope(ridge * 100, ceilings)
         assert below == 1.0e11 * ridge / 2
         assert at == 1.0e12
         assert far_beyond == 1.0e12

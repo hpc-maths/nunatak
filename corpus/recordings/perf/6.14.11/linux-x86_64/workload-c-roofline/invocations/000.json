@@ -1,0 +1,8 @@
+{
+  "argv": [
+    "perf",
+    "--version"
+  ],
+  "exit_code": 0,
+  "captured": true
+}

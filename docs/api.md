@@ -21,6 +21,9 @@
 
 .. automodule:: nunatak.collect.perf
    :members:
+
+.. automodule:: nunatak.collect.events
+   :members:
 ```
 
 ## Recording corpus

@@ -11,6 +11,7 @@ from __future__ import annotations
 
 from pathlib import Path
 
+from nunatak.collect import events as counter_events
 from nunatak.collect import perf as perf_adapter
 from nunatak.ingestion import perf_script
 from nunatak.ingestion.samples import Sample
@@ -43,9 +44,16 @@ def measurements_from_samples(
     gets no physical identity. Output is deterministic: sorted by
     decreasing value.
     """
+    # Vendor events fold onto their canonical counter before aggregation,
+    # so the local and remote DRAM fills of one address merge into a
+    # single dram_bytes Measurement.
     groups: dict[tuple, list[int]] = {}
+    vendor_by_counter: dict[str, object] = {}
     for sample in samples:
-        key = (sample.module, sample.offset, sample.tid, sample.counter)
+        vendor = counter_events.canonical(sample.counter)
+        counter = vendor.canonical if vendor is not None else sample.counter
+        vendor_by_counter[counter] = vendor
+        key = (sample.module, sample.offset, sample.tid, counter)
         entry = groups.setdefault(key, [0, 0])
         entry[0] += sample.period
         entry[1] += 1
@@ -58,6 +66,7 @@ def measurements_from_samples(
             if module_id is not None and offset is not None
             else None
         )
+        vendor = vendor_by_counter.get(counter)
         measurements.append(
             Measurement(
                 hotspot=Hotspot(
@@ -68,9 +77,12 @@ def measurements_from_samples(
                 ),
                 locus=Locus(node=node, thread=tid),
                 counter=counter,
-                value=float(value),
-                unit=_CLOCK_UNITS.get(counter, counter),
-                quality=Quality.MEASURED,
+                value=float(value) * (vendor.scale if vendor is not None else 1.0),
+                unit=vendor.unit
+                if vendor is not None
+                else _CLOCK_UNITS.get(counter, counter),
+                quality=vendor.quality if vendor is not None else Quality.MEASURED,
+                reason=vendor.reason if vendor is not None else None,
                 sample_count=count,
             )
         )

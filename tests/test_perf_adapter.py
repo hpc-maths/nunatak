@@ -23,11 +23,12 @@ def test_collect_records_then_extracts_what_nunatak_consumes(tmp_path):
         .on("perf", stdout="sample lines\n")  # script
         .on("perf", stdout="deadbeef /opt/solver\n")  # buildid-list
     )
-    exit_code = PerfAdapter().collect(
+    exit_code, degradations = PerfAdapter().collect(
         ["./solver", "--steps", "10"], tmp_path / "collect", executor, frequency=997
     )
 
     assert exit_code == 3
+    assert degradations == []
     record, script, buildid = executor.calls
     assert record[1] == "record"
     assert record[record.index("--freq") + 1] == "997"

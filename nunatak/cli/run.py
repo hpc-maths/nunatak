@@ -20,6 +20,7 @@ from pathlib import Path
 
 from nunatak import attribution, corpus, ingestion, machine, provenance
 from nunatak.attribution import source, staleness
+from nunatak.collect import events as counter_events
 from nunatak.calibration import theory
 from nunatak.cli import calibrate, doctor
 from nunatak.collect import cpu_collector
@@ -190,13 +191,19 @@ def execute(args, command: list[str], console: Console) -> int:
     source_extracts = []
     if adapter is not None:
         console.info(f"collecting with {adapter.tool} {version}: {' '.join(command)}")
-        exit_code = adapter.collect(
-            command, directory / COLLECT_DIR, executor, config.sampling_frequency
+        counter_group = counter_events.sampling_events(snapshot)
+        exit_code, collect_degradations = adapter.collect(
+            command,
+            directory / COLLECT_DIR,
+            executor,
+            config.sampling_frequency,
+            events=counter_group,
         )
         collectors = (Collector(tool=adapter.tool, version=version),)
         measurements, ingest_degradations = ingestion.ingest(
             adapter.tool, version, directory / COLLECT_DIR, node=platform.node()
         )
+        ingest_degradations = collect_degradations + ingest_degradations
         measurements, address_details, attribution_degradations = attribution.attribute(
             measurements, symbolizer, executor
         )
