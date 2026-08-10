@@ -174,3 +174,21 @@ there is no roofline. A partial profile stays exploitable; whatever was
 not measured keeps its theoretical, `estimated` value. When nothing can
 be measured (no compiler on the machine), nothing is cached: the next
 run tries again.
+
+## What the analysis says
+
+The analysis engine is a **pure function of (pivot, Machine)**: nothing
+it produces is persisted, everything is recomputed on demand, so a Run
+stays analyzable years later. For every Hotspot above the statistical
+floor it states a **Diagnostic**: the share of the run, the roofline
+placement - DRAM arithmetic intensity, achieved FLOP/s against the
+envelope `min(compute peak, bandwidth x intensity)` - the imbalance
+across Loci, and a **classification**: `imbalance`, `latency-bound`,
+`memory-bound` or `compute-bound`. A classification states a regime,
+never a cause.
+
+Every derived quantity carries its **lineage** and its Quality,
+propagated as the worst of its inputs: a number displayed `measured` is
+measured end to end. Where a source counter does not exist - no FLOP
+counter collected, no clock in seconds - the fact is `unavailable` with
+the reason, never approximated.

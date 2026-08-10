@@ -79,6 +79,13 @@
    :members:
 ```
 
+## Analysis
+
+```{eval-rst}
+.. automodule:: nunatak.analysis
+   :members:
+```
+
 ## Configuration
 
 ```{eval-rst}
