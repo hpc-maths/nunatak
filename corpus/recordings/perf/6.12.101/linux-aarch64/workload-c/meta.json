@@ -1,0 +1,18 @@
+{
+  "created": "2026-08-09T20:56:33+00:00",
+  "command": [
+    "/tmp/workload"
+  ],
+  "nunatak_version": "0.1.0.dev0",
+  "platform": {
+    "system": "Linux",
+    "kernel": "6.12.76-linuxkit",
+    "architecture": "aarch64"
+  },
+  "collectors": [
+    {
+      "tool": "perf",
+      "version": "6.12.101"
+    }
+  ]
+}
