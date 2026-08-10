@@ -1,4 +1,4 @@
-"""Domain-model invariants of spec chapters 02 and 03."""
+"""Domain-model invariants: Quality, identities, honest missing values."""
 
 import pytest
 
@@ -124,8 +124,8 @@ class TestHotspot:
             )
 
     def test_offsets_are_module_relative(self):
-        # Invariant I3: the model has no field able to hold an absolute
-        # address; identity offsets are relative to a module identity.
+        # The model has no field able to hold an absolute address; identity
+        # offsets are relative to a module identity.
         identity = PhysicalIdentity(module_id="abcd", offset=0x10)
         assert identity.offset == 0x10
         assert identity.module_id == "abcd"
