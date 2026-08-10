@@ -28,3 +28,4 @@ the refresh of this corpus.
 | Entry | Captured on | Notes |
 |---|---|---|
 | `perf/6.12.101/linux-aarch64/workload-c` | Debian trixie (Docker VM), 2026-08-09 | task-clock fallback (no PMU in the VM), C workload built with `-O2 -g` |
+| `perf/6.14.11/linux-x86_64/workload-c` | Ubuntu 25.04, AMD EPYC 7702 (self-hosted runner), 2026-08-10 | real PMU cycles, `perf_event_paranoid` lowered to 2 for the capture, same C workload |
