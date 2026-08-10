@@ -54,6 +54,9 @@
 
 .. automodule:: nunatak.attribution.source
    :members:
+
+.. automodule:: nunatak.attribution.staleness
+   :members:
 ```
 
 ## Configuration

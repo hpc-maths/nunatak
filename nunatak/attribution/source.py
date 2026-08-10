@@ -17,6 +17,7 @@ marked.
 
 from __future__ import annotations
 
+import hashlib
 import os
 from pathlib import Path
 
@@ -121,15 +122,37 @@ def _extract(path: Path, start: int, end: int) -> tuple[str, int, int, bool] | N
     return "\n".join(lines[start - 1 : end]), start, end, truncated
 
 
+def _stale(path: Path, fingerprint: str | None) -> bool:
+    """Whether `path` disagrees with the line table's MD5 fingerprint.
+
+    No fingerprint, no verdict: gcc emits none, and refusing on a guess
+    would punish every gcc build. An unreadable file is not stale either;
+    the read failure gets its own reason downstream.
+    """
+    if fingerprint is None:
+        return False
+    try:
+        content = path.read_bytes()
+    except OSError:
+        return False
+    return hashlib.md5(content, usedforsecurity=False).hexdigest() != fingerprint
+
+
 def extract(
-    details: list[AddressDetail], source_map: dict[str, str], root: Path
+    details: list[AddressDetail],
+    source_map: dict[str, str],
+    root: Path,
+    checksums: dict[str, str] | None = None,
 ) -> list[SourceExtract]:
     """The source extracts of the named Hotspots in `details`.
 
     One extract per (Hotspot, file), from a few lines before the earliest
     declaration to a few lines after the last sampled line. A file that
     cannot be resolved yields an extract without text, carrying the
-    reason.
+    reason. `checksums` maps DWARF paths to their line-table MD5: a
+    resolved file that disagrees with its fingerprint is neither shown
+    nor embedded - the developer edited it since the build, and its line
+    numbers no longer mean anything.
     """
     wanted = _wanted(details)
     resolved = _resolve({file for _, file in wanted}, source_map, root)
@@ -139,6 +162,17 @@ def extract(
         path, reason = resolved[file]
         if path is None:
             extracts.append(SourceExtract(hotspot=hotspot, file=file, reason=reason))
+            continue
+        if _stale(path, (checksums or {}).get(file)):
+            extracts.append(
+                SourceExtract(
+                    hotspot=hotspot,
+                    file=file,
+                    resolved_path=str(path),
+                    reason="source file changed since the profiled binary was "
+                    "built (line-table MD5 mismatch)",
+                )
+            )
             continue
         content = _extract(path, first - CONTEXT_LINES, last + CONTEXT_LINES)
         if content is None:

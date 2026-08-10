@@ -53,6 +53,13 @@ rewriting (repeatable flag, or a `[source_map]` table in
 multiple ambiguous matches nunatak does not choose: the Hotspot stays
 without source, and the extract carries the reason instead of the text.
 
+A resolved file is checked against the **line-table fingerprint** the
+compiler recorded (clang emits an MD5 per source file by default): if
+you edited the file since the profiled binary was built, its lines have
+moved, and the extract is refused with that reason rather than shown
+wrong. Without a fingerprint - gcc emits none - the extract is accepted
+as-is.
+
 `--no-source` embeds no source text at all, for what must leave a
 sensitive site: line numbers and measurements are kept.
 
