@@ -9,21 +9,17 @@ will be degraded, then continues.
 
 from __future__ import annotations
 
-import glob
 import json
-import re
 import shutil
 from dataclasses import asdict, dataclass
 from pathlib import Path
 
+from nunatak.attribution.symbolizer import MINIMUM_LLVM, RECOMMENDED_LLVM, locate
 from nunatak.collect.execution import Executor
 from nunatak.config import Config
 from nunatak.console import Console
 from nunatak.pivot import Degradation
 from nunatak.target import real_target
-
-MINIMUM_LLVM = 17
-RECOMMENDED_LLVM = 19
 
 
 @dataclass(frozen=True)
@@ -35,16 +31,6 @@ class CheckResult:
     detail: str
     remedy: str | None = None
     degradation: Degradation | None = None
-
-
-def tool_version(executor: Executor, argv: list[str], pattern: str) -> str | None:
-    """Invoke a tool and extract its version; None when it cannot run."""
-    invocation = executor.run(argv)
-    if invocation.exit_code != 0:
-        return None
-    output = f"{invocation.stdout or ''}\n{invocation.stderr or ''}"
-    match = re.search(pattern, output)
-    return match.group(1) if match else None
 
 
 def _cpu_collector(
@@ -107,49 +93,28 @@ def _cpu_collector(
     return checks
 
 
-def _llvm_candidates(config: Config) -> list[str]:
-    """Paths worth probing for llvm-symbolizer.
-
-    PATH alone cannot be trusted: Homebrew's llvm formula is keg-only, and
-    Linux distributions install versioned, unlinked binaries.
-    """
-    candidates = []
-    if "llvm-symbolizer" in config.tools:
-        candidates.append(config.tools["llvm-symbolizer"])
-    on_path = shutil.which("llvm-symbolizer")
-    if on_path:
-        candidates.append(on_path)
-    candidates += [
-        "/opt/homebrew/opt/llvm/bin/llvm-symbolizer",
-        "/usr/local/opt/llvm/bin/llvm-symbolizer",
-        *sorted(glob.glob("/usr/lib/llvm-*/bin/llvm-symbolizer"), reverse=True),
-        *sorted(glob.glob("/usr/bin/llvm-symbolizer-*"), reverse=True),
-    ]
-    return candidates
-
-
 def _llvm(executor: Executor, config: Config) -> CheckResult:
     """Probe and invoke llvm-symbolizer; old versions restrict loop analysis."""
-    for candidate in _llvm_candidates(config):
-        version = tool_version(
-            executor, [candidate, "--version"], r"LLVM version (\d+)\.\S*"
-        )
-        if version is None:
-            continue
-        major = int(version)
-        if major >= RECOMMENDED_LLVM:
-            return CheckResult(name="llvm", status="ok", detail=f"LLVM {major} ({candidate})")
-        if major >= MINIMUM_LLVM:
+    symbolizer = locate(executor, config)
+    if symbolizer is not None:
+        if symbolizer.major >= RECOMMENDED_LLVM:
+            return CheckResult(
+                name="llvm",
+                status="ok",
+                detail=f"LLVM {symbolizer.major} ({symbolizer.path})",
+            )
+        if symbolizer.major >= MINIMUM_LLVM:
             return CheckResult(
                 name="llvm",
                 status="warning",
-                detail=f"LLVM {major} ({candidate})",
+                detail=f"LLVM {symbolizer.major} ({symbolizer.path})",
                 remedy=f"loop analysis is restricted to microarchitectures known to "
-                f"LLVM {major}; LLVM {RECOMMENDED_LLVM}+ recommended",
+                f"LLVM {symbolizer.major}; LLVM {RECOMMENDED_LLVM}+ recommended",
             )
         degradation = Degradation(
             name="llvm-too-old",
-            message=f"LLVM {major} at {candidate} is older than {MINIMUM_LLVM}",
+            message=f"LLVM {symbolizer.major} at {symbolizer.path} is older "
+            f"than {MINIMUM_LLVM}",
             remedy=f"install LLVM {RECOMMENDED_LLVM} or newer; symbolization falls back "
             "to system tools and loop analysis is unavailable",
         )

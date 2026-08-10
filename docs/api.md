@@ -40,6 +40,16 @@
    :members:
 ```
 
+## Attribution
+
+```{eval-rst}
+.. automodule:: nunatak.attribution
+   :members:
+
+.. automodule:: nunatak.attribution.symbolizer
+   :members:
+```
+
 ## Configuration
 
 ```{eval-rst}
