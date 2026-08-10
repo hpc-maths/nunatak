@@ -65,6 +65,14 @@ def _cpu_collector(
                 message=f"no CPU collector implemented for {executor.system} yet",
                 remedy="hardware-counter profiling requires Linux perf for now",
             )
+        elif version is not None:
+            # The tool is there; the environment forbids sampling.
+            reason = executor.sampling_blocked() or "event sampling unavailable"
+            degradation = Degradation(
+                name="cpu-collection-unavailable",
+                message=f"perf {version} found, but {reason}",
+                remedy="ask for kernel.perf_event_paranoid<=2 or the CAP_PERFMON capability",
+            )
         else:
             path = config.tools.get("perf", "perf")
             degradation = Degradation(
@@ -89,30 +97,13 @@ def _cpu_collector(
     ]
     paranoid_file = Path("/proc/sys/kernel/perf_event_paranoid")
     if paranoid_file.is_file():
-        paranoid = int(paranoid_file.read_text().strip())
-        if paranoid >= 3:
-            degradation = Degradation(
+        checks.append(
+            CheckResult(
                 name="perf-permissions",
-                message=f"kernel.perf_event_paranoid={paranoid} forbids unprivileged profiling",
-                remedy="ask for kernel.perf_event_paranoid<=2 or the CAP_PERFMON capability",
+                status="ok",
+                detail=f"kernel.perf_event_paranoid={paranoid_file.read_text().strip()}",
             )
-            checks.append(
-                CheckResult(
-                    name="perf-permissions",
-                    status="warning",
-                    detail=degradation.message,
-                    remedy=degradation.remedy,
-                    degradation=degradation,
-                )
-            )
-        else:
-            checks.append(
-                CheckResult(
-                    name="perf-permissions",
-                    status="ok",
-                    detail=f"kernel.perf_event_paranoid={paranoid}",
-                )
-            )
+        )
     return checks
 
 

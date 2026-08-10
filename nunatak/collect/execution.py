@@ -7,9 +7,11 @@ wraps or replaces the executor, never the adapters.
 
 from __future__ import annotations
 
+import os
 import platform
 import subprocess
 from dataclasses import dataclass
+from pathlib import Path
 
 from nunatak.exit_codes import COMMAND_NOT_EXECUTABLE, COMMAND_NOT_FOUND
 
@@ -36,6 +38,13 @@ class Executor:
         """The platform tools run on; a replay reports the recorded one."""
         return platform.system()
 
+    def sampling_blocked(self) -> str | None:
+        """Why event sampling cannot work in this environment, or None.
+
+        A replay is never blocked: the recording machine's permissions
+        ruled when the entry was captured."""
+        return None
+
     def run(
         self,
         argv: list[str],
@@ -55,6 +64,24 @@ class SubprocessExecutor(Executor):
     """The real thing. A missing or non-executable program is reported with
     the reserved exit codes rather than an exception: an absent tool is an
     expected situation, not an error of nunatak."""
+
+    def sampling_blocked(self):
+        """Report the kernel setting that denies sampling, if any.
+
+        Ubuntu ships kernel.perf_event_paranoid=4: perf_event_open is
+        denied to unprivileged users even on their own processes.
+        """
+        if platform.system() != "Linux" or os.geteuid() == 0:
+            return None
+        try:
+            level = int(
+                Path("/proc/sys/kernel/perf_event_paranoid").read_text().strip()
+            )
+        except (OSError, ValueError):
+            return None
+        if level >= 3:
+            return f"kernel.perf_event_paranoid={level} forbids unprivileged profiling"
+        return None
 
     def run(self, argv, capture=True, env=None, cwd=None):
         """Execute `argv` as a subprocess."""

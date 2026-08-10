@@ -67,6 +67,10 @@ class RecordingExecutor(Executor):
             raise ValueError(f"corpus entry {self.entry} already contains invocations")
         self._counter = 0
 
+    def sampling_blocked(self):
+        """The recording machine's verdict: sampling happens on real hardware."""
+        return self.inner.sampling_blocked()
+
     def run(self, argv, capture=True, env=None, cwd=None):
         """Run through the wrapped executor and persist the invocation."""
         invocation = self.inner.run(argv, capture=capture, env=env, cwd=cwd)
