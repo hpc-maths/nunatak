@@ -18,7 +18,7 @@ import shutil
 from pathlib import Path
 
 from nunatak import attribution, corpus, ingestion, machine, provenance
-from nunatak.attribution import source
+from nunatak.attribution import source, staleness
 from nunatak.cli import doctor
 from nunatak.collect import cpu_collector
 from nunatak.collect.execution import Executor, SubprocessExecutor
@@ -180,7 +180,18 @@ def execute(args, command: list[str], console: Console) -> int:
             measurements, symbolizer, executor
         )
         if not args.no_source:
-            source_extracts = source.extract(address_details, mapping, root or cwd)
+            checksums = (
+                staleness.checksums_for(
+                    executor,
+                    staleness.dwarfdump_path(symbolizer.path),
+                    address_details,
+                )
+                if symbolizer is not None
+                else {}
+            )
+            source_extracts = source.extract(
+                address_details, mapping, root or cwd, checksums
+            )
         for degradation in ingest_degradations + attribution_degradations:
             console.degradation(degradation)
         degradations = degradations + ingest_degradations + attribution_degradations

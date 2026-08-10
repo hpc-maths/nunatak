@@ -267,3 +267,146 @@ class TestReplayedExtraction:
             )
             == 125
         )
+
+
+CLANG_CORPUS = CORPUS.parent / "workload-c-clang"
+WORKLOAD_MD5 = "15145baf1577721b3db763dad1ac80af"
+
+
+def recorded_dwarfdump(entry, module_suffix):
+    for record in sorted((entry / "invocations").glob("*.json")):
+        argv = json.loads(record.read_text())["argv"]
+        if "--debug-line" in argv and argv[-1].endswith(module_suffix):
+            return record.with_suffix(".stdout").read_text()
+    raise AssertionError(f"no dwarfdump of {module_suffix} in the corpus entry")
+
+
+class TestLineTableChecksums:
+    """Fingerprint parsing against genuine llvm-dwarfdump output, read
+    from the recorded workload-c-clang corpus entry."""
+
+    def test_the_clang_line_table_yields_per_file_fingerprints(self):
+        from nunatak.attribution import staleness
+        from tests.support import ScriptedExecutor
+
+        executor = ScriptedExecutor().on(
+            "llvm-dwarfdump", stdout=recorded_dwarfdump(CLANG_CORPUS, "workload")
+        )
+        checksums = staleness.line_table_checksums(
+            executor, "/usr/lib/llvm-19/bin/llvm-dwarfdump", "workload"
+        )
+        assert checksums["/tmp/nunatak-capture-clang/workload.c"] == WORKLOAD_MD5
+        assert all(len(md5) == 32 for md5 in checksums.values())
+
+    def test_a_gcc_line_table_without_checksums_verifies_nothing(self):
+        from nunatak.attribution import staleness
+        from tests.support import ScriptedExecutor
+
+        # gcc emits no md5_checksum entries: same prologue, no fingerprints.
+        executor = ScriptedExecutor().on(
+            "llvm-dwarfdump",
+            stdout='include_directories[  0] = "/tmp"\nfile_names[  0]:\n'
+            '           name: "workload.c"\n      dir_index: 0\n',
+        )
+        assert (
+            staleness.line_table_checksums(executor, "llvm-dwarfdump", "workload")
+            == {}
+        )
+
+    def test_a_missing_tool_verifies_nothing(self):
+        from nunatak.attribution import staleness
+        from tests.support import ScriptedExecutor
+
+        executor = ScriptedExecutor().on(
+            "llvm-dwarfdump", stderr="not found", exit_code=127
+        )
+        assert (
+            staleness.line_table_checksums(executor, "llvm-dwarfdump", "workload")
+            == {}
+        )
+
+    def test_dwarfdump_sits_next_to_the_located_symbolizer(self):
+        from nunatak.attribution import staleness
+
+        assert (
+            staleness.dwarfdump_path("/usr/lib/llvm-19/bin/llvm-symbolizer")
+            == "/usr/lib/llvm-19/bin/llvm-dwarfdump"
+        )
+        assert staleness.dwarfdump_path("/usr/bin/llvm-symbolizer-19") == (
+            "/usr/bin/llvm-dwarfdump-19"
+        )
+
+
+class TestStaleness:
+    def test_an_edited_file_is_neither_shown_nor_embedded(self, tmp_path):
+        edited = tmp_path / "solver.c"
+        edited.write_text("// edited since the build\n" + "code\n" * 30)
+        spot = hotspot(file=str(edited))
+        (extract,) = source.extract(
+            [detail(spot, (frame(file=str(edited), line=10, declaration_line=5),))],
+            {},
+            tmp_path,
+            checksums={str(edited): "0" * 32},
+        )
+        assert extract.text is None
+        assert "changed since the profiled binary was built" in extract.reason
+        assert extract.resolved_path == str(edited)
+
+    def test_a_matching_fingerprint_lets_the_extract_through(self, tmp_path):
+        import hashlib
+
+        pristine = tmp_path / "solver.c"
+        pristine.write_text("code\n" * 30)
+        fingerprint = hashlib.md5(
+            pristine.read_bytes(), usedforsecurity=False
+        ).hexdigest()
+        spot = hotspot(file=str(pristine))
+        (extract,) = source.extract(
+            [detail(spot, (frame(file=str(pristine), line=10, declaration_line=5),))],
+            {},
+            tmp_path,
+            checksums={str(pristine): fingerprint},
+        )
+        assert extract.text is not None
+
+    def test_without_a_fingerprint_the_extract_is_accepted_as_is(self, tmp_path):
+        unverifiable = tmp_path / "solver.c"
+        unverifiable.write_text("code\n" * 30)
+        spot = hotspot(file=str(unverifiable))
+        (extract,) = source.extract(
+            [detail(spot, (frame(file=str(unverifiable), line=10, declaration_line=5),))],
+            {},
+            tmp_path,
+        )
+        assert extract.text is not None
+
+
+class TestReplayedStaleness:
+    """The clang-built corpus entry end to end: the line table carries
+    real fingerprints, and the re-created source matches them."""
+
+    @pytest.fixture(autouse=True)
+    def in_tmp_cwd(self, tmp_path, monkeypatch):
+        (tmp_path / "nunatak.toml").write_text(
+            '[tools]\nllvm-symbolizer = "/usr/lib/llvm-19/bin/llvm-symbolizer"\n'
+        )
+        (tmp_path / "workload.c").write_text(WORKLOAD_C)
+        monkeypatch.chdir(tmp_path)
+
+    def test_a_verified_extract_lands_in_the_run(self, capsys):
+        import hashlib
+
+        assert hashlib.md5(WORKLOAD_C.encode(), usedforsecurity=False).hexdigest() == WORKLOAD_MD5
+
+        assert (
+            principal(["run", "--replay", str(CLANG_CORPUS), "--json", "--", "./workload"])
+            == 0
+        )
+        summary = json.loads(capsys.readouterr().out)
+        run = read_run(summary["run"])
+        (extract,) = [
+            e for e in run.source_extracts if e.hotspot.display_name == "main"
+        ]
+        assert extract.file == "/tmp/nunatak-capture-clang/workload.c"
+        assert extract.text is not None
+        assert "axpy_element" in extract.text
