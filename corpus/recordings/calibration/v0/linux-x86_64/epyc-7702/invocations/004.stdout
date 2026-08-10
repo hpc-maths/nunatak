@@ -1,0 +1,9 @@
+kernel fma_sp
+isa avx2
+threads 32
+load 6.11
+rep 0 2.341951e+12
+rep 1 2.342810e+12
+rep 2 2.340793e+12
+rep 3 2.342896e+12
+rep 4 2.343294e+12

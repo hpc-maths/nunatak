@@ -1,0 +1,9 @@
+kernel fma_dp
+isa avx2
+threads 32
+load 6.11
+rep 0 1.168269e+12
+rep 1 1.171462e+12
+rep 2 1.171888e+12
+rep 3 1.170802e+12
+rep 4 1.170350e+12

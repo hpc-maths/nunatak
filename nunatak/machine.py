@@ -111,6 +111,15 @@ def allocation(
     )
 
 
+def allocated_cores(machine: Machine) -> float | None:
+    """The cores this job may actually burn: the affinity count, further
+    capped by the cgroup quota when one exists."""
+    cores: float | None = machine.allocation.visible_cores or machine.logical_cores
+    if cores is not None and machine.allocation.cpu_quota is not None:
+        cores = min(cores, machine.allocation.cpu_quota)
+    return cores
+
+
 def snapshot(executor: Executor) -> Machine:
     """Best-effort description of the hardware this process runs on and
     of the share of it this process received."""

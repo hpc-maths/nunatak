@@ -74,6 +74,9 @@
 
 .. automodule:: nunatak.calibration.theory
    :members:
+
+.. automodule:: nunatak.calibration.kernel
+   :members:
 ```
 
 ## Configuration

@@ -20,6 +20,7 @@ import re
 from dataclasses import dataclass
 from pathlib import Path
 
+from nunatak.machine import allocated_cores
 from nunatak.pivot import Ceiling, Machine, Quality
 
 _CPUINFO = Path("/proc/cpuinfo")
@@ -172,15 +173,6 @@ def frequency(
     return None
 
 
-def _allocated_cores(machine: Machine) -> float | None:
-    """The cores this job may actually burn: the affinity count, further
-    capped by the cgroup quota when one exists."""
-    cores: float | None = machine.allocation.visible_cores or machine.logical_cores
-    if cores is not None and machine.allocation.cpu_quota is not None:
-        cores = min(cores, machine.allocation.cpu_quota)
-    return cores
-
-
 def ceilings(
     machine: Machine,
     microarchitecture: MicroArchitecture | None,
@@ -189,7 +181,7 @@ def ceilings(
     """The estimated FLOP/s Ceilings of `machine`, scaled to its
     allocation; empty when the microarchitecture, the frequency or the
     core count is unknown - absence, never extrapolation."""
-    cores = _allocated_cores(machine)
+    cores = allocated_cores(machine)
     if microarchitecture is None or clock is None or cores is None:
         return ()
     hertz, caveat = clock
