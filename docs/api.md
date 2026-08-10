@@ -59,6 +59,13 @@
    :members:
 ```
 
+## Machine
+
+```{eval-rst}
+.. automodule:: nunatak.machine
+   :members:
+```
+
 ## Configuration
 
 ```{eval-rst}

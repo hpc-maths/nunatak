@@ -7,6 +7,7 @@ modifies it.
 
 from nunatak.pivot.model import (
     AddressDetail,
+    Allocation,
     Ceiling,
     Collector,
     Degradation,
@@ -29,6 +30,7 @@ from nunatak.pivot.persistence import MANIFEST, SCHEMA, read_run, write_run
 
 __all__ = [
     "AddressDetail",
+    "Allocation",
     "Ceiling",
     "Collector",
     "Degradation",
