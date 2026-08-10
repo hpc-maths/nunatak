@@ -5,8 +5,9 @@ words are used in the code, the interface and the documentation, and the
 terms it proscribes appear nowhere.
 
 The pivot holds measured data only; the Diagnostic, the roofline placement
-and any aggregate across Loci are recomputed on demand and never persisted
-(invariants I1 and I2 of spec chapter 02).
+and any aggregate across Loci are recomputed on demand and never
+persisted: storing a conclusion would freeze a question that has not
+been asked yet.
 """
 
 from __future__ import annotations
@@ -32,8 +33,8 @@ class Quality(enum.Enum):
     def worst(*qualities: Quality) -> Quality:
         """Propagate Quality along a lineage: the worst of the inputs.
 
-        Invariant I4: the Quality of a derived metric is never set by hand,
-        it is computed with this function.
+        The Quality of a derived metric is never set by hand: it is always
+        computed from the Qualities of its inputs.
         """
         order = [Quality.MEASURED, Quality.ESTIMATED, Quality.UNAVAILABLE]
         return max(qualities, key=order.index)
@@ -57,9 +58,11 @@ class ResolutionLevel(enum.Enum):
 class PhysicalIdentity:
     """Physical identity of a native Hotspot: `(build-id | LC_UUID, offset)`.
 
-    Aggregates inside a Run and validates cross-Pass merges (invariant I5).
-    Only native code has one. No absolute address: the offset is relative to
-    the module (invariant I3).
+    Aggregates inside a Run and validates cross-Pass merges: raw counters
+    from two Passes may only combine when the module is identical in both.
+    Only native code has one. No absolute address is ever stored: the offset
+    is relative to the module, so ASLR and function reordering cannot split
+    a Hotspot.
     """
 
     module_id: str
@@ -107,7 +110,8 @@ class Hotspot:
         """The name shown to the user, `module+0x3a1c` when unresolved.
 
         An address in a gap between symbols is never attached to the
-        neighbouring symbol (chapter 03, principle 3).
+        neighbouring symbol: naming the gap after its neighbour would be a
+        confident lie.
         """
         if self.logical_identity.name is not None:
             return self.logical_identity.name
@@ -268,7 +272,8 @@ class Provenance:
 @dataclass(frozen=True)
 class Degradation:
     """A missing capability, named, announced before the run, with the way
-    forward. Never a refusal (chapter 03, principle 4)."""
+    forward. Never a refusal: a missing capability removes measurements,
+    it does not prevent the run."""
 
     name: str
     message: str
@@ -279,8 +284,9 @@ class Degradation:
 class Run:
     """A profiling session: the persisted container of the measured pivot.
 
-    A Run is a single directory (invariant I8), whatever the number of
-    ranks. It contains no analysis output and no Explanation.
+    A Run is a single directory, whatever the number of ranks: a directory
+    survives scp, archiving and being attached to a ticket. It contains no
+    analysis output and no Explanation.
     """
 
     name: str

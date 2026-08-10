@@ -95,8 +95,8 @@ _FILES = {
 
 
 def _hotspot_key(hotspot: Hotspot) -> object:
-    # The physical identity aggregates native Hotspots; without one, the
-    # logical identity plus the offset disambiguates unresolved Hotspots.
+    """Deduplication key: the physical identity when the Hotspot has one,
+    else the logical identity plus the display offset."""
     return hotspot.physical_identity or (hotspot.logical_identity, hotspot.offset)
 
 
@@ -185,6 +185,7 @@ def write_run(directory: Path, run: Run) -> Path:
 
 
 def _manifest(run: Run) -> dict:
+    """The manifest content: plain JSON, readable without nunatak."""
     return {
         "format": {
             "name": "nunatak-run",

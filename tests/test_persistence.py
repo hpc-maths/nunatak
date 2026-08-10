@@ -109,7 +109,7 @@ def test_round_trip_preserves_the_run(tmp_path):
 
 
 def test_a_run_is_a_single_directory(tmp_path):
-    # Invariant I8: everything the Run needs lives under its directory.
+    # Everything the Run needs lives under its directory.
     directory = write_run(tmp_path / "run", sample_run())
     written = {p for p in directory.rglob("*") if p.is_file()}
     assert written == {
@@ -134,9 +134,8 @@ def test_manifest_is_readable_without_nunatak(tmp_path):
 
 
 def test_pivot_stores_no_conclusion(tmp_path):
-    # Invariant I1: the measured pivot carries no classification, no roofline
-    # placement, no advice - and no absolute address (I3): only
-    # module-relative offsets.
+    # The measured pivot carries no classification, no roofline placement,
+    # no advice - and no absolute address: only module-relative offsets.
     directory = write_run(tmp_path / "run", sample_run())
     assert set(pq.read_schema(directory / "pivot" / "measurements.parquet").names) == {
         "hotspot",
