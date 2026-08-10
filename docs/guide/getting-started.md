@@ -144,3 +144,13 @@ capability, crossed with the exposed frequency and scaled to the
 allocation. They are always of quality `estimated`, with the reason -
 and an unknown microarchitecture yields no ceiling at all rather than
 an extrapolation. Memory-bandwidth ceilings only exist measured.
+
+**Measured ceilings** come from an embedded microbenchmark kernel -
+a STREAM-style triad for memory bandwidth, FMA chains in intrinsics for
+the FLOP/s peaks - compiled locally with whatever compiler the machine
+offers and run as a separate process, never inside the Python
+interpreter. A ceiling is the **maximum of its repetitions**, never
+their mean: it is an upper bound. Polluted conditions - dispersed
+repetitions, concurrent load, a kernel built without SIMD, a value far
+above the theoretical peak - downgrade the ceiling to `estimated` with
+the reason, they never discard it.
