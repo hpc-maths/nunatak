@@ -35,13 +35,16 @@ class Frame:
 
     `line` is where the address falls, `declaration_line` where the function
     starts; both are None when the module has no debug information, and the
-    file with them.
+    file with them. `start_address` is the symbol's `st_value` - the
+    module-relative start of the physical function, carried only by the
+    outermost frame - which keys the function-grain physical identity.
     """
 
     function: str
     file: str | None = None
     line: int | None = None
     declaration_line: int | None = None
+    start_address: int | None = None
 
 
 @dataclass(frozen=True)
@@ -124,11 +127,13 @@ def _frame(entry: dict) -> Frame | None:
     function = entry.get("FunctionName") or ""
     if not function:
         return None
+    start = entry.get("StartAddress") or None
     return Frame(
         function=function,
         file=entry.get("FileName") or None,
         line=entry.get("Line") or None,
         declaration_line=entry.get("StartLine") or None,
+        start_address=int(start, 16) if start else None,
     )
 
 

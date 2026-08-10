@@ -94,8 +94,10 @@ class TestChains:
         assert chain.physical.function == "main"
         assert chain.physical.line == 20
         assert chain.physical.declaration_line == 15
+        assert chain.physical.start_address == 0x10C0
         assert chain.frames[0].file == "/tmp/symshapes/workload.c"
         assert chain.frames[0].line == 5
+        assert chain.frames[0].start_address is None
 
     def test_a_chain_with_source_positions_reaches_line_level(self):
         outcome, _ = symbolize(INLINE_CHAIN, [0x1160])
@@ -111,7 +113,7 @@ class TestChains:
         outcome, _ = symbolize(NO_DEBUG, [0x10C0])
         chain = outcome.chains[0x10C0]
         assert chain.resolution_level is ResolutionLevel.FUNCTION
-        assert chain.physical == Frame(function="main")
+        assert chain.physical == Frame(function="main", start_address=0x10C0)
 
     def test_a_gap_address_yields_an_empty_chain_never_the_neighbour(self):
         outcome, _ = symbolize(GAP, [0x2])
