@@ -17,7 +17,7 @@ import re
 import shutil
 from pathlib import Path
 
-from nunatak import corpus, ingestion, machine, provenance
+from nunatak import attribution, corpus, ingestion, machine, provenance
 from nunatak.cli import doctor
 from nunatak.collect import cpu_collector
 from nunatak.collect.execution import Executor, SubprocessExecutor
@@ -29,7 +29,7 @@ from nunatak.exit_codes import (
     FAILURE_BEFORE_LAUNCH,
     STRICT_VIOLATION,
 )
-from nunatak.pivot import Collector, Pass, Run, write_run
+from nunatak.pivot import Collector, Pass, ResolutionLevel, Run, write_run
 from nunatak.target import real_target
 
 COLLECT_DIR = "collect"
@@ -115,7 +115,10 @@ def execute(args, command: list[str], console: Console) -> int:
         executor = SubprocessExecutor()
 
     adapter, version = cpu_collector(executor, config)
-    checks = doctor.light_checks(executor, config, command, cpu=(adapter, version))
+    symbolizer = attribution.locate(executor, config)
+    checks = doctor.light_checks(
+        executor, config, command, cpu=(adapter, version), llvm=(symbolizer,)
+    )
     degradations = doctor.degradations(checks)
     for degradation in degradations:
         console.degradation(degradation)
@@ -149,9 +152,12 @@ def execute(args, command: list[str], console: Console) -> int:
         measurements, ingest_degradations = ingestion.ingest(
             adapter.tool, version, directory / COLLECT_DIR, node=platform.node()
         )
-        for degradation in ingest_degradations:
+        measurements, attribution_degradations = attribution.attribute(
+            measurements, symbolizer, executor
+        )
+        for degradation in ingest_degradations + attribution_degradations:
             console.degradation(degradation)
-        degradations = degradations + ingest_degradations
+        degradations = degradations + ingest_degradations + attribution_degradations
     else:
         console.info(f"launching: {' '.join(command)}")
         exit_code = executor.run(command, capture=False).exit_code
@@ -185,11 +191,15 @@ def execute(args, command: list[str], console: Console) -> int:
     )
     write_run(directory, run)
 
-    hotspot_count = len(
-        {(m.hotspot.logical_identity, m.hotspot.offset) for m in measurements}
+    hotspots = {m.hotspot for m in measurements}
+    resolved = sum(
+        1 for h in hotspots if h.resolution_level is not ResolutionLevel.UNRESOLVED
     )
     if measurements:
-        console.info(f"{len(measurements)} measurements across {hotspot_count} hotspots")
+        console.info(
+            f"{len(measurements)} measurements across {len(hotspots)} hotspots "
+            f"({resolved} resolved)"
+        )
 
     if args.json:
         print(
@@ -199,7 +209,8 @@ def execute(args, command: list[str], console: Console) -> int:
                     "name": run.name,
                     "exit_code": exit_code,
                     "measurements": len(run.measurements),
-                    "hotspots": hotspot_count,
+                    "hotspots": len(hotspots),
+                    "resolved_hotspots": resolved,
                     "degradations": [
                         {"name": d.name, "message": d.message, "remedy": d.remedy}
                         for d in degradations

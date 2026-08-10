@@ -93,9 +93,11 @@ def _cpu_collector(
     return checks
 
 
-def _llvm(executor: Executor, config: Config) -> CheckResult:
+def _llvm(
+    executor: Executor, config: Config, preselected: tuple | None = None
+) -> CheckResult:
     """Probe and invoke llvm-symbolizer; old versions restrict loop analysis."""
-    symbolizer = locate(executor, config)
+    symbolizer = preselected[0] if preselected is not None else locate(executor, config)
     if symbolizer is not None:
         if symbolizer.major >= RECOMMENDED_LLVM:
             return CheckResult(
@@ -161,12 +163,14 @@ def light_checks(
     config: Config,
     command: list[str],
     cpu: tuple | None = None,
+    llvm: tuple | None = None,
 ) -> list[CheckResult]:
     """The cheap subset run at the start of every `run`: no build, no
     benchmark, a few tool invocations. `cpu` carries an already-selected
-    (adapter, version) so the tool is not probed twice."""
+    (adapter, version) and `llvm` an already-located (symbolizer,), so no
+    tool is probed twice."""
     checks = _cpu_collector(executor, config, preselected=cpu)
-    checks.append(_llvm(executor, config))
+    checks.append(_llvm(executor, config, preselected=llvm))
     if command:
         checks.append(_target(command))
     return checks

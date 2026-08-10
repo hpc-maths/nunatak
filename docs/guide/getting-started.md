@@ -19,6 +19,23 @@ On Linux, sampling is collected with `perf`. On other platforms, or when
 announced **before** launch as a named degradation with the way forward,
 and the Run simply carries fewer measurements.
 
+## Hotspot names
+
+Sampled addresses are attributed to their **physical function** - the
+thing with a symbol, an extent and an address, that you can recompile,
+isolate and compare - with `llvm-symbolizer` (LLVM 17 or newer, an
+external dependency that `doctor` locates and invokes). Compile with `-g`
+to reach line-level attribution; without it, the symbol table still
+names functions.
+
+Every Hotspot declares how far its attribution could go - its
+**resolution level**: `line`, `function`, `symbol` or `unresolved`. A
+failed attribution never degrades the measurement: that time really was
+spent at that address, and the Hotspot is displayed `module+0x3a1c`
+rather than being attached to the nearest symbol. Kernel and vdso
+samples stay unresolved by design, and without LLVM the run still
+measures - the names are simply missing, and the degradation says so.
+
 ## Checking the environment
 
 ```sh
@@ -51,6 +68,7 @@ runs_dir = "/scratch/me/runs"
 
 [tools]
 perf = "/opt/perf/bin/perf"
+llvm-symbolizer = "/usr/lib/llvm-19/bin/llvm-symbolizer"
 
 [thresholds]
 coverage = 0.8           # multiplexing coverage below which a value degrades

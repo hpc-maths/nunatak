@@ -118,6 +118,9 @@ def write_run(directory: Path, run: Run) -> Path:
     for event in run.events:
         loci.setdefault(event.locus, len(loci))
 
+    # One offset column serves both identities: an unresolved Hotspot keys
+    # its physical identity with the same sampled address it displays, and
+    # a named one only carries the function start in its physical identity.
     hotspot_rows = [
         {
             "id": index,
@@ -126,7 +129,7 @@ def write_run(directory: Path, run: Run) -> Path:
             "source_file": h.logical_identity.source_file,
             "resolution_level": h.resolution_level.value,
             "module_id": h.physical_identity.module_id if h.physical_identity else None,
-            "offset": h.offset,
+            "offset": h.physical_identity.offset if h.physical_identity else h.offset,
         }
         for index, h in hotspots.values()
     ]
@@ -271,13 +274,19 @@ def read_run(directory: Path) -> Run:
             if row["module_id"] is not None
             else None
         )
+        resolution_level = ResolutionLevel(row["resolution_level"])
         hotspots[row["id"]] = Hotspot(
             logical_identity=LogicalIdentity(
                 module=row["module"], name=row["name"], source_file=row["source_file"]
             ),
-            resolution_level=ResolutionLevel(row["resolution_level"]),
+            resolution_level=resolution_level,
             physical_identity=physical,
-            offset=row["offset"],
+            # The display offset only exists on unresolved Hotspots; on a
+            # named one the offset column holds the function start, which
+            # already lives in the physical identity above.
+            offset=row["offset"]
+            if resolution_level is ResolutionLevel.UNRESOLVED
+            else None,
         )
     loci = {
         row["id"]: Locus(
