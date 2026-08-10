@@ -108,6 +108,33 @@ def test_round_trip_preserves_the_run(tmp_path):
     assert read_run(directory) == sample_run()
 
 
+def test_round_trip_preserves_a_named_hotspot(tmp_path):
+    # A named Hotspot carries the function start in its physical identity
+    # and no display offset; both must survive persistence unchanged.
+    run = sample_run()
+    named = Hotspot(
+        logical_identity=LogicalIdentity(
+            module="/opt/app/solver", name="main", source_file="/src/solver.c"
+        ),
+        resolution_level=ResolutionLevel.LINE,
+        physical_identity=PhysicalIdentity(module_id="deadbeef", offset=0x10C0),
+    )
+    run.measurements = [
+        Measurement(
+            hotspot=named,
+            locus=run.measurements[0].locus,
+            counter="cycles",
+            value=1.0e9,
+            unit="cycles",
+            quality=Quality.MEASURED,
+            sample_count=1000,
+        )
+    ]
+    directory = write_run(tmp_path / "run", run)
+    (measurement,) = read_run(directory).measurements
+    assert measurement.hotspot == named
+
+
 def test_a_run_is_a_single_directory(tmp_path):
     # Everything the Run needs lives under its directory.
     directory = write_run(tmp_path / "run", sample_run())
