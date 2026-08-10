@@ -11,6 +11,7 @@ from pathlib import Path
 import pytest
 
 from nunatak.attribution import source
+from tests.support import WORKLOAD_C
 from nunatak.cli import principal
 from nunatak.pivot import (
     AddressDetail,
@@ -33,33 +34,6 @@ CORPUS = (
     / "workload-c-debug"
 )
 
-# The exact source the workload-c-debug corpus entry was compiled from.
-WORKLOAD_C = """\
-#include <stdio.h>
-#include <stdlib.h>
-
-static inline double axpy_element(double a, double x, double y) {
-    return a * x + y;
-}
-
-static double reduce(const double *v, int n) {
-    double s = 0.0;
-    for (int i = 0; i < n; i++)
-        s += axpy_element(2.0, v[i], s);
-    return s;
-}
-
-int main(void) {
-    int n = 1 << 20;
-    double *v = malloc(n * sizeof(double));
-    for (int i = 0; i < n; i++) v[i] = i * 0.5;
-    double s = 0.0;
-    for (int r = 0; r < 200; r++) s += reduce(v, n);
-    printf("%f\\n", s);
-    free(v);
-    return 0;
-}
-"""
 
 
 def hotspot(name="main", file="/build/app/solver.c"):

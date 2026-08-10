@@ -21,7 +21,7 @@ from pathlib import Path
 from nunatak import attribution, corpus, ingestion, machine, provenance
 from nunatak.attribution import source, staleness
 from nunatak.calibration import theory
-from nunatak.cli import doctor
+from nunatak.cli import calibrate, doctor
 from nunatak.collect import cpu_collector
 from nunatak.collect.execution import Executor, SubprocessExecutor
 from nunatak.config import Config, load
@@ -164,6 +164,25 @@ def execute(args, command: list[str], console: Console) -> int:
     name = project_name(config, command, root)
     directory = run_directory(args.output, config, name, cwd)
 
+    # The first Run on an unknown Machine calibrates it before the
+    # application launches - the only moment the node is truly ours. A
+    # cached profile short-circuits the measurement; --no-calibrate skips
+    # it at the price of theoretical Ceilings.
+    snapshot = machine.snapshot(executor)
+    cached = machine.load(snapshot)
+    if cached is not None:
+        snapshot = dataclasses.replace(snapshot, ceilings=cached.ceilings)
+    elif adapter is not None and not args.no_calibrate:
+        console.info(
+            f"calibrating Machine {machine.identity(snapshot)} "
+            "(first Run; --no-calibrate to skip)"
+        )
+        snapshot, _ = calibrate.calibrated_machine(executor, config, snapshot)
+    else:
+        snapshot = dataclasses.replace(
+            snapshot, ceilings=theory.theoretical_ceilings(snapshot)
+        )
+
     started = _now()
     collectors: tuple[Collector, ...] = ()
     measurements = []
@@ -207,14 +226,6 @@ def execute(args, command: list[str], console: Console) -> int:
             Path(args.record),
             list(command),
             [{"tool": c.tool, "version": c.version} for c in collectors],
-        )
-
-    # Until a Calibration has measured this Machine, the Run carries the
-    # theoretical peaks: estimated Ceilings beat a roofline with no roof.
-    snapshot = machine.snapshot(executor)
-    if not snapshot.ceilings:
-        snapshot = dataclasses.replace(
-            snapshot, ceilings=theory.theoretical_ceilings(snapshot)
         )
 
     run = Run(

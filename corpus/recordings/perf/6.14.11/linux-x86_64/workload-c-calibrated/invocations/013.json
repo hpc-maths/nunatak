@@ -1,0 +1,12 @@
+{
+  "argv": [
+    "/usr/lib/llvm-19/bin/llvm-symbolizer",
+    "--output-style=JSON",
+    "--obj=/usr/lib/x86_64-linux-gnu/ld-linux-x86-64.so.2",
+    "0x18e37",
+    "0x21e74",
+    "0x22315"
+  ],
+  "exit_code": 0,
+  "captured": true
+}

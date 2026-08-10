@@ -154,3 +154,23 @@ their mean: it is an upper bound. Polluted conditions - dispersed
 repetitions, concurrent load, a kernel built without SIMD, a value far
 above the theoretical peak - downgrade the ceiling to `estimated` with
 the reason, they never discard it.
+
+## Calibrating the Machine
+
+The calibration triggers by itself at the **first `run` on an unknown
+Machine**, before the application launches - the only moment the node
+is truly yours. The profile is cached (keyed by hardware plus
+allocation shape) and reused by every later Run on the same Machine.
+
+```sh
+nunatak calibrate            # spend the budget in a dedicated job
+nunatak calibrate --force    # recalibrate despite a cached profile
+nunatak run --no-calibrate -- ./solver   # skip it: ceilings stay theoretical
+```
+
+Ceilings are measured in priority order within a ~60 s budget - memory
+bandwidth and the double-precision peak first, because without them
+there is no roofline. A partial profile stays exploitable; whatever was
+not measured keeps its theoretical, `estimated` value. When nothing can
+be measured (no compiler on the machine), nothing is cached: the next
+run tries again.

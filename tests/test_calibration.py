@@ -9,10 +9,12 @@ format, because the thresholds are ours, not the tool's.
 import json
 from pathlib import Path
 
+import pytest
+
 from nunatak import corpus
 from nunatak.calibration import kernel
 from nunatak.config import Config
-from nunatak.pivot import Allocation, Machine, Quality
+from nunatak.pivot import Allocation, Ceiling, Machine, Quality
 from tests.support import ScriptedExecutor
 
 ENTRY = (
@@ -229,3 +231,167 @@ class TestReplayedCalibration:
             executor, runner_machine(), Config(), directory=tmp_path
         )
         assert {c.value for c in ceilings} == set(rates.values())
+
+
+class TestMergedCeilings:
+    def test_measured_wins_and_theory_fills_the_rest(self):
+        from nunatak.calibration import merged_ceilings
+
+        measured = (
+            Ceiling(
+                name="dram_bandwidth",
+                value=1.0e11,
+                unit="byte/s",
+                quality=Quality.MEASURED,
+            ),
+        )
+        theoretical = (
+            Ceiling(
+                name="dram_bandwidth",
+                value=9.9e99,
+                unit="byte/s",
+                quality=Quality.ESTIMATED,
+                reason="theory",
+            ),
+            Ceiling(
+                name="flops_dp",
+                value=1.0e12,
+                unit="flop/s",
+                quality=Quality.ESTIMATED,
+                reason="theory",
+            ),
+        )
+        merged = merged_ceilings(measured, theoretical)
+        assert [(c.name, c.quality) for c in merged] == [
+            ("dram_bandwidth", Quality.MEASURED),
+            ("flops_dp", Quality.ESTIMATED),
+        ]
+
+
+class TestCalibrateVerb:
+    """`nunatak calibrate` against the recorded EPYC entry: measure,
+    cache, short-circuit, --force."""
+
+    def test_the_replayed_calibration_caches_then_short_circuits(self, capsys):
+        from nunatak.cli import principal
+
+        assert principal(["calibrate", "--replay", str(ENTRY), "--json"]) == 0
+        report = json.loads(capsys.readouterr().out)
+        assert report["cached"] is False
+        values = {c["name"]: c["value"] for c in report["ceilings"]}
+        assert values["dram_bandwidth"] == 1.012428e11
+        assert values["flops_dp"] == 1.171888e12
+        assert values["flops_sp"] == 2.343294e12
+
+        # Same Machine, fresh replay: the cached profile answers and no
+        # recording is consumed.
+        assert principal(["calibrate", "--replay", str(ENTRY), "--json"]) == 0
+        second = json.loads(capsys.readouterr().out)
+        assert second["cached"] is True
+        assert {c["name"]: c["value"] for c in second["ceilings"]} == values
+
+    def test_force_takes_back_control_over_the_cache(self, capsys):
+        from nunatak.cli import principal
+
+        assert principal(["calibrate", "--replay", str(ENTRY), "--json"]) == 0
+        capsys.readouterr()
+        assert principal(["calibrate", "--replay", str(ENTRY), "--force", "--json"]) == 0
+        report = json.loads(capsys.readouterr().out)
+        assert report["cached"] is False
+
+
+FULL_ENTRY = (
+    Path(__file__).resolve().parent.parent
+    / "corpus"
+    / "recordings"
+    / "perf"
+    / "6.14.11"
+    / "linux-x86_64"
+    / "workload-c-calibrated"
+)
+
+
+class TestFirstRunCalibration:
+    """The recorded first Run on an unknown Machine: calibration before
+    the launch, then the usual perf pipeline, all in one entry."""
+
+    @pytest.fixture(autouse=True)
+    def in_tmp_cwd(self, tmp_path, monkeypatch):
+        from tests.support import WORKLOAD_C
+
+        (tmp_path / "nunatak.toml").write_text(
+            '[tools]\nllvm-symbolizer = "/usr/lib/llvm-19/bin/llvm-symbolizer"\n'
+        )
+        (tmp_path / "workload.c").write_text(WORKLOAD_C)
+        monkeypatch.chdir(tmp_path)
+
+    def recorded_maxima(self):
+        maxima = {}
+        for record in sorted((FULL_ENTRY / "invocations").glob("*.json")):
+            argv = json.loads(record.read_text())["argv"]
+            if "kernel-v0" in Path(argv[0]).name:
+                run = kernel.parse(record.with_suffix(".stdout").read_text())
+                maxima[run.kernel] = max(run.rates)
+        return maxima
+
+    def test_the_first_run_embeds_the_measured_ceilings(self, capsys):
+        from nunatak.cli import principal
+        from nunatak.pivot import read_run
+
+        assert (
+            principal(["run", "--replay", str(FULL_ENTRY), "--json", "--", "./workload"])
+            == 0
+        )
+        summary = json.loads(capsys.readouterr().out)
+        assert summary["degradations"] == []
+        assert summary["resolved_hotspots"] >= 1
+
+        run = read_run(summary["run"])
+        by_name = {c.name: c for c in run.machine.ceilings}
+        maxima = self.recorded_maxima()
+        assert by_name["dram_bandwidth"].value == maxima["triad"]
+        assert by_name["flops_dp"].value == maxima["fma_dp"]
+        assert by_name["flops_sp"].value == maxima["fma_sp"]
+
+    def test_the_second_run_reuses_the_cached_profile(self, capsys):
+        from nunatak.cli import principal
+        from nunatak.pivot import read_run
+
+        assert (
+            principal(["run", "--replay", str(FULL_ENTRY), "--json", "--", "./workload"])
+            == 0
+        )
+        first = json.loads(capsys.readouterr().out)
+        assert (
+            principal(["run", "--replay", str(FULL_ENTRY), "--json", "--", "./workload"])
+            == 0
+        )
+        second = json.loads(capsys.readouterr().out)
+        maxima = set(self.recorded_maxima().values())
+        for summary in (first, second):
+            ceilings = read_run(summary["run"]).machine.ceilings
+            assert maxima <= {c.value for c in ceilings}
+
+    def test_no_calibrate_leaves_only_theoretical_ceilings(self, capsys):
+        from nunatak.cli import principal
+        from nunatak.pivot import read_run
+
+        assert (
+            principal(
+                [
+                    "run",
+                    "--replay",
+                    str(FULL_ENTRY),
+                    "--no-calibrate",
+                    "--json",
+                    "--",
+                    "./workload",
+                ]
+            )
+            == 0
+        )
+        summary = json.loads(capsys.readouterr().out)
+        run = read_run(summary["run"])
+        assert all(
+            c.quality is not Quality.MEASURED for c in run.machine.ceilings
+        )
