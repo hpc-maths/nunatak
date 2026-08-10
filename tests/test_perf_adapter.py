@@ -45,6 +45,32 @@ def test_the_cpu_collector_is_linux_only():
     assert executor.calls == []  # not even probed
 
 
+def test_blocked_sampling_degrades_instead_of_failing_the_launch():
+    # kernel.perf_event_paranoid>=3 (Ubuntu default): the tool is present
+    # and its version detected, but no adapter is selected - the run then
+    # proceeds without a collector rather than dying inside perf record.
+    executor = ScriptedExecutor(
+        blocked="kernel.perf_event_paranoid=4 forbids unprivileged profiling"
+    ).on("perf", stdout="perf version 6.14.11\n")
+    assert cpu_collector(executor, Config()) == (None, "6.14.11")
+
+
+def test_the_blocked_reason_reaches_the_doctor_degradation():
+    from nunatak.cli.doctor import light_checks
+
+    executor = ScriptedExecutor(
+        blocked="kernel.perf_event_paranoid=4 forbids unprivileged profiling"
+    )
+    (check,) = [
+        c
+        for c in light_checks(executor, Config(), [], cpu=(None, "6.14.11"))
+        if c.name == "cpu-collector"
+    ]
+    assert check.degradation is not None
+    assert "perf 6.14.11 found" in check.degradation.message
+    assert "perf_event_paranoid=4" in check.degradation.message
+
+
 def test_the_configured_perf_path_is_used():
     executor = ScriptedExecutor().on("perf", stdout="perf version 6.8\n")
     adapter, version = cpu_collector(
