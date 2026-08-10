@@ -60,6 +60,11 @@ def build_parser() -> argparse.ArgumentParser:
         action="store_true",
         help="embed no source text in the Run (line numbers and metrics kept)",
     )
+    run.add_argument(
+        "--no-calibrate",
+        action="store_true",
+        help="skip the first-run calibration (ceilings stay theoretical)",
+    )
     # Corpus surface, for test campaigns on real hardware: record every
     # invocation crossing the execution boundary, or replay a recorded entry
     # instead of running the tools.
@@ -72,6 +77,22 @@ def build_parser() -> argparse.ArgumentParser:
         help="diagnose the environment, and the target binary when given",
     )
     doctor.add_argument("--json", action="store_true", help="machine-readable report on stdout")
+
+    calibrate = verbs.add_parser(
+        "calibrate",
+        usage="nunatak calibrate [options]",
+        help="measure this Machine's ceilings and cache the profile",
+    )
+    calibrate.add_argument(
+        "--force",
+        action="store_true",
+        help="recalibrate even when a cached profile exists",
+    )
+    calibrate.add_argument(
+        "--json", action="store_true", help="machine-readable profile on stdout"
+    )
+    calibrate.add_argument("--record", metavar="ENTRY", help=argparse.SUPPRESS)
+    calibrate.add_argument("--replay", metavar="ENTRY", help=argparse.SUPPRESS)
 
     return parser
 
@@ -96,6 +117,10 @@ def principal(argv: list[str] | None = None) -> int:
         from nunatak.cli import run
 
         return run.execute(args, command, console)
+    if args.verb == "calibrate":
+        from nunatak.cli import calibrate
+
+        return calibrate.execute(args, console)
     from nunatak.cli import doctor
 
     return doctor.execute(args, command, console)

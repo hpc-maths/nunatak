@@ -1,0 +1,11 @@
+{
+  "argv": [
+    "/tmp/nunatak-xdg-full/nunatak/machines/kernel-v0",
+    "fma_sp",
+    "32",
+    "5",
+    "300"
+  ],
+  "exit_code": 0,
+  "captured": true
+}

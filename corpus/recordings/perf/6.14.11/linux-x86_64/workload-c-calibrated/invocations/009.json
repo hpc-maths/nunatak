@@ -1,0 +1,14 @@
+{
+  "argv": [
+    "perf",
+    "record",
+    "--freq",
+    "997",
+    "--output",
+    "/tmp/nunatak-capture-full/.nunatak/workload-20260810-172746/collect/perf.data",
+    "--",
+    "./workload"
+  ],
+  "exit_code": 0,
+  "captured": false
+}
