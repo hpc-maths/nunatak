@@ -16,6 +16,7 @@ import pyarrow.parquet as pq
 import nunatak
 from nunatak.pivot.model import (
     AddressDetail,
+    Allocation,
     Ceiling,
     Collector,
     Degradation,
@@ -286,6 +287,69 @@ def write_run(directory: Path, run: Run) -> Path:
     return directory
 
 
+def machine_to_dict(machine: Machine) -> dict:
+    """The plain-JSON form of a Machine, shared by the Run manifest and
+    the profile cache so the two never drift apart."""
+    return {
+        "system": machine.system,
+        "kernel": machine.kernel,
+        "architecture": machine.architecture,
+        "cpu_model": machine.cpu_model,
+        "logical_cores": machine.logical_cores,
+        "allocation": {
+            "visible_cores": machine.allocation.visible_cores,
+            "affinity_mask": list(machine.allocation.affinity_mask)
+            if machine.allocation.affinity_mask is not None
+            else None,
+            "cpu_quota": machine.allocation.cpu_quota,
+            "memory_limit_bytes": machine.allocation.memory_limit_bytes,
+        },
+        "ceilings": [
+            {
+                "name": c.name,
+                "value": c.value,
+                "unit": c.unit,
+                "quality": c.quality.value,
+                "reason": c.reason,
+            }
+            for c in machine.ceilings
+        ],
+    }
+
+
+def machine_from_dict(data: dict) -> Machine:
+    """Rebuild a Machine from its plain-JSON form.
+
+    A snapshot written before the allocation shape existed reads back
+    with an empty Allocation: absent is not zero.
+    """
+    allocation = data.get("allocation") or {}
+    mask = allocation.get("affinity_mask")
+    return Machine(
+        system=data["system"],
+        kernel=data["kernel"],
+        architecture=data["architecture"],
+        cpu_model=data["cpu_model"],
+        logical_cores=data["logical_cores"],
+        allocation=Allocation(
+            visible_cores=allocation.get("visible_cores"),
+            affinity_mask=tuple(mask) if mask is not None else None,
+            cpu_quota=allocation.get("cpu_quota"),
+            memory_limit_bytes=allocation.get("memory_limit_bytes"),
+        ),
+        ceilings=tuple(
+            Ceiling(
+                name=c["name"],
+                value=c["value"],
+                unit=c["unit"],
+                quality=Quality(c["quality"]),
+                reason=c["reason"],
+            )
+            for c in data["ceilings"]
+        ),
+    )
+
+
 def _manifest(run: Run) -> dict:
     """The manifest content: plain JSON, readable without nunatak."""
     return {
@@ -300,23 +364,7 @@ def _manifest(run: Run) -> dict:
             "command": run.command,
             "exit_code": run.exit_code,
         },
-        "machine": {
-            "system": run.machine.system,
-            "kernel": run.machine.kernel,
-            "architecture": run.machine.architecture,
-            "cpu_model": run.machine.cpu_model,
-            "logical_cores": run.machine.logical_cores,
-            "ceilings": [
-                {
-                    "name": c.name,
-                    "value": c.value,
-                    "unit": c.unit,
-                    "quality": c.quality.value,
-                    "reason": c.reason,
-                }
-                for c in run.machine.ceilings
-            ],
-        },
+        "machine": machine_to_dict(run.machine),
         "provenance": {
             "commit": run.provenance.commit,
             "dirty_tree": run.provenance.dirty_tree,
@@ -455,24 +503,7 @@ def read_run(directory: Path) -> Run:
         for row in tables.get("addresses", [])
     ]
 
-    machine_data = manifest["machine"]
-    machine = Machine(
-        system=machine_data["system"],
-        kernel=machine_data["kernel"],
-        architecture=machine_data["architecture"],
-        cpu_model=machine_data["cpu_model"],
-        logical_cores=machine_data["logical_cores"],
-        ceilings=tuple(
-            Ceiling(
-                name=c["name"],
-                value=c["value"],
-                unit=c["unit"],
-                quality=Quality(c["quality"]),
-                reason=c["reason"],
-            )
-            for c in machine_data["ceilings"]
-        ),
-    )
+    machine = machine_from_dict(manifest["machine"])
     provenance_data = manifest["provenance"]
     provenance = Provenance(
         commit=provenance_data["commit"],

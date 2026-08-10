@@ -131,3 +131,9 @@ sampled address of each named Hotspot - is part of the measured pivot:
 it is what lets a later command ventilate a Hotspot by line and by
 inline frame on a machine where the binary and the symbolizer no longer
 exist. It is detail *inside* a Hotspot, never a unit of analysis.
+
+The machine snapshot records the **allocation shape** alongside the
+hardware: the cores this job actually received (affinity mask) and its
+cgroup CPU and memory limits. A Machine is that couple, not a node - a
+job given 8 cores of a 128-core node is a different Machine than the
+whole node, and its ceilings will be measured for those 8 cores.

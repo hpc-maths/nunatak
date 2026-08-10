@@ -307,12 +307,34 @@ class Ceiling:
 
 
 @dataclass(frozen=True)
+class Allocation:
+    """The share of the node this process actually received.
+
+    A Ceiling only holds for a given scope - the allocation's - and only
+    compares to Measurements aggregated over that same scope: a job given
+    8 cores of a 128-core node must not recycle the whole node's
+    Ceilings. `visible_cores` is what the affinity mask allows,
+    `affinity_mask` the exact cores (their placement decides which caches
+    and NUMA nodes the job sees), `cpu_quota` the cgroup limit in cores,
+    `memory_limit_bytes` the cgroup memory cap; None states that a bound
+    does not exist or cannot be observed on this platform.
+    """
+
+    visible_cores: int | None = None
+    affinity_mask: tuple[int, ...] | None = None
+    cpu_quota: float | None = None
+    memory_limit_bytes: int | None = None
+
+
+@dataclass(frozen=True)
 class Machine:
     """The hardware a Run executes on, carrier of the roofline Ceilings.
 
     Its identity is not a node - the node is a Locus level - but a couple
-    hardware + allocation shape. Every Run embeds a complete snapshot of its
-    Machine in its manifest.
+    hardware + allocation shape: two jobs receiving different shares of
+    the same node are two Machines, a thousand identical nodes of a
+    cluster are one. Every Run embeds a complete snapshot of its Machine
+    in its manifest, so any cache remains an optimization.
     """
 
     system: str
@@ -320,6 +342,7 @@ class Machine:
     architecture: str
     cpu_model: str | None = None
     logical_cores: int | None = None
+    allocation: Allocation = field(default_factory=Allocation)
     ceilings: tuple[Ceiling, ...] = ()
 
 
