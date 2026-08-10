@@ -108,3 +108,73 @@ class TestDoctor:
         report = json.loads(capsys.readouterr().out)
         target = [c for c in report["checks"] if c["name"] == "target-binary"]
         assert target and target[0]["status"] == "ok"
+
+
+class TestAttributionCeiling:
+    """doctor announces how far attribution will go, before the run,
+    against genuine llvm-readelf section inventories."""
+
+    def checks(self, tmp_path, readelf_stdout=None, readelf_exit=0, symbolizer=True):
+        from nunatak.cli.doctor import light_checks
+        from nunatak.attribution import Symbolizer
+        from nunatak.config import Config
+        from tests.support import ScriptedExecutor
+
+        binary = tmp_path / "solver"
+        binary.write_bytes(b"\x7fELF")
+        executor = ScriptedExecutor()
+        if readelf_stdout is not None or readelf_exit:
+            executor.on(
+                "llvm-readelf", stdout=readelf_stdout or "", exit_code=readelf_exit
+            )
+        located = (
+            Symbolizer(path="/usr/lib/llvm-19/bin/llvm-symbolizer", major=19)
+            if symbolizer
+            else None
+        )
+        results = light_checks(
+            executor, Config(), [str(binary)], cpu=(None, None), llvm=(located,)
+        )
+        return {c.name: c for c in results}
+
+    def test_a_debug_build_reaches_line_level(self, tmp_path):
+        from tests.support import READELF_WITH_SYMTAB
+
+        check = self.checks(tmp_path, READELF_WITH_SYMTAB)["target-attribution"]
+        assert check.status == "ok"
+        assert "line-level" in check.detail
+
+    def test_without_debug_information_doctor_claims_g(self, tmp_path):
+        from tests.support import READELF_NO_DEBUG
+
+        check = self.checks(tmp_path, READELF_NO_DEBUG)["target-attribution"]
+        assert check.status == "warning"
+        assert "function level" in check.detail
+        assert "-g" in check.remedy
+
+    def test_a_stripped_binary_is_capped_at_symbol_level(self, tmp_path):
+        from tests.support import READELF_STRIPPED_LIB
+
+        check = self.checks(tmp_path, READELF_STRIPPED_LIB)["target-attribution"]
+        assert check.status == "warning"
+        assert "symbol level" in check.detail
+
+    def test_an_uninspectable_binary_is_said_not_guessed(self, tmp_path):
+        check = self.checks(tmp_path, readelf_exit=1)["target-attribution"]
+        assert check.status == "warning"
+        assert "cannot inspect" in check.detail
+
+    def test_without_llvm_no_ceiling_is_claimed(self, tmp_path):
+        assert "target-attribution" not in self.checks(tmp_path, symbolizer=False)
+
+    def test_a_missing_target_yields_no_ceiling_row(self, capsys):
+        from nunatak.cli.doctor import light_checks
+        from nunatak.config import Config
+        from tests.support import ScriptedExecutor
+
+        results = light_checks(
+            ScriptedExecutor(), Config(), ["/nowhere/solver"], cpu=(None, None), llvm=(None,)
+        )
+        names = [c.name for c in results]
+        assert "target-binary" in names
+        assert "target-attribution" not in names

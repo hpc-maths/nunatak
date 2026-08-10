@@ -14,6 +14,7 @@ import shutil
 from dataclasses import asdict, dataclass
 from pathlib import Path
 
+from nunatak.attribution import inspection
 from nunatak.attribution.symbolizer import MINIMUM_LLVM, RECOMMENDED_LLVM, locate
 from nunatak.collect.execution import Executor
 from nunatak.config import Config
@@ -93,11 +94,9 @@ def _cpu_collector(
     return checks
 
 
-def _llvm(
-    executor: Executor, config: Config, preselected: tuple | None = None
-) -> CheckResult:
-    """Probe and invoke llvm-symbolizer; old versions restrict loop analysis."""
-    symbolizer = preselected[0] if preselected is not None else locate(executor, config)
+def _llvm(symbolizer) -> CheckResult:
+    """Verdict on the located llvm-symbolizer; old versions restrict loop
+    analysis."""
     if symbolizer is not None:
         if symbolizer.major >= RECOMMENDED_LLVM:
             return CheckResult(
@@ -142,20 +141,76 @@ def _llvm(
     )
 
 
-def _target(command: list[str]) -> CheckResult:
-    """Existence and executability of the real target binary."""
+def _resolved_target(command: list[str]) -> tuple[str, Path | None]:
+    """The real target binary of `command` and where it lives, None when
+    it cannot be found on this machine."""
     target = real_target(command) or command[0]
     resolved = shutil.which(target) if "/" not in target else target
     if resolved is None or not Path(resolved).is_file():
+        return target, None
+    return target, Path(resolved)
+
+
+def _target(command: list[str]) -> CheckResult:
+    """Existence and executability of the real target binary."""
+    target, resolved = _resolved_target(command)
+    if resolved is None:
         return CheckResult(
             name="target-binary",
             status="missing",
             detail=f"{target}: not found",
             remedy="the run would exit with 127",
         )
-    # Debug-info, frame-pointer and -lineinfo inspection arrives with the
-    # attribution chain.
     return CheckResult(name="target-binary", status="ok", detail=str(resolved))
+
+
+def _attribution_ceiling(
+    executor: Executor, command: list[str], symbolizer
+) -> CheckResult | None:
+    """How far attribution will go on the target binary, announced before
+    any compute time is spent: the `-g` incentive made readable, not
+    punitive. None when there is no binary to inspect or no LLVM to
+    inspect it with - the other checks already said so.
+    """
+    _, resolved = _resolved_target(command)
+    if resolved is None or symbolizer is None:
+        return None
+    sections = inspection.inspect(
+        executor, inspection.readelf_path(symbolizer.path), str(resolved)
+    )
+    if sections is None:
+        return CheckResult(
+            name="target-attribution",
+            status="warning",
+            detail=f"cannot inspect {resolved}",
+            remedy="attribution will be decided at analysis time",
+        )
+    if sections.debug_info:
+        return CheckResult(
+            name="target-attribution",
+            status="ok",
+            detail="debug information present: line-level attribution",
+        )
+    if sections.symtab:
+        return CheckResult(
+            name="target-attribution",
+            status="warning",
+            detail="no debug information: attribution capped at function level",
+            remedy="compile with -g to get line numbers, inlining and source extracts",
+        )
+    if sections.dynsym:
+        return CheckResult(
+            name="target-attribution",
+            status="warning",
+            detail="stripped binary: attribution capped at symbol level",
+            remedy="keep the symbol table, or compile with -g",
+        )
+    return CheckResult(
+        name="target-attribution",
+        status="warning",
+        detail="no symbol table at all: Hotspots will stay unresolved",
+        remedy="compile with -g, or at least keep the symbol table",
+    )
 
 
 def light_checks(
@@ -169,10 +224,14 @@ def light_checks(
     benchmark, a few tool invocations. `cpu` carries an already-selected
     (adapter, version) and `llvm` an already-located (symbolizer,), so no
     tool is probed twice."""
+    symbolizer = llvm[0] if llvm is not None else locate(executor, config)
     checks = _cpu_collector(executor, config, preselected=cpu)
-    checks.append(_llvm(executor, config, preselected=llvm))
+    checks.append(_llvm(symbolizer))
     if command:
         checks.append(_target(command))
+        ceiling = _attribution_ceiling(executor, command, symbolizer)
+        if ceiling is not None:
+            checks.append(ceiling)
     return checks
 
 

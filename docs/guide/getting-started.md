@@ -74,6 +74,12 @@ nunatak doctor --json
 `doctor` invokes the tools instead of trusting their presence on `PATH`.
 A cheap subset of it runs automatically at the start of every `run`.
 
+Given a command, `doctor` also inspects the target binary and announces
+how far attribution will go - line level with debug information,
+function level with a bare symbol table, symbol level on a stripped
+binary - **before** any compute time is spent, with the remedy when one
+exists (`-g`, or keeping the symbol table).
+
 ## Exit codes
 
 The application's code is propagated in the general case. Reserved codes,
