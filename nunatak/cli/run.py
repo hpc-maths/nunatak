@@ -143,6 +143,7 @@ def execute(args, command: list[str], console: Console) -> int:
     started = _now()
     collectors: tuple[Collector, ...] = ()
     measurements = []
+    address_details = []
     if adapter is not None:
         console.info(f"collecting with {adapter.tool} {version}: {' '.join(command)}")
         exit_code = adapter.collect(
@@ -152,7 +153,7 @@ def execute(args, command: list[str], console: Console) -> int:
         measurements, ingest_degradations = ingestion.ingest(
             adapter.tool, version, directory / COLLECT_DIR, node=platform.node()
         )
-        measurements, attribution_degradations = attribution.attribute(
+        measurements, address_details, attribution_degradations = attribution.attribute(
             measurements, symbolizer, executor
         )
         for degradation in ingest_degradations + attribution_degradations:
@@ -188,6 +189,7 @@ def execute(args, command: list[str], console: Console) -> int:
         ],
         degradations=list(degradations),
         measurements=measurements,
+        address_details=address_details,
     )
     write_run(directory, run)
 

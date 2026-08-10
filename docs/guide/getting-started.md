@@ -88,10 +88,16 @@ provenance: a threshold can be tuned, it cannot be tuned silently.
 ```
 .nunatak/solver-20260809-142233/
   manifest.json        machine snapshot, provenance, passes, degradations
-  pivot/               measurements and events (Parquet)
+  pivot/               measurements, events, attribution detail (Parquet)
   collect/             raw collector outputs (perf.data, perf script text)
 ```
 
 The manifest is plain JSON, readable without nunatak. The pivot holds
 measured data only; analyses are recomputed on demand by later commands,
 so a Run remains fully exploitable years after being written.
+
+The attribution detail - the inlining chain and the weight of every
+sampled address of each named Hotspot - is part of the measured pivot:
+it is what lets a later command ventilate a Hotspot by line and by
+inline frame on a machine where the binary and the symbolizer no longer
+exist. It is detail *inside* a Hotspot, never a unit of analysis.
