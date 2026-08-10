@@ -23,6 +23,7 @@ from nunatak.pivot.model import (
     Quality,
     ResolutionLevel,
     Run,
+    SourceExtract,
 )
 from nunatak.pivot.persistence import MANIFEST, SCHEMA, read_run, write_run
 
@@ -44,6 +45,7 @@ __all__ = [
     "Quality",
     "ResolutionLevel",
     "Run",
+    "SourceExtract",
     "MANIFEST",
     "SCHEMA",
     "read_run",

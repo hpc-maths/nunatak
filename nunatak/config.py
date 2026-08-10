@@ -30,6 +30,7 @@ class Config:
     project_name: str | None = None
     runs_dir: str = ".nunatak"
     tools: dict[str, str] = field(default_factory=dict)
+    source_map: dict[str, str] = field(default_factory=dict)
     coverage_threshold: float = 0.8
     sampling_frequency: int = 997
 
@@ -75,6 +76,7 @@ def load(
         config.project_name = data.get("name", config.project_name)
         config.runs_dir = data.get("runs_dir", config.runs_dir)
         config.tools.update(data.get("tools", {}))
+        config.source_map.update(data.get("source_map", {}))
         thresholds = data.get("thresholds", {})
         config.coverage_threshold = thresholds.get("coverage", config.coverage_threshold)
         sampling = data.get("sampling", {})
@@ -92,4 +94,6 @@ def load(
         effective["name"] = config.project_name
     for tool, path in sorted(config.tools.items()):
         effective[f"tools.{tool}"] = path
+    for prefix, replacement in sorted(config.source_map.items()):
+        effective[f"source_map.{prefix}"] = replacement
     return config, effective

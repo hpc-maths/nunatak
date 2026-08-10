@@ -32,6 +32,7 @@ from nunatak.pivot.model import (
     Quality,
     ResolutionLevel,
     Run,
+    SourceExtract,
 )
 
 MANIFEST = "manifest.json"
@@ -114,6 +115,22 @@ _FRAMES = pa.schema(
     ]
 )
 
+# Source extracts are the one non-measured content of the pivot: they are
+# raw material for the report and the Explanation, embedded so the Run
+# stays self-sufficient, never a conclusion.
+_EXTRACTS = pa.schema(
+    [
+        ("hotspot", pa.int32()),
+        ("file", pa.string()),
+        ("resolved_path", pa.string()),
+        ("start_line", pa.int64()),
+        ("end_line", pa.int64()),
+        ("text", pa.string()),
+        ("truncated", pa.bool_()),
+        ("reason", pa.string()),
+    ]
+)
+
 _FILES = {
     "hotspots": f"{PIVOT_DIR}/hotspots.parquet",
     "loci": f"{PIVOT_DIR}/loci.parquet",
@@ -121,6 +138,7 @@ _FILES = {
     "events": f"{PIVOT_DIR}/events.parquet",
     "addresses": f"{PIVOT_DIR}/addresses.parquet",
     "frames": f"{PIVOT_DIR}/frames.parquet",
+    "extracts": f"{PIVOT_DIR}/extracts.parquet",
 }
 
 
@@ -147,6 +165,8 @@ def write_run(directory: Path, run: Run) -> Path:
         loci.setdefault(measurement.locus, len(loci))
     for detail in run.address_details:
         hotspots.setdefault(_hotspot_key(detail.hotspot), (len(hotspots), detail.hotspot))
+    for extract in run.source_extracts:
+        hotspots.setdefault(_hotspot_key(extract.hotspot), (len(hotspots), extract.hotspot))
     for event in run.events:
         loci.setdefault(event.locus, len(loci))
 
@@ -234,6 +254,20 @@ def write_run(directory: Path, run: Run) -> Path:
         for depth, frame in enumerate(frames)
     ]
 
+    extract_rows = [
+        {
+            "hotspot": hotspots[_hotspot_key(e.hotspot)][0],
+            "file": e.file,
+            "resolved_path": e.resolved_path,
+            "start_line": e.start_line,
+            "end_line": e.end_line,
+            "text": e.text,
+            "truncated": e.truncated,
+            "reason": e.reason,
+        }
+        for e in run.source_extracts
+    ]
+
     for name, schema, rows in (
         ("hotspots", _HOTSPOTS, hotspot_rows),
         ("loci", _LOCI, locus_rows),
@@ -241,6 +275,7 @@ def write_run(directory: Path, run: Run) -> Path:
         ("events", _EVENTS, event_rows),
         ("addresses", _ADDRESSES, address_rows),
         ("frames", _FRAMES, frame_rows),
+        ("extracts", _EXTRACTS, extract_rows),
     ):
         pq.write_table(pa.Table.from_pylist(rows, schema=schema), directory / _FILES[name])
 
@@ -472,4 +507,17 @@ def read_run(directory: Path) -> Run:
         measurements=measurements,
         events=events,
         address_details=address_details,
+        source_extracts=[
+            SourceExtract(
+                hotspot=hotspots[row["hotspot"]],
+                file=row["file"],
+                resolved_path=row["resolved_path"],
+                start_line=row["start_line"],
+                end_line=row["end_line"],
+                text=row["text"],
+                truncated=row["truncated"],
+                reason=row["reason"],
+            )
+            for row in tables.get("extracts", [])
+        ],
     )

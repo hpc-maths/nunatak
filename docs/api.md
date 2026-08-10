@@ -51,6 +51,9 @@
 
 .. automodule:: nunatak.attribution.inspection
    :members:
+
+.. automodule:: nunatak.attribution.source
+   :members:
 ```
 
 ## Configuration
