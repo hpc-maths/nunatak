@@ -11,7 +11,6 @@ from __future__ import annotations
 
 import glob
 import json
-import platform
 import re
 import shutil
 from dataclasses import asdict, dataclass
@@ -48,13 +47,31 @@ def tool_version(executor: Executor, argv: list[str], pattern: str) -> str | Non
     return match.group(1) if match else None
 
 
-def _cpu_collector(executor: Executor, config: Config) -> list[CheckResult]:
-    if platform.system() != "Linux":
-        degradation = Degradation(
-            name="cpu-collection-unavailable",
-            message=f"no CPU collector implemented for {platform.system()} yet",
-            remedy="hardware-counter profiling requires Linux perf for now",
-        )
+def _cpu_collector(
+    executor: Executor,
+    config: Config,
+    preselected: tuple | None = None,
+) -> list[CheckResult]:
+    """Presence, version and usability of the CPU collector."""
+    from nunatak.collect import cpu_collector
+
+    adapter, version = (
+        preselected if preselected is not None else cpu_collector(executor, config)
+    )
+    if adapter is None:
+        if executor.system != "Linux":
+            degradation = Degradation(
+                name="cpu-collection-unavailable",
+                message=f"no CPU collector implemented for {executor.system} yet",
+                remedy="hardware-counter profiling requires Linux perf for now",
+            )
+        else:
+            path = config.tools.get("perf", "perf")
+            degradation = Degradation(
+                name="cpu-collection-unavailable",
+                message=f"perf not usable at '{path}'",
+                remedy="install linux-tools for your kernel, or set tools.perf in nunatak.toml",
+            )
         return [
             CheckResult(
                 name="cpu-collector",
@@ -65,25 +82,11 @@ def _cpu_collector(executor: Executor, config: Config) -> list[CheckResult]:
             )
         ]
 
-    path = config.tools.get("perf", "perf")
-    version = tool_version(executor, [path, "--version"], r"perf version (\S+)")
-    if version is None:
-        degradation = Degradation(
-            name="cpu-collection-unavailable",
-            message=f"perf not usable at '{path}'",
-            remedy="install linux-tools for your kernel, or set tools.perf in nunatak.toml",
+    checks = [
+        CheckResult(
+            name="cpu-collector", status="ok", detail=f"perf {version} ({adapter.path})"
         )
-        return [
-            CheckResult(
-                name="cpu-collector",
-                status="missing",
-                detail=degradation.message,
-                remedy=degradation.remedy,
-                degradation=degradation,
-            )
-        ]
-
-    checks = [CheckResult(name="cpu-collector", status="ok", detail=f"perf {version} ({path})")]
+    ]
     paranoid_file = Path("/proc/sys/kernel/perf_event_paranoid")
     if paranoid_file.is_file():
         paranoid = int(paranoid_file.read_text().strip())
@@ -198,11 +201,15 @@ def _target(command: list[str]) -> CheckResult:
 
 
 def light_checks(
-    executor: Executor, config: Config, command: list[str]
+    executor: Executor,
+    config: Config,
+    command: list[str],
+    cpu: tuple | None = None,
 ) -> list[CheckResult]:
     """The cheap subset run at the start of every `run`: no build, no
-    benchmark, a few tool invocations."""
-    checks = _cpu_collector(executor, config)
+    benchmark, a few tool invocations. `cpu` carries an already-selected
+    (adapter, version) so the tool is not probed twice."""
+    checks = _cpu_collector(executor, config, preselected=cpu)
     checks.append(_llvm(executor, config))
     if command:
         checks.append(_target(command))

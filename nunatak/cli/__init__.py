@@ -49,6 +49,11 @@ def build_parser() -> argparse.ArgumentParser:
         help="turn every named degradation into an error (exit code 121)",
     )
     run.add_argument("--json", action="store_true", help="machine-readable summary on stdout")
+    # Corpus surface, for test campaigns on real hardware: record every
+    # invocation crossing the execution boundary, or replay a recorded entry
+    # instead of running the tools.
+    run.add_argument("--record", metavar="ENTRY", help=argparse.SUPPRESS)
+    run.add_argument("--replay", metavar="ENTRY", help=argparse.SUPPRESS)
 
     doctor = verbs.add_parser(
         "doctor",
