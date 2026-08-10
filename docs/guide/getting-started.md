@@ -36,6 +36,12 @@ rather than being attached to the nearest symbol. Kernel and vdso
 samples stay unresolved by design, and without LLVM the run still
 measures - the names are simply missing, and the degradation says so.
 
+`function` and `symbol` name the same situation - a name without a
+source position - but not the same remedy: `function` comes from the
+symbol table of a binary built without `-g`, `symbol` from the dynamic
+symbols of a stripped module, where the way forward is a debuginfo
+package, not a recompile.
+
 ## Checking the environment
 
 ```sh
