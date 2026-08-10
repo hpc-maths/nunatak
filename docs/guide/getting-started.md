@@ -137,3 +137,10 @@ hardware: the cores this job actually received (affinity mask) and its
 cgroup CPU and memory limits. A Machine is that couple, not a node - a
 job given 8 cores of a 128-core node is a different Machine than the
 whole node, and its ceilings will be measured for those 8 cores.
+
+Until a calibration has measured the Machine, the Run carries
+**theoretical FLOP/s ceilings**: the microarchitecture's per-cycle
+capability, crossed with the exposed frequency and scaled to the
+allocation. They are always of quality `estimated`, with the reason -
+and an unknown microarchitecture yields no ceiling at all rather than
+an extrapolation. Memory-bandwidth ceilings only exist measured.
