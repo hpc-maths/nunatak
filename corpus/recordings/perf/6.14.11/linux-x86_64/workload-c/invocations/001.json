@@ -1,0 +1,8 @@
+{
+  "argv": [
+    "/opt/homebrew/opt/llvm/bin/llvm-symbolizer",
+    "--version"
+  ],
+  "exit_code": 127,
+  "captured": true
+}

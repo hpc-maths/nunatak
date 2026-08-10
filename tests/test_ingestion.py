@@ -15,20 +15,14 @@ from nunatak.ingestion import ingest, measurements_from_samples
 from nunatak.ingestion.perf_script import parse_buildid_list, parse_samples, supports
 from nunatak.pivot import Quality, ResolutionLevel, read_run
 
-CORPUS = (
-    Path(__file__).resolve().parent.parent
-    / "corpus"
-    / "recordings"
-    / "perf"
-    / "6.12.101"
-    / "linux-aarch64"
-    / "workload-c"
-)
+RECORDINGS = Path(__file__).resolve().parent.parent / "corpus" / "recordings"
+CORPUS = RECORDINGS / "perf" / "6.12.101" / "linux-aarch64" / "workload-c"
+X86_CORPUS = RECORDINGS / "perf" / "6.14.11" / "linux-x86_64" / "workload-c"
 WORKLOAD_BUILDID = "c176e72d0b29a13e48d8b5e6a98f2ef6894d7e69"
 
 
-def recorded_stdout(subcommand: str) -> str:
-    for record in sorted((CORPUS / "invocations").glob("*.json")):
+def recorded_stdout(subcommand: str, entry: Path = CORPUS) -> str:
+    for record in sorted((entry / "invocations").glob("*.json")):
         argv = json.loads(record.read_text())["argv"]
         if argv[:2] == ["perf", subcommand]:
             return record.with_suffix(".stdout").read_text()
@@ -118,4 +112,18 @@ class TestReplayedPipeline:
         assert run.passes[0].collectors[0].tool == "perf"
         assert run.passes[0].collectors[0].version == "6.12.101"
         samples, _ = parse_samples(recorded_stdout("script"))
+        assert sum(m.value for m in run.measurements) == sum(s.period for s in samples)
+
+    def test_the_x86_entry_carries_real_pmu_cycles(self, capsys):
+        # Captured on bare metal (AMD EPYC, paranoid lowered to 2): the
+        # sampled raw counter is hardware cycles, not a software clock.
+        samples, unparsed = parse_samples(recorded_stdout("script", X86_CORPUS))
+        assert unparsed == []
+        assert {s.counter for s in samples} == {"cycles"}
+
+        assert principal(["run", "--replay", str(X86_CORPUS), "--json", "--", "./workload"]) == 0
+        summary = json.loads(capsys.readouterr().out)
+        run = read_run(summary["run"])
+        assert run.passes[0].collectors[0].version == "6.14.11"
+        assert all(m.unit == "cycles" for m in run.measurements)
         assert sum(m.value for m in run.measurements) == sum(s.period for s in samples)
