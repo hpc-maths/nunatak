@@ -42,6 +42,20 @@ symbol table of a binary built without `-g`, `symbol` from the dynamic
 symbols of a stripped module, where the way forward is a debuginfo
 package, not a recompile.
 
+## Source in the Run
+
+For every Hotspot attributed at line level, the run embeds a **source
+extract** - never a whole file: the body of the physical function and
+its hot inline frames, a few context lines around. The file is searched
+in three steps: the path DWARF recorded, then the `--source-map OLD=NEW`
+rewriting (repeatable flag, or a `[source_map]` table in
+`nunatak.toml`), then a basename search under the repository root. On
+multiple ambiguous matches nunatak does not choose: the Hotspot stays
+without source, and the extract carries the reason instead of the text.
+
+`--no-source` embeds no source text at all, for what must leave a
+sensitive site: line numbers and measurements are kept.
+
 ## Checking the environment
 
 ```sh
@@ -75,6 +89,9 @@ runs_dir = "/scratch/me/runs"
 [tools]
 perf = "/opt/perf/bin/perf"
 llvm-symbolizer = "/usr/lib/llvm-19/bin/llvm-symbolizer"
+
+[source_map]
+"/build/app" = "/home/me/app"    # where the build tree lives now
 
 [thresholds]
 coverage = 0.8           # multiplexing coverage below which a value degrades

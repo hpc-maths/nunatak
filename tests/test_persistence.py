@@ -23,6 +23,7 @@ from nunatak.pivot import (
     Quality,
     ResolutionLevel,
     Run,
+    SourceExtract,
     read_run,
     write_run,
 )
@@ -149,6 +150,7 @@ def test_a_run_is_a_single_directory(tmp_path):
         directory / "pivot" / "events.parquet",
         directory / "pivot" / "addresses.parquet",
         directory / "pivot" / "frames.parquet",
+        directory / "pivot" / "extracts.parquet",
     }
 
 
@@ -295,3 +297,24 @@ def test_a_run_written_before_the_detail_tables_reads_back(tmp_path):
     run = read_run(directory)
     assert run.address_details == []
     assert run.measurements == sample_run().measurements
+
+
+def test_round_trip_preserves_source_extracts(tmp_path):
+    run = sample_run()
+    run.source_extracts = [
+        SourceExtract(
+            hotspot=named_hotspot(),
+            file="/src/solver.c",
+            resolved_path="/home/me/solver.c",
+            start_line=12,
+            end_line=40,
+            text="double s = 0.0;\nfor (...) {}\n",
+        ),
+        SourceExtract(
+            hotspot=named_hotspot(),
+            file="/build/mystery.c",
+            reason="source file not found on this machine",
+        ),
+    ]
+    directory = write_run(tmp_path / "run", run)
+    assert read_run(directory).source_extracts == run.source_extracts

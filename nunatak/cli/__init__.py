@@ -49,6 +49,17 @@ def build_parser() -> argparse.ArgumentParser:
         help="turn every named degradation into an error (exit code 121)",
     )
     run.add_argument("--json", action="store_true", help="machine-readable summary on stdout")
+    run.add_argument(
+        "--source-map",
+        action="append",
+        metavar="OLD=NEW",
+        help="rewrite a DWARF path prefix when resolving sources (repeatable)",
+    )
+    run.add_argument(
+        "--no-source",
+        action="store_true",
+        help="embed no source text in the Run (line numbers and metrics kept)",
+    )
     # Corpus surface, for test campaigns on real hardware: record every
     # invocation crossing the execution boundary, or replay a recorded entry
     # instead of running the tools.

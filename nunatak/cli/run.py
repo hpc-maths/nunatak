@@ -18,6 +18,7 @@ import shutil
 from pathlib import Path
 
 from nunatak import attribution, corpus, ingestion, machine, provenance
+from nunatak.attribution import source
 from nunatak.cli import doctor
 from nunatak.collect import cpu_collector
 from nunatak.collect.execution import Executor, SubprocessExecutor
@@ -58,21 +59,37 @@ def executable_status(program: str) -> tuple[int, str] | None:
     return COMMAND_NOT_FOUND, f"{program}: command not found"
 
 
-def project_name(
-    executor: Executor, config: Config, command: list[str], cwd: Path
-) -> str:
+def repository_root(executor: Executor, cwd: Path) -> Path | None:
+    """The git toplevel containing `cwd`, None outside any repository."""
+    toplevel = executor.run(["git", "-C", str(cwd), "rev-parse", "--show-toplevel"])
+    if toplevel.exit_code == 0 and toplevel.stdout and toplevel.stdout.strip():
+        return Path(toplevel.stdout.strip())
+    return None
+
+
+def project_name(config: Config, command: list[str], root: Path | None) -> str:
     """Naming cascade: `--name` and `nunatak.toml` (already merged into the
     config), else the git repository name, else the base name of the real
     target binary - `solver`, not `mpirun`."""
     if config.project_name:
         name = config.project_name
+    elif root is not None:
+        name = root.name
     else:
-        toplevel = executor.run(["git", "-C", str(cwd), "rev-parse", "--show-toplevel"])
-        if toplevel.exit_code == 0 and toplevel.stdout and toplevel.stdout.strip():
-            name = Path(toplevel.stdout.strip()).name
-        else:
-            name = Path(real_target(command) or command[0]).name
+        name = Path(real_target(command) or command[0]).name
     return re.sub(r"[^A-Za-z0-9._-]+", "-", name) or "run"
+
+
+def source_mapping(config: Config, flags: list[str] | None) -> dict[str, str] | None:
+    """Merge the configured source map with the `--source-map OLD=NEW`
+    flags, the flags winning; None when a flag is not of that shape."""
+    mapping = dict(config.source_map)
+    for flag in flags or []:
+        prefix, separator, replacement = flag.partition("=")
+        if not separator or not prefix:
+            return None
+        mapping[prefix] = replacement
+    return mapping
 
 
 def run_directory(output: str | None, config: Config, name: str, cwd: Path) -> Path:
@@ -106,6 +123,10 @@ def execute(args, command: list[str], console: Console) -> int:
 
     cwd = Path.cwd()
     config, effective = load(cwd, name=args.name)
+    mapping = source_mapping(config, args.source_map)
+    if mapping is None:
+        console.error("--source-map expects OLD=NEW")
+        return FAILURE_BEFORE_LAUNCH
     replaying = args.replay is not None
     if replaying:
         executor: Executor = corpus.ReplayExecutor(Path(args.replay))
@@ -137,13 +158,15 @@ def execute(args, command: list[str], console: Console) -> int:
             console.error(message)
             return code
 
-    name = project_name(executor, config, command, cwd)
+    root = repository_root(executor, cwd)
+    name = project_name(config, command, root)
     directory = run_directory(args.output, config, name, cwd)
 
     started = _now()
     collectors: tuple[Collector, ...] = ()
     measurements = []
     address_details = []
+    source_extracts = []
     if adapter is not None:
         console.info(f"collecting with {adapter.tool} {version}: {' '.join(command)}")
         exit_code = adapter.collect(
@@ -156,6 +179,8 @@ def execute(args, command: list[str], console: Console) -> int:
         measurements, address_details, attribution_degradations = attribution.attribute(
             measurements, symbolizer, executor
         )
+        if not args.no_source:
+            source_extracts = source.extract(address_details, mapping, root or cwd)
         for degradation in ingest_degradations + attribution_degradations:
             console.degradation(degradation)
         degradations = degradations + ingest_degradations + attribution_degradations
@@ -190,6 +215,7 @@ def execute(args, command: list[str], console: Console) -> int:
         degradations=list(degradations),
         measurements=measurements,
         address_details=address_details,
+        source_extracts=source_extracts,
     )
     write_run(directory, run)
 

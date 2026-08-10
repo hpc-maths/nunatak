@@ -221,6 +221,36 @@ class AddressDetail:
 
 
 @dataclass(frozen=True)
+class SourceExtract:
+    """An embedded source extract for one named Hotspot - never a whole
+    file: the body of the physical function and its hot inline frames,
+    a few context lines around.
+
+    `file` is the path DWARF recorded (the identity), `resolved_path`
+    where the text was actually read. When `text` is None, `reason` says
+    why the source is absent - not found, ambiguous - so the report can
+    say it instead of silently showing nothing. Embedding the text keeps
+    the Run self-sufficient: it is readable in six months, on a machine
+    where the source tree no longer exists, and its size stays bounded.
+    """
+
+    hotspot: Hotspot
+    file: str
+    resolved_path: str | None = None
+    start_line: int | None = None
+    end_line: int | None = None
+    text: str | None = None
+    truncated: bool = False
+    reason: str | None = None
+
+    def __post_init__(self) -> None:
+        if self.text is None and self.reason is None:
+            raise ValueError("an absent source extract always carries its reason")
+        if self.text is not None and self.reason is not None:
+            raise ValueError("an embedded source extract carries no absence reason")
+
+
+@dataclass(frozen=True)
 class Event:
     """A timestamped fact with a duration: GPU kernel launch, MPI call.
 
@@ -340,3 +370,4 @@ class Run:
     measurements: list[Measurement] = field(default_factory=list)
     events: list[Event] = field(default_factory=list)
     address_details: list[AddressDetail] = field(default_factory=list)
+    source_extracts: list[SourceExtract] = field(default_factory=list)
