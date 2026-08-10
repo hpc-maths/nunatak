@@ -9,6 +9,7 @@ exit code - a failing application still deserves its measurements.
 
 from __future__ import annotations
 
+import dataclasses
 import datetime
 import json
 import os
@@ -19,6 +20,7 @@ from pathlib import Path
 
 from nunatak import attribution, corpus, ingestion, machine, provenance
 from nunatak.attribution import source, staleness
+from nunatak.calibration import theory
 from nunatak.cli import doctor
 from nunatak.collect import cpu_collector
 from nunatak.collect.execution import Executor, SubprocessExecutor
@@ -207,12 +209,20 @@ def execute(args, command: list[str], console: Console) -> int:
             [{"tool": c.tool, "version": c.version} for c in collectors],
         )
 
+    # Until a Calibration has measured this Machine, the Run carries the
+    # theoretical peaks: estimated Ceilings beat a roofline with no roof.
+    snapshot = machine.snapshot(executor)
+    if not snapshot.ceilings:
+        snapshot = dataclasses.replace(
+            snapshot, ceilings=theory.theoretical_ceilings(snapshot)
+        )
+
     run = Run(
         name=directory.name,
         created=started,
         command=list(command),
         exit_code=exit_code,
-        machine=machine.snapshot(executor),
+        machine=snapshot,
         provenance=provenance.collect(executor, cwd, effective),
         passes=[
             Pass(

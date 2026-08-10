@@ -66,6 +66,16 @@
    :members:
 ```
 
+## Calibration
+
+```{eval-rst}
+.. automodule:: nunatak.calibration
+   :members:
+
+.. automodule:: nunatak.calibration.theory
+   :members:
+```
+
 ## Configuration
 
 ```{eval-rst}
