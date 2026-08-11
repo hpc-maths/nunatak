@@ -1,0 +1,92 @@
+# Tier 1 of the test strategy (spec ch. 13, ADR 0008): hosted runners,
+# blocking. Everything here replays the recorded corpus or runs pure
+# code - PMUs are generally not exposed in these virtual machines, so
+# this tier verifies that commands launch, permissions are diagnosed
+# and outputs parse, never that counters report true values. Tier 2
+# (real PMUs, nightly, non-blocking) runs on a self-hosted machine and
+# arrives separately.
+name: ci
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  # The hermetic Python suite: corpus replay, analysis, attribution,
+  # CLI - the entirety of what can lie to the user. The report app's
+  # presence is stubbed by conftest, so Node is not needed here.
+  tests:
+    name: tests (${{ matrix.os }}, py${{ matrix.python }})
+    strategy:
+      fail-fast: false
+      matrix:
+        # x86_64, arm64 and Apple Silicon; the oldest and newest
+        # CPython we support - upstream's support window, no house policy.
+        os: [ubuntu-latest, ubuntu-24.04-arm, macos-15]
+        python: ["3.10", "3.14"]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python }}
+      - run: python -m pip install --upgrade pip
+      - run: pip install --group dev -e .
+      - run: python -m pytest -q
+
+  # The report mini-app: strict type check, bundle build, geometry
+  # invariants and DOM snapshots against the frozen milestone payload.
+  report-app:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: report-app
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+          cache: npm
+          cache-dependency-path: report-app/package-lock.json
+      - run: npm ci
+      - run: npm run build
+      - run: npm test
+
+  # The documentation builds warning-free on every pull request; the
+  # docs workflow deploys it from main.
+  docs:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+      - run: python -m pip install --upgrade pip
+      - run: pip install --group docs -e .
+      - run: sphinx-build -W --keep-going docs docs/_build/html
+
+  # Packaging mechanics: the wheel builds, installs, and the CLI
+  # answers. The report asset ships with the packaging build hook
+  # (spec ch. 12); until then a wheel installed this way announces
+  # report-unavailable and keeps working - which is exactly what the
+  # smoke test below relies on.
+  wheel:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+      - run: python -m pip install --upgrade pip build
+      - run: python -m build
+      - run: python -m pip install dist/*.whl
+      - run: nunatak --version
+      - run: nunatak doctor --json
