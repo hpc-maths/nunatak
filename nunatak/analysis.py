@@ -142,12 +142,19 @@ def _sum(
     )
 
 
-def _first_counter(by_counter: dict, names: tuple[str, ...]) -> str | None:
+def _first_counter(measured: dict | set, names: tuple[str, ...]) -> str | None:
     """The first of `names` this Run actually measured."""
     for name in names:
-        if name in by_counter:
+        if name in measured:
             return name
     return None
+
+
+def time_base(run: Run) -> str | None:
+    """The counter Hotspot shares of time are stated against: the first
+    clock this Run measured, cycles as last resort."""
+    counters = {measurement.counter for measurement in run.measurements}
+    return _first_counter(counters, CLOCK_COUNTERS + ("cycles",))
 
 
 def _imbalance(measurements: list[Measurement], counter: str) -> Derived:

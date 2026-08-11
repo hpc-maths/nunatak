@@ -96,6 +96,16 @@
    :members:
 ```
 
+## Report
+
+```{eval-rst}
+.. automodule:: nunatak.report
+   :members:
+
+.. automodule:: nunatak.report.payload
+   :members:
+```
+
 ## Configuration
 
 ```{eval-rst}
