@@ -98,6 +98,7 @@ function finding(entry: HotspotEntry, rank: number): string {
     <span class="rank">Finding ${rank}${shareLabel}</span>
     <div class="verdict">${verdict(entry)} ${resolutionBadge(entry.resolution_level)}</div>
     <div class="ev">${evidenceLines}${downgrade}</div>
+    <button class="golink" data-go="${rank - 1}">Open the Hotspot and its roofline →</button>
   </div>`;
 }
 

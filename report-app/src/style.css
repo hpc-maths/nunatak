@@ -350,6 +350,188 @@ table.tab tr.agg td {
   max-width: 1180px;
   margin: 0 auto;
 }
+table.tab tr.row {
+  cursor: pointer;
+}
+table.tab tr.row:hover td {
+  background: var(--surface-2);
+}
+
+.golink {
+  align-self: flex-start;
+  font-family: var(--mono);
+  font-size: 12px;
+  background: transparent;
+  border: 1px solid var(--line);
+  color: var(--ink);
+  padding: 5px 11px;
+  cursor: pointer;
+}
+.golink:hover {
+  border-color: var(--ember);
+  color: var(--ember);
+}
+.golink:focus-visible {
+  outline: 2px solid var(--ember);
+  outline-offset: 2px;
+}
+
+/* Level 3: the detail. Substitutes the inventory in the same zone; two
+   columns as soon as there is room - that is what halves its height. */
+.det {
+  border-top: 1px solid var(--line);
+  margin-top: 6px;
+  background: var(--surface);
+}
+.dhead {
+  display: flex;
+  align-items: center;
+  gap: 13px;
+  flex-wrap: wrap;
+  padding: 14px 24px;
+  border-bottom: 1px solid var(--line);
+  max-width: 1180px;
+  margin: 0 auto;
+}
+.dname {
+  font-size: 15px;
+  font-weight: 600;
+}
+.dhead-src {
+  margin-left: auto;
+}
+.back {
+  font-family: var(--mono);
+  font-size: 12px;
+  background: transparent;
+  border: 1px solid var(--line);
+  color: var(--ink);
+  padding: 5px 11px;
+  cursor: pointer;
+}
+.back:hover {
+  border-color: var(--ember);
+  color: var(--ember);
+}
+.back:focus-visible {
+  outline: 2px solid var(--ember);
+  outline-offset: 2px;
+}
+.dbody {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(390px, 1fr));
+  max-width: 1180px;
+  margin: 0 auto;
+  gap: 0;
+  align-items: start;
+}
+.dcol {
+  padding: 22px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  min-width: 0;
+}
+.dcol + .dcol {
+  border-left: 1px solid var(--line-soft);
+}
+@media (max-width: 860px) {
+  .dcol + .dcol {
+    border-left: none;
+    border-top: 1px solid var(--line-soft);
+  }
+}
+.metrics {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 14px;
+}
+.metric {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.metric .num {
+  font-size: 15.5px;
+}
+.blockhead {
+  margin-bottom: 8px;
+}
+.blocknote {
+  margin-top: 7px;
+}
+.plotnote {
+  padding: 6px 14px 0;
+}
+
+/* Bounded to its natural size: stretched, its typography goes with it. */
+.rf {
+  width: 100%;
+  max-width: 520px;
+  height: auto;
+  display: block;
+}
+.rf text {
+  font-family: var(--mono);
+}
+.noplot {
+  border: 1px dashed var(--line);
+  padding: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+
+.src {
+  font-family: var(--mono);
+  font-size: 12.5px;
+  line-height: 1.75;
+  overflow-x: auto;
+  border: 1px solid var(--line-soft);
+}
+.src .ln {
+  display: flex;
+  gap: 12px;
+  padding: 0 10px;
+  white-space: pre;
+}
+.src .no {
+  color: var(--faint);
+  width: 36px;
+  text-align: right;
+  flex: none;
+  user-select: none;
+}
+.src .pc {
+  width: 48px;
+  flex: none;
+  text-align: right;
+  color: var(--muted);
+  font-size: 11.5px;
+}
+.src .hot {
+  background: color-mix(in srgb, var(--ember) 13%, transparent);
+}
+.src .hot .pc {
+  color: var(--ember);
+  font-weight: 600;
+}
+
+.iframe-list {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+.iframe-row {
+  display: grid;
+  grid-template-columns: 1fr 78px 44px;
+  gap: 10px;
+  align-items: center;
+  font-size: 12.5px;
+}
+.pc-right {
+  text-align: right;
+}
 
 .foot {
   padding-top: 8px;
