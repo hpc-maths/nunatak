@@ -191,5 +191,7 @@ class TestReplayedRun:
         assert "of the envelope" in log
         assert "DRAM intensity 1.21 flop/byte" in log
         assert "downgraded to estimated: demand fills only" in log
-        # The log ends on the path, after the summary.
-        assert log.rstrip().splitlines()[-1].split(" ", 1)[-1].startswith("Run: ")
+        # The log ends on the paths, after the summary.
+        last_two = [line.split(" ", 1)[-1] for line in log.rstrip().splitlines()[-2:]]
+        assert last_two[0].startswith("Run: ")
+        assert last_two[1].startswith("Report: ")
