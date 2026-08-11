@@ -92,7 +92,8 @@ class TestAdapter:
     ):
         executor = (
             ScriptedExecutor()
-            .on("perf", exit_code=129)  # record refuses the events, no data file
+            .on("perf", exit_code=129)  # record refuses the events, fails fast
+            .on("perf", exit_code=1)  # script has no data to read: the witness
             .on("perf", exit_code=0)  # time-only retry
             .on("perf", stdout="lines\n")
             .on("perf", stdout="ids\n")
@@ -106,9 +107,32 @@ class TestAdapter:
         )
         assert exit_code == 0
         assert degradation.name == "counter-events-rejected"
-        first, second = executor.calls[0], executor.calls[1]
-        assert "-e" in first and "-e" not in second
-        assert second[second.index("--") + 1 :] == ["./solver"]
+        first, retry = executor.calls[0], executor.calls[2]
+        assert "-e" in first and "-e" not in retry
+        assert retry[retry.index("--") + 1 :] == ["./solver"]
+
+    def test_an_application_failure_is_not_mistaken_for_a_rejection(self, tmp_path):
+        # perf propagates the application's own failure, and the data
+        # file it wrote reads fine: one record, no retry - and a replay,
+        # whose disk holds no data file at all, reaches the same verdict
+        # from the recorded script invocation.
+        executor = (
+            ScriptedExecutor()
+            .on("perf", exit_code=5)
+            .on("perf", stdout="lines\n")
+            .on("perf", stdout="ids\n")
+        )
+        exit_code, degradations = PerfAdapter().collect(
+            ["./solver"],
+            tmp_path / "c",
+            executor,
+            frequency=997,
+            events=(events._ZEN2[0],),
+        )
+        assert exit_code == 5
+        assert degradations == []
+        records = [argv for argv in executor.calls if argv[1] == "record"]
+        assert len(records) == 1
 
 
 class TestReplayedRoofline:
