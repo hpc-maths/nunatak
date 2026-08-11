@@ -1,0 +1,91 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`opening a finding substitutes the inventory with the detail 1`] = `
+"
+  <div class="dhead">
+    <button class="back" data-back="">← Inventory</button>
+    <span class="dname mono">main</span>
+    <span class="res">line</span> <span class="q q-estimated">estimated</span>
+    <span class="small mono muted dhead-src">workload.c</span>
+  </div>
+  <div class="dbody">
+    <div class="dcol">
+      <div class="why">Downgraded to estimated: demand fills only: hardware-prefetched traffic is not counted; FLOPs not split by precision on this microarchitecture; compared against the double-precision peak.</div>
+      <div><svg class="rf" viewBox="0 0 520 300" role="img" aria-label="Roofline of main">
+    <style></style></svg></div></div></div>"
+`;
+
+exports[`the page renders the milestone Run 1`] = `
+"
+  <div class="topbar">
+    <div class="topbar-in">
+      <svg viewBox="0 0 96 96" aria-label="nunatak">
+        <path d="M4 86 L36 14 H62 L70 44 L78 31 L92 86 Z" fill="var(--rock)"></path>
+        <rect x="0" y="70" width="96" height="16" fill="var(--ice)"></rect>
+        <circle cx="36" cy="14" r="5" fill="var(--ember)"></circle>
+      </svg>
+      <span class="brand">nunatak</span>
+      <span class="vsep"></span>
+      <span class="runmeta">workload &nbsp;·&nbsp; ./workload &nbsp;·&nbsp; REPLAY-HOST, REPLAY-HOST cores</span>
+      <span class="topright">
+        <button class="tbtn" data-prov="" aria-pressed="false">provenance</button>
+      </span>
+    </div>
+  </div><div class="shell">
+  <div class="syn">
+    <div>
+      <span class="eyebrow">Synthesis</span>
+      <h1>1 Hotspot above the statistical floor holds 100% of the sampled time.</h1>
+      <p class="muted coverage">2051 samples of task-clock over 2.06 s, across 1 locus.</p>
+    </div>
+    
+  <div class="finding">
+    <span class="rank">Finding 1 · 100% of the sampled time</span>
+    <div class="verdict"><span class="mono">main</span> is latency-bound. <span class="res">line</span></div>
+    <div class="ev"><div>Achieved <strong>1.22 GFLOP/s</strong> of 125 GFLOP/s attainable: 1.0% of the envelope.</div><div>DRAM intensity 1.21 flop/byte.</div><div>Line 20 of <span class="mono">workload.c</span> concentrates <strong>100%</strong> of its samples.</div><div class="why">Downgraded to estimated: demand fills only: hardware-prefetched traffic is not counted; FLOPs not split by precision on this microarchitecture; compared against the double-precision peak.</div></div>
+    <button class="golink" data-go="0">Open the Hotspot and its roofline →</button>
+  </div>
+  <div class="neg">
+    <h2>What this report does not say</h2>
+    <div class="ev ev-negative"><div><strong>0% of the sampled time</strong> sits below the statistical floor of 30 samples: 1 Hotspot, aggregated as "others". Totals are preserved, the detail is not.</div></div>
+  </div>
+  </div></div>
+  <div class="inv">
+    <div class="filters">
+      <span class="eyebrow">Inventory · 2 Hotspots</span>
+      <button class="chip" data-filter="" aria-pressed="true">all</button><button class="chip" data-filter="latency-bound" aria-pressed="false">latency-bound</button><button class="chip" data-filter="estimated" aria-pressed="false">estimated quality</button>
+    </div>
+    <table class="tab">
+      <thead><tr><th class="unsortable">Hotspot</th><th class="sorted" data-sort="share">Share</th><th class="r sorted" data-sort="share">%</th><th class="r" data-sort="achieved">GFLOP/s</th><th class="r" data-sort="dram_intensity">DRAM intensity</th><th class="r" data-sort="imbalance">Imbalance</th><th class="unsortable">Quality</th><th class="unsortable">Resolution</th></tr></thead>
+      <tbody>
+    <tr class="row" data-row="0">
+      <td><span class="fn">main</span><span class="mod">workload</span></td>
+      <td class="barcell"><span class="bar"><i class="" style="width:100%"></i></span></td>
+      <td class="r num">100%</td>
+      <td class="r num">1.22</td>
+      <td class="r num">1.21</td>
+      <td class="r num">x 1</td>
+      <td title="FLOPs not split by precision on this microarchitecture; compared against the double-precision peak; demand fills only: hardware-prefetched traffic is not counted"><span class="q q-estimated">estimated</span></td>
+      <td><span class="res">line</span></td>
+    </tr>
+    <tr class="agg">
+      <td><span class="fn">others (1 Hotspot)</span><span class="mod">below the statistical floor of 30 samples</span></td>
+      <td class="barcell"></td>
+      <td class="r num">0%</td>
+      <td class="r num"><span class="muted">-</span></td>
+      <td class="r num"><span class="muted">-</span></td>
+      <td class="r num"><span class="muted">-</span></td>
+      <td><span class="q q-estimated">estimated</span></td>
+      <td><span class="muted small">-</span></td>
+    </tr></tbody>
+    </table>
+    <div class="tabfoot small muted">
+      <span>An empty cell means the quantity is unavailable for that Hotspot, not that it is zero.</span>
+    </div>
+  </div>
+  <div class="shell foot muted small">
+    nunatak · self-contained report, no request leaves this page
+  </div>"
+`;
+
+exports[`the provenance drawer unfolds from the header and folds back 1`] = `"<div class="shell provgrid"><div class="provblock"><span class="eyebrow">Code</span><span class="small"><span class="muted">no repository observed</span></span></div><div class="provblock"><span class="eyebrow">Collectors</span><span class="small">perf 6.14.11</span></div><div class="provblock"><span class="eyebrow">Dependencies</span><span class="small"><span class="muted">none observed</span></span></div><div class="provblock"><span class="eyebrow">Effective configuration</span><span class="small"><span class="mono">runs_dir = .nunatak</span><br><span class="mono">sampling.frequency = 997</span><br><span class="mono">thresholds.coverage = 0.8</span><br><span class="mono">tools.llvm-symbolizer = /usr/lib/llvm-19/bin/llvm-symbolizer</span></span></div></div>"`;

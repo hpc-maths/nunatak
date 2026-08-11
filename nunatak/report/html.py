@@ -22,6 +22,7 @@ ASSETS = Path(__file__).parent / "assets"
 SCRIPT = "report.js"
 STYLE = "report.css"
 REPORT = "report.html"
+NO_SOURCE_REPORT = "report-no-source.html"
 
 
 def assets_available(assets_dir: Path | None = None) -> bool:
@@ -64,15 +65,20 @@ def write_report(
     run: Run,
     diagnostics: list[Diagnostic],
     assets_dir: Path | None = None,
+    no_source: bool = False,
 ) -> Path:
     """Render the report of `run` into its directory and return its path.
 
     The report is a product of the Run, regenerable at will: writing it
     next to the pivot keeps the directory self-sufficient without ever
-    making the pivot depend on it.
+    making the pivot depend on it. `no_source` produces the shareable
+    variant under its own name - it never replaces the full report - and
+    the payload is stripped before the page exists, so that file never
+    contained a line of code.
     """
-    path = Path(directory) / REPORT
-    path.write_text(
-        render(report_payload.build(run, diagnostics), assets_dir), encoding="utf-8"
-    )
+    payload = report_payload.build(run, diagnostics)
+    if no_source:
+        payload = report_payload.without_source(payload)
+    path = Path(directory) / (NO_SOURCE_REPORT if no_source else REPORT)
+    path.write_text(render(payload, assets_dir), encoding="utf-8")
     return path

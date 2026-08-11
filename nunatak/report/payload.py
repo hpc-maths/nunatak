@@ -13,6 +13,7 @@ summary, which derives from the same Diagnostics.
 
 from __future__ import annotations
 
+import json
 import math
 
 from nunatak import analysis
@@ -216,3 +217,24 @@ def build(
         "hotspots": [_hotspot(run, d, time_base) for d in diagnostics],
         "others": _others(run, diagnostics, time_base),
     }
+
+
+WITHHELD = "source text withheld by --no-source"
+
+
+def without_source(payload: dict) -> dict:
+    """The `--no-source` variant of a payload: the code text is withheld,
+    the line numbers and the sample distribution stay.
+
+    A page-side toggle would be a trap: the text would remain embedded in
+    the file it claims to hide. The variant is produced here, before the
+    page exists, so what leaves the machine never contained a line of
+    code. Returns a new payload; the input is not modified.
+    """
+    stripped = json.loads(json.dumps(payload))
+    for entry in stripped["hotspots"]:
+        if entry["source"] is not None:
+            entry["source"]["text"] = None
+            entry["source"]["truncated"] = False
+            entry["source"]["reason"] = WITHHELD
+    return stripped

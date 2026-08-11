@@ -52,8 +52,49 @@ function topbar(payload: Payload): string {
       <span class="brand">nunatak</span>
       <span class="vsep"></span>
       <span class="runmeta">${meta}</span>
+      <span class="topright">
+        <button class="tbtn" data-prov aria-pressed="${provenanceOpen}">provenance</button>
+      </span>
     </div>
-  </div>`;
+  </div>${provenancePanel(payload)}`;
+}
+
+/**
+ * The Provenance: a drawer unfolding from the header - never a dialog,
+ * never in the main view. Descriptive, not certifying: it records what
+ * was observed, it does not guarantee the binary derives from the commit.
+ */
+function provenancePanel(payload: Payload): string {
+  if (!provenanceOpen) return "";
+  const provenance = payload.provenance;
+  const code =
+    provenance.commit !== null
+      ? `commit <span class="mono">${esc(provenance.commit)}</span>${
+          provenance.dirty_tree ? " · dirty tree" : provenance.dirty_tree === false ? " · clean tree" : ""
+        }`
+      : '<span class="muted">no repository observed</span>';
+  const collectors = payload.passes
+    .flatMap((pass) => pass.collectors)
+    .map((collector) => `${esc(collector.tool)} ${esc(collector.version)}`)
+    .join(", ");
+  const dependencies = Object.entries(provenance.dependencies)
+    .map(([name, version]) => `<span class="mono">${esc(name)} ${esc(version)}</span>`)
+    .join("<br>");
+  const configuration = Object.entries(provenance.effective_configuration)
+    .map(([key, value]) => `<span class="mono">${esc(key)} = ${esc(String(value))}</span>`)
+    .join("<br>");
+  const blocks: [string, string][] = [
+    ["Code", code],
+    ["Collectors", collectors || '<span class="muted">none</span>'],
+    ["Dependencies", dependencies || '<span class="muted">none observed</span>'],
+    ["Effective configuration", configuration || '<span class="muted">defaults</span>'],
+  ];
+  return `<div class="provpanel"><div class="shell provgrid">${blocks
+    .map(
+      ([label, content]) =>
+        `<div class="provblock"><span class="eyebrow">${label}</span><span class="small">${content}</span></div>`
+    )
+    .join("")}</div></div>`;
 }
 
 function footer(payload: Payload): string {
@@ -67,6 +108,7 @@ const state: InventoryState = { sort: "share", filter: null };
 // The zone below the synthesis holds one content at a time: the
 // inventory, or the detail of the Hotspot at this index.
 let view: number | null = null;
+let provenanceOpen = false;
 
 function open(payload: Payload, index: number): void {
   view = index;
@@ -101,6 +143,12 @@ function bind(payload: Payload): void {
   for (const button of document.querySelectorAll<HTMLButtonElement>("[data-back]")) {
     button.onclick = () => back(payload);
   }
+  for (const button of document.querySelectorAll<HTMLButtonElement>("[data-prov]")) {
+    button.onclick = () => {
+      provenanceOpen = !provenanceOpen;
+      render(payload);
+    };
+  }
 }
 
 function zone(payload: Payload): string {
@@ -121,8 +169,13 @@ function render(payload: Payload): void {
   bind(payload);
 }
 
-const payload = readPayload();
-addEventListener("keydown", (event) => {
-  if (event.key === "Escape" && view !== null) back(payload);
-});
-render(payload);
+/** Read the payload and take over the page. Exported for the DOM tests. */
+export function mount(): void {
+  const payload = readPayload();
+  addEventListener("keydown", (event) => {
+    if (event.key === "Escape" && view !== null) back(payload);
+  });
+  render(payload);
+}
+
+mount();

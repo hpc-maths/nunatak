@@ -275,11 +275,24 @@ only the text is withheld - and the ventilation by inline frame.
 ```sh
 nunatak report              # regenerate the report of the most recent Run
 nunatak report <run-dir>    # or of a specific one
+nunatak report --no-source  # a shareable variant: no source text at all
 ```
 
 Regenerating is a real operation: the analysis is never persisted, so
 the report is recomputed from the measured pivot - after an upgrade, or
 on a machine that only received the Run directory.
+
+`--no-source` writes `report-no-source.html` next to the full report,
+never in its place. The payload is stripped **before the page exists**,
+so the shared file never contained a line of code - a page-side toggle
+would be a trap, hiding text that stays embedded. Line numbers and the
+per-line sample distribution remain: one still sees where the time
+goes.
+
+The **Provenance** - commit and tree state, collectors with their
+versions, observed dependencies, the effective configuration with its
+thresholds - is a drawer unfolding from the report's header: never a
+dialog, never in the main view.
 
 The page is rendered by a compiled TypeScript mini-app embedded in the
 package. On a development checkout it is built once with
