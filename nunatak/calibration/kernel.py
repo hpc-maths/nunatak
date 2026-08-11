@@ -160,12 +160,18 @@ def _pollution(
         )
     if outcome.isa == "scalar" and outcome.kernel != "triad":
         reasons.append("kernel built without SIMD: this is not the machine's peak")
-    if (
-        theoretical is not None
-        and outcome.rates
-        and max(outcome.rates) > ANOMALY_FACTOR * theoretical
-    ):
-        reasons.append("far above the theoretical peak of this microarchitecture")
+    if theoretical is not None and outcome.rates:
+        # `theoretical` is scaled to the caller's allocation; the kernel
+        # may have run with another thread count (a replayed entry).
+        # Re-scale per core so the reference matches the measurement's
+        # own context - on a live run the two are equal.
+        reference = theoretical
+        if outcome.threads and threads:
+            reference = theoretical / threads * outcome.threads
+        if max(outcome.rates) > ANOMALY_FACTOR * reference:
+            reasons.append(
+                "far above the theoretical peak of this microarchitecture"
+            )
     return reasons
 
 

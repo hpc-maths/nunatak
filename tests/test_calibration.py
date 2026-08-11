@@ -30,7 +30,7 @@ ENTRY = (
 FMA_DP = """\
 kernel fma_dp
 isa avx2
-threads 8
+threads 32
 load 4.00
 rep 0 3.349368e+11
 rep 1 3.347366e+11
@@ -64,7 +64,7 @@ class TestParse:
         run = kernel.parse(FMA_DP)
         assert run.kernel == "fma_dp"
         assert run.isa == "avx2"
-        assert run.threads == 8
+        assert run.threads == 32
         assert run.load == 4.0
         assert run.rates == (3.349368e11, 3.347366e11, 3.355571e11)
 
@@ -199,7 +199,7 @@ class TestPollution:
         assert ceiling.quality is Quality.MEASURED
 
     def test_load_is_judged_against_the_kernel_reported_threads(self, tmp_path):
-        # The kernel ran with 8 threads under a load of 4.00 - calm. A
+        # The kernel ran with 32 threads under a load of 4.00 - calm. A
         # replaying machine with 2 visible cores must not turn that
         # recorded calm into pollution: the measurement is judged in the
         # context it was recorded in, never the replaying machine's.
@@ -214,6 +214,29 @@ class TestPollution:
         executor = executor_with(FMA_DP)
         (ceiling,) = kernel.calibrate(
             executor, two_cores, Config(), directory=tmp_path
+        )
+        assert ceiling.quality is Quality.MEASURED
+
+    def test_the_anomaly_reference_follows_the_kernel_threads(self, tmp_path):
+        # Same principle for the theoretical reference: it arrives scaled
+        # to the caller's 2-core allocation, but the recorded kernel ran
+        # 32 threads - a rate legitimate for 32 threads is not an anomaly
+        # on the replaying machine.
+        two_cores = Machine(
+            system="Linux",
+            kernel="6.8.0",
+            architecture="x86_64",
+            cpu_model="whatever the CI runner is",
+            logical_cores=2,
+            allocation=Allocation(visible_cores=2),
+        )
+        executor = executor_with(FMA_DP)
+        (ceiling,) = kernel.calibrate(
+            executor,
+            two_cores,
+            Config(),
+            directory=tmp_path,
+            theoretical={"dram_bandwidth": 2.1e10},
         )
         assert ceiling.quality is Quality.MEASURED
 
