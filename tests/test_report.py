@@ -306,3 +306,26 @@ class TestWithoutSource:
         )
         report.payload.without_source(original)
         assert original["hotspots"][0]["source"]["text"] == "code();"
+
+
+class TestCountingLayer:
+    def test_coverage_and_admissions_stand_on_the_sampling_layer(self):
+        from nunatak.pivot import Locus, Measurement, Quality
+
+        spot = hotspot()
+        sampled = measurement(spot, "task-clock", 1e8, "ns", samples=400)
+        aggregates = [
+            Measurement(
+                hotspot=None,
+                locus=Locus(node="n0", rank=rank),
+                counter="task-clock",
+                value=1e12,
+                unit="ns",
+                quality=Quality.MEASURED,
+            )
+            for rank in range(4)
+        ]
+        with_counting = payload_of([sampled] + aggregates)
+        without = payload_of([sampled])
+        assert with_counting["coverage"] == without["coverage"]
+        assert with_counting["others"] == without["others"]

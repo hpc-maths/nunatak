@@ -17,7 +17,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
-from nunatak.pivot import Ceiling, Hotspot, Measurement, Quality, Run
+from nunatak.pivot import Ceiling, Hotspot, Measurement, Quality, Run, hotspot_level
 
 # A Hotspot below the statistical floor is noise wearing the look of a
 # diagnosis: its Measurements stay in the pivot, the Diagnostic skips it.
@@ -153,7 +153,7 @@ def _first_counter(measured: dict | set, names: tuple[str, ...]) -> str | None:
 def time_base(run: Run) -> str | None:
     """The counter Hotspot shares of time are stated against: the first
     clock this Run measured, cycles as last resort."""
-    counters = {measurement.counter for measurement in run.measurements}
+    counters = {measurement.counter for measurement in hotspot_level(run.measurements)}
     return _first_counter(counters, CLOCK_COUNTERS + ("cycles",))
 
 
@@ -224,13 +224,17 @@ def diagnose(
     """
     ceilings = {ceiling.name: ceiling for ceiling in run.machine.ceilings}
 
+    # The counting layer's Locus-level aggregates are whole-process
+    # counts: mixed into these totals they would drown the sampled sums
+    # and shrink every share.
+    sampled = hotspot_level(run.measurements)
     by_hotspot: dict[Hotspot, list[Measurement]] = {}
-    for measurement in run.measurements:
+    for measurement in sampled:
         by_hotspot.setdefault(measurement.hotspot, []).append(measurement)
 
     diagnostics = []
     totals: dict[str, float] = {}
-    for measurement in run.measurements:
+    for measurement in sampled:
         if measurement.value is not None:
             totals[measurement.counter] = (
                 totals.get(measurement.counter, 0.0) + measurement.value

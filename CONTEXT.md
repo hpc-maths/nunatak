@@ -33,6 +33,10 @@ across loci (sum, mean, min/max, imbalance) is computed on demand, never
 stored. A Measurement also carries what is needed to judge its own
 solidity: its sample count and the relative error that follows from it, its
 coverage ratio when counters were multiplexed, and its Pass of origin.
+A Measurement without a Hotspot is **Locus-level**: a whole-Locus aggregate
+from the counting layer - one rank's time, cycles, instructions, MPI
+volumes - which has nothing to attribute. It is still one value at one
+Locus, never an aggregation across Loci.
 _Avoid_: value, data point, sample (a sample is a source of measurements, not the measurement)
 
 **Raw counter**:

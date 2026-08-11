@@ -38,7 +38,10 @@ from nunatak.pivot.model import (
 
 MANIFEST = "manifest.json"
 PIVOT_DIR = "pivot"
-SCHEMA = 1
+# Schema 2: the hotspot column of measurements became nullable - a null
+# hotspot is a Locus-level aggregate from the counting layer. Readers of
+# schema 1 would look the null up in the hotspots table, hence the bump.
+SCHEMA = 2
 
 _HOTSPOTS = pa.schema(
     [
@@ -162,7 +165,10 @@ def write_run(directory: Path, run: Run) -> Path:
     hotspots: dict[object, tuple[int, Hotspot]] = {}
     loci: dict[Locus, int] = {}
     for measurement in run.measurements:
-        hotspots.setdefault(_hotspot_key(measurement.hotspot), (len(hotspots), measurement.hotspot))
+        if measurement.hotspot is not None:
+            hotspots.setdefault(
+                _hotspot_key(measurement.hotspot), (len(hotspots), measurement.hotspot)
+            )
         loci.setdefault(measurement.locus, len(loci))
     for detail in run.address_details:
         hotspots.setdefault(_hotspot_key(detail.hotspot), (len(hotspots), detail.hotspot))
@@ -199,7 +205,7 @@ def write_run(directory: Path, run: Run) -> Path:
     ]
     measurement_rows = [
         {
-            "hotspot": hotspots[_hotspot_key(m.hotspot)][0],
+            "hotspot": hotspots[_hotspot_key(m.hotspot)][0] if m.hotspot is not None else None,
             "locus": loci[m.locus],
             "pass_index": m.pass_index,
             "counter": m.counter,
@@ -453,7 +459,7 @@ def read_run(directory: Path) -> Run:
 
     measurements = [
         Measurement(
-            hotspot=hotspots[row["hotspot"]],
+            hotspot=hotspots[row["hotspot"]] if row["hotspot"] is not None else None,
             locus=loci[row["locus"]],
             counter=row["counter"],
             value=row["value"],

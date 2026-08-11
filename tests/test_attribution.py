@@ -255,6 +255,25 @@ class TestAttribute:
         assert second.value == 50.0
         assert [(f.function, f.line) for f in second.frames] == [("main", 17)]
 
+    def test_locus_level_aggregates_ride_through_untouched(self):
+        # The counting layer has nothing to name: its aggregates cross
+        # attribution unchanged while the sampled Hotspots get named.
+        aggregate = Measurement(
+            hotspot=None,
+            locus=Locus(node="n1", rank=2),
+            counter="cycles",
+            value=5.0e9,
+            unit="cycles",
+            quality=Quality.MEASURED,
+        )
+        measurements = [unresolved("/tmp/workload", 0x10C0, 30.0, samples=3), aggregate]
+        executor = ScriptedExecutor().on("llvm-symbolizer", stdout=BATCH)
+        attributed, _, degradations = attribute(measurements, SYMBOLIZER, executor)
+        assert degradations == []
+        assert aggregate in attributed
+        named = [m for m in attributed if m.hotspot is not None]
+        assert [m.hotspot.display_name for m in named] == ["main"]
+
     def test_unresolved_hotspots_leave_no_detail(self):
         measurements = [unresolved("/tmp/workload", 0x2, 1.0)]
         executor = ScriptedExecutor().on("llvm-symbolizer", stdout=GAP)
