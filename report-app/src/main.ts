@@ -1,13 +1,14 @@
 /**
  * Entry point: read the embedded payload, render the report.
  *
- * The synthesis opens the page; the zone below holds the inventory.
- * The Hotspot detail (where the roofline lives) arrives next and will
- * substitute the inventory in that same zone - the two never cohabit.
+ * The synthesis opens the page; the zone below holds the inventory or
+ * the detail of one Hotspot - the two substitute each other, they never
+ * cohabit. The way back is an explicit button and the Escape key.
  */
 
 import "./style.css";
 import { readPayload } from "./data";
+import { detail } from "./detail";
 import { esc } from "./format";
 import { inventory } from "./inventory";
 import { synthesis } from "./synthesis";
@@ -63,6 +64,21 @@ function footer(payload: Payload): string {
 }
 
 const state: InventoryState = { sort: "share", filter: null };
+// The zone below the synthesis holds one content at a time: the
+// inventory, or the detail of the Hotspot at this index.
+let view: number | null = null;
+
+function open(payload: Payload, index: number): void {
+  view = index;
+  render(payload);
+  document.querySelector(".inv, .det")?.scrollIntoView({ behavior: "smooth", block: "start" });
+}
+
+function back(payload: Payload): void {
+  view = null;
+  render(payload);
+  document.querySelector(".inv, .det")?.scrollIntoView({ block: "start" });
+}
 
 function bind(payload: Payload): void {
   for (const chip of document.querySelectorAll<HTMLButtonElement>("[data-filter]")) {
@@ -77,6 +93,22 @@ function bind(payload: Payload): void {
       render(payload);
     };
   }
+  for (const opener of document.querySelectorAll<HTMLElement>("[data-row], [data-go]")) {
+    opener.onclick = () => {
+      open(payload, Number(opener.dataset.row ?? opener.dataset.go));
+    };
+  }
+  for (const button of document.querySelectorAll<HTMLButtonElement>("[data-back]")) {
+    button.onclick = () => back(payload);
+  }
+}
+
+function zone(payload: Payload): string {
+  const entry = view !== null ? payload.hotspots[view] : undefined;
+  if (entry !== undefined) {
+    return `<div class="det">${detail(payload, entry)}</div>`;
+  }
+  return inventory(payload, state);
 }
 
 function render(payload: Payload): void {
@@ -85,8 +117,12 @@ function render(payload: Payload): void {
   document.title = `nunatak - ${payload.run.name}`;
   root.innerHTML =
     `${topbar(payload)}<div class="shell">${synthesis(payload)}</div>` +
-    `${inventory(payload, state)}${footer(payload)}`;
+    `${zone(payload)}${footer(payload)}`;
   bind(payload);
 }
 
-render(readPayload());
+const payload = readPayload();
+addEventListener("keydown", (event) => {
+  if (event.key === "Escape" && view !== null) back(payload);
+});
+render(payload);

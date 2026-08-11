@@ -243,20 +243,34 @@ omitted.
 Every measuring run also writes `report.html` into the Run directory: a
 **self-contained page** - no CDN, no font, no request of any kind -
 that opens on a cluster without a server and still reads in ten years
-from an archived file. It carries two reading levels today, in the same
-vocabulary as the terminal summary; the per-Hotspot detail with its
-roofline arrives next.
+from an archived file. It carries three reading levels, in the same
+vocabulary as the terminal summary.
 
-The **synthesis** opens the page: coverage, findings, "what this report
-does not say". Below it, the **inventory** lists every Hotspot above
-the statistical floor, sortable by any numeric column and filterable by
-regime, estimated Quality or missing source. Quality and resolution
-level are separate columns and never look alike: Quality is color and
-shape (measured plain, estimated hatched - a downgraded row shows its
-reasons on hover), the resolution level a neutral text label. An empty
-cell means the quantity is **unavailable** for that Hotspot, not that
-it is zero - the table says so under its last row, and the below-floor
-aggregate "others" closes the table as a row of its own.
+The **synthesis** opens the page: coverage, findings with direct access
+to their Hotspot, "what this report does not say". Below it, the
+**inventory** lists every Hotspot above the statistical floor, sortable
+by any numeric column and filterable by regime, estimated Quality or
+missing source. Quality and resolution level are separate columns and
+never look alike: Quality is color and shape (measured plain, estimated
+hatched - a downgraded row shows its reasons on hover), the resolution
+level a neutral text label. An empty cell means the quantity is
+**unavailable** for that Hotspot, not that it is zero - the table says
+so under its last row, and the below-floor aggregate "others" closes
+the table as a row of its own.
+
+Opening a Hotspot - from a finding or an inventory row - **substitutes**
+the inventory with its **detail**; the two never sit side by side, and
+the way back is the explicit button or `Escape`. The detail is where
+the **roofline** lives: contextualized on one Hotspot, the device is
+implicit and the chart is correct by construction - the memory diagonal
+stops at the ridge (a unit-tested invariant), the selected Hotspot uses
+the same Quality encoding as everywhere (full disc measured, dashed
+outline estimated), the other placeable Hotspots stay as pale points
+for scale. A Hotspot that cannot be placed says why **in the spot where
+the chart was expected**, never a blank. Beside the chart: the metrics
+with their absences written `unavailable`, the **source annotated with
+samples per line** - line numbers and distribution survive `--no-source`,
+only the text is withheld - and the ventilation by inline frame.
 
 ```sh
 nunatak report              # regenerate the report of the most recent Run
