@@ -2,13 +2,13 @@
  * Formatting and the visual vocabulary of uncertainty.
  *
  * Two registers, two channels, never confused: Quality is carried by
- * color and shape, the resolution level by a neutral text label. The
- * wording matches the terminal summary - both derive from the same
- * Diagnostics. The synthesis states downgrades in prose; the hatched
- * and dotted Quality marks arrive with the inventory and the roofline.
+ * color and shape (measured plain, estimated hatched, unavailable
+ * dotted - the same encoding in a table cell as on the roofline), the
+ * resolution level by a neutral text label. The wording matches the
+ * terminal summary - both derive from the same Diagnostics.
  */
 
-import type { Derived } from "./data";
+import type { Derived, Quality } from "./data";
 
 const PREFIXES: [number, string][] = [
   [1e15, "P"],
@@ -22,14 +22,25 @@ export function esc(text: string): string {
   return text.replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]!);
 }
 
+/**
+ * A number at three significant digits, without trailing decimal zeros.
+ * Zeros are only stripped after a decimal point: 2.50 becomes 2.5, but
+ * 200 stays 200 - a naive strip once turned 200 GFLOP/s into 2.
+ */
+export function sig(value: number, digits = 3): string {
+  const text = value.toPrecision(digits);
+  if (text.includes("e")) return String(Number(text));
+  return text.includes(".") ? text.replace(/\.?0+$/, "") : text;
+}
+
 /** A flop/s value with its natural SI prefix, three significant digits. */
 export function flops(value: number): string {
   for (const [scale, prefix] of PREFIXES) {
     if (value >= scale) {
-      return `${(value / scale).toPrecision(3).replace(/\.?0+$/, "")} ${prefix}FLOP/s`;
+      return `${sig(value / scale)} ${prefix}FLOP/s`;
     }
   }
-  return `${value.toPrecision(3).replace(/\.?0+$/, "")} FLOP/s`;
+  return `${sig(value)} FLOP/s`;
 }
 
 /** A fraction as a percentage, one decimal below 1%. */
@@ -53,6 +64,11 @@ export function downgrades(...quantities: Derived[]): string[] {
     }
   }
   return [...reasons];
+}
+
+/** Quality badge: the same encoding everywhere - a cell in a table, a point on the roofline. */
+export function qualityBadge(quality: Quality): string {
+  return `<span class="q q-${quality}">${quality}</span>`;
 }
 
 /** Resolution level: a neutral text label, never a color - identity, not uncertainty. */

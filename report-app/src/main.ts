@@ -1,15 +1,17 @@
 /**
  * Entry point: read the embedded payload, render the report.
  *
- * Today the report carries its first reading level, the synthesis; the
- * inventory and the Hotspot detail (where the roofline lives) arrive
- * next, substituting each other in the zone below.
+ * The synthesis opens the page; the zone below holds the inventory.
+ * The Hotspot detail (where the roofline lives) arrives next and will
+ * substitute the inventory in that same zone - the two never cohabit.
  */
 
 import "./style.css";
 import { readPayload } from "./data";
 import { esc } from "./format";
+import { inventory } from "./inventory";
 import { synthesis } from "./synthesis";
+import type { InventoryState, SortKey } from "./inventory";
 import type { Payload } from "./data";
 
 function duration(payload: Payload): string | null {
@@ -60,12 +62,31 @@ function footer(payload: Payload): string {
   </div>`;
 }
 
-function render(): void {
-  const payload = readPayload();
+const state: InventoryState = { sort: "share", filter: null };
+
+function bind(payload: Payload): void {
+  for (const chip of document.querySelectorAll<HTMLButtonElement>("[data-filter]")) {
+    chip.onclick = () => {
+      state.filter = chip.dataset.filter || null;
+      render(payload);
+    };
+  }
+  for (const header of document.querySelectorAll<HTMLTableCellElement>("[data-sort]")) {
+    header.onclick = () => {
+      state.sort = header.dataset.sort as SortKey;
+      render(payload);
+    };
+  }
+}
+
+function render(payload: Payload): void {
   const root = document.getElementById("nunatak-report");
   if (!root) throw new Error("nunatak-report element missing from the page");
   document.title = `nunatak - ${payload.run.name}`;
-  root.innerHTML = `${topbar(payload)}<div class="shell">${synthesis(payload)}</div>${footer(payload)}`;
+  root.innerHTML =
+    `${topbar(payload)}<div class="shell">${synthesis(payload)}</div>` +
+    `${inventory(payload, state)}${footer(payload)}`;
+  bind(payload);
 }
 
-render();
+render(readPayload());

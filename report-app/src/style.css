@@ -107,8 +107,41 @@ p {
   color: var(--muted);
 }
 
-/* Vocabulary of uncertainty: the resolution level is a neutral text
-   label. The Quality marks (color + shape) arrive with the inventory. */
+/* Vocabulary of uncertainty: Quality = color + shape, resolution = a
+   neutral text label. The two never look alike. */
+.q {
+  font-family: var(--mono);
+  font-size: 11px;
+  white-space: nowrap;
+}
+.q-measured {
+  color: var(--ok);
+}
+.q-estimated {
+  color: var(--warn);
+}
+.q-unavailable {
+  color: var(--dead);
+}
+.q::before {
+  content: "";
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  margin-right: 5px;
+  border-radius: 50%;
+}
+.q-measured::before {
+  background: var(--ok);
+}
+.q-estimated::before {
+  background: repeating-linear-gradient(45deg, var(--warn) 0 2px, transparent 2px 4px);
+  border: 1px solid var(--warn);
+}
+.q-unavailable::before {
+  background: transparent;
+  border: 1px dashed var(--dead);
+}
 .res {
   font-family: var(--mono);
   font-size: 10.5px;
@@ -201,6 +234,121 @@ p {
 }
 .ev-negative {
   border-color: var(--ember);
+}
+
+/* Level 2: the inventory. Aligned on the synthesis measure: a table
+   spread over the full width of a large screen separates the name from
+   its numbers; the recovered space carries a share-of-time bar. */
+.inv {
+  border-top: 1px solid var(--line);
+  margin-top: 6px;
+  background: var(--surface);
+}
+.filters {
+  display: flex;
+  gap: 7px;
+  flex-wrap: wrap;
+  padding: 14px 12px;
+  border-bottom: 1px solid var(--line);
+  align-items: center;
+  max-width: 1180px;
+  margin: 0 auto;
+}
+.chip {
+  font-family: var(--mono);
+  font-size: 11px;
+  padding: 3px 9px;
+  border: 1px solid var(--line);
+  color: var(--muted);
+  background: transparent;
+  cursor: pointer;
+}
+.chip[aria-pressed="true"] {
+  border-color: var(--ember);
+  color: var(--ember);
+}
+.chip:focus-visible {
+  outline: 2px solid var(--ember);
+  outline-offset: 2px;
+}
+table.tab {
+  width: 100%;
+  max-width: 1180px;
+  margin: 0 auto;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+table.tab th {
+  text-align: left;
+  font-family: var(--mono);
+  font-size: 10.5px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--muted);
+  font-weight: 500;
+  padding: 9px 12px;
+  border-bottom: 1px solid var(--line);
+  white-space: nowrap;
+  cursor: pointer;
+}
+table.tab th.sorted {
+  color: var(--ember);
+}
+table.tab th.unsortable {
+  cursor: default;
+}
+table.tab th.r,
+table.tab td.r {
+  text-align: right;
+}
+table.tab td {
+  padding: 9px 12px;
+  border-bottom: 1px solid var(--line-soft);
+}
+table.tab tr.agg td {
+  color: var(--muted);
+  font-style: italic;
+}
+.fn {
+  font-family: var(--mono);
+  font-size: 12.5px;
+  display: block;
+}
+.mod {
+  font-size: 11px;
+  color: var(--faint);
+  font-family: var(--mono);
+}
+.num {
+  font-family: var(--mono);
+  font-variant-numeric: tabular-nums;
+}
+.barcell {
+  width: 150px;
+}
+.bar {
+  display: block;
+  height: 6px;
+  background: var(--surface-2);
+  position: relative;
+}
+.bar > i {
+  position: absolute;
+  inset: 0 auto 0 0;
+  background: var(--melt);
+}
+.bar > i.bar-estimated {
+  background: repeating-linear-gradient(45deg, var(--warn) 0 3px, transparent 3px 6px);
+  border: 1px solid var(--warn);
+}
+.tabfoot {
+  padding: 14px 12px;
+  border-top: 1px solid var(--line);
+  display: flex;
+  gap: 18px;
+  flex-wrap: wrap;
+  max-width: 1180px;
+  margin: 0 auto;
 }
 
 .foot {
