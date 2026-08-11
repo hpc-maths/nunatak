@@ -280,9 +280,8 @@ def write_run(directory: Path, run: Run) -> Path:
     ):
         pq.write_table(pa.Table.from_pylist(rows, schema=schema), directory / _FILES[name])
 
-    manifest = _manifest(run)
     (directory / MANIFEST).write_text(
-        json.dumps(manifest, indent=2, ensure_ascii=False) + "\n", encoding="utf-8"
+        json.dumps(manifest(run), indent=2, ensure_ascii=False) + "\n", encoding="utf-8"
     )
     return directory
 
@@ -350,8 +349,11 @@ def machine_from_dict(data: dict) -> Machine:
     )
 
 
-def _manifest(run: Run) -> dict:
-    """The manifest content: plain JSON, readable without nunatak."""
+def manifest(run: Run) -> dict:
+    """The manifest content: plain JSON, readable without nunatak.
+
+    Also the trunk of the report payload, so the two never drift apart.
+    """
     return {
         "format": {
             "name": "nunatak-run",

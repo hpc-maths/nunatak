@@ -13,10 +13,10 @@ gathered in one named section instead of scattered across footnotes.
 from __future__ import annotations
 
 from nunatak.analysis import (
-    CLOCK_COUNTERS,
     STATISTICAL_FLOOR_SAMPLES,
     Derived,
     Diagnostic,
+    time_base,
 )
 from nunatak.pivot import Quality, ResolutionLevel, Run
 
@@ -48,15 +48,6 @@ def _percent(value: float) -> str:
 def _plural(count: int, noun: str) -> str:
     """`1 Hotspot`, `3 Hotspots`."""
     return f"{count} {noun}{'' if count == 1 else 's'}"
-
-
-def _time_base(run: Run) -> str | None:
-    """The counter shares of time are stated against, cycles as last resort."""
-    counters = {m.counter for m in run.measurements}
-    for name in CLOCK_COUNTERS + ("cycles",):
-        if name in counters:
-            return name
-    return None
 
 
 def _downgrades(*derived: Derived) -> list[str]:
@@ -127,12 +118,12 @@ def _headline(
         )
     head = f"summary: {_plural(len(diagnostics), 'Hotspot')} above the statistical floor"
     covered = sum(d.share.value or 0.0 for d in diagnostics)
-    time_base = _time_base(run)
-    if time_base is None:
+    base = time_base(run)
+    if base is None:
         return head
-    clocked = [m for m in run.measurements if m.counter == time_base]
+    clocked = [m for m in run.measurements if m.counter == base]
     samples = sum(m.sample_count or 0 for m in clocked)
-    coverage = f"{samples} samples of {time_base}"
+    coverage = f"{samples} samples of {base}"
     if all(m.unit == "ns" for m in clocked):
         seconds = sum(m.value for m in clocked if m.value is not None) / 1e9
         coverage += f" over {seconds:.3g} s"
@@ -147,7 +138,7 @@ def _admissions(
     admissions = []
     covered = sum(d.share.value or 0.0 for d in diagnostics)
     below_floor = 1.0 - covered
-    if _time_base(run) is not None and below_floor > 0.005:
+    if time_base(run) is not None and below_floor > 0.005:
         admissions.append(
             f"{_percent(below_floor)} of the sampled time sits below the"
             f' statistical floor of {floor_samples} samples, aggregated as "others"'

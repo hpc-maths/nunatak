@@ -26,7 +26,7 @@ from nunatak.pivot.model import (
     Run,
     SourceExtract,
 )
-from nunatak.pivot.persistence import MANIFEST, SCHEMA, read_run, write_run
+from nunatak.pivot.persistence import MANIFEST, SCHEMA, manifest, read_run, write_run
 
 __all__ = [
     "AddressDetail",
@@ -50,6 +50,7 @@ __all__ = [
     "SourceExtract",
     "MANIFEST",
     "SCHEMA",
+    "manifest",
     "read_run",
     "write_run",
 ]

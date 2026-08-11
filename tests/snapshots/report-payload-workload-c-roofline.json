@@ -1,0 +1,197 @@
+{
+  "coverage": {
+    "loci": 1,
+    "samples": 2051,
+    "seconds": 2.057171459,
+    "time_base": "task-clock"
+  },
+  "degradations": [],
+  "floor_samples": 30,
+  "format": {
+    "generated_by": "nunatak",
+    "name": "nunatak-report",
+    "schema": 1
+  },
+  "hotspots": [
+    {
+      "achieved": {
+        "formula": "flops / max task-clock over Loci",
+        "lineage": [
+          "flops",
+          "task-clock"
+        ],
+        "quality": "estimated",
+        "reason": "FLOPs not split by precision on this microarchitecture; compared against the double-precision peak",
+        "unit": "flop/s",
+        "value": 1222552201.955277
+      },
+      "attainable": {
+        "formula": "min(flops_dp, dram_bandwidth x dram_intensity)",
+        "lineage": [
+          "flops",
+          "dram_bytes",
+          "flops_dp",
+          "dram_bandwidth"
+        ],
+        "quality": "estimated",
+        "reason": "demand fills only: hardware-prefetched traffic is not counted; FLOPs not split by precision on this microarchitecture; compared against the double-precision peak",
+        "unit": "flop/s",
+        "value": 125142016143.04893
+      },
+      "classification": "latency-bound",
+      "classification_reason": null,
+      "dram_intensity": {
+        "formula": "flops / dram_bytes",
+        "lineage": [
+          "flops",
+          "dram_bytes"
+        ],
+        "quality": "estimated",
+        "reason": "demand fills only: hardware-prefetched traffic is not counted; FLOPs not split by precision on this microarchitecture; compared against the double-precision peak",
+        "unit": "flop/byte",
+        "value": 1.209098100614674
+      },
+      "envelope_fraction": {
+        "formula": "achieved / attainable",
+        "lineage": [
+          "flops",
+          "task-clock",
+          "flops",
+          "dram_bytes",
+          "flops_dp",
+          "dram_bandwidth"
+        ],
+        "quality": "estimated",
+        "reason": "FLOPs not split by precision on this microarchitecture; compared against the double-precision peak",
+        "unit": "fraction",
+        "value": 0.009769318408277732
+      },
+      "imbalance": {
+        "formula": "max over Loci / min over Loci",
+        "lineage": [
+          "task-clock"
+        ],
+        "quality": "measured",
+        "reason": null,
+        "unit": "ratio",
+        "value": 1.0
+      },
+      "inline_frames": [
+        {
+          "file": "/tmp/nunatak-capture-roofline/workload.c",
+          "function": "axpy",
+          "line": 4,
+          "share": 0.9990248659190639
+        },
+        {
+          "file": "/tmp/nunatak-capture-roofline/workload.c",
+          "function": "main",
+          "line": 13,
+          "share": 0.0009751340809361287
+        }
+      ],
+      "lines": [
+        {
+          "line": 18,
+          "share": 0.0009751340809361287
+        },
+        {
+          "line": 20,
+          "share": 0.9990248659190639
+        }
+      ],
+      "module": "/tmp/nunatak-capture-roofline/workload",
+      "name": "main",
+      "relative_error": 0.022080920281275968,
+      "resolution_level": "line",
+      "share": {
+        "formula": "task-clock of the Hotspot / task-clock of the Run",
+        "lineage": [
+          "task-clock"
+        ],
+        "quality": "measured",
+        "reason": null,
+        "unit": "fraction",
+        "value": 1.0
+      },
+      "source": {
+        "end_line": 23,
+        "file": "/tmp/nunatak-capture-roofline/workload.c",
+        "reason": null,
+        "resolved_path": "RESOLVED",
+        "start_line": 1,
+        "text": "#include <stdio.h>\n#include <stdlib.h>\n\nstatic inline double axpy_element(double a, double x, double y) {\n    return a * x + y;\n}\n\nstatic double reduce(const double *v, int n) {\n    double s = 0.0;\n    for (int i = 0; i < n; i++)\n        s += axpy_element(2.0, v[i], s);\n    return s;\n}\n\nint main(void) {\n    int n = 1 << 20;\n    double *v = malloc(n * sizeof(double));\n    for (int i = 0; i < n; i++) v[i] = i * 0.5;\n    double s = 0.0;\n    for (int r = 0; r < 200; r++) s += reduce(v, n);\n    printf(\"%f\\n\", s);\n    free(v);\n    return 0;",
+        "truncated": false
+      },
+      "source_file": "/tmp/nunatak-capture-roofline/workload.c"
+    }
+  ],
+  "machine": {
+    "allocation": "REPLAY-HOST",
+    "architecture": "REPLAY-HOST",
+    "ceilings": [
+      {
+        "name": "dram_bandwidth",
+        "quality": "measured",
+        "reason": null,
+        "unit": "byte/s",
+        "value": 103500300000.0
+      },
+      {
+        "name": "flops_dp",
+        "quality": "measured",
+        "reason": null,
+        "unit": "flop/s",
+        "value": 1171261000000.0
+      },
+      {
+        "name": "flops_sp",
+        "quality": "measured",
+        "reason": null,
+        "unit": "flop/s",
+        "value": 2342391000000.0
+      }
+    ],
+    "cpu_model": "REPLAY-HOST",
+    "kernel": "REPLAY-HOST",
+    "logical_cores": "REPLAY-HOST",
+    "system": "REPLAY-HOST"
+  },
+  "others": {
+    "count": 1,
+    "share": 0.0
+  },
+  "passes": [
+    {
+      "collectors": [
+        {
+          "tool": "perf",
+          "version": "6.14.11"
+        }
+      ],
+      "end": "TIMESTAMP",
+      "exit_code": 0,
+      "index": 0,
+      "start": "TIMESTAMP"
+    }
+  ],
+  "provenance": {
+    "commit": null,
+    "dependencies": {},
+    "dirty_tree": null,
+    "effective_configuration": {
+      "runs_dir": ".nunatak",
+      "sampling.frequency": 997,
+      "thresholds.coverage": 0.8,
+      "tools.llvm-symbolizer": "/usr/lib/llvm-19/bin/llvm-symbolizer"
+    }
+  },
+  "run": {
+    "command": [
+      "./workload"
+    ],
+    "created": "TIMESTAMP",
+    "exit_code": 0,
+    "name": "workload"
+  }
+}
