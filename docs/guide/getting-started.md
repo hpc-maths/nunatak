@@ -175,6 +175,24 @@ not measured keeps its theoretical, `estimated` value. When nothing can
 be measured (no compiler on the machine), nothing is cached: the next
 run tries again.
 
+## Counter groups
+
+On a microarchitecture nunatak knows (AMD Zen 2/3/4 today), sampling
+attributes more than time: a **FLOP counter** and the **DRAM demand
+fills**, scaled to bytes, ride along with `task-clock`. Each auxiliary
+event uses a fixed period - every sample is worth exactly its period,
+so the totals match `perf stat` within a fraction of a percent, and the
+interrupt rate stays bounded by construction.
+
+Honesty travels with the numbers: DRAM bytes come from demand fills
+only (hardware prefetchers bypass them, and sampling prefetch events
+inflates what they measure - an observer effect), so those Measurements
+are `estimated` with that reason; Zen does not split FLOPs by
+precision, so a placement against the double-precision peak says so
+too. An unknown microarchitecture samples time alone, and a kernel that
+rejects the event names degrades to time-only without ever running the
+application twice.
+
 ## What the analysis says
 
 The analysis engine is a **pure function of (pivot, Machine)**: nothing

@@ -12,6 +12,7 @@ import re
 from pathlib import Path
 
 from nunatak.collect.execution import Executor
+from nunatak.pivot import Degradation
 
 # One line per sample: the call-graph opt-in (--call-graph dwarf) arrives
 # with the attribution chain. `dsoff` (perf >= 6.4) gives the
@@ -45,17 +46,54 @@ class PerfAdapter:
         directory: Path,
         executor: Executor,
         frequency: int,
-    ) -> int:
+        events: tuple = (),
+    ) -> tuple[int, list[Degradation]]:
         """Run `command` under `perf record`, then extract what nunatak
-        consumes: the `perf script` text and the build-id list. Returns the
-        application's exit code; raw artifacts land under `directory`."""
+        consumes: the `perf script` text and the build-id list. Returns
+        (application exit code, degradations); raw artifacts land under
+        `directory`.
+
+        With a counter group, `task-clock` becomes the explicit time base
+        (a software event, no hardware counter spent) and the group's
+        events ride along. perf validates events before launching the
+        application, so a rejected group fails fast - no data file is
+        written - and the recording is retried time-only: the application
+        never runs twice.
+        """
         directory.mkdir(parents=True, exist_ok=True)
         data = directory / PERF_DATA
 
+        selectors: list[str] = []
+        if events:
+            selectors = ["-e", "task-clock"]
+            for entry in events:
+                selectors += ["-e", entry.selector]
+
+        degradations = []
         record = executor.run(
-            [self.path, "record", "--freq", str(frequency), "--output", str(data), "--", *command],
+            [
+                self.path, "record", "--freq", str(frequency), *selectors,
+                "--output", str(data), "--", *command,
+            ],
             capture=False,
         )
+        if selectors and record.exit_code != 0 and not data.is_file():
+            degradations.append(
+                Degradation(
+                    name="counter-events-rejected",
+                    message="perf rejected this microarchitecture's counter "
+                    "group; sampling time only",
+                    remedy="the kernel may be too old for these event names; "
+                    "report the perf version",
+                )
+            )
+            record = executor.run(
+                [
+                    self.path, "record", "--freq", str(frequency),
+                    "--output", str(data), "--", *command,
+                ],
+                capture=False,
+            )
 
         script = executor.run(
             [self.path, "script", "--input", str(data), "--fields", SCRIPT_FIELDS]
@@ -67,4 +105,4 @@ class PerfAdapter:
         if buildids.exit_code == 0 and buildids.stdout is not None:
             (directory / BUILDID_OUTPUT).write_text(buildids.stdout)
 
-        return record.exit_code
+        return record.exit_code, degradations
