@@ -89,6 +89,13 @@
    :members:
 ```
 
+## Summary
+
+```{eval-rst}
+.. automodule:: nunatak.summary
+   :members:
+```
+
 ## Configuration
 
 ```{eval-rst}

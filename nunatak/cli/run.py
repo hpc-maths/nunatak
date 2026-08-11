@@ -18,7 +18,7 @@ import re
 import shutil
 from pathlib import Path
 
-from nunatak import attribution, corpus, ingestion, machine, provenance
+from nunatak import analysis, attribution, corpus, ingestion, machine, provenance, summary
 from nunatak.attribution import source, staleness
 from nunatak.collect import events as counter_events
 from nunatak.calibration import theory
@@ -267,6 +267,13 @@ def execute(args, command: list[str], console: Console) -> int:
             f"{len(measurements)} measurements across {len(hotspots)} hotspots "
             f"({resolved} resolved)"
         )
+        # The three closing moments of the log: the summary, then the
+        # degradations again - the announcements scrolled past long ago
+        # in a job log - then the path.
+        for line in summary.summarize(run, analysis.diagnose(run)):
+            console.info(line)
+        for degradation in degradations:
+            console.degradation(degradation)
 
     if args.json:
         print(
