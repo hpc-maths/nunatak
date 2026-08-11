@@ -295,7 +295,11 @@ thresholds - is a drawer unfolding from the report's header: never a
 dialog, never in the main view.
 
 The page is rendered by a compiled TypeScript mini-app embedded in the
-package. On a development checkout it is built once with
-`npm install && npm run build` in `report-app/`; when the bundle is
+package. Installed wheels carry it already compiled: the packaging hook
+builds it where the wheel is built, so Node is needed only there -
+never on the machines that install or run nunatak. Building a wheel
+from the sdist without npm still succeeds; the result simply lacks the
+bundle. On a development checkout it is built once with
+`npm install && npm run build` in `report-app/`. Wherever the bundle is
 missing, the run continues and announces the named degradation
 `report-unavailable` - a missing capability never fails a run.

@@ -19,7 +19,9 @@ dependencies = [
 nunatak = "nunatak.cli:principal"
 
 [dependency-groups]
-dev = ["pytest>=8"]
+# hatchling is a test dependency: the suite drives the real wheel
+# builder against the report-asset build hook.
+dev = ["pytest>=8", "hatchling"]
 docs = ["sphinx>=8", "myst-parser>=4", "furo>=2024"]
 
 [tool.hatch.version]
@@ -27,6 +29,11 @@ path = "nunatak/__init__.py"
 
 [tool.hatch.build.targets.wheel]
 packages = ["nunatak"]
+
+# Compiles the report mini-app at wheel-build time so installed wheels
+# render reports without Node on the user's machine.
+[tool.hatch.build.targets.wheel.hooks.custom]
+path = "hatch_build.py"
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
