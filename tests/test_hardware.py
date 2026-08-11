@@ -17,19 +17,25 @@ import pytest
 
 from nunatak.cli import principal
 from nunatak.pivot import Quality, read_run
-from tests.support import WORKLOAD_C
+from tests.support import ROOFLINE_WORKLOAD_C
 
 pytestmark = pytest.mark.hardware
 
 
 @pytest.fixture()
 def workload(tmp_path):
-    """The corpus workload, compiled here and now with debug information."""
+    """The milestone workload, compiled here and now with debug information.
+
+    The bandwidth-heavy triad, on purpose: a working set that fits in
+    one CCX's slice of L3 produces zero DRAM demand fills, and the
+    dram_bytes assertion below would fail on a perfectly healthy
+    machine - tier 2 measured exactly that before this comment existed.
+    """
     compiler = shutil.which("gcc") or shutil.which("cc")
     if compiler is None:
         pytest.fail("tier 2 needs a C compiler on the runner")
     source = tmp_path / "workload.c"
-    source.write_text(WORKLOAD_C)
+    source.write_text(ROOFLINE_WORKLOAD_C)
     binary = tmp_path / "workload"
     built = subprocess.run(
         [compiler, "-O2", "-g", str(source), "-o", str(binary)],
