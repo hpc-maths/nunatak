@@ -41,8 +41,9 @@ class Executor:
     def sampling_blocked(self) -> str | None:
         """Why event sampling cannot work in this environment, or None.
 
-        A replay is never blocked: the recording machine's permissions
-        ruled when the entry was captured."""
+        Every executor answers for its own environment: the real one
+        reads the kernel setting, a recording keeps its inner verdict,
+        and a replay reports the verdict the recording preserved."""
         return None
 
     def run(

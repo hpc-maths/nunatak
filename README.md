@@ -1,5 +1,7 @@
 # nunatak
 
+[![ci](https://github.com/hpc-maths/nunatak/actions/workflows/ci.yml/badge.svg)](https://github.com/hpc-maths/nunatak/actions/workflows/ci.yml)
+
 Zero-instrumentation profiler for high-performance computing. nunatak
 orchestrates existing collectors (`perf`, `nsys`, `rocprofv3`, `mpiP`,
 `xctrace`...), places compute units on a roofline, diagnoses CPU, GPU,

@@ -34,8 +34,19 @@ META = "meta.json"
 INVOCATIONS = "invocations"
 
 
-def write_meta(entry: Path, command: list[str], collectors: list[dict]) -> None:
-    """Describe a corpus entry: what ran, where, with which collectors."""
+def write_meta(
+    entry: Path,
+    command: list[str],
+    collectors: list[dict],
+    sampling_blocked: str | None = None,
+) -> None:
+    """Describe a corpus entry: what ran, where, with which collectors.
+
+    `sampling_blocked` preserves the recording machine's verdict, so a
+    replay takes the same path the recording took: an entry captured
+    where sampling was denied must not replay as if it were allowed -
+    it would ask for collector invocations the entry never recorded.
+    """
     meta = {
         "created": datetime.datetime.now().astimezone().isoformat(timespec="seconds"),
         "command": command,
@@ -45,6 +56,7 @@ def write_meta(entry: Path, command: list[str], collectors: list[dict]) -> None:
             "kernel": platform.release(),
             "architecture": platform.machine(),
         },
+        "sampling_blocked": sampling_blocked,
         "collectors": collectors,
     }
     (entry / META).write_text(json.dumps(meta, indent=2) + "\n")
@@ -117,6 +129,17 @@ class ReplayExecutor(Executor):
     def system(self) -> str:
         """The recorded platform, not the replaying machine's."""
         return self.meta["platform"]["system"]
+
+    def sampling_blocked(self):
+        """The recording machine's verdict, never the replaying one's.
+
+        An entry captured where sampling was denied must replay down the
+        same degraded path: deciding "allowed" here would ask for
+        collector invocations the entry never recorded. Entries written
+        before the verdict was kept read back as unblocked - the real
+        corpus was captured with sampling working.
+        """
+        return self.meta.get("sampling_blocked")
 
     def run(self, argv, capture=True, env=None, cwd=None):
         """Serve the next recording for this program instead of running it."""

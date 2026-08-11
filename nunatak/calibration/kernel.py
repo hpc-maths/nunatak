@@ -140,7 +140,12 @@ def _pollution(
     outcome: KernelRun, threads: int, theoretical: float | None
 ) -> list[str]:
     """The reasons this measurement does not deserve `measured`, empty
-    when none apply."""
+    when none apply.
+
+    The load is judged against the thread count the kernel itself
+    reports, never the caller's: a replayed measurement must be judged
+    in the context it was recorded in, not the replaying machine's.
+    """
     reasons = []
     if outcome.rates:
         top, bottom = max(outcome.rates), min(outcome.rates)
@@ -148,18 +153,25 @@ def _pollution(
             reasons.append(
                 f"repetitions disperse by {(top - bottom) / top:.0%}"
             )
-    if outcome.load is not None and outcome.load > LOAD_PER_CORE_THRESHOLD * threads:
+    cores = outcome.threads if outcome.threads else threads
+    if outcome.load is not None and outcome.load > LOAD_PER_CORE_THRESHOLD * cores:
         reasons.append(
-            f"concurrent load {outcome.load:g} on {threads} allocated cores"
+            f"concurrent load {outcome.load:g} on {cores} allocated cores"
         )
     if outcome.isa == "scalar" and outcome.kernel != "triad":
         reasons.append("kernel built without SIMD: this is not the machine's peak")
-    if (
-        theoretical is not None
-        and outcome.rates
-        and max(outcome.rates) > ANOMALY_FACTOR * theoretical
-    ):
-        reasons.append("far above the theoretical peak of this microarchitecture")
+    if theoretical is not None and outcome.rates:
+        # `theoretical` is scaled to the caller's allocation; the kernel
+        # may have run with another thread count (a replayed entry).
+        # Re-scale per core so the reference matches the measurement's
+        # own context - on a live run the two are equal.
+        reference = theoretical
+        if outcome.threads and threads:
+            reference = theoretical / threads * outcome.threads
+        if max(outcome.rates) > ANOMALY_FACTOR * reference:
+            reasons.append(
+                "far above the theoretical peak of this microarchitecture"
+            )
     return reasons
 
 
