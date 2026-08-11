@@ -9,7 +9,7 @@
  */
 
 import type { HotspotEntry, Payload } from "./data";
-import { downgrades, esc, flops, percent, resolutionBadge } from "./format";
+import { downgrades, esc, flops, percent, resolutionBadge, sig } from "./format";
 
 // The Ceilings the roofline envelope is built from - the only ones
 // whose uncertainty belongs in the synthesis.
@@ -22,7 +22,7 @@ function coverageSentence(payload: Payload): string {
   }
   let sentence = `${coverage.samples} samples of ${esc(coverage.time_base)}`;
   if (coverage.seconds !== null) {
-    sentence += ` over ${coverage.seconds.toPrecision(3).replace(/\.?0+$/, "")} s`;
+    sentence += ` over ${sig(coverage.seconds)} s`;
   }
   const loci = coverage.loci === 1 ? "1 locus" : `${coverage.loci} loci`;
   return `${sentence}, across ${loci}.`;
@@ -57,9 +57,7 @@ function evidence(entry: HotspotEntry): string[] {
     lines.push(line + ".");
   }
   if (entry.dram_intensity.value !== null) {
-    lines.push(
-      `DRAM intensity ${entry.dram_intensity.value.toPrecision(3).replace(/\.?0+$/, "")} flop/byte.`
-    );
+    lines.push(`DRAM intensity ${sig(entry.dram_intensity.value)} flop/byte.`);
   }
   if (entry.classification === "imbalance" && entry.imbalance.value !== null) {
     lines.push(

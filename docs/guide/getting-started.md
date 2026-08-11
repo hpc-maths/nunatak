@@ -243,9 +243,20 @@ omitted.
 Every measuring run also writes `report.html` into the Run directory: a
 **self-contained page** - no CDN, no font, no request of any kind -
 that opens on a cluster without a server and still reads in ten years
-from an archived file. It carries the report's first reading level
-today, in the same vocabulary as the terminal summary; the sortable
-inventory and the per-Hotspot detail with its roofline arrive next.
+from an archived file. It carries two reading levels today, in the same
+vocabulary as the terminal summary; the per-Hotspot detail with its
+roofline arrives next.
+
+The **synthesis** opens the page: coverage, findings, "what this report
+does not say". Below it, the **inventory** lists every Hotspot above
+the statistical floor, sortable by any numeric column and filterable by
+regime, estimated Quality or missing source. Quality and resolution
+level are separate columns and never look alike: Quality is color and
+shape (measured plain, estimated hatched - a downgraded row shows its
+reasons on hover), the resolution level a neutral text label. An empty
+cell means the quantity is **unavailable** for that Hotspot, not that
+it is zero - the table says so under its last row, and the below-floor
+aggregate "others" closes the table as a row of its own.
 
 ```sh
 nunatak report              # regenerate the report of the most recent Run
