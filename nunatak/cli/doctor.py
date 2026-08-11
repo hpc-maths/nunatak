@@ -20,7 +20,7 @@ from nunatak.collect.execution import Executor
 from nunatak.config import Config
 from nunatak.console import Console
 from nunatak.pivot import Degradation
-from nunatak.target import real_target
+from nunatak.launch import real_target
 
 
 @dataclass(frozen=True)
