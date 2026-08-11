@@ -215,7 +215,7 @@ the reason, never approximated.
 
 The log closes on three moments: the **summary**, the degradations
 again - their announcements scrolled past long ago in a job log - and
-the Run's path. The summary is the report's first reading level: the
+the paths. The summary is the report's first reading level: the
 sampling coverage first, then the findings ordered by decreasing share
 of the sampled time, each with its quantified evidence:
 
@@ -226,6 +226,7 @@ summary: 1 Hotspot above the statistical floor holds 100% of the sampled time (2
     DRAM intensity 1.21 flop/byte
     downgraded to estimated: demand fills only: hardware-prefetched traffic is not counted; ...
 Run: .nunatak/workload-20260811-142233
+Report: .nunatak/workload-20260811-142233/report.html
 ```
 
 Reading only the log teaches fewer details than the report, never less
@@ -236,3 +237,27 @@ say"** - the time below the statistical floor aggregated as "others",
 the time attributed to no name, the envelope ceilings that are only
 estimated - instead of being scattered across footnotes or, worse,
 omitted.
+
+## The HTML report
+
+Every measuring run also writes `report.html` into the Run directory: a
+**self-contained page** - no CDN, no font, no request of any kind -
+that opens on a cluster without a server and still reads in ten years
+from an archived file. It carries the report's first reading level
+today, in the same vocabulary as the terminal summary; the sortable
+inventory and the per-Hotspot detail with its roofline arrive next.
+
+```sh
+nunatak report              # regenerate the report of the most recent Run
+nunatak report <run-dir>    # or of a specific one
+```
+
+Regenerating is a real operation: the analysis is never persisted, so
+the report is recomputed from the measured pivot - after an upgrade, or
+on a machine that only received the Run directory.
+
+The page is rendered by a compiled TypeScript mini-app embedded in the
+package. On a development checkout it is built once with
+`npm install && npm run build` in `report-app/`; when the bundle is
+missing, the run continues and announces the named degradation
+`report-unavailable` - a missing capability never fails a run.

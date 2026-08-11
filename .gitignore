@@ -1,5 +1,9 @@
 .claude/
 
+# Report app: the bundle is built from source, never committed
+report-app/node_modules/
+nunatak/report/assets/
+
 # Python
 __pycache__/
 *.py[cod]

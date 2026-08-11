@@ -1,9 +1,9 @@
 """Command-line interface.
 
 The surface has six verbs - run, doctor, explain, report, compare and
-calibrate; `run` and `doctor` exist today, the others arrive with their
-features. Usage errors exit with 125,
-the code reserved for a nunatak failure before launch.
+calibrate; `explain` and `compare` arrive with their features. Usage
+errors exit with 125, the code reserved for a nunatak failure before
+launch.
 """
 
 from __future__ import annotations
@@ -78,6 +78,18 @@ def build_parser() -> argparse.ArgumentParser:
     )
     doctor.add_argument("--json", action="store_true", help="machine-readable report on stdout")
 
+    report = verbs.add_parser(
+        "report",
+        usage="nunatak report [options] [<run>]",
+        help="regenerate the report of a Run (the most recent by default)",
+    )
+    report.add_argument(
+        "run", nargs="?", help="Run directory; defaults to the most recent in runs_dir"
+    )
+    report.add_argument(
+        "--json", action="store_true", help="machine-readable paths on stdout"
+    )
+
     calibrate = verbs.add_parser(
         "calibrate",
         usage="nunatak calibrate [options]",
@@ -117,6 +129,10 @@ def principal(argv: list[str] | None = None) -> int:
         from nunatak.cli import run
 
         return run.execute(args, command, console)
+    if args.verb == "report":
+        from nunatak.cli import report
+
+        return report.execute(args, console)
     if args.verb == "calibrate":
         from nunatak.cli import calibrate
 

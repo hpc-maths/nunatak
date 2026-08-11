@@ -104,6 +104,9 @@
 
 .. automodule:: nunatak.report.payload
    :members:
+
+.. automodule:: nunatak.report.html
+   :members:
 ```
 
 ## Configuration

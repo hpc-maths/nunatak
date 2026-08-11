@@ -213,6 +213,27 @@ def _attribution_ceiling(
     )
 
 
+def _report_asset() -> CheckResult:
+    """Presence of the compiled report mini-app in this installation."""
+    from nunatak.report import html
+
+    if html.assets_available():
+        return CheckResult(name="report-app", status="ok", detail=str(html.ASSETS))
+    degradation = Degradation(
+        name="report-unavailable",
+        message="the compiled report app is missing from this installation",
+        remedy="reinstall nunatak from a built wheel; on a development checkout, "
+        "run `npm install && npm run build` in report-app/",
+    )
+    return CheckResult(
+        name="report-app",
+        status="missing",
+        detail=degradation.message,
+        remedy=degradation.remedy,
+        degradation=degradation,
+    )
+
+
 def light_checks(
     executor: Executor,
     config: Config,
@@ -227,6 +248,7 @@ def light_checks(
     symbolizer = llvm[0] if llvm is not None else locate(executor, config)
     checks = _cpu_collector(executor, config, preselected=cpu)
     checks.append(_llvm(symbolizer))
+    checks.append(_report_asset())
     if command:
         checks.append(_target(command))
         ceiling = _attribution_ceiling(executor, command, symbolizer)

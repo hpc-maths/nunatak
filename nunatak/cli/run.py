@@ -34,6 +34,7 @@ from nunatak.exit_codes import (
     STRICT_VIOLATION,
 )
 from nunatak.pivot import Collector, Pass, ResolutionLevel, Run, write_run
+from nunatak.report import html
 from nunatak.target import real_target
 
 COLLECT_DIR = "collect"
@@ -262,15 +263,21 @@ def execute(args, command: list[str], console: Console) -> int:
     resolved = sum(
         1 for h in hotspots if h.resolution_level is not ResolutionLevel.UNRESOLVED
     )
+    report_path = None
     if measurements:
         console.info(
             f"{len(measurements)} measurements across {len(hotspots)} hotspots "
             f"({resolved} resolved)"
         )
+        diagnostics = analysis.diagnose(run)
+        # A missing compiled app was already announced by the light
+        # doctor as `report-unavailable`: the run silently keeps going.
+        if html.assets_available():
+            report_path = html.write_report(directory, run, diagnostics)
         # The three closing moments of the log: the summary, then the
         # degradations again - the announcements scrolled past long ago
-        # in a job log - then the path.
-        for line in summary.summarize(run, analysis.diagnose(run)):
+        # in a job log - then the paths.
+        for line in summary.summarize(run, diagnostics):
             console.info(line)
         for degradation in degradations:
             console.degradation(degradation)
@@ -285,6 +292,7 @@ def execute(args, command: list[str], console: Console) -> int:
                     "measurements": len(run.measurements),
                     "hotspots": len(hotspots),
                     "resolved_hotspots": resolved,
+                    "report": str(report_path) if report_path else None,
                     "degradations": [
                         {"name": d.name, "message": d.message, "remedy": d.remedy}
                         for d in degradations
@@ -293,6 +301,8 @@ def execute(args, command: list[str], console: Console) -> int:
             )
         )
     console.info(f"Run: {directory}")
+    if report_path is not None:
+        console.info(f"Report: {report_path}")
 
     if args.strict and degradations:
         # Degradations met after launch (ingestion): the Run is written and

@@ -1,0 +1,215 @@
+/* Design tokens and structure retained from the ticket-14 prototype.
+   Quality is carried by color and shape (measured plain, estimated
+   hatched, unavailable dotted); the resolution level by a neutral text
+   label. The two never look alike. */
+
+:root {
+  --ground: #f2f6f9;
+  --surface: #ffffff;
+  --surface-2: #e9f1f6;
+  --ink: #0c1f2e;
+  --muted: #5c7688;
+  --faint: #8ca3b2;
+  --line: #d6e3eb;
+  --line-soft: #e8f0f5;
+  --rock: #14324a;
+  --ice: #bfe6f7;
+  --melt: #2e7fa8;
+  --ember: #d2661a;
+  --ok: #1f7a5a;
+  --warn: #b26206;
+  --dead: #8ca3b2;
+  --sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  --mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, "Liberation Mono", monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --ground: #070e14;
+    --surface: #0e1922;
+    --surface-2: #16242f;
+    --ink: #e6f0f6;
+    --muted: #8aa5b6;
+    --faint: #63808f;
+    --line: #1e2e3b;
+    --line-soft: #16232e;
+    --rock: #e8f1f7;
+    --ice: #2e7fa8;
+    --melt: #7fc4e4;
+    --ember: #ff9a5a;
+    --ok: #5fcfa3;
+    --warn: #ffb259;
+    --dead: #63808f;
+  }
+}
+
+* {
+  box-sizing: border-box;
+}
+body {
+  margin: 0;
+  background: var(--ground);
+  color: var(--ink);
+  font-family: var(--sans);
+  font-size: 15px;
+  line-height: 1.55;
+  -webkit-font-smoothing: antialiased;
+}
+h1,
+h2,
+h3 {
+  margin: 0;
+  text-wrap: balance;
+}
+p {
+  margin: 0;
+}
+
+.shell {
+  max-width: 1180px;
+  margin: 0 auto;
+  padding: 0 24px;
+}
+
+.topbar {
+  border-bottom: 1px solid var(--line);
+  background: var(--surface);
+  position: sticky;
+  top: 0;
+  z-index: 30;
+}
+.topbar-in {
+  max-width: 1180px;
+  margin: 0 auto;
+  padding: 12px 24px;
+  display: flex;
+  align-items: center;
+  gap: 13px;
+  flex-wrap: wrap;
+}
+.topbar svg {
+  width: 26px;
+  height: 26px;
+  flex: none;
+}
+.brand {
+  font-family: var(--mono);
+  font-weight: 600;
+  letter-spacing: 0.04em;
+}
+.vsep {
+  width: 1px;
+  height: 20px;
+  background: var(--line);
+}
+.runmeta {
+  font-family: var(--mono);
+  font-size: 12.5px;
+  color: var(--muted);
+}
+
+/* Vocabulary of uncertainty: the resolution level is a neutral text
+   label. The Quality marks (color + shape) arrive with the inventory. */
+.res {
+  font-family: var(--mono);
+  font-size: 10.5px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--muted);
+  border: 1px solid var(--line);
+  padding: 1px 6px;
+  white-space: nowrap;
+}
+.res-unresolved {
+  color: var(--faint);
+  border-style: dashed;
+}
+.why {
+  font-size: 12.5px;
+  color: var(--muted);
+  font-style: italic;
+}
+
+.eyebrow {
+  font-family: var(--mono);
+  font-size: 10.5px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.mono {
+  font-family: var(--mono);
+}
+.muted {
+  color: var(--muted);
+}
+.small {
+  font-size: 13px;
+}
+
+/* Level 1: the synthesis. */
+.syn {
+  max-width: 74ch;
+  display: flex;
+  flex-direction: column;
+  gap: 40px;
+  padding: 46px 0 40px;
+}
+.syn h1 {
+  font-size: 27px;
+  margin-top: 9px;
+  line-height: 1.28;
+}
+.coverage {
+  margin-top: 12px;
+}
+.finding {
+  display: flex;
+  flex-direction: column;
+  gap: 13px;
+}
+.rank {
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  color: var(--ember);
+  text-transform: uppercase;
+}
+.verdict {
+  font-size: 20px;
+  font-weight: 600;
+  line-height: 1.38;
+}
+.ev {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding-left: 15px;
+  border-left: 2px solid var(--line);
+}
+.ev div {
+  font-size: 14px;
+}
+.neg {
+  border-top: 1px solid var(--line);
+  padding-top: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.neg h2 {
+  font-size: 17px;
+}
+.ev-negative {
+  border-color: var(--ember);
+}
+
+.foot {
+  padding-top: 8px;
+  padding-bottom: 28px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    transition: none !important;
+  }
+}
