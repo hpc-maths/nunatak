@@ -43,6 +43,30 @@ def test_the_replayed_platform_is_the_recorded_one(tmp_path):
     assert ReplayExecutor(entry).system == meta["platform"]["system"]
 
 
+def test_a_blocked_recording_replays_blocked(tmp_path):
+    # An entry captured where sampling was denied must replay down the
+    # same degraded path: deciding "allowed" at replay time would ask
+    # for collector invocations the entry never recorded.
+    entry = tmp_path / "entry"
+    recorder = RecordingExecutor(
+        ScriptedExecutor(blocked="kernel.perf_event_paranoid=4"), entry
+    )
+    write_meta(entry, ["./solver"], [], sampling_blocked=recorder.sampling_blocked())
+    assert ReplayExecutor(entry).sampling_blocked() == "kernel.perf_event_paranoid=4"
+
+
+def test_an_entry_written_before_the_verdict_reads_back_unblocked(tmp_path):
+    # The real corpus was captured with sampling working; its meta files
+    # predate the verdict and must keep replaying as unblocked.
+    entry = tmp_path / "entry"
+    RecordingExecutor(ScriptedExecutor(), entry)
+    write_meta(entry, ["./solver"], [])
+    meta = read_meta(entry)
+    del meta["sampling_blocked"]
+    (entry / "meta.json").write_text(json.dumps(meta))
+    assert ReplayExecutor(entry).sampling_blocked() is None
+
+
 def test_recording_refuses_to_mix_with_an_existing_entry(tmp_path):
     entry = tmp_path / "entry"
     RecordingExecutor(ScriptedExecutor(), entry).run(["perf", "--version"])

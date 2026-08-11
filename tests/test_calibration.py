@@ -198,6 +198,25 @@ class TestPollution:
         )
         assert ceiling.quality is Quality.MEASURED
 
+    def test_load_is_judged_against_the_kernel_reported_threads(self, tmp_path):
+        # The kernel ran with 8 threads under a load of 4.00 - calm. A
+        # replaying machine with 2 visible cores must not turn that
+        # recorded calm into pollution: the measurement is judged in the
+        # context it was recorded in, never the replaying machine's.
+        two_cores = Machine(
+            system="Linux",
+            kernel="6.8.0",
+            architecture="x86_64",
+            cpu_model="whatever the CI runner is",
+            logical_cores=2,
+            allocation=Allocation(visible_cores=2),
+        )
+        executor = executor_with(FMA_DP)
+        (ceiling,) = kernel.calibrate(
+            executor, two_cores, Config(), directory=tmp_path
+        )
+        assert ceiling.quality is Quality.MEASURED
+
 
 class TestReplayedCalibration:
     """The recorded EPYC entry end to end: probe, build, three kernels."""

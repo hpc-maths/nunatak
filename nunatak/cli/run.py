@@ -234,6 +234,7 @@ def execute(args, command: list[str], console: Console) -> int:
             Path(args.record),
             list(command),
             [{"tool": c.tool, "version": c.version} for c in collectors],
+            sampling_blocked=executor.sampling_blocked(),
         )
 
     run = Run(

@@ -83,7 +83,12 @@ def execute(args, console: Console) -> int:
             )
 
     if args.record:
-        corpus.write_meta(Path(args.record), ["calibrate"], [])
+        corpus.write_meta(
+            Path(args.record),
+            ["calibrate"],
+            [],
+            sampling_blocked=executor.sampling_blocked(),
+        )
 
     if args.json:
         print(
