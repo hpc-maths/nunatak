@@ -210,3 +210,29 @@ propagated as the worst of its inputs: a number displayed `measured` is
 measured end to end. Where a source counter does not exist - no FLOP
 counter collected, no clock in seconds - the fact is `unavailable` with
 the reason, never approximated.
+
+## The summary at the end of the run
+
+The log closes on three moments: the **summary**, the degradations
+again - their announcements scrolled past long ago in a job log - and
+the Run's path. The summary is the report's first reading level: the
+sampling coverage first, then the findings ordered by decreasing share
+of the sampled time, each with its quantified evidence:
+
+```
+summary: 1 Hotspot above the statistical floor holds 100% of the sampled time (2051 samples of task-clock over 2.06 s)
+  main (line) - 100% of the sampled time - latency-bound
+    achieved 1.22 GFLOP/s of 125 GFLOP/s attainable: 1.0% of the envelope
+    DRAM intensity 1.21 flop/byte
+    downgraded to estimated: demand fills only: hardware-prefetched traffic is not counted; ...
+Run: .nunatak/workload-20260811-142233
+```
+
+Reading only the log teaches fewer details than the report, never less
+about how solid the numbers are: a downgraded value states its reason, a
+Hotspot that cannot be placed says why where the placement was expected,
+and what is missing is gathered under **"what this report does not
+say"** - the time below the statistical floor aggregated as "others",
+the time attributed to no name, the envelope ceilings that are only
+estimated - instead of being scattered across footnotes or, worse,
+omitted.
