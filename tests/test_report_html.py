@@ -156,3 +156,37 @@ class TestRunWiring:
         captured = capsys.readouterr()
         assert json.loads(captured.out)["report"] is None
         assert "degraded [report-unavailable]" in captured.err
+
+class TestNoSourceVariant:
+    def test_the_variant_gets_its_own_name_and_no_code_leaves(
+        self, tmp_path, monkeypatch, capsys
+    ):
+        from nunatak.pivot import SourceExtract
+
+        monkeypatch.chdir(tmp_path)
+        directory = tmp_path / ".nunatak" / "solver-20260811-120000"
+        spot = hotspot()
+        run = run_with(balanced(spot, flops=1.6e10, bytes_=8.0e9, seconds=0.1))
+        run.source_extracts = [
+            SourceExtract(
+                hotspot=spot,
+                file="/src/app.c",
+                text="double proprietary_kernel(void);",
+                start_line=12,
+                end_line=12,
+            )
+        ]
+        write_run(directory, run)
+
+        assert principal(["report", str(directory), "--json"]) == 0
+        full = json.loads(capsys.readouterr().out)["report"]
+        assert principal(["report", str(directory), "--no-source", "--json"]) == 0
+        stripped = json.loads(capsys.readouterr().out)["report"]
+
+        assert stripped.endswith("report-no-source.html")
+        assert "proprietary_kernel" in Path(full).read_text(encoding="utf-8")
+        page = Path(stripped).read_text(encoding="utf-8")
+        assert "proprietary_kernel" not in page
+        assert "withheld by --no-source" in page
+        # The full report is untouched by the variant.
+        assert "proprietary_kernel" in Path(full).read_text(encoding="utf-8")

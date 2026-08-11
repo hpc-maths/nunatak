@@ -87,6 +87,12 @@ def build_parser() -> argparse.ArgumentParser:
         "run", nargs="?", help="Run directory; defaults to the most recent in runs_dir"
     )
     report.add_argument(
+        "--no-source",
+        action="store_true",
+        help="write a shareable variant without any source text "
+        "(line numbers and sample distribution kept)",
+    )
+    report.add_argument(
         "--json", action="store_true", help="machine-readable paths on stdout"
     )
 

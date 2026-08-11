@@ -266,3 +266,39 @@ class TestReplayedSnapshot:
             SNAPSHOT.parent.mkdir(exist_ok=True)
             SNAPSHOT.write_text(rendered, encoding="utf-8")
         assert rendered == SNAPSHOT.read_text(encoding="utf-8")
+
+
+class TestWithoutSource:
+    def test_the_variant_withholds_text_and_keeps_the_distribution(self):
+        spot = hotspot()
+        original = payload_of(
+            [measurement(spot, "task-clock", 2e9, "ns")],
+            address_details=[detail(spot, 0x10, 90.0, [frame("main", line=12)])],
+            source_extracts=[
+                SourceExtract(
+                    hotspot=spot,
+                    file="/src/app.c",
+                    text="double proprietary_kernel(void);",
+                    start_line=12,
+                    end_line=12,
+                )
+            ],
+        )
+        stripped = report.payload.without_source(original)
+        source = stripped["hotspots"][0]["source"]
+        assert source["text"] is None
+        assert source["reason"] == report.payload.WITHHELD
+        assert source["start_line"] == 12
+        assert stripped["hotspots"][0]["lines"] == original["hotspots"][0]["lines"]
+        assert "proprietary_kernel" not in json.dumps(stripped)
+
+    def test_the_input_payload_is_not_modified(self):
+        spot = hotspot()
+        original = payload_of(
+            [measurement(spot, "task-clock", 2e9, "ns")],
+            source_extracts=[
+                SourceExtract(hotspot=spot, file="/src/app.c", text="code();")
+            ],
+        )
+        report.payload.without_source(original)
+        assert original["hotspots"][0]["source"]["text"] == "code();"

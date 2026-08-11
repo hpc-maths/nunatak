@@ -63,7 +63,9 @@ def execute(args, console: Console) -> int:
         )
         return FAILURE_BEFORE_LAUNCH
 
-    path = html.write_report(directory, run, analysis.diagnose(run))
+    path = html.write_report(
+        directory, run, analysis.diagnose(run), no_source=args.no_source
+    )
     if args.json:
         print(json.dumps({"run": str(directory), "report": str(path)}))
     console.info(f"Report: {path}")
