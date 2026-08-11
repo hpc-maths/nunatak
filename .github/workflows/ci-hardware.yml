@@ -27,6 +27,11 @@ jobs:
     timeout-minutes: 45
     steps:
       - uses: actions/checkout@v4
+      # The station's distribution Node is too old for the app toolchain;
+      # the same Node as tier 1, fetched into the runner's tool cache.
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24"
       - run: python3 -m venv .venv && .venv/bin/pip install --quiet --upgrade pip
       - run: .venv/bin/pip install --quiet --group dev -e .
       - run: npm ci && npm run build
