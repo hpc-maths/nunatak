@@ -30,3 +30,9 @@ packages = ["nunatak"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
+# Tier 1 is hermetic and blocking; the hardware tests belong to tier 2
+# and opt in with `-m hardware` on a machine with real PMUs.
+addopts = "-m 'not hardware'"
+markers = [
+    "hardware: needs real PMUs and a compiler; run with -m hardware (tier 2)",
+]

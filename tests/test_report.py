@@ -238,7 +238,7 @@ class TestReplayedSnapshot:
         return data
 
     def test_the_milestone_payload_is_frozen(self, tmp_path, monkeypatch, capsys):
-        from tests.support import WORKLOAD_C
+        from tests.support import ROOFLINE_WORKLOAD_C
 
         from nunatak.cli import principal
         from nunatak.pivot import read_run
@@ -246,7 +246,11 @@ class TestReplayedSnapshot:
         (tmp_path / "nunatak.toml").write_text(
             '[tools]\nllvm-symbolizer = "/usr/lib/llvm-19/bin/llvm-symbolizer"\n'
         )
-        (tmp_path / "workload.c").write_text(WORKLOAD_C)
+        # The exact source the roofline entry was compiled from: on the
+        # capture machine the recorded DWARF path resolves directly, on
+        # every other machine the basename search finds this copy - both
+        # embed the same text or the snapshot would be machine-dependent.
+        (tmp_path / "workload.c").write_text(ROOFLINE_WORKLOAD_C)
         monkeypatch.chdir(tmp_path)
         out = io.StringIO()
         with redirect_stdout(out):

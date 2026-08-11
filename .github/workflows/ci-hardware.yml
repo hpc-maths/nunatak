@@ -1,0 +1,37 @@
+# Tier 2 of the test strategy (spec ch. 13, ADR 0008): a self-hosted
+# station with real PMUs, nightly, non-blocking. The only stage that
+# verifies a counter actually reports a value - hosted virtual machines
+# never can. It runs the hermetic suite first (a real Linux is also a
+# tier-1 environment), then the hardware-marked tests that the rest of
+# CI deliberately excludes.
+#
+# Never triggered by pull_request: a public repository's fork PRs must
+# not reach a self-hosted machine.
+name: ci-hardware
+
+on:
+  schedule:
+    - cron: "17 2 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-hardware
+  cancel-in-progress: false
+
+jobs:
+  pmu:
+    runs-on: [self-hosted, linux, x64, pmu]
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - run: python3 -m venv .venv && .venv/bin/pip install --quiet --upgrade pip
+      - run: .venv/bin/pip install --quiet --group dev -e .
+      - run: npm ci && npm run build
+        working-directory: report-app
+      - name: hermetic suite on real Linux
+        run: .venv/bin/python -m pytest -q
+      - name: what only hardware can verify
+        run: .venv/bin/python -m pytest -q -m hardware

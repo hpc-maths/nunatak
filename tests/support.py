@@ -77,3 +77,34 @@ int main(void) {
     return 0;
 }
 """
+
+
+# The exact source the workload-c-roofline corpus entry was compiled
+# from - a bandwidth-heavy triad, distinct from WORKLOAD_C. A test that
+# embeds source for that entry must offer this text, or the machine that
+# still holds the capture tree would embed a different one.
+ROOFLINE_WORKLOAD_C = """\
+#include <stdio.h>
+#include <stdlib.h>
+
+double axpy(double *restrict a, const double *restrict b, const double *restrict c, int n) {
+    double s = 0.0;
+    for (int i = 0; i < n; i++)
+        a[i] = b[i] + 3.0 * c[i];
+    for (int i = 0; i < n; i += 512)
+        s += a[i];
+    return s;
+}
+
+int main(void) {
+    int n = 1 << 21;
+    double *a = malloc(n * sizeof(double));
+    double *b = malloc(n * sizeof(double));
+    double *c = malloc(n * sizeof(double));
+    for (int i = 0; i < n; i++) { b[i] = i * 0.5; c[i] = i * 0.25; a[i] = 0.0; }
+    double s = 0.0;
+    for (int r = 0; r < 600; r++) s += axpy(a, b, c, n);
+    printf("%f\\n", s);
+    return 0;
+}
+"""

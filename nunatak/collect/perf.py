@@ -77,7 +77,18 @@ class PerfAdapter:
             ],
             capture=False,
         )
-        if selectors and record.exit_code != 0 and not data.is_file():
+        script = executor.run(
+            [self.path, "script", "--input", str(data), "--fields", SCRIPT_FIELDS]
+        )
+        if selectors and record.exit_code != 0 and script.exit_code != 0:
+            # A rejected group fails fast: the application never launched
+            # and no data was written, so `perf script` has nothing to
+            # read. That script invocation is the witness, and it crosses
+            # the execution boundary - a replay reaches the same verdict
+            # from the recording, where a filesystem check would consult
+            # the replaying machine's disk. An application that itself
+            # exits non-zero leaves a readable data file and never trips
+            # this.
             degradations.append(
                 Degradation(
                     name="counter-events-rejected",
@@ -94,10 +105,9 @@ class PerfAdapter:
                 ],
                 capture=False,
             )
-
-        script = executor.run(
-            [self.path, "script", "--input", str(data), "--fields", SCRIPT_FIELDS]
-        )
+            script = executor.run(
+                [self.path, "script", "--input", str(data), "--fields", SCRIPT_FIELDS]
+            )
         if script.exit_code == 0 and script.stdout is not None:
             (directory / SCRIPT_OUTPUT).write_text(script.stdout)
 
