@@ -10,13 +10,15 @@ nightly job).
 """
 
 import json
+import os
 import shutil
+import stat
 import subprocess
 
 import pytest
 
 from nunatak.cli import principal
-from nunatak.pivot import Quality, read_run
+from nunatak.pivot import Quality, locus_level, read_run
 from tests.support import ROOFLINE_WORKLOAD_C
 
 pytestmark = pytest.mark.hardware
@@ -109,3 +111,45 @@ class TestRealCalibration:
                 assert ceiling["reason"]
             else:
                 assert ceiling["quality"] == Quality.MEASURED.value
+
+
+class TestRealCounting:
+    def test_the_counting_layer_counts_every_rank(
+        self, workload, tmp_path, monkeypatch, capsys
+    ):
+        # A launcher-shaped stand-in fans the workload out to two "ranks"
+        # with Open MPI's environment: the counting layer runs the real
+        # perf stat on real PMUs, each rank writes home itself, and the
+        # pivot ends with Locus-level aggregates for both ranks.
+        bin_dir = tmp_path / "bin"
+        bin_dir.mkdir()
+        launcher = bin_dir / "mpirun"
+        launcher.write_text(
+            "#!/bin/sh\n"
+            'n=1\n'
+            'while [ "$1" = "-n" ]; do n="$2"; shift 2; done\n'
+            "rank=0\n"
+            'while [ "$rank" -lt "$n" ]; do\n'
+            "  OMPI_COMM_WORLD_RANK=$rank OMPI_COMM_WORLD_SIZE=$n \\\n"
+            '  OMPI_COMM_WORLD_LOCAL_RANK=$rank "$@" || exit $?\n'
+            "  rank=$((rank+1))\n"
+            "done\n"
+        )
+        launcher.chmod(launcher.stat().st_mode | stat.S_IXUSR)
+        monkeypatch.setenv("PATH", f"{bin_dir}{os.pathsep}{os.environ['PATH']}")
+        monkeypatch.chdir(tmp_path)
+
+        assert principal(["run", "--json", "--", "mpirun", "-n", "2", str(workload)]) == 0
+        summary = json.loads(capsys.readouterr().out)
+        names = {d["name"] for d in summary["degradations"]}
+        assert "counting-unavailable" not in names, summary["degradations"]
+        assert "counting-incomplete" not in names, summary["degradations"]
+
+        run = read_run(summary["run"])
+        aggregates = locus_level(run.measurements)
+        assert {m.locus.rank for m in aggregates} == {0, 1}
+        clocks = [m for m in aggregates if m.counter == "task-clock"]
+        assert len(clocks) == 2
+        assert all(m.unit == "ns" and m.value and m.value > 0 for m in clocks)
+        cycles = [m for m in aggregates if m.counter == "cycles"]
+        assert all(m.value and m.value > 0 for m in cycles)
