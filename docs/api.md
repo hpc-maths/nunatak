@@ -5,6 +5,9 @@
 ```{eval-rst}
 .. automodule:: nunatak.launch
    :members:
+
+.. automodule:: nunatak.rank
+   :members:
 ```
 
 ## Measured pivot
@@ -47,6 +50,12 @@
    :members:
 
 .. automodule:: nunatak.ingestion.perf_script
+   :members:
+
+.. automodule:: nunatak.ingestion.perf_stat
+   :members:
+
+.. automodule:: nunatak.ingestion.rank_counting
    :members:
 ```
 

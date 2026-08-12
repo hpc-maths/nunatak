@@ -16,9 +16,10 @@ import os
 import platform
 import re
 import shutil
+import sys
 from pathlib import Path
 
-from nunatak import analysis, attribution, corpus, ingestion, machine, provenance, summary
+from nunatak import analysis, attribution, corpus, ingestion, launch, machine, provenance, summary
 from nunatak.attribution import source, staleness
 from nunatak.collect import events as counter_events
 from nunatak.calibration import theory
@@ -33,7 +34,8 @@ from nunatak.exit_codes import (
     FAILURE_BEFORE_LAUNCH,
     STRICT_VIOLATION,
 )
-from nunatak.pivot import Collector, Pass, ResolutionLevel, Run, write_run
+from nunatak.ingestion import rank_counting
+from nunatak.pivot import Collector, Pass, ResolutionLevel, Run, hotspot_level, write_run
 from nunatak.report import html
 from nunatak.launch import real_target
 
@@ -43,6 +45,24 @@ COLLECT_DIR = "collect"
 def _now() -> str:
     """Local timestamp with timezone, second precision."""
     return datetime.datetime.now().astimezone().isoformat(timespec="seconds")
+
+
+def collection_command(command: list[str], collect_dir: Path) -> list[str]:
+    """The command the sampler actually runs.
+
+    An MPI launch fans the application out to ranks the sampler here
+    cannot see: the rank shim, interposed inside each rank, is the
+    counting layer - every rank, constant cost - and each rank writes
+    into the Run directory itself, which is the multi-node retrieval.
+    A direct launch runs unchanged.
+    """
+    plan = launch.split(command)
+    if plan.mpi and plan.application:
+        return plan.wrap(
+            [sys.executable, "-m", "nunatak.rank",
+             "--directory", str(collect_dir), "--"]
+        )
+    return list(command)
 
 
 def executable_status(program: str) -> tuple[int, str] | None:
@@ -194,7 +214,7 @@ def execute(args, command: list[str], console: Console) -> int:
         console.info(f"collecting with {adapter.tool} {version}: {' '.join(command)}")
         counter_group = counter_events.sampling_events(snapshot)
         exit_code, collect_degradations = adapter.collect(
-            command,
+            collection_command(command, directory / COLLECT_DIR),
             directory / COLLECT_DIR,
             executor,
             config.sampling_frequency,
@@ -221,9 +241,16 @@ def execute(args, command: list[str], console: Console) -> int:
             source_extracts = source.extract(
                 address_details, mapping, root or cwd, checksums
             )
-        for degradation in ingest_degradations + attribution_degradations:
+        counting, counting_degradations = rank_counting.ingest_counting(
+            directory / COLLECT_DIR
+        )
+        measurements = measurements + counting
+        after_launch = (
+            ingest_degradations + attribution_degradations + counting_degradations
+        )
+        for degradation in after_launch:
             console.degradation(degradation)
-        degradations = degradations + ingest_degradations + attribution_degradations
+        degradations = degradations + after_launch
     else:
         console.info(f"launching: {' '.join(command)}")
         exit_code = executor.run(command, capture=False).exit_code
@@ -260,7 +287,7 @@ def execute(args, command: list[str], console: Console) -> int:
     )
     write_run(directory, run)
 
-    hotspots = {m.hotspot for m in measurements}
+    hotspots = {m.hotspot for m in hotspot_level(measurements)}
     resolved = sum(
         1 for h in hotspots if h.resolution_level is not ResolutionLevel.UNRESOLVED
     )

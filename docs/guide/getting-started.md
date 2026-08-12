@@ -193,6 +193,30 @@ too. An unknown microarchitecture samples time alone, and a kernel that
 rejects the event names degrades to time-only without ever running the
 application twice.
 
+## MPI runs
+
+`nunatak run -- mpirun -n 8 ./solver` starts one launcher here and
+eight ranks wherever the scheduler placed them. Collection then has two
+layers, with two costs. The **counting layer** covers **every rank** at
+constant cost: nunatak interposes a small shim inside each rank -
+between the launcher and the application, without touching either -
+which counts time, cycles and instructions around the whole rank and
+writes its aggregates into the Run directory itself. Those per-rank
+totals are what reveal load imbalance, and they carry no Hotspot:
+attributing them to functions is the sampling layer's job.
+
+Each rank writes home before it exits, so a Run stays **one
+directory** whatever the number of ranks and nodes - the retrieval is
+done before the job epilogue, when the allocation still exists. A rank
+whose node has no usable `perf` runs bare and is declared by number
+(`counting-unavailable`); ranks that the world size announces but that
+left nothing behind are declared too (`counting-incomplete`). Silence
+about a missing rank would read as "nothing ran there".
+
+The shim propagates the application's exit code and never touches its
+stdout or stderr, and a launcher that fails to resolve its application
+is left alone: nunatak wraps a launch it understands, it never guesses.
+
 ## What the analysis says
 
 The analysis engine is a **pure function of (pivot, Machine)**: nothing
