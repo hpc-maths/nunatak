@@ -65,6 +65,26 @@ case "$1" in
 esac
 """
 
+RESTRICTED_PERF = """\
+#!/bin/sh
+case "$1" in
+  --version)
+    echo "perf version 6.8.0"
+    ;;
+  stat)
+    shift
+    out=""
+    while [ "$1" != "--" ]; do
+      if [ "$1" = "-o" ]; then out="$2"; shift; fi
+      shift
+    done
+    echo "# started on Wed Aug 12 05:00:00 2026" > "$out"
+    echo "Access to performance monitoring operations is restricted." >&2
+    exit 255
+    ;;
+esac
+"""
+
 # A launcher-shaped stand-in: runs the wrapped command once per rank,
 # sequentially, with the environment Open MPI documents.
 STUB_MPIRUN = """\
@@ -90,10 +110,14 @@ def script(directory, name, text):
 def shim_environment(tmp_path, perf_text=None, rank=3, size=8):
     bin_dir = tmp_path / "bin"
     bin_dir.mkdir(exist_ok=True)
+    environment = dict(os.environ)
     if perf_text is not None:
         script(bin_dir, "perf", perf_text)
-    environment = dict(os.environ)
-    environment["PATH"] = f"{bin_dir}{os.pathsep}/bin{os.pathsep}/usr/bin"
+        environment["PATH"] = f"{bin_dir}{os.pathsep}/bin{os.pathsep}/usr/bin"
+    else:
+        # The machine's own perf must stay invisible: CI runners ship
+        # one that the kernel then refuses.
+        environment["PATH"] = str(bin_dir)
     environment["PYTHONPATH"] = str(REPO_ROOT)
     if rank is not None:
         environment["OMPI_COMM_WORLD_RANK"] = str(rank)
@@ -181,6 +205,23 @@ class TestShim:
         assert outcome.returncode == 0
         assert witness.read_text() == "x"
         assert rank_meta(collect, 3)["counted"] is False
+
+    def test_a_restricted_perf_leaves_a_header_not_a_count(self, tmp_path):
+        # GitHub-runner shape: perf exists, creates its CSV header, then
+        # the kernel refuses the events - the application never launched.
+        collect = tmp_path / "collect"
+        environment = shim_environment(tmp_path, RESTRICTED_PERF)
+        witness = tmp_path / "launches.txt"
+        outcome = run_shim(
+            collect,
+            [sys.executable, "-c", f"open({str(witness)!r}, 'a').write('x')"],
+            environment,
+        )
+        assert outcome.returncode == 0
+        assert witness.read_text() == "x"
+        meta = rank_meta(collect, 3)
+        assert meta["counted"] is False
+        assert not (collect / "rank-3" / "perf-stat.csv").exists()
 
     def test_outside_any_rank_nothing_is_written(self, tmp_path):
         collect = tmp_path / "collect"

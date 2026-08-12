@@ -48,16 +48,31 @@ def _perf_version() -> str | None:
     return match.group(1) if match else None
 
 
+def _usable(output: Path) -> bool:
+    """Whether the CSV carries at least one count line.
+
+    perf creates its `-o` file before opening the events, so a
+    header-only file is the witness of a perf that failed before
+    launching the application - a restricted kernel, a rejected event.
+    """
+    if not output.is_file():
+        return False
+    return any(
+        line.strip() and not line.startswith("#")
+        for line in output.read_text().splitlines()
+    )
+
+
 def measure(directory: Path, command: Sequence[str], environment: Mapping[str, str]) -> int:
     """Run `command` in this rank, counting around it, and return its exit
     code.
 
     Outside any rank identity the command runs untouched and nothing is
     written: a shim that cannot say where it is must not invent a Locus.
-    When perf is missing, or rejects the counting events before launching
-    the application (its fail-fast leaves no CSV behind, so the
-    application never ran), the application still runs bare and the rank
-    meta says the rank went uncounted - a missing capability never
+    When perf is missing, or fails before launching the application - it
+    opens its events first, so a missing or header-only CSV proves the
+    application never ran - the application still runs bare and the rank
+    meta says the rank went uncounted: a missing capability never
     prevents the run.
     """
     identity = rank_identity(environment)
@@ -77,7 +92,8 @@ def measure(directory: Path, command: Sequence[str], environment: Mapping[str, s
                 "-o", str(output), "--", *command,
             ]
         ).returncode
-        if not output.is_file():
+        if not _usable(output):
+            output.unlink(missing_ok=True)
             exit_code = None
     if exit_code is None:
         exit_code = subprocess.run(list(command)).returncode
