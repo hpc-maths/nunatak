@@ -11,6 +11,8 @@ from nunatak.pivot import (
     PhysicalIdentity,
     Quality,
     ResolutionLevel,
+    hotspot_level,
+    locus_level,
 )
 
 
@@ -153,3 +155,50 @@ class TestCeiling:
             reason="theoretical fallback: calibration kernel unavailable",
         )
         assert ok.reason is not None
+
+
+class TestLayers:
+    def test_a_measurement_without_hotspot_is_locus_level(self):
+        aggregate = Measurement(
+            hotspot=None,
+            locus=cpu_locus(),
+            counter="cycles",
+            value=1e9,
+            unit="count",
+            quality=Quality.MEASURED,
+        )
+        assert locus_level([aggregate]) == [aggregate]
+        assert hotspot_level([aggregate]) == []
+
+    def test_the_two_layers_partition_the_measurements(self):
+        sampled = Measurement(
+            hotspot=unresolved_hotspot(),
+            locus=cpu_locus(),
+            counter="cycles",
+            value=100.0,
+            unit="count",
+            quality=Quality.MEASURED,
+            sample_count=10,
+        )
+        aggregate = Measurement(
+            hotspot=None,
+            locus=Locus(node="n0", rank=3),
+            counter="cycles",
+            value=1e9,
+            unit="count",
+            quality=Quality.MEASURED,
+        )
+        both = [sampled, aggregate]
+        assert hotspot_level(both) == [sampled]
+        assert locus_level(both) == [aggregate]
+
+    def test_locus_level_still_validates_its_quality(self):
+        with pytest.raises(ValueError, match="motivated"):
+            Measurement(
+                hotspot=None,
+                locus=cpu_locus(),
+                counter="cycles",
+                value=1e9,
+                unit="count",
+                quality=Quality.ESTIMATED,
+            )

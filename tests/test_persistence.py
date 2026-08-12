@@ -318,3 +318,22 @@ def test_round_trip_preserves_source_extracts(tmp_path):
     ]
     directory = write_run(tmp_path / "run", run)
     assert read_run(directory).source_extracts == run.source_extracts
+
+
+def test_round_trip_preserves_a_locus_level_aggregate(tmp_path):
+    run = sample_run()
+    aggregate = Measurement(
+        hotspot=None,
+        locus=Locus(node="n1", rank=3),
+        counter="task-clock",
+        value=2.5e9,
+        unit="ns",
+        quality=Quality.MEASURED,
+    )
+    run.measurements.append(aggregate)
+    directory = write_run(tmp_path / "run", run)
+    back = read_run(directory)
+    assert aggregate in back.measurements
+    # The counting layer adds no Hotspot row: there is nothing to attribute.
+    hotspots = pq.read_table(directory / "pivot" / "hotspots.parquet").to_pylist()
+    assert len(hotspots) == 1

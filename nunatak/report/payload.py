@@ -18,7 +18,7 @@ import math
 
 from nunatak import analysis
 from nunatak.analysis import Derived, Diagnostic
-from nunatak.pivot import AddressDetail, Hotspot, Run, manifest
+from nunatak.pivot import AddressDetail, Hotspot, Run, hotspot_level, manifest
 
 # Version of the payload contract, bumped on any breaking change so a
 # mini-app never renders a shape it does not understand.
@@ -44,7 +44,8 @@ def _coverage(run: Run, time_base: str | None) -> dict:
     is not wall time - and stays null when the time base is not a clock
     in nanoseconds.
     """
-    clocked = [m for m in run.measurements if m.counter == time_base]
+    sampled = hotspot_level(run.measurements)
+    clocked = [m for m in sampled if m.counter == time_base]
     seconds = None
     if clocked and all(m.unit == "ns" for m in clocked):
         seconds = sum(m.value for m in clocked if m.value is not None) / 1e9
@@ -52,7 +53,7 @@ def _coverage(run: Run, time_base: str | None) -> dict:
         "time_base": time_base,
         "samples": sum(m.sample_count or 0 for m in clocked),
         "seconds": seconds,
-        "loci": len({m.locus for m in run.measurements}),
+        "loci": len({m.locus for m in sampled}),
     }
 
 
@@ -177,7 +178,7 @@ def _others(run: Run, diagnostics: list[Diagnostic], time_base: str | None) -> d
     time base - unknown is not zero.
     """
     diagnosed = {diagnostic.hotspot for diagnostic in diagnostics}
-    skipped = {m.hotspot for m in run.measurements} - diagnosed
+    skipped = {m.hotspot for m in hotspot_level(run.measurements)} - diagnosed
     if not skipped:
         return None
     share = None

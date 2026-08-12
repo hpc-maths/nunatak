@@ -15,6 +15,7 @@ from __future__ import annotations
 import enum
 import math
 from dataclasses import dataclass, field
+from typing import Iterable
 
 
 class Quality(enum.Enum):
@@ -148,9 +149,15 @@ class Measurement:
     samples, its coverage ratio when counters were multiplexed, and its Pass
     of origin. An estimated value always carries the reason of its
     downgrade; "unavailable" has no value, because unavailable is not zero.
+
+    A Measurement without a Hotspot is the counting layer's: a whole-Locus
+    aggregate - one rank's time, cycles, instructions, MPI volumes - which
+    has nothing to attribute. It is what reveals load imbalance on every
+    rank at constant cost, while sampling covers a subset. Hotspot-grained
+    computations read `hotspot_level`, never `measurements` raw.
     """
 
-    hotspot: Hotspot
+    hotspot: Hotspot | None
     locus: Locus
     counter: str
     value: float | None
@@ -178,6 +185,21 @@ class Measurement:
         if not self.sample_count:
             return None
         return 1.0 / math.sqrt(self.sample_count)
+
+
+def hotspot_level(measurements: Iterable[Measurement]) -> list[Measurement]:
+    """The sampling layer's Measurements: those attached to a Hotspot.
+
+    Shares, coverage and the statistical floor are Hotspot-grained; a
+    Locus-level aggregate mixed into their totals would drown the sampled
+    sums under whole-process counts.
+    """
+    return [m for m in measurements if m.hotspot is not None]
+
+
+def locus_level(measurements: Iterable[Measurement]) -> list[Measurement]:
+    """The counting layer's Measurements: whole-Locus aggregates."""
+    return [m for m in measurements if m.hotspot is None]
 
 
 @dataclass(frozen=True)

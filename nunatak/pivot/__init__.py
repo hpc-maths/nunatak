@@ -25,6 +25,8 @@ from nunatak.pivot.model import (
     ResolutionLevel,
     Run,
     SourceExtract,
+    hotspot_level,
+    locus_level,
 )
 from nunatak.pivot.persistence import MANIFEST, SCHEMA, manifest, read_run, write_run
 
@@ -50,6 +52,8 @@ __all__ = [
     "SourceExtract",
     "MANIFEST",
     "SCHEMA",
+    "hotspot_level",
+    "locus_level",
     "manifest",
     "read_run",
     "write_run",

@@ -34,6 +34,8 @@ from nunatak.pivot import (
     Measurement,
     PhysicalIdentity,
     ResolutionLevel,
+    hotspot_level,
+    locus_level,
 )
 
 __all__ = [
@@ -162,8 +164,13 @@ def attribute(
     if symbolizer is None or not measurements:
         return measurements, [], []
 
+    # The counting layer's Locus-level aggregates carry no Hotspot: there
+    # is nothing to name, they ride through unchanged.
+    aggregates = locus_level(measurements)
+    sampled = hotspot_level(measurements)
+
     offsets: dict[str, set[int]] = {}
-    for measurement in measurements:
+    for measurement in sampled:
         hotspot = measurement.hotspot
         module = hotspot.logical_identity.module
         if (
@@ -201,7 +208,7 @@ def attribute(
     renamed = []
     frames_by_address: dict[tuple[str, int], tuple[InlineFrame, ...]] = {}
     weights: dict[tuple, list] = {}
-    for measurement in measurements:
+    for measurement in sampled:
         hotspot = measurement.hotspot
         module = hotspot.logical_identity.module
         chain = (
@@ -266,4 +273,4 @@ def attribute(
                 "files must be readable at analysis time",
             )
         )
-    return _merged(renamed), details, degradations
+    return _merged(renamed) + aggregates, details, degradations

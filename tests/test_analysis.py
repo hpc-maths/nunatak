@@ -284,3 +284,34 @@ class TestReplayedRun:
         assert main.dram_intensity.value is None
         assert "flops_dp" in main.dram_intensity.reason
         assert main.classification is None
+
+
+def aggregate(counter="task-clock", value=1e12, rank=0, unit="ns"):
+    return Measurement(
+        hotspot=None,
+        locus=Locus(node="n0", rank=rank),
+        counter=counter,
+        value=value,
+        unit=unit,
+        quality=Quality.MEASURED,
+    )
+
+
+class TestCountingLayer:
+    def test_locus_level_aggregates_never_shrink_hotspot_shares(self):
+        # Whole-process counts dwarf the sampled sums; mixed into the
+        # totals they would push every Hotspot under its real share.
+        spot = hotspot()
+        sampled = balanced(spot, flops=1.6e10, bytes_=8.0e9, seconds=0.1)
+        aggregates = [aggregate(rank=r) for r in range(4)]
+        with_counting = analysis.diagnose(run_with(sampled + aggregates))
+        without = analysis.diagnose(run_with(sampled))
+        assert [d.hotspot for d in with_counting] == [d.hotspot for d in without]
+        assert [d.share.value for d in with_counting] == [
+            d.share.value for d in without
+        ]
+
+    def test_a_counting_only_run_diagnoses_nothing(self):
+        run = run_with([aggregate(rank=r) for r in range(2)])
+        assert analysis.diagnose(run) == []
+        assert analysis.time_base(run) is None
