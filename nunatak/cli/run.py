@@ -47,7 +47,7 @@ def _now() -> str:
     return datetime.datetime.now().astimezone().isoformat(timespec="seconds")
 
 
-def collection_command(command: list[str], collect_dir: Path) -> list[str]:
+def collection_command(plan: launch.LaunchPlan, collect_dir: Path) -> list[str]:
     """The command the sampler actually runs.
 
     An MPI launch fans the application out to ranks the sampler here
@@ -56,13 +56,12 @@ def collection_command(command: list[str], collect_dir: Path) -> list[str]:
     into the Run directory itself, which is the multi-node retrieval.
     A direct launch runs unchanged.
     """
-    plan = launch.split(command)
     if plan.mpi and plan.application:
         return plan.wrap(
             [sys.executable, "-m", "nunatak.rank",
              "--directory", str(collect_dir), "--"]
         )
-    return list(command)
+    return list(plan.prefix + plan.application) or list(plan.prefix)
 
 
 def executable_status(program: str) -> tuple[int, str] | None:
@@ -212,9 +211,15 @@ def execute(args, command: list[str], console: Console) -> int:
     source_extracts = []
     if adapter is not None:
         console.info(f"collecting with {adapter.tool} {version}: {' '.join(command)}")
-        counter_group = counter_events.sampling_events(snapshot)
+        plan = launch.split(command)
+        # Inside an MPI launch the ranks count with perf stat: an outer
+        # record holding hardware events corrupts those counts on the
+        # shared PMCs (measured on Zen 2 - an outer cycles group turned
+        # the ranks' counters into garbage). The outer sampling keeps
+        # the software clock only; hardware events belong to the ranks.
+        counter_group = () if plan.mpi else counter_events.sampling_events(snapshot)
         exit_code, collect_degradations = adapter.collect(
-            collection_command(command, directory / COLLECT_DIR),
+            collection_command(plan, directory / COLLECT_DIR),
             directory / COLLECT_DIR,
             executor,
             config.sampling_frequency,

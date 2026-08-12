@@ -15,6 +15,7 @@ import sys
 from pathlib import Path
 
 from nunatak.cli.run import collection_command
+from nunatak.launch import split
 from nunatak.ingestion import perf_stat, rank_counting
 from nunatak.pivot import Quality
 
@@ -265,14 +266,14 @@ class TestCollectionCommand:
     def test_an_mpi_launch_gets_the_shim_inside_each_rank(self, tmp_path):
         solver = script(tmp_path, "solver", "#!/bin/sh\nexit 0\n")
         collect = tmp_path / "run" / "collect"
-        command = collection_command(["mpirun", "-n", "4", str(solver)], collect)
+        command = collection_command(split(["mpirun", "-n", "4", str(solver)]), collect)
         assert command[:3] == ["mpirun", "-n", "4"]
         assert command[3] == sys.executable
         assert command[4:7] == ["-m", "nunatak.rank", "--directory"]
         assert command[-2:] == ["--", str(solver)]
 
     def test_a_direct_launch_runs_unchanged(self, tmp_path):
-        command = collection_command(["./solver", "--steps", "10"], tmp_path)
+        command = collection_command(split(["./solver", "--steps", "10"]), tmp_path)
         assert command == ["./solver", "--steps", "10"]
 
 
@@ -291,7 +292,7 @@ class TestLauncherToPivotChain:
 
         collect = tmp_path / "run" / "collect"
         app = script(tmp_path, "app", "#!/bin/sh\nexit 0\n")
-        wrapped = collection_command(["mpirun", "-n", "2", str(app)], collect)
+        wrapped = collection_command(split(["mpirun", "-n", "2", str(app)]), collect)
         outcome = subprocess.run(
             wrapped, env=environment, capture_output=True, text=True
         )
