@@ -217,6 +217,11 @@ The shim propagates the application's exit code and never touches its
 stdout or stderr, and a launcher that fails to resolve its application
 is left alone: nunatak wraps a launch it understands, it never guesses.
 
+Under a launcher, sampling attributes **time alone** for now: hardware
+events belong to the ranks' counting - an outer sampler holding the
+same physical counters corrupts what the ranks measure, a fact
+measured on real hardware, not a precaution.
+
 ## What the analysis says
 
 The analysis engine is a **pure function of (pivot, Machine)**: nothing
