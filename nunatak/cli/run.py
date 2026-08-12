@@ -47,21 +47,37 @@ def _now() -> str:
     return datetime.datetime.now().astimezone().isoformat(timespec="seconds")
 
 
-def collection_command(plan: launch.LaunchPlan, collect_dir: Path) -> list[str]:
-    """The command the sampler actually runs.
+def _deduplicated(degradations: list) -> list:
+    """Identical announcements collapse into one.
 
-    An MPI launch fans the application out to ranks the sampler here
-    cannot see: the rank shim, interposed inside each rank, is the
-    counting layer - every rank, constant cost - and each rank writes
-    into the Run directory itself, which is the multi-node retrieval.
-    A direct launch runs unchanged.
+    Per-rank ingestion meets the same condition on every rank of one
+    microarchitecture; repeating it per rank would drown the log.
     """
-    if plan.mpi and plan.application:
-        return plan.wrap(
-            [sys.executable, "-m", "nunatak.rank",
-             "--directory", str(collect_dir), "--"]
-        )
-    return list(plan.prefix + plan.application) or list(plan.prefix)
+    seen = {}
+    for degradation in degradations:
+        seen.setdefault((degradation.name, degradation.message), degradation)
+    return list(seen.values())
+
+
+def collection_command(
+    plan: launch.LaunchPlan, collect_dir: Path, config: Config
+) -> list[str]:
+    """The launch the orchestrator actually runs for an MPI command.
+
+    The rank shim, interposed inside each rank, carries both collection
+    layers: every rank counts, the sampling subset records itself, and
+    each rank writes into the Run directory - which is the multi-node
+    retrieval. The launcher itself runs bare.
+    """
+    return plan.wrap(
+        [
+            sys.executable, "-m", "nunatak.rank",
+            "--directory", str(collect_dir),
+            "--frequency", str(config.sampling_frequency),
+            "--rank-threshold", str(config.sampling_rank_threshold),
+            "--",
+        ]
+    )
 
 
 def executable_status(program: str) -> tuple[int, str] | None:
@@ -209,27 +225,58 @@ def execute(args, command: list[str], console: Console) -> int:
     measurements = []
     address_details = []
     source_extracts = []
-    if adapter is not None:
+    plan = launch.split(command)
+    gathered = []
+    measured = True
+    if plan.mpi and plan.application:
+        # Both collection layers live inside the ranks: an outer record
+        # would fight the ranks' events for the same physical counters
+        # and corrupt them (measured on Zen 2, not feared). The launcher
+        # runs bare here; each rank samples or counts itself and writes
+        # home, and ingestion below reads what came back.
+        console.info(
+            "launching ranks (each one counting; sampling narrows to rank 0 "
+            f"plus one rank per node beyond {config.sampling_rank_threshold} "
+            f"ranks): {' '.join(command)}"
+        )
+        exit_code = executor.run(
+            collection_command(plan, directory / COLLECT_DIR, config),
+            capture=False,
+        ).exit_code
+        versions = set()
+        for rank_dir, meta in rank_counting.rank_metas(directory / COLLECT_DIR):
+            if meta.get("perf"):
+                versions.add(meta["perf"])
+            if not meta.get("sampled"):
+                continue
+            sampled, sampled_degradations = ingestion.ingest(
+                "perf", meta["perf"], rank_dir, node=meta["node"], rank=meta["rank"]
+            )
+            measurements += sampled
+            gathered += sampled_degradations
+        collectors = tuple(
+            Collector(tool="perf", version=v) for v in sorted(versions)
+        )
+    elif adapter is not None:
         console.info(f"collecting with {adapter.tool} {version}: {' '.join(command)}")
-        plan = launch.split(command)
-        # Inside an MPI launch the ranks count with perf stat: an outer
-        # record holding hardware events corrupts those counts on the
-        # shared PMCs (measured on Zen 2 - an outer cycles group turned
-        # the ranks' counters into garbage). The outer sampling keeps
-        # the software clock only; hardware events belong to the ranks.
-        counter_group = () if plan.mpi else counter_events.sampling_events(snapshot)
         exit_code, collect_degradations = adapter.collect(
-            collection_command(plan, directory / COLLECT_DIR),
+            list(command),
             directory / COLLECT_DIR,
             executor,
             config.sampling_frequency,
-            events=counter_group,
+            events=counter_events.sampling_events(snapshot),
         )
         collectors = (Collector(tool=adapter.tool, version=version),)
         measurements, ingest_degradations = ingestion.ingest(
             adapter.tool, version, directory / COLLECT_DIR, node=platform.node()
         )
-        ingest_degradations = collect_degradations + ingest_degradations
+        gathered = collect_degradations + ingest_degradations
+    else:
+        measured = False
+        console.info(f"launching: {' '.join(command)}")
+        exit_code = executor.run(command, capture=False).exit_code
+
+    if measured:
         measurements, address_details, attribution_degradations = attribution.attribute(
             measurements, symbolizer, executor
         )
@@ -250,15 +297,12 @@ def execute(args, command: list[str], console: Console) -> int:
             directory / COLLECT_DIR
         )
         measurements = measurements + counting
-        after_launch = (
-            ingest_degradations + attribution_degradations + counting_degradations
+        after_launch = _deduplicated(
+            gathered + attribution_degradations + counting_degradations
         )
         for degradation in after_launch:
             console.degradation(degradation)
         degradations = degradations + after_launch
-    else:
-        console.info(f"launching: {' '.join(command)}")
-        exit_code = executor.run(command, capture=False).exit_code
     ended = _now()
 
     if args.record:

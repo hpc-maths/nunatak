@@ -33,6 +33,7 @@ class Config:
     source_map: dict[str, str] = field(default_factory=dict)
     coverage_threshold: float = 0.8
     sampling_frequency: int = 997
+    sampling_rank_threshold: int = 64
 
 
 def find_project_config(cwd: Path) -> Path | None:
@@ -81,6 +82,9 @@ def load(
         config.coverage_threshold = thresholds.get("coverage", config.coverage_threshold)
         sampling = data.get("sampling", {})
         config.sampling_frequency = sampling.get("frequency", config.sampling_frequency)
+        config.sampling_rank_threshold = sampling.get(
+            "rank_threshold", config.sampling_rank_threshold
+        )
 
     if name is not None:
         config.project_name = name
@@ -89,6 +93,7 @@ def load(
         "runs_dir": config.runs_dir,
         "thresholds.coverage": config.coverage_threshold,
         "sampling.frequency": config.sampling_frequency,
+        "sampling.rank_threshold": config.sampling_rank_threshold,
     }
     if config.project_name is not None:
         effective["name"] = config.project_name

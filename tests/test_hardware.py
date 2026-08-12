@@ -114,13 +114,9 @@ class TestRealCalibration:
 
 
 class TestRealCounting:
-    def test_the_counting_layer_counts_every_rank(
-        self, workload, tmp_path, monkeypatch, capsys
-    ):
-        # A launcher-shaped stand-in fans the workload out to two "ranks"
-        # with Open MPI's environment: the counting layer runs the real
-        # perf stat on real PMUs, each rank writes home itself, and the
-        # pivot ends with Locus-level aggregates for both ranks.
+    def _launcher(self, tmp_path, monkeypatch):
+        """A launcher-shaped stand-in on PATH: Open MPI's environment,
+        sequential "ranks", real perf underneath."""
         bin_dir = tmp_path / "bin"
         bin_dir.mkdir()
         launcher = bin_dir / "mpirun"
@@ -139,6 +135,33 @@ class TestRealCounting:
         monkeypatch.setenv("PATH", f"{bin_dir}{os.pathsep}{os.environ['PATH']}")
         monkeypatch.chdir(tmp_path)
 
+    def test_below_the_threshold_every_rank_samples_itself(
+        self, workload, tmp_path, monkeypatch, capsys
+    ):
+        # Two ranks, default threshold: both belong to the sampling
+        # subset, each records itself with the vendor counter group on
+        # its own PMCs - the contention that corrupted nested counters
+        # is structurally gone.
+        self._launcher(tmp_path, monkeypatch)
+        assert principal(["run", "--json", "--", "mpirun", "-n", "2", str(workload)]) == 0
+        summary = json.loads(capsys.readouterr().out)
+        names = {d["name"] for d in summary["degradations"]}
+        assert "counting-unavailable" not in names, summary["degradations"]
+
+        run = read_run(summary["run"])
+        sampled = [m for m in run.measurements if m.hotspot is not None]
+        assert {m.locus.rank for m in sampled} == {0, 1}
+        flops = [m for m in sampled if m.counter == "flops" and m.value]
+        assert flops, "the counter group did not ride inside the ranks"
+        assert locus_level(run.measurements) == []
+
+    def test_beyond_the_threshold_the_rest_counts(
+        self, workload, tmp_path, monkeypatch, capsys
+    ):
+        # A threshold of one forces the subset policy with two ranks:
+        # rank 0 records itself, rank 1 counts on real PMUs.
+        self._launcher(tmp_path, monkeypatch)
+        (tmp_path / "nunatak.toml").write_text("[sampling]\nrank_threshold = 1\n")
         assert principal(["run", "--json", "--", "mpirun", "-n", "2", str(workload)]) == 0
         summary = json.loads(capsys.readouterr().out)
         names = {d["name"] for d in summary["degradations"]}
@@ -146,10 +169,11 @@ class TestRealCounting:
         assert "counting-incomplete" not in names, summary["degradations"]
 
         run = read_run(summary["run"])
+        sampled = [m for m in run.measurements if m.hotspot is not None]
+        assert {m.locus.rank for m in sampled} == {0}
         aggregates = locus_level(run.measurements)
-        assert {m.locus.rank for m in aggregates} == {0, 1}
-        clocks = [m for m in aggregates if m.counter == "task-clock"]
-        assert len(clocks) == 2
-        assert all(m.unit == "ns" and m.value and m.value > 0 for m in clocks)
-        cycles = [m for m in aggregates if m.counter == "cycles"]
-        assert all(m.value and m.value > 0 for m in cycles)
+        assert {m.locus.rank for m in aggregates} == {1}
+        clock = next(m for m in aggregates if m.counter == "task-clock")
+        assert clock.unit == "ns" and clock.value and clock.value > 0
+        cycles = next(m for m in aggregates if m.counter == "cycles")
+        assert cycles.value and cycles.value > 0

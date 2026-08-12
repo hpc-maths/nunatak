@@ -182,6 +182,7 @@
     "effective_configuration": {
       "runs_dir": ".nunatak",
       "sampling.frequency": 997,
+      "sampling.rank_threshold": 64,
       "thresholds.coverage": 0.8,
       "tools.llvm-symbolizer": "/usr/lib/llvm-19/bin/llvm-symbolizer"
     }

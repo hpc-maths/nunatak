@@ -34,7 +34,7 @@ _CLOCK_UNITS = {"cpu-clock": "ns", "task-clock": "ns"}
 
 
 def measurements_from_samples(
-    samples: list[Sample], module_ids: dict[str, str], node: str
+    samples: list[Sample], module_ids: dict[str, str], node: str, rank: int | None = None
 ) -> list[Measurement]:
     """Aggregate samples into per-(Hotspot, Locus) Measurements.
 
@@ -75,7 +75,7 @@ def measurements_from_samples(
                     physical_identity=physical,
                     offset=offset,
                 ),
-                locus=Locus(node=node, thread=tid),
+                locus=Locus(node=node, rank=rank, thread=tid),
                 counter=counter,
                 value=float(value) * (vendor.scale if vendor is not None else 1.0),
                 unit=vendor.unit
@@ -93,7 +93,7 @@ def measurements_from_samples(
 
 
 def ingest(
-    tool: str, version: str, directory: Path, node: str
+    tool: str, version: str, directory: Path, node: str, rank: int | None = None
 ) -> tuple[list[Measurement], list[Degradation]]:
     """Turn the raw artifacts of one collection into Measurements.
 
@@ -137,4 +137,4 @@ def ingest(
                 remedy="report this line format; the other samples are ingested",
             )
         )
-    return measurements_from_samples(samples, module_ids, node), degradations
+    return measurements_from_samples(samples, module_ids, node, rank), degradations
