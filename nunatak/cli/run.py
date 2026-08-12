@@ -35,7 +35,7 @@ from nunatak.exit_codes import (
 )
 from nunatak.pivot import Collector, Pass, ResolutionLevel, Run, write_run
 from nunatak.report import html
-from nunatak.target import real_target
+from nunatak.launch import real_target
 
 COLLECT_DIR = "collect"
 

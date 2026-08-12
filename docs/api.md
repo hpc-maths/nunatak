@@ -1,5 +1,12 @@
 # API
 
+## Launch
+
+```{eval-rst}
+.. automodule:: nunatak.launch
+   :members:
+```
+
 ## Measured pivot
 
 ```{eval-rst}
