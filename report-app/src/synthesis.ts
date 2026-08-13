@@ -8,8 +8,12 @@
  * stated at the head, never relegated to an appendix.
  */
 
-import type { HotspotEntry, Payload } from "./data";
+import type { HotspotEntry, Payload, RankRow, RanksSection } from "./data";
 import { downgrades, esc, flops, percent, resolutionBadge, sig } from "./format";
+
+// Beyond this many rank rows the table stops and says so: a
+// thousand-rank table reads as noise, the extremes carry the story.
+const MAX_RANK_ROWS = 32;
 
 // The Ceilings the roofline envelope is built from - the only ones
 // whose uncertainty belongs in the synthesis.
@@ -102,6 +106,69 @@ function finding(entry: HotspotEntry, rank: number): string {
   </div>`;
 }
 
+function ranksSentence(section: RanksSection): string {
+  const sampled = section.rows.filter((row) => row.sampled).length;
+  const world = section.rows.length === 1 ? "1 rank" : `${section.rows.length} ranks`;
+  let sentence = `${world} (${sampled} sampled)`;
+  if (section.imbalance.value !== null) {
+    sentence += `; the busiest rank runs <strong>${section.imbalance.value.toFixed(2)}x</strong> the mean`;
+  }
+  if (section.mpi_fraction.value !== null) {
+    sentence += `; MPI holds <strong>${percent(section.mpi_fraction.value)}</strong> of the time`;
+  }
+  return sentence + ".";
+}
+
+function rankRow(row: RankRow): string {
+  const seconds = row.time.value !== null ? sig(row.time.value / 1e9) : "unavailable";
+  const share =
+    row.mpi_time.value !== null && row.time.value
+      ? percent(Math.min(row.mpi_time.value / row.time.value, 1))
+      : "unavailable";
+  const layer = row.sampled ? "sampled" : "counted";
+  return `
+    <tr>
+      <td class="r">${row.rank}</td>
+      <td class="mono">${esc(row.node)}</td>
+      <td class="r">${seconds}</td>
+      <td class="r">${share}</td>
+      <td>${layer}</td>
+    </tr>`;
+}
+
+function ranksBlock(payload: Payload): string {
+  const section = payload.ranks;
+  if (section === null) {
+    return "";
+  }
+  const ordered = [...section.rows].sort(
+    (a, b) => (b.time.value ?? -1) - (a.time.value ?? -1)
+  );
+  const shown = ordered.slice(0, MAX_RANK_ROWS);
+  const more =
+    ordered.length > shown.length
+      ? `<p class="muted">... and ${ordered.length - shown.length} more ranks, ordered by time.</p>`
+      : "";
+  return `
+  <div class="ranks">
+    <h2>Ranks</h2>
+    <p>${ranksSentence(section)}</p>
+    <table class="tab">
+      <thead>
+        <tr>
+          <th class="r unsortable">Rank</th>
+          <th class="unsortable">Node</th>
+          <th class="r unsortable">Time (s)</th>
+          <th class="r unsortable">MPI share</th>
+          <th class="unsortable">Layer</th>
+        </tr>
+      </thead>
+      <tbody>${shown.map(rankRow).join("")}</tbody>
+    </table>
+    ${more}
+  </div>`;
+}
+
 function admissions(payload: Payload): string[] {
   const items: string[] = [];
   if (payload.others !== null) {
@@ -126,6 +193,17 @@ function admissions(payload: Payload): string[] {
         `<strong>The ${esc(ceiling.name)} Ceiling is estimated</strong>: ${esc(ceiling.reason ?? "no reason recorded")}.`
       );
     }
+  }
+  if (payload.ranks !== null && payload.ranks.unsampled.length > 0) {
+    const listed = payload.ranks.unsampled.slice(0, 8).join(", ");
+    const ellipsis = payload.ranks.unsampled.length > 8 ? ", ..." : "";
+    const count =
+      payload.ranks.unsampled.length === 1
+        ? "1 rank was"
+        : `${payload.ranks.unsampled.length} ranks were`;
+    items.push(
+      `<strong>${count} not sampled</strong> (${listed}${ellipsis}): their Hotspot measurements are unavailable, never extrapolated.`
+    );
   }
   for (const degradation of payload.degradations) {
     let item = `<strong>Degraded [${esc(degradation.name)}]</strong>: ${esc(degradation.message)}.`;
@@ -155,6 +233,6 @@ export function synthesis(payload: Payload): string {
       <h1>${headline(payload)}</h1>
       <p class="muted coverage">${coverageSentence(payload)}</p>
     </div>
-    ${findings}${negativeSpace}
+    ${findings}${ranksBlock(payload)}${negativeSpace}
   </div>`;
 }

@@ -43,7 +43,7 @@ function entry(overrides: Partial<HotspotEntry>): HotspotEntry {
 
 function payload(hotspot: HotspotEntry): Payload {
   return {
-    format: { name: "nunatak-report", schema: 1, generated_by: "nunatak" },
+    format: { name: "nunatak-report", schema: 2, generated_by: "nunatak" },
     run: { name: "r", created: "", command: ["./solver"], exit_code: 0 },
     machine: {
       system: "Linux",
@@ -71,6 +71,7 @@ function payload(hotspot: HotspotEntry): Payload {
     floor_samples: 30,
     hotspots: [hotspot],
     others: null,
+    ranks: null,
   };
 }
 
