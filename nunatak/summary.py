@@ -16,6 +16,7 @@ from nunatak.analysis import (
     STATISTICAL_FLOOR_SAMPLES,
     Derived,
     Diagnostic,
+    balance,
     time_base,
 )
 from nunatak.pivot import Quality, ResolutionLevel, Run, hotspot_level
@@ -156,7 +157,39 @@ def _admissions(
     for ceiling in run.machine.ceilings:
         if ceiling.name in ENVELOPE_CEILINGS and ceiling.quality is Quality.ESTIMATED:
             admissions.append(f"the {ceiling.name} Ceiling is estimated: {ceiling.reason}")
+    verdict = balance(run)
+    if verdict is not None and verdict.unsampled:
+        shown = ", ".join(str(rank) for rank in verdict.unsampled[:8])
+        if len(verdict.unsampled) > 8:
+            shown += ", ..."
+        admissions.append(
+            f"{_plural(len(verdict.unsampled), 'rank')} not sampled ({shown}):"
+            " their Hotspot measurements are unavailable, never extrapolated"
+        )
     return admissions
+
+
+def _ranks(run: Run) -> list[str]:
+    """The topology section: one line for the whole world, when there is
+    one. Numbers are stated, never judged - the per-Hotspot Diagnostic
+    is where regimes are named."""
+    verdict = balance(run)
+    if verdict is None:
+        return []
+    sampled = sum(1 for rank in verdict.ranks if rank.sampled)
+    line = f"ranks: {len(verdict.ranks)} ({sampled} sampled)"
+    if verdict.imbalance.value is not None:
+        busiest = max(
+            (rank for rank in verdict.ranks if rank.time.value),
+            key=lambda rank: rank.time.value,
+        )
+        line += (
+            f"; busiest rank {busiest.rank} at "
+            f"{verdict.imbalance.value:.2f}x the mean"
+        )
+    if verdict.mpi_fraction.value is not None:
+        line += f"; MPI holds {_percent(verdict.mpi_fraction.value)} of the time"
+    return [line]
 
 
 def summarize(
@@ -172,6 +205,7 @@ def summarize(
     Returns plain lines: the Console decides how they reach the log.
     """
     lines = [_headline(run, diagnostics, floor_samples)]
+    lines.extend(_ranks(run))
     for diagnostic in diagnostics[:MAX_FINDINGS]:
         lines.extend(_finding(diagnostic))
     left_out = diagnostics[MAX_FINDINGS:]

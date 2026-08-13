@@ -208,6 +208,169 @@ def _classify(
     return ("memory-bound" if intensity.value < ridge else "compute-bound"), None
 
 
+@dataclass(frozen=True)
+class RankBalance:
+    """One rank of the execution topology, as both layers saw it.
+
+    `time` is the rank's cpu time: exact when the counting layer
+    counted it, the sum of the rank's own samples when the rank was
+    sampled instead - the two sources never mix on one rank. `mpi_time`
+    comes from mpiP and is unavailable without it.
+    """
+
+    rank: int
+    node: str
+    time: Derived
+    mpi_time: Derived
+    sampled: bool
+
+
+@dataclass(frozen=True)
+class Balance:
+    """The run-level balance verdict, recomputed on demand - never
+    persisted, like every aggregate across Loci.
+
+    `unsampled` names the ranks whose Hotspot-level Measurements are
+    unavailable by design (the sampling subset excluded them): the
+    admission the report owes the reader, never an extrapolation.
+    """
+
+    ranks: tuple[RankBalance, ...]
+    imbalance: Derived
+    mpi_fraction: Derived
+    unsampled: tuple[int, ...]
+
+
+def _rank_time(
+    rank: int, counted: dict[int, float], sampled: dict[int, float]
+) -> Derived:
+    """The cpu time of one rank, from whichever layer covered it."""
+    if rank in counted:
+        return Derived(
+            name="time",
+            value=counted[rank],
+            unit="ns",
+            quality=Quality.MEASURED,
+            lineage=("task-clock",),
+            formula="counted over the whole rank",
+        )
+    if rank in sampled:
+        return Derived(
+            name="time",
+            value=sampled[rank],
+            unit="ns",
+            quality=Quality.MEASURED,
+            lineage=("task-clock",),
+            formula="sum of this rank's samples",
+        )
+    return _unavailable("time", "ns", "this rank left no time measurement")
+
+
+def balance(run: Run) -> Balance | None:
+    """The per-rank balance of `run`, None without a rank topology.
+
+    A pure function of the pivot: the ranks are those the Measurements
+    name, sampled ranks are those with Hotspot-level Measurements, and
+    every aggregate is computed here, on demand.
+    """
+    aggregates = [m for m in run.measurements if m.hotspot is None]
+    sampled_rows = [
+        m
+        for m in hotspot_level(run.measurements)
+        if m.locus.rank is not None
+    ]
+    counted: dict[int, float] = {}
+    mpi_times: dict[int, float] = {}
+    nodes: dict[int, str] = {}
+    for measurement in aggregates:
+        rank = measurement.locus.rank
+        if rank is None or measurement.value is None:
+            continue
+        nodes.setdefault(rank, measurement.locus.node)
+        if measurement.counter in CLOCK_COUNTERS:
+            counted[rank] = counted.get(rank, 0.0) + measurement.value
+        elif measurement.counter == "mpi_time":
+            mpi_times[rank] = mpi_times.get(rank, 0.0) + measurement.value
+    sampled: dict[int, float] = {}
+    for measurement in sampled_rows:
+        rank = measurement.locus.rank
+        nodes.setdefault(rank, measurement.locus.node)
+        if measurement.counter in CLOCK_COUNTERS and measurement.value is not None:
+            sampled[rank] = sampled.get(rank, 0.0) + measurement.value
+
+    everyone = sorted(nodes)
+    if not everyone:
+        return None
+
+    ranks = []
+    for rank in everyone:
+        mpi_time = (
+            Derived(
+                name="mpi_time",
+                value=mpi_times[rank],
+                unit="ns",
+                quality=Quality.MEASURED,
+                lineage=("mpi_time",),
+                formula="mpiP's wall-clock MPI time of this rank",
+            )
+            if rank in mpi_times
+            else _unavailable("mpi_time", "ns", "mpiP was not preloaded")
+        )
+        ranks.append(
+            RankBalance(
+                rank=rank,
+                node=nodes[rank],
+                time=_rank_time(rank, counted, sampled),
+                mpi_time=mpi_time,
+                sampled=rank in sampled,
+            )
+        )
+
+    times = [r.time.value for r in ranks if r.time.value]
+    if times and len(times) == len(ranks):
+        imbalance = Derived(
+            name="imbalance",
+            value=max(times) / (sum(times) / len(times)),
+            unit="ratio",
+            quality=Quality.worst(*(r.time.quality for r in ranks)),
+            lineage=("task-clock",),
+            formula="max over ranks / mean over ranks",
+        )
+    elif times:
+        imbalance = _unavailable(
+            "imbalance", "ratio", "some ranks left no time measurement"
+        )
+    else:
+        imbalance = _unavailable("imbalance", "ratio", "no time on any rank")
+
+    app_times = {
+        m.locus.rank: m.value
+        for m in aggregates
+        if m.counter == "app_time" and m.value is not None and m.locus.rank is not None
+    }
+    total_app = sum(app_times.values())
+    if mpi_times and total_app > 0:
+        mpi_fraction = Derived(
+            name="mpi_fraction",
+            value=sum(mpi_times.values()) / total_app,
+            unit="fraction",
+            quality=Quality.MEASURED,
+            lineage=("mpi_time", "app_time"),
+            formula="sum of MPI time / sum of application time, over ranks",
+        )
+    else:
+        mpi_fraction = _unavailable(
+            "mpi_fraction", "fraction", "mpiP was not preloaded"
+        )
+
+    return Balance(
+        ranks=tuple(ranks),
+        imbalance=imbalance,
+        mpi_fraction=mpi_fraction,
+        unsampled=tuple(rank for rank in everyone if rank not in sampled),
+    )
+
+
 def diagnose(
     run: Run,
     floor_samples: int = STATISTICAL_FLOOR_SAMPLES,

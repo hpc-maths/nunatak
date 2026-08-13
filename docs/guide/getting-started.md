@@ -212,6 +212,13 @@ They carry no Hotspot, and Hotspot-level Measurements on unsampled
 ranks are `unavailable`, **never extrapolated** from the sampled
 neighbours.
 
+The summary of an MPI run opens its topology right after the headline:
+`ranks: 128 (3 sampled); busiest rank 17 at 1.42x the mean; MPI holds
+23% of the time`. The imbalance factor is the busiest rank over the
+mean - a number stated, never judged; the per-Hotspot Diagnostic is
+where regimes are named. Unsampled ranks are listed among the
+admissions under "what this report does not say", by number.
+
 Each rank writes home before it exits, so a Run stays **one
 directory** whatever the number of ranks and nodes - the retrieval is
 done before the job epilogue, when the allocation still exists. A rank
