@@ -16,7 +16,7 @@ from nunatak.pivot import (
     Quality,
     ResolutionLevel,
 )
-from tests.test_analysis import balanced, hotspot, machine, measurement, run_with
+from tests.test_analysis import aggregate, balanced, hotspot, machine, measurement, ranked, run_with
 
 ENTRY = (
     Path(__file__).resolve().parent.parent
@@ -195,3 +195,42 @@ class TestReplayedRun:
         last_two = [line.split(" ", 1)[-1] for line in log.rstrip().splitlines()[-2:]]
         assert last_two[0].startswith("Run: ")
         assert last_two[1].startswith("Report: ")
+
+
+class TestRanksSection:
+    def test_the_topology_states_its_numbers_after_the_headline(self):
+        spot = hotspot()
+        run = run_with(
+            balanced(spot, flops=1.6e10, bytes_=8.0e9, seconds=0.1)
+            + [aggregate("task-clock", 1e9, rank=0),
+               aggregate("task-clock", 3e9, rank=1),
+               aggregate("app_time", 2e9, rank=0),
+               aggregate("app_time", 2e9, rank=1),
+               aggregate("mpi_time", 1e9, rank=0),
+               aggregate("mpi_time", 1e9, rank=1)]
+        )
+        lines = summary.summarize(run, analysis.diagnose(run))
+        (ranks_line,) = [line for line in lines if line.startswith("ranks:")]
+        assert ranks_line == (
+            "ranks: 2 (0 sampled); busiest rank 1 at 1.50x the mean;"
+            " MPI holds 50% of the time"
+        )
+        assert lines.index(ranks_line) == 1
+
+    def test_unsampled_ranks_are_an_admission_not_a_footnote(self):
+        spot = hotspot()
+        run = run_with(
+            [ranked(spot, "task-clock", 1e9, "ns", rank=0)]
+            + [aggregate("task-clock", 1e9, rank=rank) for rank in (1, 2)]
+        )
+        lines = summary.summarize(run, analysis.diagnose(run))
+        admissions = [line for line in lines if "not sampled" in line]
+        assert admissions == [
+            "  - 2 ranks not sampled (1, 2): their Hotspot measurements"
+            " are unavailable, never extrapolated"
+        ]
+
+    def test_a_single_process_run_keeps_its_summary_unchanged(self):
+        run = run_with(balanced(hotspot(), flops=1.6e10, bytes_=8.0e9, seconds=0.1))
+        lines = summary.summarize(run, analysis.diagnose(run))
+        assert not any(line.startswith("ranks:") for line in lines)

@@ -315,3 +315,75 @@ class TestCountingLayer:
         run = run_with([aggregate(rank=r) for r in range(2)])
         assert analysis.diagnose(run) == []
         assert analysis.time_base(run) is None
+
+
+def ranked(spot, counter, value, unit, rank, thread=1, samples=100):
+    return Measurement(
+        hotspot=spot,
+        locus=Locus(node="n0", rank=rank, thread=thread),
+        counter=counter,
+        value=value,
+        unit=unit,
+        quality=Quality.MEASURED,
+        sample_count=samples,
+    )
+
+
+class TestBalance:
+    def test_counted_ranks_state_their_imbalance(self):
+        run = run_with(
+            [aggregate("task-clock", value, rank=rank) for rank, value in
+             enumerate([1e9, 1e9, 1e9, 2e9])]
+        )
+        verdict = analysis.balance(run)
+        assert [rank.rank for rank in verdict.ranks] == [0, 1, 2, 3]
+        assert all(rank.time.formula == "counted over the whole rank"
+                   for rank in verdict.ranks)
+        # max 2e9 over mean 1.25e9
+        assert verdict.imbalance.value == 2e9 / 1.25e9
+        assert verdict.unsampled == (0, 1, 2, 3)
+        assert verdict.mpi_fraction.value is None
+
+    def test_a_sampled_rank_takes_its_time_from_its_own_samples(self):
+        spot = hotspot()
+        run = run_with(
+            [ranked(spot, "task-clock", 0.6e9, "ns", rank=0, thread=1),
+             ranked(spot, "task-clock", 0.4e9, "ns", rank=0, thread=2),
+             aggregate("task-clock", 1e9, rank=1)]
+        )
+        verdict = analysis.balance(run)
+        zero, one = verdict.ranks
+        assert zero.sampled is True
+        assert zero.time.value == 1e9
+        assert zero.time.formula == "sum of this rank's samples"
+        assert one.sampled is False
+        assert verdict.unsampled == (1,)
+        assert verdict.imbalance.value == 1.0
+
+    def test_mpi_time_and_fraction_come_from_mpip(self):
+        run = run_with(
+            [aggregate("task-clock", 1e9, rank=0),
+             aggregate("task-clock", 1e9, rank=1),
+             aggregate("app_time", 1e9, rank=0),
+             aggregate("app_time", 1e9, rank=1),
+             aggregate("mpi_time", 0.25e9, rank=0),
+             aggregate("mpi_time", 0.35e9, rank=1)]
+        )
+        verdict = analysis.balance(run)
+        assert verdict.ranks[0].mpi_time.value == 0.25e9
+        assert verdict.mpi_fraction.value == 0.3
+        assert verdict.mpi_fraction.quality is Quality.MEASURED
+
+    def test_a_single_process_run_has_no_topology(self):
+        run = run_with(balanced(hotspot(), flops=1.6e10, bytes_=8e9, seconds=0.1))
+        assert analysis.balance(run) is None
+
+    def test_a_rank_without_time_makes_the_imbalance_unavailable(self):
+        run = run_with(
+            [aggregate("task-clock", 1e9, rank=0),
+             aggregate("cycles", 5e9, rank=1, unit="cycles")]
+        )
+        verdict = analysis.balance(run)
+        assert verdict.imbalance.value is None
+        assert verdict.imbalance.reason == "some ranks left no time measurement"
+        assert verdict.ranks[1].time.value is None
