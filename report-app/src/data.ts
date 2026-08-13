@@ -1,5 +1,5 @@
 /**
- * Payload schema 1: the contract with the Python core.
+ * Payload schema 2: the contract with the Python core.
  *
  * These types mirror `nunatak/report/payload.py` field for field. The
  * app renders the payload, it never computes it: every number arrives
@@ -88,6 +88,21 @@ export interface Degradation {
   remedy: string | null;
 }
 
+export interface RankRow {
+  rank: number;
+  node: string;
+  sampled: boolean;
+  time: Derived;
+  mpi_time: Derived;
+}
+
+export interface RanksSection {
+  imbalance: Derived;
+  mpi_fraction: Derived;
+  unsampled: number[];
+  rows: RankRow[];
+}
+
 export interface Payload {
   format: { name: string; schema: number; generated_by: string };
   run: { name: string; created: string; command: string[]; exit_code: number };
@@ -115,6 +130,7 @@ export interface Payload {
   floor_samples: number;
   hotspots: HotspotEntry[];
   others: { count: number; share: number | null } | null;
+  ranks: RanksSection | null;
 }
 
 /** Read the payload embedded in the page by `nunatak/report/html.py`. */

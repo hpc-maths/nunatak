@@ -315,7 +315,11 @@ from an archived file. It carries three reading levels, in the same
 vocabulary as the terminal summary.
 
 The **synthesis** opens the page: coverage, findings with direct access
-to their Hotspot, "what this report does not say". Below it, the
+to their Hotspot, "what this report does not say". An MPI run adds its
+**Ranks** block - the balance sentence, then one row per rank with its
+time, its MPI share and the layer that covered it (`sampled` or
+`counted`), the busiest first, capped rather than flooding; unsampled
+ranks join the admissions by number. Below it, the
 **inventory** lists every Hotspot above the statistical floor, sortable
 by any numeric column and filterable by regime, estimated Quality or
 missing source. Quality and resolution level are separate columns and

@@ -21,8 +21,9 @@ from nunatak.analysis import Derived, Diagnostic
 from nunatak.pivot import AddressDetail, Hotspot, Run, hotspot_level, manifest
 
 # Version of the payload contract, bumped on any breaking change so a
-# mini-app never renders a shape it does not understand.
-SCHEMA = 1
+# mini-app never renders a shape it does not understand. Schema 2 added
+# the `ranks` section - the run-level balance of an MPI run.
+SCHEMA = 2
 
 
 def _derived(quantity: Derived) -> dict:
@@ -187,6 +188,35 @@ def _others(run: Run, diagnostics: list[Diagnostic], time_base: str | None) -> d
     return {"count": len(skipped), "share": share}
 
 
+def _ranks(run: Run) -> dict | None:
+    """The run-level balance, null for a Run without rank topology.
+
+    Straight from `analysis.balance`: rows carry each rank's time with
+    its source in the formula, the imbalance factor and the MPI
+    fraction arrive as derived metrics with their lineage, and
+    `unsampled` names the ranks whose Hotspot-level Measurements are
+    unavailable by design.
+    """
+    verdict = analysis.balance(run)
+    if verdict is None:
+        return None
+    return {
+        "imbalance": _derived(verdict.imbalance),
+        "mpi_fraction": _derived(verdict.mpi_fraction),
+        "unsampled": list(verdict.unsampled),
+        "rows": [
+            {
+                "rank": entry.rank,
+                "node": entry.node,
+                "sampled": entry.sampled,
+                "time": _derived(entry.time),
+                "mpi_time": _derived(entry.mpi_time),
+            }
+            for entry in verdict.ranks
+        ],
+    }
+
+
 def build(
     run: Run,
     diagnostics: list[Diagnostic],
@@ -217,6 +247,7 @@ def build(
         "floor_samples": floor_samples,
         "hotspots": [_hotspot(run, d, time_base) for d in diagnostics],
         "others": _others(run, diagnostics, time_base),
+        "ranks": _ranks(run),
     }
 
 

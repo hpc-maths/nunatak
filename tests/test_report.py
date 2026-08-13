@@ -14,7 +14,7 @@ from pathlib import Path
 
 from nunatak import analysis, report
 from nunatak.pivot import AddressDetail, InlineFrame, SourceExtract
-from tests.test_analysis import hotspot, measurement, run_with
+from tests.test_analysis import aggregate, balanced, hotspot, measurement, ranked, run_with
 
 SNAPSHOT = Path(__file__).parent / "snapshots" / "report-payload-workload-c-roofline.json"
 ENTRY = (
@@ -329,3 +329,27 @@ class TestCountingLayer:
         without = payload_of([sampled])
         assert with_counting["coverage"] == without["coverage"]
         assert with_counting["others"] == without["others"]
+
+
+class TestRanksSection:
+    def test_an_mpi_run_carries_its_balance(self):
+        spot = hotspot()
+        built = payload_of(
+            [ranked(spot, "task-clock", 1e9, "ns", rank=0),
+             aggregate("task-clock", 2e9, rank=1)]
+        )
+        section = built["ranks"]
+        assert [row["rank"] for row in section["rows"]] == [0, 1]
+        assert section["rows"][0]["sampled"] is True
+        assert section["rows"][0]["time"]["formula"] == "sum of this rank's samples"
+        assert section["rows"][1]["time"]["formula"] == "counted over the whole rank"
+        assert section["unsampled"] == [1]
+        assert section["imbalance"]["value"] == 2e9 / 1.5e9
+        assert section["mpi_fraction"]["value"] is None
+        assert section["mpi_fraction"]["reason"] == "mpiP was not preloaded"
+
+    def test_a_single_process_run_has_no_ranks_section(self):
+        built = payload_of(
+            balanced(hotspot(), flops=1.6e10, bytes_=8.0e9, seconds=0.1)
+        )
+        assert built["ranks"] is None
