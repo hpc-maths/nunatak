@@ -18,7 +18,10 @@ from pathlib import Path
 
 import pytest
 
+from nunatak import probe
 from nunatak.cli import principal
+from nunatak.collect.execution import SubprocessExecutor
+from nunatak.config import Config
 from nunatak.pivot import Quality, locus_level, read_run
 from tests.support import ROOFLINE_WORKLOAD_C
 
@@ -269,3 +272,32 @@ class TestRealMpi:
         assert {m.locus.rank for m in sampled} == {0, 1}
         tools = {c.tool for p in run.passes for c in p.collectors}
         assert tools == {"perf", "mpiP"}
+        # The stack travels with the Run: a network analysis whose
+        # underlying MPI is unknown is not interpretable.
+        assert run.provenance.dependencies.get("mpi", "").startswith("Open MPI")
+        assert "mpicc" in run.provenance.dependencies
+
+
+class TestRealProbe:
+    def test_the_probe_builds_once_and_measures_a_real_link(self, tmp_path, monkeypatch):
+        if shutil.which("mpicc") is None or shutil.which("mpirun") is None:
+            pytest.fail("tier 2 needs Open MPI (mpicc and mpirun) on the runner")
+        monkeypatch.setenv("XDG_CACHE_HOME", str(tmp_path))
+        executor = SubprocessExecutor()
+        mpi_stack = probe.stack(executor, Config())
+        assert mpi_stack is not None
+        assert mpi_stack.implementation == "Open MPI"
+
+        binary = probe.build(executor, mpi_stack)
+        assert binary is not None and binary.is_file()
+        again = probe.build(executor, mpi_stack)
+        assert again == binary
+
+        outcome = executor.run(["mpirun", "-n", "2", str(binary), "3"])
+        assert outcome.exit_code == 0, outcome.stderr
+        measured = probe.parse(outcome.stdout or "")
+        assert measured is not None
+        assert measured.ranks == 2
+        assert measured.latency_us is not None and measured.latency_us > 0
+        assert len(measured.rates) == 3
+        assert max(measured.rates) > 0

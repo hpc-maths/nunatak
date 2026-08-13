@@ -20,7 +20,7 @@ from nunatak.collect.execution import Executor
 from nunatak.config import Config
 from nunatak.console import Console
 from nunatak.pivot import Degradation
-from nunatak import launch
+from nunatak import launch, probe
 from nunatak.collect import mpip
 from nunatak.launch import real_target
 
@@ -256,12 +256,54 @@ def _mpi_analysis(config: Config) -> CheckResult:
     )
 
 
+def _network_probe(executor: Executor, config: Config) -> CheckResult:
+    """MPI stack identification and the probe build, cached by stack.
+
+    Building here is deliberate: doctor runs on a login node, where the
+    compilers are; the compute nodes reuse the cached binary.
+    """
+    mpi_stack = probe.stack(executor, config)
+    if mpi_stack is None:
+        degradation = Degradation(
+            name="network-analysis-unavailable",
+            message="no usable mpicc: the network probe cannot be built",
+            remedy="load the MPI module (mpicc must answer) or set "
+            "tools.mpicc in nunatak.toml",
+        )
+        return CheckResult(
+            name="network-probe",
+            status="missing",
+            detail=degradation.message,
+            remedy=degradation.remedy,
+            degradation=degradation,
+        )
+    binary = probe.build(executor, mpi_stack)
+    if binary is None:
+        degradation = Degradation(
+            name="network-analysis-unavailable",
+            message=f"the network probe failed to build with {mpi_stack.mpicc} "
+            f"({mpi_stack.label})",
+            remedy="the compiler's messages above say more",
+        )
+        return CheckResult(
+            name="network-probe",
+            status="missing",
+            detail=degradation.message,
+            remedy=degradation.remedy,
+            degradation=degradation,
+        )
+    return CheckResult(
+        name="network-probe", status="ok", detail=f"{mpi_stack.label}: {binary}"
+    )
+
+
 def light_checks(
     executor: Executor,
     config: Config,
     command: list[str],
     cpu: tuple | None = None,
     llvm: tuple | None = None,
+    build_probe: bool = False,
 ) -> list[CheckResult]:
     """The cheap subset run at the start of every `run`: no build, no
     benchmark, a few tool invocations. `cpu` carries an already-selected
@@ -275,6 +317,8 @@ def light_checks(
         checks.append(_target(command))
         if launch.split(command).mpi:
             checks.append(_mpi_analysis(config))
+            if build_probe:
+                checks.append(_network_probe(executor, config))
         ceiling = _attribution_ceiling(executor, command, symbolizer)
         if ceiling is not None:
             checks.append(ceiling)
@@ -293,7 +337,12 @@ def execute(args, command: list[str], console: Console) -> int:
     from nunatak.config import load
 
     config, _ = load(Path.cwd())
-    checks = light_checks(SubprocessExecutor(), config, command)
+    executor = SubprocessExecutor()
+    checks = light_checks(executor, config, command)
+    # The probe build belongs to the doctor verb, not to the light
+    # checks a run opens with: doctor runs where the compilers are, and
+    # a cached probe makes the next MPI run's network analysis possible.
+    checks.append(_network_probe(executor, config))
 
     if args.json:
         report = {

@@ -84,6 +84,13 @@
    :members:
 ```
 
+## Network probe
+
+```{eval-rst}
+.. automodule:: nunatak.probe
+   :members:
+```
+
 ## Machine
 
 ```{eval-rst}
