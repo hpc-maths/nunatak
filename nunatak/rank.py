@@ -46,6 +46,24 @@ STAT_OUTPUT = "perf-stat.csv"
 RANK_META = "rank.json"
 
 
+def application_environment(
+    environment: Mapping[str, str], preload: str | None, directory: Path
+) -> dict[str, str] | None:
+    """The application's environment; None inherits the rank's untouched.
+
+    mpiP is appended to `LD_PRELOAD`, never written over it - the site
+    may already preload something - and its report is sent into the
+    Run's collect directory, where ingestion will look for it.
+    """
+    if not preload:
+        return None
+    composed = dict(environment)
+    existing = composed.get("LD_PRELOAD")
+    composed["LD_PRELOAD"] = f"{preload}:{existing}" if existing else preload
+    composed["MPIP"] = f"-f {directory}"
+    return composed
+
+
 def samples_here(identity: RankIdentity, threshold: int) -> bool:
     """Whether this rank belongs to the sampling subset.
 
@@ -92,6 +110,7 @@ def measure(
     environment: Mapping[str, str],
     frequency: int = 997,
     rank_threshold: int = 64,
+    preload: str | None = None,
 ) -> int:
     """Run `command` in this rank, collecting around it, and return its
     exit code.
@@ -106,8 +125,9 @@ def measure(
     exactly once. A missing capability never prevents the run.
     """
     identity = rank_identity(environment)
+    application = application_environment(environment, preload, Path(directory))
     if identity is None:
-        return subprocess.run(list(command)).returncode
+        return subprocess.run(list(command), env=application).returncode
 
     rank_dir = Path(directory) / f"rank-{identity.rank}"
     rank_dir.mkdir(parents=True, exist_ok=True)
@@ -122,7 +142,7 @@ def measure(
         adapter = PerfAdapter()
         events = counter_events.sampling_events(machine.snapshot(executor))
         exit_code, degradations = adapter.collect(
-            command, rank_dir, executor, frequency, events=events
+            command, rank_dir, executor, frequency, events=events, env=application
         )
         if not (rank_dir / SCRIPT_OUTPUT).is_file():
             # perf record fails fast, before launching: the rank falls
@@ -134,13 +154,14 @@ def measure(
             [
                 "perf", "stat", "-x,", "-e", ",".join(COUNTING_EVENTS),
                 "-o", str(output), "--", *command,
-            ]
+            ],
+            env=application,
         ).returncode
         if not _usable(output):
             output.unlink(missing_ok=True)
             exit_code = None
     if exit_code is None:
-        exit_code = subprocess.run(list(command)).returncode
+        exit_code = subprocess.run(list(command), env=application).returncode
 
     (rank_dir / RANK_META).write_text(
         json.dumps(
@@ -154,6 +175,7 @@ def measure(
                 "sampled": (rank_dir / SCRIPT_OUTPUT).is_file(),
                 "counted": output.is_file(),
                 "events": list(COUNTING_EVENTS),
+                "preload": preload,
                 "exit_code": exit_code,
                 "degradations": [
                     {"name": d.name, "message": d.message, "remedy": d.remedy}
@@ -180,6 +202,10 @@ def main(argv: Sequence[str] | None = None) -> int:
         "--rank-threshold", type=int, default=64,
         help="world size beyond which sampling narrows to rank 0 plus one rank per node",
     )
+    parser.add_argument(
+        "--preload", default=None,
+        help="library appended to the application's LD_PRELOAD (mpiP)",
+    )
     parser.add_argument("command", nargs=argparse.REMAINDER, help="the application")
     arguments = parser.parse_args(argv)
     command = arguments.command
@@ -193,6 +219,7 @@ def main(argv: Sequence[str] | None = None) -> int:
         os.environ,
         frequency=arguments.frequency,
         rank_threshold=arguments.rank_threshold,
+        preload=arguments.preload,
     )
 
 

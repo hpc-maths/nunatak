@@ -34,7 +34,8 @@ from nunatak.exit_codes import (
     FAILURE_BEFORE_LAUNCH,
     STRICT_VIOLATION,
 )
-from nunatak.ingestion import rank_counting
+from nunatak.collect import mpip
+from nunatak.ingestion import mpip_report, rank_counting
 from nunatak.pivot import Collector, Pass, ResolutionLevel, Run, hotspot_level, write_run
 from nunatak.report import html
 from nunatak.launch import real_target
@@ -60,24 +61,28 @@ def _deduplicated(degradations: list) -> list:
 
 
 def collection_command(
-    plan: launch.LaunchPlan, collect_dir: Path, config: Config
+    plan: launch.LaunchPlan,
+    collect_dir: Path,
+    config: Config,
+    preload: str | None = None,
 ) -> list[str]:
     """The launch the orchestrator actually runs for an MPI command.
 
     The rank shim, interposed inside each rank, carries both collection
     layers: every rank counts, the sampling subset records itself, and
     each rank writes into the Run directory - which is the multi-node
-    retrieval. The launcher itself runs bare.
+    retrieval. `preload` rides along for the application's LD_PRELOAD
+    (mpiP). The launcher itself runs bare.
     """
-    return plan.wrap(
-        [
-            sys.executable, "-m", "nunatak.rank",
-            "--directory", str(collect_dir),
-            "--frequency", str(config.sampling_frequency),
-            "--rank-threshold", str(config.sampling_rank_threshold),
-            "--",
-        ]
-    )
+    shim = [
+        sys.executable, "-m", "nunatak.rank",
+        "--directory", str(collect_dir),
+        "--frequency", str(config.sampling_frequency),
+        "--rank-threshold", str(config.sampling_rank_threshold),
+    ]
+    if preload is not None:
+        shim += ["--preload", preload]
+    return plan.wrap([*shim, "--"])
 
 
 def executable_status(program: str) -> tuple[int, str] | None:
@@ -239,8 +244,11 @@ def execute(args, command: list[str], console: Console) -> int:
             f"plus one rank per node beyond {config.sampling_rank_threshold} "
             f"ranks): {' '.join(command)}"
         )
+        mpip_library = mpip.locate(config)
         exit_code = executor.run(
-            collection_command(plan, directory / COLLECT_DIR, config),
+            collection_command(
+                plan, directory / COLLECT_DIR, config, preload=mpip_library
+            ),
             capture=False,
         ).exit_code
         versions = set()
@@ -257,6 +265,13 @@ def execute(args, command: list[str], console: Console) -> int:
         collectors = tuple(
             Collector(tool="perf", version=v) for v in sorted(versions)
         )
+        mpi_measurements, mpi_degradations, mpip_version = mpip_report.ingest_mpip(
+            directory / COLLECT_DIR, expected=mpip_library is not None
+        )
+        measurements += mpi_measurements
+        gathered += mpi_degradations
+        if mpip_version is not None:
+            collectors += (Collector(tool="mpiP", version=mpip_version),)
     elif adapter is not None:
         console.info(f"collecting with {adapter.tool} {version}: {' '.join(command)}")
         exit_code, collect_degradations = adapter.collect(

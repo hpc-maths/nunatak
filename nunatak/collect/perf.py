@@ -47,6 +47,7 @@ class PerfAdapter:
         executor: Executor,
         frequency: int,
         events: tuple = (),
+        env: dict | None = None,
     ) -> tuple[int, list[Degradation]]:
         """Run `command` under `perf record`, then extract what nunatak
         consumes: the `perf script` text and the build-id list. Returns
@@ -76,6 +77,7 @@ class PerfAdapter:
                 "--output", str(data), "--", *command,
             ],
             capture=False,
+            env=env,
         )
         script = executor.run(
             [self.path, "script", "--input", str(data), "--fields", SCRIPT_FIELDS]
@@ -104,6 +106,7 @@ class PerfAdapter:
                     "--output", str(data), "--", *command,
                 ],
                 capture=False,
+                env=env,
             )
             script = executor.run(
                 [self.path, "script", "--input", str(data), "--fields", SCRIPT_FIELDS]
