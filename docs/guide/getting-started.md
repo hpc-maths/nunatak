@@ -230,6 +230,18 @@ corrupts what the ranks measure, a fact measured on real hardware, not
 a precaution. For the same reason a sampled rank does not also count:
 its time aggregate is recoverable from its own samples.
 
+The MPI side of the counting layer comes from **mpiP**, preloaded into
+every rank - `LD_PRELOAD`, appended to whatever the site already
+preloads, never recompiling the application. Its report lands in the
+Run and becomes per-rank Measurements: `mpi_time` and `app_time`
+(mpiP's wall-clock view of each rank) and `mpi_sent_bytes`. The library
+must be built against the site's MPI stack; nunatak looks for it in
+`tools.mpip` (`nunatak.toml`), then in `LD_LIBRARY_PATH` - which is how
+an environment module exposes it. Without it, the run proceeds and
+`doctor` announces `mpi-analysis-unavailable` with the way forward; an
+application that never reaches `MPI_Finalize` leaves no report, and
+the Run says that too (`mpi-report-missing`).
+
 ## What the analysis says
 
 The analysis engine is a **pure function of (pivot, Machine)**: nothing

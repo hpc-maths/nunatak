@@ -20,6 +20,8 @@ from nunatak.collect.execution import Executor
 from nunatak.config import Config
 from nunatak.console import Console
 from nunatak.pivot import Degradation
+from nunatak import launch
+from nunatak.collect import mpip
 from nunatak.launch import real_target
 
 
@@ -234,6 +236,26 @@ def _report_asset() -> CheckResult:
     )
 
 
+def _mpi_analysis(config: Config) -> CheckResult:
+    """Presence of mpiP for the MPI counting layer of this launch."""
+    library = mpip.locate(config)
+    if library is not None:
+        return CheckResult(name="mpiP", status="ok", detail=library)
+    degradation = Degradation(
+        name="mpi-analysis-unavailable",
+        message="libmpiP.so not found: no per-rank MPI times or volumes",
+        remedy="load the site's mpiP module (it must appear in "
+        "LD_LIBRARY_PATH) or set tools.mpip in nunatak.toml",
+    )
+    return CheckResult(
+        name="mpiP",
+        status="missing",
+        detail=degradation.message,
+        remedy=degradation.remedy,
+        degradation=degradation,
+    )
+
+
 def light_checks(
     executor: Executor,
     config: Config,
@@ -251,6 +273,8 @@ def light_checks(
     checks.append(_report_asset())
     if command:
         checks.append(_target(command))
+        if launch.split(command).mpi:
+            checks.append(_mpi_analysis(config))
         ceiling = _attribution_ceiling(executor, command, symbolizer)
         if ceiling is not None:
             checks.append(ceiling)

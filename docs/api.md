@@ -34,6 +34,9 @@
 
 .. automodule:: nunatak.collect.events
    :members:
+
+.. automodule:: nunatak.collect.mpip
+   :members:
 ```
 
 ## Recording corpus
@@ -56,6 +59,9 @@
    :members:
 
 .. automodule:: nunatak.ingestion.rank_counting
+   :members:
+
+.. automodule:: nunatak.ingestion.mpip_report
    :members:
 ```
 

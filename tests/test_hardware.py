@@ -14,6 +14,7 @@ import os
 import shutil
 import stat
 import subprocess
+from pathlib import Path
 
 import pytest
 
@@ -177,3 +178,94 @@ class TestRealCounting:
         assert clock.unit == "ns" and clock.value and clock.value > 0
         cycles = next(m for m in aggregates if m.counter == "cycles")
         assert cycles.value and cycles.value > 0
+
+
+# The exact source that generated the verbatim mpiP fixture: uneven
+# per-rank compute, 50 Allreduce rounds, rank-to-0 Sends.
+MPI_WORKLOAD_C = """\
+#include <mpi.h>
+#include <stdlib.h>
+#include <string.h>
+
+int main(int argc, char **argv) {
+  MPI_Init(&argc, &argv);
+  int rank, size;
+  MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+  MPI_Comm_size(MPI_COMM_WORLD, &size);
+
+  int n = 1 << 20;
+  double *a = malloc(n * sizeof(double));
+  double *b = malloc(n * sizeof(double));
+  memset(a, 0, n * sizeof(double));
+  for (int repeat = 0; repeat < 40 * (rank + 1); repeat++)
+    for (int i = 0; i < n; i++)
+      a[i] = a[i] * 0.5 + 1.0;
+
+  for (int round = 0; round < 50; round++) {
+    MPI_Allreduce(a, b, n, MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD);
+    if (rank > 0)
+      MPI_Send(a, 4096, MPI_DOUBLE, 0, 0, MPI_COMM_WORLD);
+    else
+      for (int source = 1; source < size; source++)
+        MPI_Recv(b, 4096, MPI_DOUBLE, source, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+  }
+  free(a); free(b);
+  MPI_Finalize();
+  return 0;
+}
+"""
+
+MPIP_CANDIDATES = ("/opt/mpiP/lib/libmpiP.so", "/usr/local/lib/libmpiP.so")
+
+
+class TestRealMpi:
+    def test_a_real_mpi_run_measures_ranks_and_the_network(
+        self, tmp_path, monkeypatch, capsys
+    ):
+        # The one test where nothing is a stand-in: a real Open MPI
+        # launcher, real PMUs inside the ranks, a real mpiP preloaded
+        # into a real MPI application.
+        mpicc = shutil.which("mpicc")
+        if mpicc is None or shutil.which("mpirun") is None:
+            pytest.fail("tier 2 needs Open MPI (mpicc and mpirun) on the runner")
+        library = next(
+            (path for path in MPIP_CANDIDATES if Path(path).is_file()), None
+        )
+        if library is None:
+            pytest.fail("tier 2 needs libmpiP.so on the runner")
+
+        source = tmp_path / "mpi_workload.c"
+        source.write_text(MPI_WORKLOAD_C)
+        binary = tmp_path / "mpi_workload"
+        built = subprocess.run(
+            [mpicc, "-O2", "-g", str(source), "-o", str(binary)],
+            capture_output=True,
+            text=True,
+        )
+        assert built.returncode == 0, built.stderr
+        (tmp_path / "nunatak.toml").write_text(f'[tools]\nmpip = "{library}"\n')
+        monkeypatch.chdir(tmp_path)
+
+        assert principal(["run", "--json", "--", "mpirun", "-n", "2", str(binary)]) == 0
+        summary = json.loads(capsys.readouterr().out)
+        names = {d["name"] for d in summary["degradations"]}
+        for absent in ("mpi-analysis-unavailable", "mpi-report-missing",
+                       "counting-unavailable", "counting-incomplete"):
+            assert absent not in names, summary["degradations"]
+
+        run = read_run(summary["run"])
+        aggregates = locus_level(run.measurements)
+        mpi_times = {
+            m.locus.rank: m.value for m in aggregates if m.counter == "mpi_time"
+        }
+        assert set(mpi_times) == {0, 1}
+        assert all(value and value > 0 for value in mpi_times.values())
+        sent = {
+            m.locus.rank: m.value for m in aggregates if m.counter == "mpi_sent_bytes"
+        }
+        assert all(value and value > 0 for value in sent.values())
+        # Both ranks are below the threshold: sampled Hotspots per rank.
+        sampled = [m for m in run.measurements if m.hotspot is not None]
+        assert {m.locus.rank for m in sampled} == {0, 1}
+        tools = {c.tool for p in run.passes for c in p.collectors}
+        assert tools == {"perf", "mpiP"}
