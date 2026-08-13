@@ -15,8 +15,10 @@ import sys
 from pathlib import Path
 
 from nunatak.cli.run import collection_command
-from nunatak.launch import split
-from nunatak.ingestion import perf_stat, rank_counting
+from nunatak.config import Config
+from nunatak.ingestion import ingest, perf_stat, rank_counting
+from nunatak.launch import RankIdentity, split
+from nunatak.rank import samples_here
 from nunatak.pivot import Quality
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
@@ -30,6 +32,13 @@ CSV = """\
 UNSUPPORTED = "<not supported>,,stalled-cycles-backend:u,0,100.00,,\n"
 
 FILE_HEADER = "# started on Wed Aug 12 04:34:50 2026\n\n"
+
+# The two sample lines are verbatim perf 6.14.11 output (corpus entry
+# workload-c-calibrated), served by the stub's `script` subcommand.
+SCRIPT_LINES = """\
+        workload 2510799/2510799 28130600.333169:     588211 cycles:Pu:      5db4528f3178 main+0xb8 (/tmp/nunatak-capture-full/workload+0x1178)
+        workload 2510799/2510799 28130600.333364:     603961 cycles:Pu:      5db4528f3174 main+0xb4 (/tmp/nunatak-capture-full/workload+0x1174)
+"""
 
 STUB_PERF = f"""\
 #!/bin/sh
@@ -48,6 +57,24 @@ case "$1" in
     cat > "$out" <<'CSV_EOF'
 {FILE_HEADER}{CSV}CSV_EOF
     exec "$@"
+    ;;
+  record)
+    shift
+    out=""
+    while [ "$1" != "--" ]; do
+      if [ "$1" = "--output" ]; then out="$2"; shift; fi
+      shift
+    done
+    shift
+    : > "$out"
+    exec "$@"
+    ;;
+  script)
+    cat <<'LINES_EOF'
+{SCRIPT_LINES}LINES_EOF
+    ;;
+  buildid-list)
+    echo "4ce402d2f4f91e424538da7cbab70af0d8100e4e /tmp/nunatak-capture-full/workload"
     ;;
 esac
 """
@@ -107,7 +134,7 @@ def script(directory, name, text):
     return path
 
 
-def shim_environment(tmp_path, perf_text=None, rank=3, size=8):
+def shim_environment(tmp_path, perf_text=None, rank=3, size=128, local=1):
     bin_dir = tmp_path / "bin"
     bin_dir.mkdir(exist_ok=True)
     environment = dict(os.environ)
@@ -122,7 +149,7 @@ def shim_environment(tmp_path, perf_text=None, rank=3, size=8):
     if rank is not None:
         environment["OMPI_COMM_WORLD_RANK"] = str(rank)
         environment["OMPI_COMM_WORLD_SIZE"] = str(size)
-        environment["OMPI_COMM_WORLD_LOCAL_RANK"] = "1"
+        environment["OMPI_COMM_WORLD_LOCAL_RANK"] = str(local)
     return environment
 
 
@@ -168,7 +195,36 @@ class TestPerfStatParser:
         assert unparsed == ["what,is,this"]
 
 
+class TestPolicy:
+    def test_below_the_threshold_every_rank_samples(self):
+        identity = RankIdentity(rank=37, world_size=64, local_rank=5)
+        assert samples_here(identity, threshold=64) is True
+
+    def test_beyond_the_threshold_only_rank_zero_and_node_firsts_sample(self):
+        assert samples_here(RankIdentity(0, 128, 3), 64) is True
+        assert samples_here(RankIdentity(64, 128, 0), 64) is True
+        assert samples_here(RankIdentity(65, 128, 1), 64) is False
+
+    def test_an_unknown_world_size_narrows_rather_than_floods(self):
+        assert samples_here(RankIdentity(0, None, None), 64) is True
+        assert samples_here(RankIdentity(9, None, 0), 64) is True
+        assert samples_here(RankIdentity(9, None, None), 64) is False
+
+
 class TestShim:
+    def test_a_sampling_rank_records_itself(self, tmp_path):
+        collect = tmp_path / "collect"
+        environment = shim_environment(tmp_path, STUB_PERF, rank=0, local=0)
+        outcome = run_shim(collect, [sys.executable, "-c", ""], environment)
+        assert outcome.returncode == 0
+        assert (collect / "rank-0" / "perf-script.txt").is_file()
+        assert not (collect / "rank-0" / "perf-stat.csv").exists()
+        meta = rank_meta(collect, 0)
+        assert meta["role"] == "sampling"
+        assert meta["sampled"] is True
+        assert meta["counted"] is False
+
+
     def test_a_counted_rank_leaves_its_artifacts_and_the_exit_code(self, tmp_path):
         collect = tmp_path / "collect"
         environment = shim_environment(tmp_path, STUB_PERF)
@@ -179,8 +235,9 @@ class TestShim:
         assert (collect / "rank-3" / "perf-stat.csv").is_file()
         meta = rank_meta(collect, 3)
         assert meta["counted"] is True
+        assert meta["role"] == "counting"
         assert meta["perf"] == "6.14.11"
-        assert meta["world_size"] == 8
+        assert meta["world_size"] == 128
         assert meta["exit_code"] == 7
 
     def test_without_perf_the_rank_runs_bare_and_says_so(self, tmp_path):
@@ -307,22 +364,22 @@ class TestCollectionCommand:
     def test_an_mpi_launch_gets_the_shim_inside_each_rank(self, tmp_path):
         solver = script(tmp_path, "solver", "#!/bin/sh\nexit 0\n")
         collect = tmp_path / "run" / "collect"
-        command = collection_command(split(["mpirun", "-n", "4", str(solver)]), collect)
+        command = collection_command(
+            split(["mpirun", "-n", "4", str(solver)]), collect, Config()
+        )
         assert command[:3] == ["mpirun", "-n", "4"]
         assert command[3] == sys.executable
         assert command[4:7] == ["-m", "nunatak.rank", "--directory"]
+        assert command[8:12] == ["--frequency", "997", "--rank-threshold", "64"]
         assert command[-2:] == ["--", str(solver)]
-
-    def test_a_direct_launch_runs_unchanged(self, tmp_path):
-        command = collection_command(split(["./solver", "--steps", "10"]), tmp_path)
-        assert command == ["./solver", "--steps", "10"]
 
 
 class TestLauncherToPivotChain:
-    def test_two_ranks_land_in_one_directory(self, tmp_path):
-        """The wrapped command, run under a launcher-shaped stand-in:
-        fan-out, per-rank counting, and retrieval into one collect
-        directory - the whole chain without MPI."""
+    def test_the_subset_samples_and_the_rest_counts(self, tmp_path):
+        """The wrapped command, run under a launcher-shaped stand-in
+        with a threshold of one: rank 0 records itself, rank 1 counts,
+        and everything lands in one collect directory - the whole chain
+        without MPI."""
         bin_dir = tmp_path / "bin"
         bin_dir.mkdir()
         script(bin_dir, "perf", STUB_PERF)
@@ -333,13 +390,32 @@ class TestLauncherToPivotChain:
 
         collect = tmp_path / "run" / "collect"
         app = script(tmp_path, "app", "#!/bin/sh\nexit 0\n")
-        wrapped = collection_command(split(["mpirun", "-n", "2", str(app)]), collect)
+        wrapped = collection_command(
+            split(["mpirun", "-n", "2", str(app)]),
+            collect,
+            Config(sampling_rank_threshold=1),
+        )
         outcome = subprocess.run(
             wrapped, env=environment, capture_output=True, text=True
         )
         assert outcome.returncode == 0, outcome.stderr
 
-        measurements, degradations = rank_counting.ingest_counting(collect)
+        counting, degradations = rank_counting.ingest_counting(collect)
         assert degradations == []
-        assert {m.locus.rank for m in measurements} == {0, 1}
-        assert len(measurements) == 6
+        assert {m.locus.rank for m in counting} == {1}
+        assert len(counting) == 3
+
+        metas = dict(
+            (meta["rank"], (rank_dir, meta))
+            for rank_dir, meta in rank_counting.rank_metas(collect)
+        )
+        assert metas[0][1]["role"] == "sampling"
+        assert metas[1][1]["role"] == "counting"
+        rank_dir, meta = metas[0]
+        sampled, sampled_degradations = ingest(
+            "perf", meta["perf"], rank_dir, node=meta["node"], rank=0
+        )
+        assert sampled_degradations == []
+        assert sampled, "the sampled rank produced no Measurement"
+        assert all(m.locus.rank == 0 for m in sampled)
+        assert all(m.hotspot is not None for m in sampled)

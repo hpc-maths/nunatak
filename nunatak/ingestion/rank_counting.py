@@ -20,6 +20,19 @@ from nunatak.rank import RANK_META, STAT_OUTPUT
 _RANK_DIR = re.compile(r"rank-(\d+)$")
 
 
+def rank_metas(directory: Path) -> list[tuple[Path, dict]]:
+    """The rank directories under `directory` and their identity metas,
+    ordered by rank number."""
+    metas = []
+    for rank_dir in sorted(directory.glob("rank-*")):
+        meta_path = rank_dir / RANK_META
+        if _RANK_DIR.search(rank_dir.name) is None or not meta_path.is_file():
+            continue
+        metas.append((rank_dir, json.loads(meta_path.read_text())))
+    metas.sort(key=lambda entry: entry[1]["rank"])
+    return metas
+
+
 def _measurements_of(meta: dict, csv_text: str) -> tuple[list[Measurement], list[str]]:
     """The Locus-level Measurements of one counted rank."""
     locus = Locus(node=meta["node"], rank=meta["rank"])
@@ -62,14 +75,7 @@ def ingest_counting(directory: Path) -> tuple[list[Measurement], list[Degradatio
     each declared once, with the rank numbers: silence about a missing
     rank would read as "nothing ran there".
     """
-    directory = Path(directory)
-    metas = []
-    for rank_dir in sorted(directory.glob("rank-*")):
-        match = _RANK_DIR.search(rank_dir.name)
-        meta_path = rank_dir / RANK_META
-        if match is None or not meta_path.is_file():
-            continue
-        metas.append((rank_dir, json.loads(meta_path.read_text())))
+    metas = rank_metas(Path(directory))
     if not metas:
         return [], []
 
@@ -77,14 +83,28 @@ def ingest_counting(directory: Path) -> tuple[list[Measurement], list[Degradatio
     degradations: list[Degradation] = []
     uncounted: list[int] = []
     unparsed_total = 0
+    recorded: dict[tuple, Degradation] = {}
     for rank_dir, meta in metas:
+        for entry in meta.get("degradations", []):
+            degradation = Degradation(
+                name=entry["name"], message=entry["message"], remedy=entry.get("remedy")
+            )
+            # The same microarchitecture rejects the same group on every
+            # node: one identical announcement, not one per rank.
+            recorded.setdefault(
+                (degradation.name, degradation.message), degradation
+            )
         csv_path = rank_dir / STAT_OUTPUT
         if not meta.get("counted") or not csv_path.is_file():
-            uncounted.append(meta["rank"])
+            # The sampling subset does not count: its time aggregate is
+            # the sum of its own samples, an absence by design.
+            if meta.get("role", "counting") != "sampling":
+                uncounted.append(meta["rank"])
             continue
         counted, unparsed = _measurements_of(meta, csv_path.read_text())
         measurements.extend(counted)
         unparsed_total += len(unparsed)
+    degradations.extend(recorded.values())
 
     if uncounted:
         ranks = ", ".join(str(rank) for rank in sorted(uncounted))

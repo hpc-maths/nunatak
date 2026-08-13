@@ -197,13 +197,20 @@ application twice.
 
 `nunatak run -- mpirun -n 8 ./solver` starts one launcher here and
 eight ranks wherever the scheduler placed them. Collection then has two
-layers, with two costs. The **counting layer** covers **every rank** at
-constant cost: nunatak interposes a small shim inside each rank -
-between the launcher and the application, without touching either -
-which counts time, cycles and instructions around the whole rank and
-writes its aggregates into the Run directory itself. Those per-rank
-totals are what reveal load imbalance, and they carry no Hotspot:
-attributing them to functions is the sampling layer's job.
+layers, with two costs, and both live **inside the ranks** - nunatak
+interposes a small shim between the launcher and the application,
+without touching either. The **sampling layer** attributes Hotspots:
+each sampled rank records itself, counter group included, on its own
+node's counters. Below a threshold (64 ranks, `sampling.rank_threshold`
+in `nunatak.toml`) every rank samples; beyond it, sampling narrows to
+**rank 0 plus the first rank of each node** - Hotspots stay
+attributable everywhere the code runs, at a cost that stops growing
+with the job. The **counting layer** covers every other rank at
+constant cost: one `perf stat` around the whole rank - time, cycles,
+instructions - whose per-rank totals are what reveal load imbalance.
+They carry no Hotspot, and Hotspot-level Measurements on unsampled
+ranks are `unavailable`, **never extrapolated** from the sampled
+neighbours.
 
 Each rank writes home before it exits, so a Run stays **one
 directory** whatever the number of ranks and nodes - the retrieval is
@@ -217,10 +224,11 @@ The shim propagates the application's exit code and never touches its
 stdout or stderr, and a launcher that fails to resolve its application
 is left alone: nunatak wraps a launch it understands, it never guesses.
 
-Under a launcher, sampling attributes **time alone** for now: hardware
-events belong to the ranks' counting - an outer sampler holding the
-same physical counters corrupts what the ranks measure, a fact
-measured on real hardware, not a precaution.
+Nothing samples around the launcher: hardware events run on the ranks'
+own physical counters - an outer sampler holding the same PMCs
+corrupts what the ranks measure, a fact measured on real hardware, not
+a precaution. For the same reason a sampled rank does not also count:
+its time aggregate is recoverable from its own samples.
 
 ## What the analysis says
 

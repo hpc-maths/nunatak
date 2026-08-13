@@ -32,6 +32,13 @@ def test_project_overrides_site_and_flag_overrides_project(tmp_path):
     assert effective["name"] == "flag-name"
 
 
+def test_the_rank_threshold_is_tunable_never_silently(tmp_path):
+    (tmp_path / "nunatak.toml").write_text("[sampling]\nrank_threshold = 16\n")
+    config, effective = load(tmp_path)
+    assert config.sampling_rank_threshold == 16
+    assert effective["sampling.rank_threshold"] == 16
+
+
 def test_project_file_is_found_upward(tmp_path):
     (tmp_path / "nunatak.toml").write_text('name = "root"\n')
     nested = tmp_path / "a" / "b"
