@@ -19,7 +19,7 @@ import shutil
 import sys
 from pathlib import Path
 
-from nunatak import analysis, attribution, corpus, ingestion, launch, machine, provenance, summary
+from nunatak import analysis, attribution, corpus, ingestion, launch, machine, probe, provenance, summary
 from nunatak.attribution import source, staleness
 from nunatak.collect import events as counter_events
 from nunatak.calibration import theory
@@ -232,6 +232,7 @@ def execute(args, command: list[str], console: Console) -> int:
     source_extracts = []
     plan = launch.split(command)
     gathered = []
+    mpi_stack = None
     measured = True
     if plan.mpi and plan.application:
         # Both collection layers live inside the ranks: an outer record
@@ -245,6 +246,7 @@ def execute(args, command: list[str], console: Console) -> int:
             f"ranks): {' '.join(command)}"
         )
         mpip_library = mpip.locate(config)
+        mpi_stack = probe.stack(executor, config)
         exit_code = executor.run(
             collection_command(
                 plan, directory / COLLECT_DIR, config, preload=mpip_library
@@ -328,13 +330,19 @@ def execute(args, command: list[str], console: Console) -> int:
             sampling_blocked=executor.sampling_blocked(),
         )
 
+    collected_provenance = provenance.collect(executor, cwd, effective)
+    if plan.mpi and plan.application and mpi_stack is not None:
+        # A network analysis whose underlying stack is unknown is not
+        # interpretable: the stack travels with the Run.
+        collected_provenance.dependencies["mpi"] = mpi_stack.label
+        collected_provenance.dependencies["mpicc"] = mpi_stack.mpicc
     run = Run(
         name=directory.name,
         created=started,
         command=list(command),
         exit_code=exit_code,
         machine=snapshot,
-        provenance=provenance.collect(executor, cwd, effective),
+        provenance=collected_provenance,
         passes=[
             Pass(
                 index=0,

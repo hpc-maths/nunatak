@@ -230,6 +230,18 @@ corrupts what the ranks measure, a fact measured on real hardware, not
 a precaution. For the same reason a sampled rank does not also count:
 its time aggregate is recoverable from its own samples.
 
+The **network probe** is nunatak's own binary and binds to the site's
+MPI stack, whose ABIs are mutually incompatible - so it is never
+shipped built. `nunatak doctor` builds it with the site's `mpicc`
+(`tools.mpicc` to point elsewhere), preferably on a login node where
+the compilers are, and caches it per stack under
+`$XDG_CACHE_HOME/nunatak/probes`: on a cluster with modules, the MPI
+loaded today is rarely the job's. The identified stack - implementation,
+version, `mpicc` - is recorded in the Run's Provenance: a network
+analysis whose underlying stack is unknown is not interpretable.
+Without a usable `mpicc`, doctor announces
+`network-analysis-unavailable` and the run proceeds.
+
 The MPI side of the counting layer comes from **mpiP**, preloaded into
 every rank - `LD_PRELOAD`, appended to whatever the site already
 preloads, never recompiling the application. Its report lands in the
