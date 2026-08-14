@@ -298,6 +298,46 @@ class TestRealProbe:
         measured = probe.parse(outcome.stdout or "")
         assert measured is not None
         assert measured.ranks == 2
+        assert measured.nodes == 1
         assert measured.latency_us is not None and measured.latency_us > 0
         assert len(measured.rates) == 3
         assert max(measured.rates) > 0
+
+    def test_an_mpi_run_carries_its_network_ceilings(
+        self, tmp_path, monkeypatch, capsys
+    ):
+        # doctor built the probe; the run launches it through the real
+        # mpirun before the application, and the Machine snapshot in the
+        # written Run carries the network Ceilings - honestly downgraded
+        # on this single-node allocation.
+        mpicc = shutil.which("mpicc")
+        if mpicc is None or shutil.which("mpirun") is None:
+            pytest.fail("tier 2 needs Open MPI (mpicc and mpirun) on the runner")
+        executor = SubprocessExecutor()
+        mpi_stack = probe.stack(executor, Config())
+        assert probe.build(executor, mpi_stack) is not None
+
+        source = tmp_path / "mpi_workload.c"
+        source.write_text(MPI_WORKLOAD_C)
+        binary = tmp_path / "mpi_workload"
+        built = subprocess.run(
+            [mpicc, "-O2", "-g", str(source), "-o", str(binary)],
+            capture_output=True,
+            text=True,
+        )
+        assert built.returncode == 0, built.stderr
+        monkeypatch.chdir(tmp_path)
+
+        assert principal(["run", "--json", "--", "mpirun", "-n", "2", str(binary)]) == 0
+        summary = json.loads(capsys.readouterr().out)
+        names = {d["name"] for d in summary["degradations"]}
+        assert "network-ceiling-unavailable" not in names, summary["degradations"]
+
+        run = read_run(summary["run"])
+        ceilings = {c.name: c for c in run.machine.ceilings}
+        assert "network_bandwidth" in ceilings, sorted(ceilings)
+        bandwidth = ceilings["network_bandwidth"]
+        assert bandwidth.value > 0
+        assert bandwidth.quality is Quality.ESTIMATED
+        assert "shared memory" in bandwidth.reason
+        assert ceilings["network_latency"].value > 0
