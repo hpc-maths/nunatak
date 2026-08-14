@@ -22,10 +22,12 @@ from pathlib import Path
 
 from nunatak.collect.execution import Executor
 from nunatak.config import Config
+from nunatak.launch import LaunchPlan
+from nunatak.pivot import Ceiling, Degradation, Quality
 
 # Bump when pingpong.c changes: measurements from different probes are
 # not comparable, so a cached binary of another version is stale.
-PROBE_VERSION = 0
+PROBE_VERSION = 1
 
 _SOURCE = Path(__file__).parent / "pingpong.c"
 
@@ -134,21 +136,98 @@ def build(
     return binary if invocation.exit_code == 0 else None
 
 
+def built(mpi_stack: MpiStack, directory: Path | None = None) -> Path | None:
+    """The cached probe binary for `mpi_stack`, None when never built.
+
+    A run never compiles: doctor built the probe on a login node, where
+    the compilers are, and this lookup is all a compute allocation needs.
+    """
+    directory = cache_directory() if directory is None else directory
+    binary = directory / _key(mpi_stack) / f"probe-v{PROBE_VERSION}"
+    return binary if binary.is_file() else None
+
+
 @dataclass(frozen=True)
 class ProbeRun:
     """Parsed output of one probe run: the self-reported topology and
     message size travel with the rates, like the calibration kernel's."""
 
     ranks: int | None
+    nodes: int | None
     bytes: int | None
     latency_us: float | None
     rates: tuple[float, ...]
 
 
+# Enough repetitions to witness dispersion, few enough to stay seconds.
+REPETITIONS = 3
+
+_SHARED_MEMORY_REASON = (
+    "measured over shared memory: single-node allocation, not the interconnect"
+)
+
+
+def network_ceilings(
+    executor: Executor, plan: LaunchPlan, mpi_stack: MpiStack | None
+) -> tuple[tuple[Ceiling, ...], list[Degradation]]:
+    """Run the cached probe inside this launch's allocation and return
+    the network Ceilings it measured.
+
+    The probe goes through the same launcher prefix as the application,
+    so it lands where the job's ranks land, and the Ceiling keeps the
+    best repetition - an upper bound. A single-node world measured
+    shared memory, not the interconnect: both Ceilings then carry that
+    motivated downgrade. A run never compiles the probe; a missing
+    binary names doctor as the way forward and the run proceeds.
+    """
+    binary = built(mpi_stack) if mpi_stack is not None else None
+    if binary is None:
+        return (), [
+            Degradation(
+                name="network-ceiling-unavailable",
+                message="no built network probe for this MPI stack",
+                remedy="run `nunatak doctor` where the compilers are, then rerun",
+            )
+        ]
+    invocation = executor.run([*plan.prefix, str(binary), str(REPETITIONS)])
+    outcome = parse(invocation.stdout or "") if invocation.exit_code == 0 else None
+    if outcome is None or not outcome.rates:
+        return (), [
+            Degradation(
+                name="network-ceiling-unavailable",
+                message="the network probe ran but did not report",
+                remedy="its messages in the log above say more",
+            )
+        ]
+    single_node = outcome.nodes == 1
+    quality = Quality.ESTIMATED if single_node else Quality.MEASURED
+    reason = _SHARED_MEMORY_REASON if single_node else None
+    ceilings = (
+        Ceiling(
+            name="network_bandwidth",
+            value=max(outcome.rates),
+            unit="byte/s",
+            quality=quality,
+            reason=reason,
+        ),
+    )
+    if outcome.latency_us is not None:
+        ceilings += (
+            Ceiling(
+                name="network_latency",
+                value=outcome.latency_us * 1e-6,
+                unit="s",
+                quality=quality,
+                reason=reason,
+            ),
+        )
+    return ceilings, []
+
+
 def parse(stdout: str) -> ProbeRun | None:
     """Parse the probe's self-reported lines, None when they are not its."""
     seen = False
-    ranks = size = None
+    ranks = size = nodes = None
     latency = None
     rates = []
     for line in stdout.splitlines():
@@ -157,6 +236,8 @@ def parse(stdout: str) -> ProbeRun | None:
             seen = True
         elif parts[:1] == ["ranks"] and len(parts) == 2:
             ranks = int(parts[1])
+        elif parts[:1] == ["nodes"] and len(parts) == 2:
+            nodes = int(parts[1])
         elif parts[:1] == ["bytes"] and len(parts) == 2:
             size = int(parts[1])
         elif parts[:1] == ["latency_us"] and len(parts) == 2:
@@ -165,4 +246,6 @@ def parse(stdout: str) -> ProbeRun | None:
             rates.append(float(parts[2]))
     if not seen:
         return None
-    return ProbeRun(ranks=ranks, bytes=size, latency_us=latency, rates=tuple(rates))
+    return ProbeRun(
+        ranks=ranks, nodes=nodes, bytes=size, latency_us=latency, rates=tuple(rates)
+    )

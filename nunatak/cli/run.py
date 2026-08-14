@@ -247,6 +247,19 @@ def execute(args, command: list[str], console: Console) -> int:
         )
         mpip_library = mpip.locate(config)
         mpi_stack = probe.stack(executor, config)
+        if not args.no_calibrate:
+            # The probe launches through the allocation's own launcher,
+            # before the application - the only moment the network is
+            # ours - and its rates become the Machine's network Ceilings.
+            console.info("probing the network inside this allocation")
+            network, network_degradations = probe.network_ceilings(
+                executor, plan, mpi_stack
+            )
+            if network:
+                snapshot = dataclasses.replace(
+                    snapshot, ceilings=snapshot.ceilings + network
+                )
+            gathered += network_degradations
         exit_code = executor.run(
             collection_command(
                 plan, directory / COLLECT_DIR, config, preload=mpip_library

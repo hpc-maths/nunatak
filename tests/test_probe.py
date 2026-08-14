@@ -32,14 +32,17 @@ HYDRA build details:
 PROBE_OUTPUT = """\
 probe pingpong
 ranks 2
-latency_us 0.603
+nodes 1
+latency_us 0.653
 bytes 4194304
-rep 0 3.732137e+09
-rep 1 3.811625e+09
-rep 2 3.820277e+09
-rep 3 3.815909e+09
-rep 4 3.801362e+09
+rep 0 3.364980e+09
+rep 1 3.438913e+09
+rep 2 3.450552e+09
 """
+
+# The same transcript with the world spread over two hosts: only the
+# nodes line differs - which is exactly what flips the Ceiling quality.
+TWO_NODES_OUTPUT = PROBE_OUTPUT.replace("nodes 1", "nodes 2")
 
 
 class TestStack:
@@ -124,10 +127,11 @@ class TestParse:
     def test_the_verbatim_transcript_parses_completely(self):
         outcome = probe.parse(PROBE_OUTPUT)
         assert outcome.ranks == 2
+        assert outcome.nodes == 1
         assert outcome.bytes == 4194304
-        assert outcome.latency_us == 0.603
-        assert len(outcome.rates) == 5
-        assert max(outcome.rates) == 3.820277e09
+        assert outcome.latency_us == 0.653
+        assert len(outcome.rates) == 3
+        assert max(outcome.rates) == 3.450552e09
 
     def test_foreign_output_is_not_a_probe_run(self):
         assert probe.parse("perf version 6.14.11\n") is None
@@ -156,3 +160,80 @@ class TestDoctor:
         binary = probe.build(SubprocessExecutor(), mpi_stack)
         assert binary is not None
         assert str(tmp_path) in str(binary)
+
+
+def cached_binary(tmp_path, monkeypatch, mpi_stack):
+    """A probe binary already in the XDG cache, as doctor leaves it."""
+    monkeypatch.setenv("XDG_CACHE_HOME", str(tmp_path))
+    entry = probe.cache_directory() / probe._key(mpi_stack)
+    entry.mkdir(parents=True)
+    binary = entry / f"probe-v{probe.PROBE_VERSION}"
+    binary.write_text("binary")
+    return binary
+
+
+class TestNetworkCeilings:
+    STACK = probe.MpiStack("Open MPI", "5.0.7", "mpicc")
+
+    def test_two_nodes_measure_the_interconnect(self, tmp_path, monkeypatch):
+        from nunatak.launch import split
+
+        binary = cached_binary(tmp_path, monkeypatch, self.STACK)
+        executor = ScriptedExecutor().on("mpirun", stdout=TWO_NODES_OUTPUT)
+        plan = split(["mpirun", "-n", "2", "/bin/sh"])
+        ceilings, degradations = probe.network_ceilings(executor, plan, self.STACK)
+        assert degradations == []
+        by_name = {ceiling.name: ceiling for ceiling in ceilings}
+        assert by_name["network_bandwidth"].value == 3.450552e09
+        assert by_name["network_bandwidth"].quality.value == "measured"
+        assert by_name["network_latency"].value == 0.653e-6
+        # The probe went through the allocation's own launcher prefix.
+        assert executor.calls[0][:3] == ["mpirun", "-n", "2"]
+        assert executor.calls[0][3] == str(binary)
+
+    def test_a_single_node_world_is_a_motivated_downgrade(self, tmp_path, monkeypatch):
+        from nunatak.launch import split
+
+        cached_binary(tmp_path, monkeypatch, self.STACK)
+        executor = ScriptedExecutor().on("mpirun", stdout=PROBE_OUTPUT)
+        plan = split(["mpirun", "-n", "2", "/bin/sh"])
+        ceilings, _ = probe.network_ceilings(executor, plan, self.STACK)
+        assert all(c.quality.value == "estimated" for c in ceilings)
+        assert all("shared memory" in c.reason for c in ceilings)
+
+    def test_without_a_built_probe_doctor_is_the_way_forward(
+        self, tmp_path, monkeypatch
+    ):
+        from nunatak.launch import split
+
+        monkeypatch.setenv("XDG_CACHE_HOME", str(tmp_path))
+        plan = split(["mpirun", "-n", "2", "/bin/sh"])
+        ceilings, degradations = probe.network_ceilings(
+            ScriptedExecutor(), plan, self.STACK
+        )
+        assert ceilings == ()
+        (degradation,) = degradations
+        assert degradation.name == "network-ceiling-unavailable"
+        assert "doctor" in degradation.remedy
+
+    def test_a_silent_probe_is_declared_not_guessed(self, tmp_path, monkeypatch):
+        from nunatak.launch import split
+
+        cached_binary(tmp_path, monkeypatch, self.STACK)
+        executor = ScriptedExecutor().on("mpirun", stdout="")
+        plan = split(["mpirun", "-n", "2", "/bin/sh"])
+        ceilings, degradations = probe.network_ceilings(executor, plan, self.STACK)
+        assert ceilings == ()
+        (degradation,) = degradations
+        assert degradation.name == "network-ceiling-unavailable"
+
+
+class TestBuilt:
+    def test_only_the_current_probe_version_counts(self, tmp_path):
+        mpi_stack = probe.MpiStack("Open MPI", "5.0.7", "mpicc")
+        entry = tmp_path / probe._key(mpi_stack)
+        entry.mkdir(parents=True)
+        (entry / "probe-v0").write_text("stale")
+        assert probe.built(mpi_stack, tmp_path) is None
+        (entry / f"probe-v{probe.PROBE_VERSION}").write_text("current")
+        assert probe.built(mpi_stack, tmp_path) is not None

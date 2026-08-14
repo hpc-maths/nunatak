@@ -8,9 +8,14 @@
  *
  *   probe pingpong
  *   ranks <world size>
+ *   nodes <distinct hosts in the world>
  *   latency_us <best 8-byte round trip, microseconds>
  *   bytes <message size>
  *   rep <index> <bytes per second>
+ *
+ * The node count is what keeps the measurement honest: a single-node
+ * allocation measures shared memory, not the interconnect, and the
+ * driver downgrades the Ceiling accordingly.
  *
  * Usage: probe [repetitions] [message_bytes]
  * Ranks between 0 and the last only meet the barriers: the probe
@@ -38,6 +43,29 @@ int main(int argc, char **argv) {
   char *buffer = malloc((size_t)bytes);
   memset(buffer, 1, (size_t)bytes);
 
+  char host[MPI_MAX_PROCESSOR_NAME];
+  int host_length = 0;
+  MPI_Get_processor_name(host, &host_length);
+  char *hosts = NULL;
+  if (rank == 0)
+    hosts = malloc((size_t)size * MPI_MAX_PROCESSOR_NAME);
+  MPI_Gather(host, MPI_MAX_PROCESSOR_NAME, MPI_CHAR,
+             hosts, MPI_MAX_PROCESSOR_NAME, MPI_CHAR, 0, MPI_COMM_WORLD);
+  int nodes = 0;
+  if (rank == 0) {
+    for (int task = 0; task < size; task++) {
+      int first_holder = 1;
+      for (int before = 0; before < task; before++)
+        if (strcmp(hosts + (size_t)task * MPI_MAX_PROCESSOR_NAME,
+                   hosts + (size_t)before * MPI_MAX_PROCESSOR_NAME) == 0) {
+          first_holder = 0;
+          break;
+        }
+      nodes += first_holder;
+    }
+    free(hosts);
+  }
+
   double latency = -1.0;
   const int latency_trips = 1000;
   for (int rep = 0; rep < repetitions; rep++) {
@@ -60,6 +88,7 @@ int main(int argc, char **argv) {
   if (rank == 0) {
     printf("probe pingpong\n");
     printf("ranks %d\n", size);
+    printf("nodes %d\n", nodes);
     printf("latency_us %.3f\n", latency * 1e6);
     printf("bytes %ld\n", bytes);
   }

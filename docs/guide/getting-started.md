@@ -249,6 +249,16 @@ analysis whose underlying stack is unknown is not interpretable.
 Without a usable `mpicc`, doctor announces
 `network-analysis-unavailable` and the run proceeds.
 
+An MPI run launches the cached probe **through the allocation's own
+launcher, before the application** - the only moment the network is
+ours - and its best repetition becomes the Machine's
+`network_bandwidth` and `network_latency` Ceilings. The probe counts
+its nodes and keeps the measurement honest: a single-node world
+measured shared memory, not the interconnect, and both Ceilings say so
+as a motivated downgrade. A run never compiles the probe: without a
+cached binary, `network-ceiling-unavailable` names `doctor` as the way
+forward. `--no-calibrate` skips the probe along with the calibration.
+
 The MPI side of the counting layer comes from **mpiP**, preloaded into
 every rank - `LD_PRELOAD`, appended to whatever the site already
 preloads, never recompiling the application. Its report lands in the
