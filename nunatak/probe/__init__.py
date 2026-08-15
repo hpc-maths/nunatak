@@ -98,8 +98,13 @@ def cache_directory() -> Path:
     return base / "nunatak" / "probes"
 
 
-def _key(mpi_stack: MpiStack) -> str:
-    """The cache key of one stack: same triple, same binary."""
+def stack_key(mpi_stack: MpiStack) -> str:
+    """The cache key of one stack: same triple, same artifacts.
+
+    Shared by everything built against the stack - the probe and mpiP
+    live in the same cache entry, next to the stack.json that explains
+    them.
+    """
     triple = "|".join((mpi_stack.implementation, mpi_stack.version, mpi_stack.mpicc))
     return hashlib.sha256(triple.encode()).hexdigest()[:16]
 
@@ -114,7 +119,7 @@ def build(
     named degradation is the caller's to announce.
     """
     directory = cache_directory() if directory is None else directory
-    entry = directory / _key(mpi_stack)
+    entry = directory / stack_key(mpi_stack)
     binary = entry / f"probe-v{PROBE_VERSION}"
     if binary.is_file():
         return binary
@@ -143,7 +148,7 @@ def built(mpi_stack: MpiStack, directory: Path | None = None) -> Path | None:
     the compilers are, and this lookup is all a compute allocation needs.
     """
     directory = cache_directory() if directory is None else directory
-    binary = directory / _key(mpi_stack) / f"probe-v{PROBE_VERSION}"
+    binary = directory / stack_key(mpi_stack) / f"probe-v{PROBE_VERSION}"
     return binary if binary.is_file() else None
 
 

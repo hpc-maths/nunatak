@@ -266,10 +266,16 @@ Run and becomes per-rank Measurements: `mpi_time` and `app_time`
 (mpiP's wall-clock view of each rank) and `mpi_sent_bytes`. The library
 must be built against the site's MPI stack; nunatak looks for it in
 `tools.mpip` (`nunatak.toml`), then in `LD_LIBRARY_PATH` - which is how
-an environment module exposes it. Without it, the run proceeds and
-`doctor` announces `mpi-analysis-unavailable` with the way forward; an
-application that never reaches `MPI_Finalize` leaves no report, and
-the Run says that too (`mpi-report-missing`).
+an environment module exposes it - then in its own cache. That cache
+is filled by **`doctor`**, like the probe's: the pinned mpiP source is
+downloaded once (checksum-verified; once fetched, it rebuilds offline
+forever) and compiled with the site's own `mpicc` and Fortran wrapper
+(`mpifort`, then `mpif77` - mpiP's build requires one) into the
+stack's cache entry. No wrapper, no network on a never-fetched login
+node, or a failed build: `mpi-analysis-unavailable` says which, with
+the modules/spack remedy - and the run always proceeds. An application
+that never reaches `MPI_Finalize` leaves no report, and the Run says
+that too (`mpi-report-missing`).
 
 ## What the analysis says
 

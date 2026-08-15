@@ -165,7 +165,7 @@ class TestDoctor:
 def cached_binary(tmp_path, monkeypatch, mpi_stack):
     """A probe binary already in the XDG cache, as doctor leaves it."""
     monkeypatch.setenv("XDG_CACHE_HOME", str(tmp_path))
-    entry = probe.cache_directory() / probe._key(mpi_stack)
+    entry = probe.cache_directory() / probe.stack_key(mpi_stack)
     entry.mkdir(parents=True)
     binary = entry / f"probe-v{probe.PROBE_VERSION}"
     binary.write_text("binary")
@@ -231,7 +231,7 @@ class TestNetworkCeilings:
 class TestBuilt:
     def test_only_the_current_probe_version_counts(self, tmp_path):
         mpi_stack = probe.MpiStack("Open MPI", "5.0.7", "mpicc")
-        entry = tmp_path / probe._key(mpi_stack)
+        entry = tmp_path / probe.stack_key(mpi_stack)
         entry.mkdir(parents=True)
         (entry / "probe-v0").write_text("stale")
         assert probe.built(mpi_stack, tmp_path) is None

@@ -236,9 +236,9 @@ def _report_asset() -> CheckResult:
     )
 
 
-def _mpi_analysis(config: Config) -> CheckResult:
+def _mpi_analysis(executor: Executor, config: Config) -> CheckResult:
     """Presence of mpiP for the MPI counting layer of this launch."""
-    library = mpip.locate(config)
+    library = mpip.locate(config, mpi_stack=probe.stack(executor, config))
     if library is not None:
         return CheckResult(name="mpiP", status="ok", detail=library)
     degradation = Degradation(
@@ -297,6 +297,58 @@ def _network_probe(executor: Executor, config: Config) -> CheckResult:
     )
 
 
+def _mpip_build(executor: Executor, config: Config) -> CheckResult:
+    """Locate mpiP or build the pinned source for this MPI stack.
+
+    Building belongs here, like the probe's: doctor runs where the
+    compilers are, the download is checksummed against the pin, and the
+    library lands in the stack's cache entry for every later run.
+    """
+    mpi_stack = probe.stack(executor, config)
+    library = mpip.locate(config, mpi_stack=mpi_stack) if mpi_stack else None
+    if library is not None:
+        return CheckResult(name="mpiP-build", status="ok", detail=library)
+    remedy = (
+        "install mpiP through your site's modules or spack and set "
+        "tools.mpip in nunatak.toml"
+    )
+    if mpi_stack is None:
+        degradation = Degradation(
+            name="mpi-analysis-unavailable",
+            message="no usable mpicc: mpiP cannot be located or built",
+            remedy=remedy,
+        )
+    else:
+        fortran = mpip.fortran_wrapper(executor, config)
+        if fortran is None:
+            degradation = Degradation(
+                name="mpi-analysis-unavailable",
+                message="mpiP needs a Fortran MPI wrapper (mpifort) to build,"
+                " and none answers",
+                remedy=remedy,
+            )
+        else:
+            built = mpip.build(executor, mpi_stack, fortran)
+            if built is not None:
+                return CheckResult(
+                    name="mpiP-build",
+                    status="ok",
+                    detail=f"built for {mpi_stack.label}: {built}",
+                )
+            degradation = Degradation(
+                name="mpi-analysis-unavailable",
+                message="the pinned mpiP source could not be fetched or built",
+                remedy="offline login node? " + remedy,
+            )
+    return CheckResult(
+        name="mpiP-build",
+        status="missing",
+        detail=degradation.message,
+        remedy=degradation.remedy,
+        degradation=degradation,
+    )
+
+
 def light_checks(
     executor: Executor,
     config: Config,
@@ -316,7 +368,7 @@ def light_checks(
     if command:
         checks.append(_target(command))
         if launch.split(command).mpi:
-            checks.append(_mpi_analysis(config))
+            checks.append(_mpi_analysis(executor, config))
             if build_probe:
                 checks.append(_network_probe(executor, config))
         ceiling = _attribution_ceiling(executor, command, symbolizer)
@@ -339,10 +391,12 @@ def execute(args, command: list[str], console: Console) -> int:
     config, _ = load(Path.cwd())
     executor = SubprocessExecutor()
     checks = light_checks(executor, config, command)
-    # The probe build belongs to the doctor verb, not to the light
-    # checks a run opens with: doctor runs where the compilers are, and
-    # a cached probe makes the next MPI run's network analysis possible.
+    # The probe and mpiP builds belong to the doctor verb, not to the
+    # light checks a run opens with: doctor runs where the compilers
+    # are, and the cached artifacts make the next MPI run's network
+    # analysis possible.
     checks.append(_network_probe(executor, config))
+    checks.append(_mpip_build(executor, config))
 
     if args.json:
         report = {
