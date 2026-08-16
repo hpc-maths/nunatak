@@ -18,13 +18,13 @@ from pathlib import Path
 
 import pytest
 
-from nunatak import probe
+from nunatak import machine, probe
 from nunatak.cli import principal
-from nunatak.collect import mpip
+from nunatak.collect import mpip, stacks
 from nunatak.collect.execution import SubprocessExecutor
 from nunatak.config import Config
 from nunatak.pivot import Quality, locus_level, read_run
-from tests.support import ROOFLINE_WORKLOAD_C
+from tests.support import ROOFLINE_WORKLOAD_C, WORKLOAD_C
 
 pytestmark = pytest.mark.hardware
 
@@ -387,3 +387,46 @@ class TestRealMpipBuild:
         ]
         assert {m.locus.rank for m in mpi_times} == {0, 1}
         assert all(m.value and m.value > 0 for m in mpi_times)
+
+
+class TestRealStackLadder:
+    def _compile(self, tmp_path, flag):
+        """The small workload compiled here and now, with `flag` deciding
+        the frame pointers."""
+        compiler = shutil.which("gcc") or shutil.which("cc")
+        if compiler is None:
+            pytest.fail("tier 2 needs a C compiler on the runner")
+        source = tmp_path / "workload.c"
+        source.write_text(WORKLOAD_C)
+        binary = tmp_path / f"workload{flag}"
+        built = subprocess.run(
+            [compiler, "-O2", "-g", flag, str(source), "-o", str(binary)],
+            capture_output=True,
+            text=True,
+        )
+        assert built.returncode == 0, built.stderr
+        return binary
+
+    def test_frame_pointers_settle_the_fp_rung_against_real_prologues(
+        self, tmp_path
+    ):
+        # This machine is AMD: the lbr rung cannot apply, so the decision
+        # exercises the whole probing chain - ldd, the real distribution
+        # libc, GNU objdump - against prologues that exist right now.
+        binary = self._compile(tmp_path, "-fno-omit-frame-pointer")
+        executor = SubprocessExecutor()
+        model = machine.cpu_model(executor)
+        assert model is not None and "Intel" not in model
+        decision = stacks.decide(executor, Config(), str(binary), model)
+        assert decision.mode == "fp", decision.detail
+        assert decision.modules[0].rate == 1.0
+
+    def test_an_fp_less_binary_loses_the_ladder_and_is_named(self, tmp_path):
+        binary = self._compile(tmp_path, "-fomit-frame-pointer")
+        executor = SubprocessExecutor()
+        decision = stacks.decide(
+            executor, Config(), str(binary), machine.cpu_model(executor)
+        )
+        assert decision.mode is None, decision.detail
+        assert str(binary) in decision.detail
+        assert "-fno-omit-frame-pointer" in decision.remedy

@@ -39,6 +39,13 @@ def test_the_rank_threshold_is_tunable_never_silently(tmp_path):
     assert effective["sampling.rank_threshold"] == 16
 
 
+def test_the_fp_threshold_is_tunable_never_silently(tmp_path):
+    (tmp_path / "nunatak.toml").write_text("[stacks]\nfp_threshold = 0.9\n")
+    config, effective = load(tmp_path)
+    assert config.stacks_fp_threshold == 0.9
+    assert effective["stacks.fp_threshold"] == 0.9
+
+
 def test_project_file_is_found_upward(tmp_path):
     (tmp_path / "nunatak.toml").write_text('name = "root"\n')
     nested = tmp_path / "a" / "b"

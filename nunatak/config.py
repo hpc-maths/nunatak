@@ -34,6 +34,7 @@ class Config:
     coverage_threshold: float = 0.8
     sampling_frequency: int = 997
     sampling_rank_threshold: int = 64
+    stacks_fp_threshold: float = 0.75
 
 
 def find_project_config(cwd: Path) -> Path | None:
@@ -85,6 +86,10 @@ def load(
         config.sampling_rank_threshold = sampling.get(
             "rank_threshold", config.sampling_rank_threshold
         )
+        stacks = data.get("stacks", {})
+        config.stacks_fp_threshold = stacks.get(
+            "fp_threshold", config.stacks_fp_threshold
+        )
 
     if name is not None:
         config.project_name = name
@@ -94,6 +99,7 @@ def load(
         "thresholds.coverage": config.coverage_threshold,
         "sampling.frequency": config.sampling_frequency,
         "sampling.rank_threshold": config.sampling_rank_threshold,
+        "stacks.fp_threshold": config.stacks_fp_threshold,
     }
     if config.project_name is not None:
         effective["name"] = config.project_name
