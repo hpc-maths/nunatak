@@ -193,3 +193,60 @@ class TestDoctor:
         check = doctor._call_stacks(executor, Config(), [sys.executable], None)
         assert check.status == "missing"
         assert check.degradation.name == "call-stacks-unavailable"
+
+
+class TestRunSettlement:
+    """What the run samples with: _settle_stacks turns the ladder - or
+    the explicit dwarf opt-in - into a (mode, frequency, degradation)."""
+
+    def _settle(self, executor, call_graph=None, command=None, config=None):
+        from types import SimpleNamespace
+
+        from nunatak.cli.run import _settle_stacks
+        from nunatak.console import Console
+
+        return _settle_stacks(
+            SimpleNamespace(call_graph=call_graph),
+            executor,
+            config or Config(),
+            command or [sys.executable],
+            sampling=True,
+            console=Console(),
+        )
+
+    def test_dwarf_is_explicit_announced_and_slowed(self, capsys):
+        mode, frequency, degradation = self._settle(
+            ScriptedExecutor(), call_graph="dwarf"
+        )
+        assert (mode, frequency, degradation) == ("dwarf", 97, None)
+        assert "lowered" in capsys.readouterr().err
+
+    def test_the_recorded_processor_settles_lbr(self, capsys):
+        mode, frequency, degradation = self._settle(
+            ScriptedExecutor(cpu_model=INTEL)
+        )
+        assert (mode, degradation) == ("lbr", None)
+        assert frequency == Config().sampling_frequency
+
+    def test_no_rung_becomes_the_runs_degradation(self):
+        executor = ScriptedExecutor().on("objdump", exit_code=127)
+        mode, _, degradation = self._settle(executor)
+        assert mode is None
+        assert degradation.name == "call-stacks-unavailable"
+
+    def test_an_absent_binary_leaves_nothing_to_probe(self):
+        # Replayed commands do not exist on the replaying machine: the
+        # ladder is skipped whole, not degraded - the recording already
+        # said everything it had to say.
+        executor = ScriptedExecutor(cpu_model=INTEL)
+        mode, _, degradation = self._settle(
+            executor, command=["/nonexistent/solver"]
+        )
+        assert (mode, degradation) == (None, None)
+        assert executor.calls == []
+
+    def test_outside_linux_the_ladder_does_not_exist(self):
+        mode, _, degradation = self._settle(
+            ScriptedExecutor(system="Darwin", cpu_model=INTEL)
+        )
+        assert (mode, degradation) == (None, None)

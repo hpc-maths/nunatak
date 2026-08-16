@@ -30,21 +30,6 @@ from nunatak.pivot.persistence import machine_from_dict, machine_to_dict
 KERNEL_VERSION = 0
 
 
-def cpu_model(executor: Executor) -> str | None:
-    """Marketing name of the CPU, best-effort per platform."""
-    if platform.system() == "Darwin":
-        invocation = executor.run(["sysctl", "-n", "machdep.cpu.brand_string"])
-        if invocation.exit_code == 0 and invocation.stdout:
-            return invocation.stdout.strip()
-        return None
-    cpuinfo = Path("/proc/cpuinfo")
-    if cpuinfo.is_file():
-        for line in cpuinfo.read_text().splitlines():
-            if line.startswith("model name"):
-                return line.split(":", 1)[1].strip()
-    return None
-
-
 def _cgroup_directory(
     proc_self: Path = Path("/proc/self/cgroup"),
     root: Path = Path("/sys/fs/cgroup"),
@@ -127,7 +112,7 @@ def snapshot(executor: Executor) -> Machine:
         system=platform.system(),
         kernel=platform.release(),
         architecture=platform.machine(),
-        cpu_model=cpu_model(executor),
+        cpu_model=executor.cpu_model(),
         logical_cores=os.cpu_count(),
         allocation=allocation(),
     )

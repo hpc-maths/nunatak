@@ -9,9 +9,10 @@ from nunatak.collect.execution import Executor, Invocation
 class ScriptedExecutor(Executor):
     """Deterministic stand-in for the subprocess executor."""
 
-    def __init__(self, system="Linux", blocked=None):
+    def __init__(self, system="Linux", blocked=None, cpu_model=None):
         self._system = system
         self._blocked = blocked
+        self._cpu_model = cpu_model
         self.calls = []
         self._responses = collections.defaultdict(collections.deque)
 
@@ -21,6 +22,9 @@ class ScriptedExecutor(Executor):
 
     def sampling_blocked(self):
         return self._blocked
+
+    def cpu_model(self):
+        return self._cpu_model
 
     def on(self, program, stdout="", stderr="", exit_code=0):
         """Queue a canned response for the next invocation of `program`."""
@@ -149,3 +153,8 @@ LIBC_PROLOGUES = {
     0x192080: '\n/lib/x86_64-linux-gnu/libc.so.6:     file format elf64-x86-64\n\n\nDisassembly of section .text:\n\n0000000000192080 <glob@GLIBC_2.2.5>:\n  192080:\tf3 0f 1e fa          \tendbr64\n  192084:\t55                   \tpush   %rbp\n  192085:\t48 89 e5             \tmov    %rsp,%rbp\n  192088:\t41 57                \tpush   %r15\n  19208a:\t41 56                \tpush   %r14\n  19208c:\t41 55                \tpush   %r13\n  19208e:\t41 54                \tpush   %r12\n  192090:\t53                   \tpush   %rbx\n  192091:\t48 81 ec f8 04 00 00 \tsub    $0x4f8,%rsp\n  192098:\t48 89 bd 48 fb ff ff \tmov    %rdi,-0x4b8(%rbp)\n  19209f:\t48                   \trex.W\n',
     0x11f2a0: '\n/lib/x86_64-linux-gnu/libc.so.6:     file format elf64-x86-64\n\n\nDisassembly of section .text:\n\n000000000011f2a0 <wordexp@@GLIBC_2.2.5>:\n  11f2a0:\tf3 0f 1e fa          \tendbr64\n  11f2a4:\t41 57                \tpush   %r15\n  11f2a6:\t41 56                \tpush   %r14\n  11f2a8:\t49 89 f6             \tmov    %rsi,%r14\n  11f2ab:\t41 55                \tpush   %r13\n  11f2ad:\t49 89 fd             \tmov    %rdi,%r13\n  11f2b0:\t41 54                \tpush   %r12\n  11f2b2:\t55                   \tpush   %rbp\n  11f2b3:\t53                   \tpush   %rbx\n  11f2b4:\t48 81 ec 28 01 00 00 \tsub    $0x128,%rsp\n  11f2bb:\t48 8b 5e 08          \tmov    0x8(%rsi),%rbx\n  11f2bf:\t89                   \t.byte 0x89\n',
 }
+
+# Verbatim `perf script` output (perf 6.14, EPYC 7702) of a recording
+# made with `--call-graph fp` on the frame-pointer workload: bare
+# headers, indented frames innermost first, a blank line per sample.
+PERF_SCRIPT_CALLCHAIN = 'workload-fp 2676289/2676289 28629770.532575:   34482758 task-clock:u: \n\t    56998d3521b8 main+0xf8 (/tmp/nunatak-stack-ladder/workload-fp+0x11b8)\n\t    709b3502a578 __libc_start_call_main+0x78 (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a578)\n\t    709b3502a63b __libc_start_main@@GLIBC_2.34+0x8b (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a63b)\n\t    56998d352225 _start+0x25 (/tmp/nunatak-stack-ladder/workload-fp+0x1225)\n\nworkload-fp 2676289/2676289 28629770.567056:   34482758 task-clock:u: \n\t    56998d3521b8 main+0xf8 (/tmp/nunatak-stack-ladder/workload-fp+0x11b8)\n\t    709b3502a578 __libc_start_call_main+0x78 (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a578)\n\t    709b3502a63b __libc_start_main@@GLIBC_2.34+0x8b (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a63b)\n\t    56998d352225 _start+0x25 (/tmp/nunatak-stack-ladder/workload-fp+0x1225)\n\nworkload-fp 2676289/2676289 28629770.601539:   34482758 task-clock:u: \n\t    56998d3521b4 main+0xf4 (/tmp/nunatak-stack-ladder/workload-fp+0x11b4)\n\t    709b3502a578 __libc_start_call_main+0x78 (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a578)\n\t    709b3502a63b __libc_start_main@@GLIBC_2.34+0x8b (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a63b)\n\t    56998d352225 _start+0x25 (/tmp/nunatak-stack-ladder/workload-fp+0x1225)\n\nworkload-fp 2676289/2676289 28629770.636023:   34482758 task-clock:u: \n\t    56998d3521b4 main+0xf4 (/tmp/nunatak-stack-ladder/workload-fp+0x11b4)\n\t    709b3502a578 __libc_start_call_main+0x78 (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a578)\n\t    709b3502a63b __libc_start_main@@GLIBC_2.34+0x8b (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a63b)\n\t    56998d352225 _start+0x25 (/tmp/nunatak-stack-ladder/workload-fp+0x1225)\n\nworkload-fp 2676289/2676289 28629770.670504:   34482758 task-clock:u: \n\t    56998d3521b4 main+0xf4 (/tmp/nunatak-stack-ladder/workload-fp+0x11b4)\n\t    709b3502a578 __libc_start_call_main+0x78 (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a578)\n\t    709b3502a63b __libc_start_main@@GLIBC_2.34+0x8b (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a63b)\n\t    56998d352225 _start+0x25 (/tmp/nunatak-stack-ladder/workload-fp+0x1225)\n\n'

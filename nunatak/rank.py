@@ -111,6 +111,7 @@ def measure(
     frequency: int = 997,
     rank_threshold: int = 64,
     preload: str | None = None,
+    call_graph: str | None = None,
 ) -> int:
     """Run `command` in this rank, collecting around it, and return its
     exit code.
@@ -142,7 +143,8 @@ def measure(
         adapter = PerfAdapter()
         events = counter_events.sampling_events(machine.snapshot(executor))
         exit_code, degradations = adapter.collect(
-            command, rank_dir, executor, frequency, events=events, env=application
+            command, rank_dir, executor, frequency, events=events,
+            env=application, call_graph=call_graph,
         )
         if not (rank_dir / SCRIPT_OUTPUT).is_file():
             # perf record fails fast, before launching: the rank falls
@@ -206,6 +208,10 @@ def main(argv: Sequence[str] | None = None) -> int:
         "--preload", default=None,
         help="library appended to the application's LD_PRELOAD (mpiP)",
     )
+    parser.add_argument(
+        "--call-graph", default=None,
+        help="stack mode the ladder settled on the orchestrator (lbr, fp, dwarf)",
+    )
     parser.add_argument("command", nargs=argparse.REMAINDER, help="the application")
     arguments = parser.parse_args(argv)
     command = arguments.command
@@ -220,6 +226,7 @@ def main(argv: Sequence[str] | None = None) -> int:
         frequency=arguments.frequency,
         rank_threshold=arguments.rank_threshold,
         preload=arguments.preload,
+        call_graph=arguments.call_graph,
     )
 
 

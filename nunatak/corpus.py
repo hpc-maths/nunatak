@@ -39,13 +39,16 @@ def write_meta(
     command: list[str],
     collectors: list[dict],
     sampling_blocked: str | None = None,
+    cpu_model: str | None = None,
 ) -> None:
     """Describe a corpus entry: what ran, where, with which collectors.
 
-    `sampling_blocked` preserves the recording machine's verdict, so a
-    replay takes the same path the recording took: an entry captured
-    where sampling was denied must not replay as if it were allowed -
-    it would ask for collector invocations the entry never recorded.
+    `sampling_blocked` and `cpu_model` preserve the recording machine's
+    verdicts, so a replay takes the same path the recording took: an
+    entry captured where sampling was denied must not replay as if it
+    were allowed - it would ask for collector invocations the entry
+    never recorded - and a processor-keyed decision (the call-stack
+    ladder's lbr rung) must not follow the replaying machine's vendor.
     """
     meta = {
         "created": datetime.datetime.now().astimezone().isoformat(timespec="seconds"),
@@ -57,6 +60,7 @@ def write_meta(
             "architecture": platform.machine(),
         },
         "sampling_blocked": sampling_blocked,
+        "cpu_model": cpu_model,
         "collectors": collectors,
     }
     (entry / META).write_text(json.dumps(meta, indent=2) + "\n")
@@ -82,6 +86,10 @@ class RecordingExecutor(Executor):
     def sampling_blocked(self):
         """The recording machine's verdict: sampling happens on real hardware."""
         return self.inner.sampling_blocked()
+
+    def cpu_model(self):
+        """The recording machine's processor, preserved into the meta."""
+        return self.inner.cpu_model()
 
     def run(self, argv, capture=True, env=None, cwd=None):
         """Run through the wrapped executor and persist the invocation."""
@@ -140,6 +148,16 @@ class ReplayExecutor(Executor):
         corpus was captured with sampling working.
         """
         return self.meta.get("sampling_blocked")
+
+    def cpu_model(self):
+        """The recorded processor, never the replaying machine's.
+
+        The call-stack ladder keys its lbr rung on the vendor: read
+        live, one entry would take different paths on different replay
+        hosts. Entries written before the model was kept read back as
+        unknown - the honest value for a recording that never said.
+        """
+        return self.meta.get("cpu_model")
 
     def run(self, argv, capture=True, env=None, cwd=None):
         """Serve the next recording for this program instead of running it."""

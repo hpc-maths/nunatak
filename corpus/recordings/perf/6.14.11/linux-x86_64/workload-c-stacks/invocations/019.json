@@ -1,0 +1,12 @@
+{
+  "argv": [
+    "perf",
+    "script",
+    "--input",
+    "run/collect/perf.data",
+    "--fields",
+    "comm,pid,tid,time,period,event,ip,sym,symoff,dso,dsoff"
+  ],
+  "exit_code": 0,
+  "captured": true
+}

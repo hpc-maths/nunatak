@@ -113,6 +113,24 @@ in the Run's provenance:
 fp_threshold = 0.75      # share of probed prologues keeping the frame pointer
 ```
 
+Every `run` settles the same ladder before launching and announces the
+rung it will sample with (`call stacks: fp: ...`). The settled mode rides
+`perf record --call-graph`, on the single process and inside every
+sampling MPI rank alike - the decision is made once, on the orchestrating
+node, never re-probed per rank. perf validates its options before
+launching, so a mode the kernel refuses fails fast and the recording
+retries without stacks (`call-stacks-rejected`), then time-only: the
+application runs exactly once.
+
+`--call-graph dwarf` bypasses the ladder on explicit demand: it works on
+any binary, frame pointers or not, by copying stack memory at every
+sample - a cost that would break the observer-effect budget at full
+rate, so the sampling frequency is lowered to 97 Hz and the cost
+announced. There is no silent dwarf: asking is the point.
+
+Stacks recorded this way land in the Run's raw `collect/` artifacts;
+their ingestion into the pivot arrives with stack persistence.
+
 ## Exit codes
 
 The application's code is propagated in the general case. Reserved codes,

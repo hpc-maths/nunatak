@@ -1,0 +1,10 @@
+{
+  "argv": [
+    "perf",
+    "buildid-list",
+    "--input",
+    "run/collect/perf.data"
+  ],
+  "exit_code": 0,
+  "captured": true
+}

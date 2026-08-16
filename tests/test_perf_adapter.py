@@ -80,3 +80,73 @@ def test_the_configured_perf_path_is_used():
     assert version == "6.8"
     assert adapter.path == "/opt/tools/perf"
     assert executor.calls == [["/opt/tools/perf", "--version"]]
+
+
+class TestRecordingLadder:
+    """perf validates its options before launching: a rejection fails
+    fast, the adapter walks down its own ladder, and the application
+    runs exactly once - in the attempt perf accepts."""
+
+    def test_the_decided_stack_mode_rides_the_record(self, tmp_path):
+        executor = (
+            ScriptedExecutor()
+            .on("perf", exit_code=0)  # record
+            .on("perf", stdout="lines\n")  # script
+            .on("perf", stdout="")  # buildid-list
+        )
+        PerfAdapter().collect(
+            ["./solver"], tmp_path, executor, frequency=997, call_graph="fp"
+        )
+        record = executor.calls[0]
+        assert record[record.index("--call-graph") + 1] == "fp"
+
+    def test_a_rejected_stack_mode_is_dropped_and_named(self, tmp_path):
+        executor = (
+            ScriptedExecutor()
+            .on("perf", exit_code=129)  # record with --call-graph: rejected
+            .on("perf", exit_code=1)  # script: nothing to read
+            .on("perf", exit_code=0)  # record without stacks
+            .on("perf", stdout="lines\n")  # script
+            .on("perf", stdout="")  # buildid-list
+        )
+        exit_code, degradations = PerfAdapter().collect(
+            ["./solver"], tmp_path, executor, frequency=997, call_graph="lbr"
+        )
+        assert exit_code == 0
+        assert [d.name for d in degradations] == ["call-stacks-rejected"]
+        retried = executor.calls[2]
+        assert "--call-graph" not in retried
+        assert (tmp_path / "perf-script.txt").read_text() == "lines\n"
+
+    def test_stacks_and_events_can_fall_in_sequence(self, tmp_path):
+        executor = ScriptedExecutor()
+        for _ in range(2):
+            executor.on("perf", exit_code=129).on("perf", exit_code=1)
+        executor.on("perf", exit_code=0).on("perf", stdout="lines\n")
+        executor.on("perf", stdout="")  # buildid-list
+        event = type("Event", (), {"selector": "cycles"})()
+        exit_code, degradations = PerfAdapter().collect(
+            ["./solver"], tmp_path, executor, frequency=997,
+            events=(event,), call_graph="fp",
+        )
+        assert exit_code == 0
+        assert [d.name for d in degradations] == [
+            "call-stacks-rejected",
+            "counter-events-rejected",
+        ]
+        bare = executor.calls[4]
+        assert "--call-graph" not in bare and "-e" not in bare
+
+    def test_an_application_failure_never_trips_the_ladder(self, tmp_path):
+        executor = (
+            ScriptedExecutor()
+            .on("perf", exit_code=3)  # record: the application exited with 3
+            .on("perf", stdout="lines\n")  # script reads the data fine
+            .on("perf", stdout="")  # buildid-list
+        )
+        exit_code, degradations = PerfAdapter().collect(
+            ["./solver"], tmp_path, executor, frequency=997, call_graph="fp"
+        )
+        assert exit_code == 3
+        assert degradations == []
+        assert len(executor.calls) == 3

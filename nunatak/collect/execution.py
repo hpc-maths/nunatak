@@ -46,6 +46,16 @@ class Executor:
         and a replay reports the verdict the recording preserved."""
         return None
 
+    def cpu_model(self) -> str | None:
+        """Marketing name of the CPU the tools run on, None when unknown.
+
+        An executor verdict, like `sampling_blocked`: decisions keyed on
+        the processor - the call-stack ladder's lbr rung - must replay
+        identically on every machine, so the value crosses the execution
+        boundary instead of being read live at decision time.
+        """
+        return None
+
     def run(
         self,
         argv: list[str],
@@ -82,6 +92,22 @@ class SubprocessExecutor(Executor):
             return None
         if level >= 3:
             return f"kernel.perf_event_paranoid={level} forbids unprivileged profiling"
+        return None
+
+    def cpu_model(self):
+        """Read the CPU's marketing name, best-effort per platform."""
+        if platform.system() == "Darwin":
+            invocation = self.run(["sysctl", "-n", "machdep.cpu.brand_string"])
+            if invocation.exit_code == 0 and invocation.stdout:
+                return invocation.stdout.strip()
+            return None
+        cpuinfo = Path("/proc/cpuinfo")
+        try:
+            for line in cpuinfo.read_text().splitlines():
+                if line.startswith("model name"):
+                    return line.split(":", 1)[1].strip()
+        except OSError:
+            return None
         return None
 
     def run(self, argv, capture=True, env=None, cwd=None):

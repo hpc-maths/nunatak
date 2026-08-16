@@ -1,0 +1,2232 @@
+workload 2676554/2676554 28629996.983573:    1003009                                            task-clock:u: 
+	    5af33826f165 main+0xa5 (/tmp/nunatak-capture-stacks/workload+0x1165)
+	    719c94a2a578 __libc_start_call_main+0x78 (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a578)
+	    719c94a2a63b __libc_start_main@@GLIBC_2.34+0x8b (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a63b)
+	    5af33826f225 _start+0x25 (/tmp/nunatak-capture-stacks/workload+0x1225)
+
+workload 2676554/2676554 28629996.985577:    1003009                                            task-clock:u: 
+	    5af33826f1b8 main+0xf8 (/tmp/nunatak-capture-stacks/workload+0x11b8)
+	    719c94a2a578 __libc_start_call_main+0x78 (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a578)
+	    719c94a2a63b __libc_start_main@@GLIBC_2.34+0x8b (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a63b)
+	    5af33826f225 _start+0x25 (/tmp/nunatak-capture-stacks/workload+0x1225)
+
+workload 2676554/2676554 28629996.987083:    4999999                 fp_ret_sse_avx_ops.all/period=4999999/u: 
+	    5af33826f1b4 main+0xf4 (/tmp/nunatak-capture-stacks/workload+0x11b4)
+	    719c94a2a578 __libc_start_call_main+0x78 (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a578)
+	    719c94a2a63b __libc_start_main@@GLIBC_2.34+0x8b (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a63b)
+	    5af33826f225 _start+0x25 (/tmp/nunatak-capture-stacks/workload+0x1225)
+
+workload 2676554/2676554 28629996.987097:    1003009                                            task-clock:u: 
+	    5af33826f1b4 main+0xf4 (/tmp/nunatak-capture-stacks/workload+0x11b4)
+	    719c94a2a578 __libc_start_call_main+0x78 (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a578)
+	    719c94a2a63b __libc_start_main@@GLIBC_2.34+0x8b (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a63b)
+	    5af33826f225 _start+0x25 (/tmp/nunatak-capture-stacks/workload+0x1225)
+
+workload 2676554/2676554 28629996.987583:    1003009                                            task-clock:u: 
+	    5af33826f1b8 main+0xf8 (/tmp/nunatak-capture-stacks/workload+0x11b8)
+	    719c94a2a578 __libc_start_call_main+0x78 (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a578)
+	    719c94a2a63b __libc_start_main@@GLIBC_2.34+0x8b (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a63b)
+	    5af33826f225 _start+0x25 (/tmp/nunatak-capture-stacks/workload+0x1225)
+
+workload 2676554/2676554 28629996.988586:    1003009                                            task-clock:u: 
+	    5af33826f1b4 main+0xf4 (/tmp/nunatak-capture-stacks/workload+0x11b4)
+	    719c94a2a578 __libc_start_call_main+0x78 (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a578)
+	    719c94a2a63b __libc_start_main@@GLIBC_2.34+0x8b (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a63b)
+	    5af33826f225 _start+0x25 (/tmp/nunatak-capture-stacks/workload+0x1225)
+
+workload 2676554/2676554 28629996.989631:    4999999                 fp_ret_sse_avx_ops.all/period=4999999/u: 
+	    5af33826f1b8 main+0xf8 (/tmp/nunatak-capture-stacks/workload+0x11b8)
+	    719c94a2a578 __libc_start_call_main+0x78 (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a578)
+	    719c94a2a63b __libc_start_main@@GLIBC_2.34+0x8b (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a63b)
+	    5af33826f225 _start+0x25 (/tmp/nunatak-capture-stacks/workload+0x1225)
+
+workload 2676554/2676554 28629996.989645:    1003009                                            task-clock:u: 
+	    5af33826f1b8 main+0xf8 (/tmp/nunatak-capture-stacks/workload+0x11b8)
+	    719c94a2a578 __libc_start_call_main+0x78 (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a578)
+	    719c94a2a63b __libc_start_main@@GLIBC_2.34+0x8b (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a63b)
+	    5af33826f225 _start+0x25 (/tmp/nunatak-capture-stacks/workload+0x1225)
+
+workload 2676554/2676554 28629996.990592:    1003009                                            task-clock:u: 
+	    5af33826f1b8 main+0xf8 (/tmp/nunatak-capture-stacks/workload+0x11b8)
+	    719c94a2a578 __libc_start_call_main+0x78 (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a578)
+	    719c94a2a63b __libc_start_main@@GLIBC_2.34+0x8b (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a63b)
+	    5af33826f225 _start+0x25 (/tmp/nunatak-capture-stacks/workload+0x1225)
+
+workload 2676554/2676554 28629996.992200:    4999999                 fp_ret_sse_avx_ops.all/period=4999999/u: 
+	    5af33826f1b4 main+0xf4 (/tmp/nunatak-capture-stacks/workload+0x11b4)
+	    719c94a2a578 __libc_start_call_main+0x78 (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a578)
+	    719c94a2a63b __libc_start_main@@GLIBC_2.34+0x8b (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a63b)
+	    5af33826f225 _start+0x25 (/tmp/nunatak-capture-stacks/workload+0x1225)
+
+workload 2676554/2676554 28629996.992209:    1003009                                            task-clock:u: 
+	    5af33826f1b4 main+0xf4 (/tmp/nunatak-capture-stacks/workload+0x11b4)
+	    719c94a2a578 __libc_start_call_main+0x78 (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a578)
+	    719c94a2a63b __libc_start_main@@GLIBC_2.34+0x8b (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a63b)
+	    5af33826f225 _start+0x25 (/tmp/nunatak-capture-stacks/workload+0x1225)
+
+workload 2676554/2676554 28629996.992598:    1003009                                            task-clock:u: 
+	    5af33826f1b8 main+0xf8 (/tmp/nunatak-capture-stacks/workload+0x11b8)
+	    719c94a2a578 __libc_start_call_main+0x78 (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a578)
+	    719c94a2a63b __libc_start_main@@GLIBC_2.34+0x8b (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a63b)
+	    5af33826f225 _start+0x25 (/tmp/nunatak-capture-stacks/workload+0x1225)
+
+workload 2676554/2676554 28629996.993601:    1003009                                            task-clock:u: 
+	    5af33826f1b8 main+0xf8 (/tmp/nunatak-capture-stacks/workload+0x11b8)
+	    719c94a2a578 __libc_start_call_main+0x78 (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a578)
+	    719c94a2a63b __libc_start_main@@GLIBC_2.34+0x8b (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a63b)
+	    5af33826f225 _start+0x25 (/tmp/nunatak-capture-stacks/workload+0x1225)
+
+workload 2676554/2676554 28629996.994746:    4999999                 fp_ret_sse_avx_ops.all/period=4999999/u: 
+	    5af33826f1b4 main+0xf4 (/tmp/nunatak-capture-stacks/workload+0x11b4)
+	    719c94a2a578 __libc_start_call_main+0x78 (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a578)
+	    719c94a2a63b __libc_start_main@@GLIBC_2.34+0x8b (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a63b)
+	    5af33826f225 _start+0x25 (/tmp/nunatak-capture-stacks/workload+0x1225)
+
+workload 2676554/2676554 28629996.994758:    1003009                                            task-clock:u: 
+	    5af33826f1b4 main+0xf4 (/tmp/nunatak-capture-stacks/workload+0x11b4)
+	    719c94a2a578 __libc_start_call_main+0x78 (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a578)
+	    719c94a2a63b __libc_start_main@@GLIBC_2.34+0x8b (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a63b)
+	    5af33826f225 _start+0x25 (/tmp/nunatak-capture-stacks/workload+0x1225)
+
+workload 2676554/2676554 28629996.995607:    1003009                                            task-clock:u: 
+	    5af33826f1b8 main+0xf8 (/tmp/nunatak-capture-stacks/workload+0x11b8)
+	    719c94a2a578 __libc_start_call_main+0x78 (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a578)
+	    719c94a2a63b __libc_start_main@@GLIBC_2.34+0x8b (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a63b)
+	    5af33826f225 _start+0x25 (/tmp/nunatak-capture-stacks/workload+0x1225)
+
+workload 2676554/2676554 28629996.996610:    1003009                                            task-clock:u: 
+	    5af33826f1b8 main+0xf8 (/tmp/nunatak-capture-stacks/workload+0x11b8)
+	    719c94a2a578 __libc_start_call_main+0x78 (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a578)
+	    719c94a2a63b __libc_start_main@@GLIBC_2.34+0x8b (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a63b)
+	    5af33826f225 _start+0x25 (/tmp/nunatak-capture-stacks/workload+0x1225)
+
+workload 2676554/2676554 28629996.997309:    4999999                 fp_ret_sse_avx_ops.all/period=4999999/u: 
+	    5af33826f1b4 main+0xf4 (/tmp/nunatak-capture-stacks/workload+0x11b4)
+	    719c94a2a578 __libc_start_call_main+0x78 (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a578)
+	    719c94a2a63b __libc_start_main@@GLIBC_2.34+0x8b (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a63b)
+	    5af33826f225 _start+0x25 (/tmp/nunatak-capture-stacks/workload+0x1225)
+
+workload 2676554/2676554 28629996.997613:    1003009                                            task-clock:u: 
+	    5af33826f1b4 main+0xf4 (/tmp/nunatak-capture-stacks/workload+0x11b4)
+	    719c94a2a578 __libc_start_call_main+0x78 (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a578)
+	    719c94a2a63b __libc_start_main@@GLIBC_2.34+0x8b (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a63b)
+	    5af33826f225 _start+0x25 (/tmp/nunatak-capture-stacks/workload+0x1225)
+
+workload 2676554/2676554 28629996.998616:    1003009                                            task-clock:u: 
+	    5af33826f1b8 main+0xf8 (/tmp/nunatak-capture-stacks/workload+0x11b8)
+	    719c94a2a578 __libc_start_call_main+0x78 (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a578)
+	    719c94a2a63b __libc_start_main@@GLIBC_2.34+0x8b (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a63b)
+	    5af33826f225 _start+0x25 (/tmp/nunatak-capture-stacks/workload+0x1225)
+
+workload 2676554/2676554 28629996.999854:    4999999                 fp_ret_sse_avx_ops.all/period=4999999/u: 
+	    5af33826f1b4 main+0xf4 (/tmp/nunatak-capture-stacks/workload+0x11b4)
+	    719c94a2a578 __libc_start_call_main+0x78 (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a578)
+	    719c94a2a63b __libc_start_main@@GLIBC_2.34+0x8b (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a63b)
+	    5af33826f225 _start+0x25 (/tmp/nunatak-capture-stacks/workload+0x1225)
+
+workload 2676554/2676554 28629996.999866:    1003009                                            task-clock:u: 
+	    5af33826f1b4 main+0xf4 (/tmp/nunatak-capture-stacks/workload+0x11b4)
+	    719c94a2a578 __libc_start_call_main+0x78 (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a578)
+	    719c94a2a63b __libc_start_main@@GLIBC_2.34+0x8b (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a63b)
+	    5af33826f225 _start+0x25 (/tmp/nunatak-capture-stacks/workload+0x1225)
+
+workload 2676554/2676554 28629997.000622:    1003009                                            task-clock:u: 
+	    5af33826f1b4 main+0xf4 (/tmp/nunatak-capture-stacks/workload+0x11b4)
+	    719c94a2a578 __libc_start_call_main+0x78 (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a578)
+	    719c94a2a63b __libc_start_main@@GLIBC_2.34+0x8b (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a63b)
+	    5af33826f225 _start+0x25 (/tmp/nunatak-capture-stacks/workload+0x1225)
+
+workload 2676554/2676554 28629997.001625:    1003009                                            task-clock:u: 
+	    5af33826f1b8 main+0xf8 (/tmp/nunatak-capture-stacks/workload+0x11b8)
+	    719c94a2a578 __libc_start_call_main+0x78 (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a578)
+	    719c94a2a63b __libc_start_main@@GLIBC_2.34+0x8b (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a63b)
+	    5af33826f225 _start+0x25 (/tmp/nunatak-capture-stacks/workload+0x1225)
+
+workload 2676554/2676554 28629997.002408:    4999999                 fp_ret_sse_avx_ops.all/period=4999999/u: 
+	    5af33826f1b4 main+0xf4 (/tmp/nunatak-capture-stacks/workload+0x11b4)
+	    719c94a2a578 __libc_start_call_main+0x78 (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a578)
+	    719c94a2a63b __libc_start_main@@GLIBC_2.34+0x8b (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a63b)
+	    5af33826f225 _start+0x25 (/tmp/nunatak-capture-stacks/workload+0x1225)
+
+workload 2676554/2676554 28629997.002628:    1003009                                            task-clock:u: 
+	    5af33826f1b8 main+0xf8 (/tmp/nunatak-capture-stacks/workload+0x11b8)
+	    719c94a2a578 __libc_start_call_main+0x78 (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a578)
+	    719c94a2a63b __libc_start_main@@GLIBC_2.34+0x8b (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a63b)
+	    5af33826f225 _start+0x25 (/tmp/nunatak-capture-stacks/workload+0x1225)
+
+workload 2676554/2676554 28629997.003631:    1003009                                            task-clock:u: 
+	    5af33826f1b8 main+0xf8 (/tmp/nunatak-capture-stacks/workload+0x11b8)
+	    719c94a2a578 __libc_start_call_main+0x78 (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a578)
+	    719c94a2a63b __libc_start_main@@GLIBC_2.34+0x8b (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a63b)
+	    5af33826f225 _start+0x25 (/tmp/nunatak-capture-stacks/workload+0x1225)
+
+workload 2676554/2676554 28629997.004939:    4999999                 fp_ret_sse_avx_ops.all/period=4999999/u: 
+	    5af33826f1b8 main+0xf8 (/tmp/nunatak-capture-stacks/workload+0x11b8)
+	    719c94a2a578 __libc_start_call_main+0x78 (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a578)
+	    719c94a2a63b __libc_start_main@@GLIBC_2.34+0x8b (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a63b)
+	    5af33826f225 _start+0x25 (/tmp/nunatak-capture-stacks/workload+0x1225)
+
+workload 2676554/2676554 28629997.004952:    1003009                                            task-clock:u: 
+	    5af33826f1b8 main+0xf8 (/tmp/nunatak-capture-stacks/workload+0x11b8)
+	    719c94a2a578 __libc_start_call_main+0x78 (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a578)
+	    719c94a2a63b __libc_start_main@@GLIBC_2.34+0x8b (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a63b)
+	    5af33826f225 _start+0x25 (/tmp/nunatak-capture-stacks/workload+0x1225)
+
+workload 2676554/2676554 28629997.005637:    1003009                                            task-clock:u: 
+	    5af33826f1b4 main+0xf4 (/tmp/nunatak-capture-stacks/workload+0x11b4)
+	    719c94a2a578 __libc_start_call_main+0x78 (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a578)
+	    719c94a2a63b __libc_start_main@@GLIBC_2.34+0x8b (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a63b)
+	    5af33826f225 _start+0x25 (/tmp/nunatak-capture-stacks/workload+0x1225)
+
+workload 2676554/2676554 28629997.006640:    1003009                                            task-clock:u: 
+	    5af33826f1b4 main+0xf4 (/tmp/nunatak-capture-stacks/workload+0x11b4)
+	    719c94a2a578 __libc_start_call_main+0x78 (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a578)
+	    719c94a2a63b __libc_start_main@@GLIBC_2.34+0x8b (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a63b)
+	    5af33826f225 _start+0x25 (/tmp/nunatak-capture-stacks/workload+0x1225)
+
+workload 2676554/2676554 28629997.007478:    4999999                 fp_ret_sse_avx_ops.all/period=4999999/u: 
+	    5af33826f1b8 main+0xf8 (/tmp/nunatak-capture-stacks/workload+0x11b8)
+	    719c94a2a578 __libc_start_call_main+0x78 (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a578)
+	    719c94a2a63b __libc_start_main@@GLIBC_2.34+0x8b (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a63b)
+	    5af33826f225 _start+0x25 (/tmp/nunatak-capture-stacks/workload+0x1225)
+
+workload 2676554/2676554 28629997.007643:    1003009                                            task-clock:u: 
+	    5af33826f1b4 main+0xf4 (/tmp/nunatak-capture-stacks/workload+0x11b4)
+	    719c94a2a578 __libc_start_call_main+0x78 (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a578)
+	    719c94a2a63b __libc_start_main@@GLIBC_2.34+0x8b (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a63b)
+	    5af33826f225 _start+0x25 (/tmp/nunatak-capture-stacks/workload+0x1225)
+
+workload 2676554/2676554 28629997.008646:    1003009                                            task-clock:u: 
+	    5af33826f1b8 main+0xf8 (/tmp/nunatak-capture-stacks/workload+0x11b8)
+	    719c94a2a578 __libc_start_call_main+0x78 (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a578)
+	    719c94a2a63b __libc_start_main@@GLIBC_2.34+0x8b (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a63b)
+	    5af33826f225 _start+0x25 (/tmp/nunatak-capture-stacks/workload+0x1225)
+
+workload 2676554/2676554 28629997.010024:    4999999                 fp_ret_sse_avx_ops.all/period=4999999/u: 
+	    5af33826f1b4 main+0xf4 (/tmp/nunatak-capture-stacks/workload+0x11b4)
+	    719c94a2a578 __libc_start_call_main+0x78 (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a578)
+	    719c94a2a63b __libc_start_main@@GLIBC_2.34+0x8b (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a63b)
+	    5af33826f225 _start+0x25 (/tmp/nunatak-capture-stacks/workload+0x1225)
+
+workload 2676554/2676554 28629997.010036:    1003009                                            task-clock:u: 
+	    5af33826f1b4 main+0xf4 (/tmp/nunatak-capture-stacks/workload+0x11b4)
+	    719c94a2a578 __libc_start_call_main+0x78 (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a578)
+	    719c94a2a63b __libc_start_main@@GLIBC_2.34+0x8b (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a63b)
+	    5af33826f225 _start+0x25 (/tmp/nunatak-capture-stacks/workload+0x1225)
+
+workload 2676554/2676554 28629997.010652:    1003009                                            task-clock:u: 
+	    5af33826f1b4 main+0xf4 (/tmp/nunatak-capture-stacks/workload+0x11b4)
+	    719c94a2a578 __libc_start_call_main+0x78 (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a578)
+	    719c94a2a63b __libc_start_main@@GLIBC_2.34+0x8b (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a63b)
+	    5af33826f225 _start+0x25 (/tmp/nunatak-capture-stacks/workload+0x1225)
+
+workload 2676554/2676554 28629997.011655:    1003009                                            task-clock:u: 
+	    5af33826f1b8 main+0xf8 (/tmp/nunatak-capture-stacks/workload+0x11b8)
+	    719c94a2a578 __libc_start_call_main+0x78 (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a578)
+	    719c94a2a63b __libc_start_main@@GLIBC_2.34+0x8b (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a63b)
+	    5af33826f225 _start+0x25 (/tmp/nunatak-capture-stacks/workload+0x1225)
+
+workload 2676554/2676554 28629997.012578:    4999999                 fp_ret_sse_avx_ops.all/period=4999999/u: 
+	    5af33826f1b8 main+0xf8 (/tmp/nunatak-capture-stacks/workload+0x11b8)
+	    719c94a2a578 __libc_start_call_main+0x78 (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a578)
+	    719c94a2a63b __libc_start_main@@GLIBC_2.34+0x8b (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a63b)
+	    5af33826f225 _start+0x25 (/tmp/nunatak-capture-stacks/workload+0x1225)
+
+workload 2676554/2676554 28629997.012657:    1003009                                            task-clock:u: 
+	    5af33826f1b4 main+0xf4 (/tmp/nunatak-capture-stacks/workload+0x11b4)
+	    719c94a2a578 __libc_start_call_main+0x78 (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a578)
+	    719c94a2a63b __libc_start_main@@GLIBC_2.34+0x8b (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a63b)
+	    5af33826f225 _start+0x25 (/tmp/nunatak-capture-stacks/workload+0x1225)
+
+workload 2676554/2676554 28629997.013661:    1003009                                            task-clock:u: 
+	    5af33826f1b8 main+0xf8 (/tmp/nunatak-capture-stacks/workload+0x11b8)
+	    719c94a2a578 __libc_start_call_main+0x78 (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a578)
+	    719c94a2a63b __libc_start_main@@GLIBC_2.34+0x8b (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a63b)
+	    5af33826f225 _start+0x25 (/tmp/nunatak-capture-stacks/workload+0x1225)
+
+workload 2676554/2676554 28629997.015133:    4999999                 fp_ret_sse_avx_ops.all/period=4999999/u: 
+	    5af33826f1b8 main+0xf8 (/tmp/nunatak-capture-stacks/workload+0x11b8)
+	    719c94a2a578 __libc_start_call_main+0x78 (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a578)
+	    719c94a2a63b __libc_start_main@@GLIBC_2.34+0x8b (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a63b)
+	    5af33826f225 _start+0x25 (/tmp/nunatak-capture-stacks/workload+0x1225)
+
+workload 2676554/2676554 28629997.015142:    1003009                                            task-clock:u: 
+	    5af33826f1b8 main+0xf8 (/tmp/nunatak-capture-stacks/workload+0x11b8)
+	    719c94a2a578 __libc_start_call_main+0x78 (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a578)
+	    719c94a2a63b __libc_start_main@@GLIBC_2.34+0x8b (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a63b)
+	    5af33826f225 _start+0x25 (/tmp/nunatak-capture-stacks/workload+0x1225)
+
+workload 2676554/2676554 28629997.015667:    1003009                                            task-clock:u: 
+	    5af33826f1b4 main+0xf4 (/tmp/nunatak-capture-stacks/workload+0x11b4)
+	    719c94a2a578 __libc_start_call_main+0x78 (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a578)
+	    719c94a2a63b __libc_start_main@@GLIBC_2.34+0x8b (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a63b)
+	    5af33826f225 _start+0x25 (/tmp/nunatak-capture-stacks/workload+0x1225)
+
+workload 2676554/2676554 28629997.016670:    1003009                                            task-clock:u: 
+	    5af33826f1b4 main+0xf4 (/tmp/nunatak-capture-stacks/workload+0x11b4)
+	    719c94a2a578 __libc_start_call_main+0x78 (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a578)
+	    719c94a2a63b __libc_start_main@@GLIBC_2.34+0x8b (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a63b)
+	    5af33826f225 _start+0x25 (/tmp/nunatak-capture-stacks/workload+0x1225)
+
+workload 2676554/2676554 28629997.017672:    4999999                 fp_ret_sse_avx_ops.all/period=4999999/u: 
+	    5af33826f1b8 main+0xf8 (/tmp/nunatak-capture-stacks/workload+0x11b8)
+	    719c94a2a578 __libc_start_call_main+0x78 (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a578)
+	    719c94a2a63b __libc_start_main@@GLIBC_2.34+0x8b (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a63b)
+	    5af33826f225 _start+0x25 (/tmp/nunatak-capture-stacks/workload+0x1225)
+
+workload 2676554/2676554 28629997.017684:    1003009                                            task-clock:u: 
+	    5af33826f1b8 main+0xf8 (/tmp/nunatak-capture-stacks/workload+0x11b8)
+	    719c94a2a578 __libc_start_call_main+0x78 (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a578)
+	    719c94a2a63b __libc_start_main@@GLIBC_2.34+0x8b (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a63b)
+	    5af33826f225 _start+0x25 (/tmp/nunatak-capture-stacks/workload+0x1225)
+
+workload 2676554/2676554 28629997.018676:    1003009                                            task-clock:u: 
+	    5af33826f1b4 main+0xf4 (/tmp/nunatak-capture-stacks/workload+0x11b4)
+	    719c94a2a578 __libc_start_call_main+0x78 (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a578)
+	    719c94a2a63b __libc_start_main@@GLIBC_2.34+0x8b (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a63b)
+	    5af33826f225 _start+0x25 (/tmp/nunatak-capture-stacks/workload+0x1225)
+
+workload 2676554/2676554 28629997.020206:    4999999                 fp_ret_sse_avx_ops.all/period=4999999/u: 
+	    5af33826f1b8 main+0xf8 (/tmp/nunatak-capture-stacks/workload+0x11b8)
+	    719c94a2a578 __libc_start_call_main+0x78 (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a578)
+	    719c94a2a63b __libc_start_main@@GLIBC_2.34+0x8b (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a63b)
+	    5af33826f225 _start+0x25 (/tmp/nunatak-capture-stacks/workload+0x1225)
+
+workload 2676554/2676554 28629997.020215:    1003009                                            task-clock:u: 
+	    5af33826f1b8 main+0xf8 (/tmp/nunatak-capture-stacks/workload+0x11b8)
+	    719c94a2a578 __libc_start_call_main+0x78 (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a578)
+	    719c94a2a63b __libc_start_main@@GLIBC_2.34+0x8b (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a63b)
+	    5af33826f225 _start+0x25 (/tmp/nunatak-capture-stacks/workload+0x1225)
+
+workload 2676554/2676554 28629997.020682:    1003009                                            task-clock:u: 
+	    5af33826f1b4 main+0xf4 (/tmp/nunatak-capture-stacks/workload+0x11b4)
+	    719c94a2a578 __libc_start_call_main+0x78 (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a578)
+	    719c94a2a63b __libc_start_main@@GLIBC_2.34+0x8b (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a63b)
+	    5af33826f225 _start+0x25 (/tmp/nunatak-capture-stacks/workload+0x1225)
+
+workload 2676554/2676554 28629997.021685:    1003009                                            task-clock:u: 
+	    5af33826f1b8 main+0xf8 (/tmp/nunatak-capture-stacks/workload+0x11b8)
+	    719c94a2a578 __libc_start_call_main+0x78 (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a578)
+	    719c94a2a63b __libc_start_main@@GLIBC_2.34+0x8b (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a63b)
+	    5af33826f225 _start+0x25 (/tmp/nunatak-capture-stacks/workload+0x1225)
+
+workload 2676554/2676554 28629997.022745:    4999999                 fp_ret_sse_avx_ops.all/period=4999999/u: 
+	    5af33826f1b8 main+0xf8 (/tmp/nunatak-capture-stacks/workload+0x11b8)
+	    719c94a2a578 __libc_start_call_main+0x78 (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a578)
+	    719c94a2a63b __libc_start_main@@GLIBC_2.34+0x8b (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a63b)
+	    5af33826f225 _start+0x25 (/tmp/nunatak-capture-stacks/workload+0x1225)
+
+workload 2676554/2676554 28629997.022757:    1003009                                            task-clock:u: 
+	    5af33826f1b8 main+0xf8 (/tmp/nunatak-capture-stacks/workload+0x11b8)
+	    719c94a2a578 __libc_start_call_main+0x78 (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a578)
+	    719c94a2a63b __libc_start_main@@GLIBC_2.34+0x8b (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a63b)
+	    5af33826f225 _start+0x25 (/tmp/nunatak-capture-stacks/workload+0x1225)
+
+workload 2676554/2676554 28629997.023691:    1003009                                            task-clock:u: 
+	    5af33826f1b8 main+0xf8 (/tmp/nunatak-capture-stacks/workload+0x11b8)
+	    719c94a2a578 __libc_start_call_main+0x78 (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a578)
+	    719c94a2a63b __libc_start_main@@GLIBC_2.34+0x8b (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a63b)
+	    5af33826f225 _start+0x25 (/tmp/nunatak-capture-stacks/workload+0x1225)
+
+workload 2676554/2676554 28629997.025301:    4999999                 fp_ret_sse_avx_ops.all/period=4999999/u: 
+	    5af33826f1b4 main+0xf4 (/tmp/nunatak-capture-stacks/workload+0x11b4)
+	    719c94a2a578 __libc_start_call_main+0x78 (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a578)
+	    719c94a2a63b __libc_start_main@@GLIBC_2.34+0x8b (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a63b)
+	    5af33826f225 _start+0x25 (/tmp/nunatak-capture-stacks/workload+0x1225)
+
+workload 2676554/2676554 28629997.025310:    1003009                                            task-clock:u: 
+	    5af33826f1b4 main+0xf4 (/tmp/nunatak-capture-stacks/workload+0x11b4)
+	    719c94a2a578 __libc_start_call_main+0x78 (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a578)
+	    719c94a2a63b __libc_start_main@@GLIBC_2.34+0x8b (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a63b)
+	    5af33826f225 _start+0x25 (/tmp/nunatak-capture-stacks/workload+0x1225)
+
+workload 2676554/2676554 28629997.025697:    1003009                                            task-clock:u: 
+	    5af33826f1b4 main+0xf4 (/tmp/nunatak-capture-stacks/workload+0x11b4)
+	    719c94a2a578 __libc_start_call_main+0x78 (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a578)
+	    719c94a2a63b __libc_start_main@@GLIBC_2.34+0x8b (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a63b)
+	    5af33826f225 _start+0x25 (/tmp/nunatak-capture-stacks/workload+0x1225)
+
+workload 2676554/2676554 28629997.026700:    1003009                                            task-clock:u: 
+	    5af33826f1b4 main+0xf4 (/tmp/nunatak-capture-stacks/workload+0x11b4)
+	    719c94a2a578 __libc_start_call_main+0x78 (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a578)
+	    719c94a2a63b __libc_start_main@@GLIBC_2.34+0x8b (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a63b)
+	    5af33826f225 _start+0x25 (/tmp/nunatak-capture-stacks/workload+0x1225)
+
+workload 2676554/2676554 28629997.027857:    4999999                 fp_ret_sse_avx_ops.all/period=4999999/u: 
+	    5af33826f1b8 main+0xf8 (/tmp/nunatak-capture-stacks/workload+0x11b8)
+	    719c94a2a578 __libc_start_call_main+0x78 (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a578)
+	    719c94a2a63b __libc_start_main@@GLIBC_2.34+0x8b (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a63b)
+	    5af33826f225 _start+0x25 (/tmp/nunatak-capture-stacks/workload+0x1225)
+
+workload 2676554/2676554 28629997.027869:    1003009                                            task-clock:u: 
+	    5af33826f1b8 main+0xf8 (/tmp/nunatak-capture-stacks/workload+0x11b8)
+	    719c94a2a578 __libc_start_call_main+0x78 (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a578)
+	    719c94a2a63b __libc_start_main@@GLIBC_2.34+0x8b (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a63b)
+	    5af33826f225 _start+0x25 (/tmp/nunatak-capture-stacks/workload+0x1225)
+
+workload 2676554/2676554 28629997.028706:    1003009                                            task-clock:u: 
+	    5af33826f1b4 main+0xf4 (/tmp/nunatak-capture-stacks/workload+0x11b4)
+	    719c94a2a578 __libc_start_call_main+0x78 (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a578)
+	    719c94a2a63b __libc_start_main@@GLIBC_2.34+0x8b (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a63b)
+	    5af33826f225 _start+0x25 (/tmp/nunatak-capture-stacks/workload+0x1225)
+
+workload 2676554/2676554 28629997.029709:    1003009                                            task-clock:u: 
+	    5af33826f1b8 main+0xf8 (/tmp/nunatak-capture-stacks/workload+0x11b8)
+	    719c94a2a578 __libc_start_call_main+0x78 (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a578)
+	    719c94a2a63b __libc_start_main@@GLIBC_2.34+0x8b (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a63b)
+	    5af33826f225 _start+0x25 (/tmp/nunatak-capture-stacks/workload+0x1225)
+
+workload 2676554/2676554 28629997.030410:    4999999                 fp_ret_sse_avx_ops.all/period=4999999/u: 
+	    5af33826f1b8 main+0xf8 (/tmp/nunatak-capture-stacks/workload+0x11b8)
+	    719c94a2a578 __libc_start_call_main+0x78 (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a578)
+	    719c94a2a63b __libc_start_main@@GLIBC_2.34+0x8b (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a63b)
+	    5af33826f225 _start+0x25 (/tmp/nunatak-capture-stacks/workload+0x1225)
+
+workload 2676554/2676554 28629997.030712:    1003009                                            task-clock:u: 
+	    5af33826f1b8 main+0xf8 (/tmp/nunatak-capture-stacks/workload+0x11b8)
+	    719c94a2a578 __libc_start_call_main+0x78 (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a578)
+	    719c94a2a63b __libc_start_main@@GLIBC_2.34+0x8b (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a63b)
+	    5af33826f225 _start+0x25 (/tmp/nunatak-capture-stacks/workload+0x1225)
+
+workload 2676554/2676554 28629997.031715:    1003009                                            task-clock:u: 
+	    5af33826f1b8 main+0xf8 (/tmp/nunatak-capture-stacks/workload+0x11b8)
+	    719c94a2a578 __libc_start_call_main+0x78 (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a578)
+	    719c94a2a63b __libc_start_main@@GLIBC_2.34+0x8b (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a63b)
+	    5af33826f225 _start+0x25 (/tmp/nunatak-capture-stacks/workload+0x1225)
+
+workload 2676554/2676554 28629997.032938:    4999999                 fp_ret_sse_avx_ops.all/period=4999999/u: 
+	    5af33826f1b8 main+0xf8 (/tmp/nunatak-capture-stacks/workload+0x11b8)
+	    719c94a2a578 __libc_start_call_main+0x78 (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a578)
+	    719c94a2a63b __libc_start_main@@GLIBC_2.34+0x8b (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a63b)
+	    5af33826f225 _start+0x25 (/tmp/nunatak-capture-stacks/workload+0x1225)
+
+workload 2676554/2676554 28629997.032950:    1003009                                            task-clock:u: 
+	    5af33826f1b8 main+0xf8 (/tmp/nunatak-capture-stacks/workload+0x11b8)
+	    719c94a2a578 __libc_start_call_main+0x78 (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a578)
+	    719c94a2a63b __libc_start_main@@GLIBC_2.34+0x8b (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a63b)
+	    5af33826f225 _start+0x25 (/tmp/nunatak-capture-stacks/workload+0x1225)
+
+workload 2676554/2676554 28629997.033721:    1003009                                            task-clock:u: 
+	    5af33826f1b4 main+0xf4 (/tmp/nunatak-capture-stacks/workload+0x11b4)
+	    719c94a2a578 __libc_start_call_main+0x78 (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a578)
+	    719c94a2a63b __libc_start_main@@GLIBC_2.34+0x8b (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a63b)
+	    5af33826f225 _start+0x25 (/tmp/nunatak-capture-stacks/workload+0x1225)
+
+workload 2676554/2676554 28629997.034724:    1003009                                            task-clock:u: 
+	    5af33826f1b8 main+0xf8 (/tmp/nunatak-capture-stacks/workload+0x11b8)
+	    719c94a2a578 __libc_start_call_main+0x78 (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a578)
+	    719c94a2a63b __libc_start_main@@GLIBC_2.34+0x8b (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a63b)
+	    5af33826f225 _start+0x25 (/tmp/nunatak-capture-stacks/workload+0x1225)
+
+workload 2676554/2676554 28629997.035473:    4999999                 fp_ret_sse_avx_ops.all/period=4999999/u: 
+	    5af33826f1b4 main+0xf4 (/tmp/nunatak-capture-stacks/workload+0x11b4)
+	    719c94a2a578 __libc_start_call_main+0x78 (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a578)
+	    719c94a2a63b __libc_start_main@@GLIBC_2.34+0x8b (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a63b)
+	    5af33826f225 _start+0x25 (/tmp/nunatak-capture-stacks/workload+0x1225)
+
+workload 2676554/2676554 28629997.035727:    1003009                                            task-clock:u: 
+	    5af33826f1b8 main+0xf8 (/tmp/nunatak-capture-stacks/workload+0x11b8)
+	    719c94a2a578 __libc_start_call_main+0x78 (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a578)
+	    719c94a2a63b __libc_start_main@@GLIBC_2.34+0x8b (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a63b)
+	    5af33826f225 _start+0x25 (/tmp/nunatak-capture-stacks/workload+0x1225)
+
+workload 2676554/2676554 28629997.036730:    1003009                                            task-clock:u: 
+	    5af33826f1b8 main+0xf8 (/tmp/nunatak-capture-stacks/workload+0x11b8)
+	    719c94a2a578 __libc_start_call_main+0x78 (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a578)
+	    719c94a2a63b __libc_start_main@@GLIBC_2.34+0x8b (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a63b)
+	    5af33826f225 _start+0x25 (/tmp/nunatak-capture-stacks/workload+0x1225)
+
+workload 2676554/2676554 28629997.038016:    4999999                 fp_ret_sse_avx_ops.all/period=4999999/u: 
+	    5af33826f1b4 main+0xf4 (/tmp/nunatak-capture-stacks/workload+0x11b4)
+	    719c94a2a578 __libc_start_call_main+0x78 (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a578)
+	    719c94a2a63b __libc_start_main@@GLIBC_2.34+0x8b (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a63b)
+	    5af33826f225 _start+0x25 (/tmp/nunatak-capture-stacks/workload+0x1225)
+
+workload 2676554/2676554 28629997.038028:    1003009                                            task-clock:u: 
+	    5af33826f1b4 main+0xf4 (/tmp/nunatak-capture-stacks/workload+0x11b4)
+	    719c94a2a578 __libc_start_call_main+0x78 (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a578)
+	    719c94a2a63b __libc_start_main@@GLIBC_2.34+0x8b (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a63b)
+	    5af33826f225 _start+0x25 (/tmp/nunatak-capture-stacks/workload+0x1225)
+
+workload 2676554/2676554 28629997.038736:    1003009                                            task-clock:u: 
+	    5af33826f1b8 main+0xf8 (/tmp/nunatak-capture-stacks/workload+0x11b8)
+	    719c94a2a578 __libc_start_call_main+0x78 (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a578)
+	    719c94a2a63b __libc_start_main@@GLIBC_2.34+0x8b (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a63b)
+	    5af33826f225 _start+0x25 (/tmp/nunatak-capture-stacks/workload+0x1225)
+
+workload 2676554/2676554 28629997.039739:    1003009                                            task-clock:u: 
+	    5af33826f1b4 main+0xf4 (/tmp/nunatak-capture-stacks/workload+0x11b4)
+	    719c94a2a578 __libc_start_call_main+0x78 (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a578)
+	    719c94a2a63b __libc_start_main@@GLIBC_2.34+0x8b (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a63b)
+	    5af33826f225 _start+0x25 (/tmp/nunatak-capture-stacks/workload+0x1225)
+
+workload 2676554/2676554 28629997.040572:    4999999                 fp_ret_sse_avx_ops.all/period=4999999/u: 
+	    5af33826f1b4 main+0xf4 (/tmp/nunatak-capture-stacks/workload+0x11b4)
+	    719c94a2a578 __libc_start_call_main+0x78 (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a578)
+	    719c94a2a63b __libc_start_main@@GLIBC_2.34+0x8b (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a63b)
+	    5af33826f225 _start+0x25 (/tmp/nunatak-capture-stacks/workload+0x1225)
+
+workload 2676554/2676554 28629997.040741:    1003009                                            task-clock:u: 
+	    5af33826f1b8 main+0xf8 (/tmp/nunatak-capture-stacks/workload+0x11b8)
+	    719c94a2a578 __libc_start_call_main+0x78 (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a578)
+	    719c94a2a63b __libc_start_main@@GLIBC_2.34+0x8b (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a63b)
+	    5af33826f225 _start+0x25 (/tmp/nunatak-capture-stacks/workload+0x1225)
+
+workload 2676554/2676554 28629997.041745:    1003009                                            task-clock:u: 
+	    5af33826f1b8 main+0xf8 (/tmp/nunatak-capture-stacks/workload+0x11b8)
+	    719c94a2a578 __libc_start_call_main+0x78 (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a578)
+	    719c94a2a63b __libc_start_main@@GLIBC_2.34+0x8b (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a63b)
+	    5af33826f225 _start+0x25 (/tmp/nunatak-capture-stacks/workload+0x1225)
+
+workload 2676554/2676554 28629997.043120:    4999999                 fp_ret_sse_avx_ops.all/period=4999999/u: 
+	    5af33826f1b8 main+0xf8 (/tmp/nunatak-capture-stacks/workload+0x11b8)
+	    719c94a2a578 __libc_start_call_main+0x78 (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a578)
+	    719c94a2a63b __libc_start_main@@GLIBC_2.34+0x8b (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a63b)
+	    5af33826f225 _start+0x25 (/tmp/nunatak-capture-stacks/workload+0x1225)
+
+workload 2676554/2676554 28629997.043129:    1003009                                            task-clock:u: 
+	    5af33826f1b8 main+0xf8 (/tmp/nunatak-capture-stacks/workload+0x11b8)
+	    719c94a2a578 __libc_start_call_main+0x78 (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a578)
+	    719c94a2a63b __libc_start_main@@GLIBC_2.34+0x8b (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a63b)
+	    5af33826f225 _start+0x25 (/tmp/nunatak-capture-stacks/workload+0x1225)
+
+workload 2676554/2676554 28629997.043751:    1003009                                            task-clock:u: 
+	    5af33826f1b4 main+0xf4 (/tmp/nunatak-capture-stacks/workload+0x11b4)
+	    719c94a2a578 __libc_start_call_main+0x78 (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a578)
+	    719c94a2a63b __libc_start_main@@GLIBC_2.34+0x8b (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a63b)
+	    5af33826f225 _start+0x25 (/tmp/nunatak-capture-stacks/workload+0x1225)
+
+workload 2676554/2676554 28629997.044754:    1003009                                            task-clock:u: 
+	    5af33826f1b4 main+0xf4 (/tmp/nunatak-capture-stacks/workload+0x11b4)
+	    719c94a2a578 __libc_start_call_main+0x78 (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a578)
+	    719c94a2a63b __libc_start_main@@GLIBC_2.34+0x8b (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a63b)
+	    5af33826f225 _start+0x25 (/tmp/nunatak-capture-stacks/workload+0x1225)
+
+workload 2676554/2676554 28629997.045658:    4999999                 fp_ret_sse_avx_ops.all/period=4999999/u: 
+	    5af33826f1b4 main+0xf4 (/tmp/nunatak-capture-stacks/workload+0x11b4)
+	    719c94a2a578 __libc_start_call_main+0x78 (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a578)
+	    719c94a2a63b __libc_start_main@@GLIBC_2.34+0x8b (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a63b)
+	    5af33826f225 _start+0x25 (/tmp/nunatak-capture-stacks/workload+0x1225)
+
+workload 2676554/2676554 28629997.045756:    1003009                                            task-clock:u: 
+	    5af33826f1b8 main+0xf8 (/tmp/nunatak-capture-stacks/workload+0x11b8)
+	    719c94a2a578 __libc_start_call_main+0x78 (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a578)
+	    719c94a2a63b __libc_start_main@@GLIBC_2.34+0x8b (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a63b)
+	    5af33826f225 _start+0x25 (/tmp/nunatak-capture-stacks/workload+0x1225)
+
+workload 2676554/2676554 28629997.046760:    1003009                                            task-clock:u: 
+	    5af33826f1b8 main+0xf8 (/tmp/nunatak-capture-stacks/workload+0x11b8)
+	    719c94a2a578 __libc_start_call_main+0x78 (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a578)
+	    719c94a2a63b __libc_start_main@@GLIBC_2.34+0x8b (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a63b)
+	    5af33826f225 _start+0x25 (/tmp/nunatak-capture-stacks/workload+0x1225)
+
+workload 2676554/2676554 28629997.048201:    4999999                 fp_ret_sse_avx_ops.all/period=4999999/u: 
+	    5af33826f1b8 main+0xf8 (/tmp/nunatak-capture-stacks/workload+0x11b8)
+	    719c94a2a578 __libc_start_call_main+0x78 (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a578)
+	    719c94a2a63b __libc_start_main@@GLIBC_2.34+0x8b (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a63b)
+	    5af33826f225 _start+0x25 (/tmp/nunatak-capture-stacks/workload+0x1225)
+
+workload 2676554/2676554 28629997.048210:    1003009                                            task-clock:u: 
+	    5af33826f1b8 main+0xf8 (/tmp/nunatak-capture-stacks/workload+0x11b8)
+	    719c94a2a578 __libc_start_call_main+0x78 (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a578)
+	    719c94a2a63b __libc_start_main@@GLIBC_2.34+0x8b (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a63b)
+	    5af33826f225 _start+0x25 (/tmp/nunatak-capture-stacks/workload+0x1225)
+
+workload 2676554/2676554 28629997.048766:    1003009                                            task-clock:u: 
+	    5af33826f1b4 main+0xf4 (/tmp/nunatak-capture-stacks/workload+0x11b4)
+	    719c94a2a578 __libc_start_call_main+0x78 (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a578)
+	    719c94a2a63b __libc_start_main@@GLIBC_2.34+0x8b (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a63b)
+	    5af33826f225 _start+0x25 (/tmp/nunatak-capture-stacks/workload+0x1225)
+
+workload 2676554/2676554 28629997.049769:    1003009                                            task-clock:u: 
+	    5af33826f1b4 main+0xf4 (/tmp/nunatak-capture-stacks/workload+0x11b4)
+	    719c94a2a578 __libc_start_call_main+0x78 (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a578)
+	    719c94a2a63b __libc_start_main@@GLIBC_2.34+0x8b (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a63b)
+	    5af33826f225 _start+0x25 (/tmp/nunatak-capture-stacks/workload+0x1225)
+
+workload 2676554/2676554 28629997.050737:    4999999                 fp_ret_sse_avx_ops.all/period=4999999/u: 
+	    5af33826f1b4 main+0xf4 (/tmp/nunatak-capture-stacks/workload+0x11b4)
+	    719c94a2a578 __libc_start_call_main+0x78 (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a578)
+	    719c94a2a63b __libc_start_main@@GLIBC_2.34+0x8b (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a63b)
+	    5af33826f225 _start+0x25 (/tmp/nunatak-capture-stacks/workload+0x1225)
+
+workload 2676554/2676554 28629997.050771:    1003009                                            task-clock:u: 
+	    5af33826f1b8 main+0xf8 (/tmp/nunatak-capture-stacks/workload+0x11b8)
+	    719c94a2a578 __libc_start_call_main+0x78 (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a578)
+	    719c94a2a63b __libc_start_main@@GLIBC_2.34+0x8b (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a63b)
+	    5af33826f225 _start+0x25 (/tmp/nunatak-capture-stacks/workload+0x1225)
+
+workload 2676554/2676554 28629997.051775:    1003009                                            task-clock:u: 
+	    5af33826f1b4 main+0xf4 (/tmp/nunatak-capture-stacks/workload+0x11b4)
+	    719c94a2a578 __libc_start_call_main+0x78 (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a578)
+	    719c94a2a63b __libc_start_main@@GLIBC_2.34+0x8b (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a63b)
+	    5af33826f225 _start+0x25 (/tmp/nunatak-capture-stacks/workload+0x1225)
+
+workload 2676554/2676554 28629997.053263:    4999999                 fp_ret_sse_avx_ops.all/period=4999999/u: 
+	    5af33826f1b4 main+0xf4 (/tmp/nunatak-capture-stacks/workload+0x11b4)
+	    719c94a2a578 __libc_start_call_main+0x78 (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a578)
+	    719c94a2a63b __libc_start_main@@GLIBC_2.34+0x8b (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a63b)
+	    5af33826f225 _start+0x25 (/tmp/nunatak-capture-stacks/workload+0x1225)
+
+workload 2676554/2676554 28629997.053272:    1003009                                            task-clock:u: 
+	    5af33826f1b4 main+0xf4 (/tmp/nunatak-capture-stacks/workload+0x11b4)
+	    719c94a2a578 __libc_start_call_main+0x78 (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a578)
+	    719c94a2a63b __libc_start_main@@GLIBC_2.34+0x8b (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a63b)
+	    5af33826f225 _start+0x25 (/tmp/nunatak-capture-stacks/workload+0x1225)
+
+workload 2676554/2676554 28629997.053781:    1003009                                            task-clock:u: 
+	    5af33826f1b4 main+0xf4 (/tmp/nunatak-capture-stacks/workload+0x11b4)
+	    719c94a2a578 __libc_start_call_main+0x78 (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a578)
+	    719c94a2a63b __libc_start_main@@GLIBC_2.34+0x8b (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a63b)
+	    5af33826f225 _start+0x25 (/tmp/nunatak-capture-stacks/workload+0x1225)
+
+workload 2676554/2676554 28629997.054784:    1003009                                            task-clock:u: 
+	    5af33826f1b8 main+0xf8 (/tmp/nunatak-capture-stacks/workload+0x11b8)
+	    719c94a2a578 __libc_start_call_main+0x78 (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a578)
+	    719c94a2a63b __libc_start_main@@GLIBC_2.34+0x8b (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a63b)
+	    5af33826f225 _start+0x25 (/tmp/nunatak-capture-stacks/workload+0x1225)
+
+workload 2676554/2676554 28629997.055796:    4999999                 fp_ret_sse_avx_ops.all/period=4999999/u: 
+	    5af33826f1b4 main+0xf4 (/tmp/nunatak-capture-stacks/workload+0x11b4)
+	    719c94a2a578 __libc_start_call_main+0x78 (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a578)
+	    719c94a2a63b __libc_start_main@@GLIBC_2.34+0x8b (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a63b)
+	    5af33826f225 _start+0x25 (/tmp/nunatak-capture-stacks/workload+0x1225)
+
+workload 2676554/2676554 28629997.055808:    1003009                                            task-clock:u: 
+	    5af33826f1b4 main+0xf4 (/tmp/nunatak-capture-stacks/workload+0x11b4)
+	    719c94a2a578 __libc_start_call_main+0x78 (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a578)
+	    719c94a2a63b __libc_start_main@@GLIBC_2.34+0x8b (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a63b)
+	    5af33826f225 _start+0x25 (/tmp/nunatak-capture-stacks/workload+0x1225)
+
+workload 2676554/2676554 28629997.056790:    1003009                                            task-clock:u: 
+	    5af33826f1b8 main+0xf8 (/tmp/nunatak-capture-stacks/workload+0x11b8)
+	    719c94a2a578 __libc_start_call_main+0x78 (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a578)
+	    719c94a2a63b __libc_start_main@@GLIBC_2.34+0x8b (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a63b)
+	    5af33826f225 _start+0x25 (/tmp/nunatak-capture-stacks/workload+0x1225)
+
+workload 2676554/2676554 28629997.058330:    4999999                 fp_ret_sse_avx_ops.all/period=4999999/u: 
+	    5af33826f1b8 main+0xf8 (/tmp/nunatak-capture-stacks/workload+0x11b8)
+	    719c94a2a578 __libc_start_call_main+0x78 (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a578)
+	    719c94a2a63b __libc_start_main@@GLIBC_2.34+0x8b (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a63b)
+	    5af33826f225 _start+0x25 (/tmp/nunatak-capture-stacks/workload+0x1225)
+
+workload 2676554/2676554 28629997.058339:    1003009                                            task-clock:u: 
+	    5af33826f1b8 main+0xf8 (/tmp/nunatak-capture-stacks/workload+0x11b8)
+	    719c94a2a578 __libc_start_call_main+0x78 (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a578)
+	    719c94a2a63b __libc_start_main@@GLIBC_2.34+0x8b (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a63b)
+	    5af33826f225 _start+0x25 (/tmp/nunatak-capture-stacks/workload+0x1225)
+
+workload 2676554/2676554 28629997.058796:    1003009                                            task-clock:u: 
+	    5af33826f1b4 main+0xf4 (/tmp/nunatak-capture-stacks/workload+0x11b4)
+	    719c94a2a578 __libc_start_call_main+0x78 (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a578)
+	    719c94a2a63b __libc_start_main@@GLIBC_2.34+0x8b (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a63b)
+	    5af33826f225 _start+0x25 (/tmp/nunatak-capture-stacks/workload+0x1225)
+
+workload 2676554/2676554 28629997.059799:    1003009                                            task-clock:u: 
+	    5af33826f1b4 main+0xf4 (/tmp/nunatak-capture-stacks/workload+0x11b4)
+	    719c94a2a578 __libc_start_call_main+0x78 (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a578)
+	    719c94a2a63b __libc_start_main@@GLIBC_2.34+0x8b (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a63b)
+	    5af33826f225 _start+0x25 (/tmp/nunatak-capture-stacks/workload+0x1225)
+
+workload 2676554/2676554 28629997.060877:    4999999                 fp_ret_sse_avx_ops.all/period=4999999/u: 
+	    5af33826f1b4 main+0xf4 (/tmp/nunatak-capture-stacks/workload+0x11b4)
+	    719c94a2a578 __libc_start_call_main+0x78 (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a578)
+	    719c94a2a63b __libc_start_main@@GLIBC_2.34+0x8b (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a63b)
+	    5af33826f225 _start+0x25 (/tmp/nunatak-capture-stacks/workload+0x1225)
+
+workload 2676554/2676554 28629997.060889:    1003009                                            task-clock:u: 
+	    5af33826f1b4 main+0xf4 (/tmp/nunatak-capture-stacks/workload+0x11b4)
+	    719c94a2a578 __libc_start_call_main+0x78 (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a578)
+	    719c94a2a63b __libc_start_main@@GLIBC_2.34+0x8b (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a63b)
+	    5af33826f225 _start+0x25 (/tmp/nunatak-capture-stacks/workload+0x1225)
+
+workload 2676554/2676554 28629997.061805:    1003009                                            task-clock:u: 
+	    5af33826f1b8 main+0xf8 (/tmp/nunatak-capture-stacks/workload+0x11b8)
+	    719c94a2a578 __libc_start_call_main+0x78 (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a578)
+	    719c94a2a63b __libc_start_main@@GLIBC_2.34+0x8b (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a63b)
+	    5af33826f225 _start+0x25 (/tmp/nunatak-capture-stacks/workload+0x1225)
+
+workload 2676554/2676554 28629997.063421:    4999999                 fp_ret_sse_avx_ops.all/period=4999999/u: 
+	    5af33826f1b4 main+0xf4 (/tmp/nunatak-capture-stacks/workload+0x11b4)
+	    719c94a2a578 __libc_start_call_main+0x78 (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a578)
+	    719c94a2a63b __libc_start_main@@GLIBC_2.34+0x8b (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a63b)
+	    5af33826f225 _start+0x25 (/tmp/nunatak-capture-stacks/workload+0x1225)
+
+workload 2676554/2676554 28629997.063431:    1003009                                            task-clock:u: 
+	    5af33826f1b4 main+0xf4 (/tmp/nunatak-capture-stacks/workload+0x11b4)
+	    719c94a2a578 __libc_start_call_main+0x78 (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a578)
+	    719c94a2a63b __libc_start_main@@GLIBC_2.34+0x8b (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a63b)
+	    5af33826f225 _start+0x25 (/tmp/nunatak-capture-stacks/workload+0x1225)
+
+workload 2676554/2676554 28629997.063811:    1003009                                            task-clock:u: 
+	    5af33826f1b4 main+0xf4 (/tmp/nunatak-capture-stacks/workload+0x11b4)
+	    719c94a2a578 __libc_start_call_main+0x78 (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a578)
+	    719c94a2a63b __libc_start_main@@GLIBC_2.34+0x8b (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a63b)
+	    5af33826f225 _start+0x25 (/tmp/nunatak-capture-stacks/workload+0x1225)
+
+workload 2676554/2676554 28629997.064814:    1003009                                            task-clock:u: 
+	    5af33826f1b4 main+0xf4 (/tmp/nunatak-capture-stacks/workload+0x11b4)
+	    719c94a2a578 __libc_start_call_main+0x78 (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a578)
+	    719c94a2a63b __libc_start_main@@GLIBC_2.34+0x8b (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a63b)
+	    5af33826f225 _start+0x25 (/tmp/nunatak-capture-stacks/workload+0x1225)
+
+workload 2676554/2676554 28629997.065953:    4999999                 fp_ret_sse_avx_ops.all/period=4999999/u: 
+	    5af33826f1b4 main+0xf4 (/tmp/nunatak-capture-stacks/workload+0x11b4)
+	    719c94a2a578 __libc_start_call_main+0x78 (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a578)
+	    719c94a2a63b __libc_start_main@@GLIBC_2.34+0x8b (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a63b)
+	    5af33826f225 _start+0x25 (/tmp/nunatak-capture-stacks/workload+0x1225)
+
+workload 2676554/2676554 28629997.065968:    1003009                                            task-clock:u: 
+	    5af33826f1b4 main+0xf4 (/tmp/nunatak-capture-stacks/workload+0x11b4)
+	    719c94a2a578 __libc_start_call_main+0x78 (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a578)
+	    719c94a2a63b __libc_start_main@@GLIBC_2.34+0x8b (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a63b)
+	    5af33826f225 _start+0x25 (/tmp/nunatak-capture-stacks/workload+0x1225)
+
+workload 2676554/2676554 28629997.066820:    1003009                                            task-clock:u: 
+	    5af33826f1b4 main+0xf4 (/tmp/nunatak-capture-stacks/workload+0x11b4)
+	    719c94a2a578 __libc_start_call_main+0x78 (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a578)
+	    719c94a2a63b __libc_start_main@@GLIBC_2.34+0x8b (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a63b)
+	    5af33826f225 _start+0x25 (/tmp/nunatak-capture-stacks/workload+0x1225)
+
+workload 2676554/2676554 28629997.067823:    1003009                                            task-clock:u: 
+	    5af33826f1b8 main+0xf8 (/tmp/nunatak-capture-stacks/workload+0x11b8)
+	    719c94a2a578 __libc_start_call_main+0x78 (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a578)
+	    719c94a2a63b __libc_start_main@@GLIBC_2.34+0x8b (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a63b)
+	    5af33826f225 _start+0x25 (/tmp/nunatak-capture-stacks/workload+0x1225)
+
+workload 2676554/2676554 28629997.068497:    4999999                 fp_ret_sse_avx_ops.all/period=4999999/u: 
+	    5af33826f1b8 main+0xf8 (/tmp/nunatak-capture-stacks/workload+0x11b8)
+	    719c94a2a578 __libc_start_call_main+0x78 (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a578)
+	    719c94a2a63b __libc_start_main@@GLIBC_2.34+0x8b (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a63b)
+	    5af33826f225 _start+0x25 (/tmp/nunatak-capture-stacks/workload+0x1225)
+
+workload 2676554/2676554 28629997.068826:    1003009                                            task-clock:u: 
+	    5af33826f1b4 main+0xf4 (/tmp/nunatak-capture-stacks/workload+0x11b4)
+	    719c94a2a578 __libc_start_call_main+0x78 (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a578)
+	    719c94a2a63b __libc_start_main@@GLIBC_2.34+0x8b (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a63b)
+	    5af33826f225 _start+0x25 (/tmp/nunatak-capture-stacks/workload+0x1225)
+
+workload 2676554/2676554 28629997.069829:    1003009                                            task-clock:u: 
+	    5af33826f1b4 main+0xf4 (/tmp/nunatak-capture-stacks/workload+0x11b4)
+	    719c94a2a578 __libc_start_call_main+0x78 (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a578)
+	    719c94a2a63b __libc_start_main@@GLIBC_2.34+0x8b (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a63b)
+	    5af33826f225 _start+0x25 (/tmp/nunatak-capture-stacks/workload+0x1225)
+
+workload 2676554/2676554 28629997.071037:    4999999                 fp_ret_sse_avx_ops.all/period=4999999/u: 
+	    5af33826f1b8 main+0xf8 (/tmp/nunatak-capture-stacks/workload+0x11b8)
+	    719c94a2a578 __libc_start_call_main+0x78 (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a578)
+	    719c94a2a63b __libc_start_main@@GLIBC_2.34+0x8b (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a63b)
+	    5af33826f225 _start+0x25 (/tmp/nunatak-capture-stacks/workload+0x1225)
+
+workload 2676554/2676554 28629997.071049:    1003009                                            task-clock:u: 
+	    5af33826f1b8 main+0xf8 (/tmp/nunatak-capture-stacks/workload+0x11b8)
+	    719c94a2a578 __libc_start_call_main+0x78 (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a578)
+	    719c94a2a63b __libc_start_main@@GLIBC_2.34+0x8b (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a63b)
+	    5af33826f225 _start+0x25 (/tmp/nunatak-capture-stacks/workload+0x1225)
+
+workload 2676554/2676554 28629997.071835:    1003009                                            task-clock:u: 
+	    5af33826f1b8 main+0xf8 (/tmp/nunatak-capture-stacks/workload+0x11b8)
+	    719c94a2a578 __libc_start_call_main+0x78 (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a578)
+	    719c94a2a63b __libc_start_main@@GLIBC_2.34+0x8b (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a63b)
+	    5af33826f225 _start+0x25 (/tmp/nunatak-capture-stacks/workload+0x1225)
+
+workload 2676554/2676554 28629997.072838:    1003009                                            task-clock:u: 
+	    5af33826f1b4 main+0xf4 (/tmp/nunatak-capture-stacks/workload+0x11b4)
+	    719c94a2a578 __libc_start_call_main+0x78 (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a578)
+	    719c94a2a63b __libc_start_main@@GLIBC_2.34+0x8b (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a63b)
+	    5af33826f225 _start+0x25 (/tmp/nunatak-capture-stacks/workload+0x1225)
+
+workload 2676554/2676554 28629997.073588:    4999999                 fp_ret_sse_avx_ops.all/period=4999999/u: 
+	    5af33826f1b4 main+0xf4 (/tmp/nunatak-capture-stacks/workload+0x11b4)
+	    719c94a2a578 __libc_start_call_main+0x78 (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a578)
+	    719c94a2a63b __libc_start_main@@GLIBC_2.34+0x8b (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a63b)
+	    5af33826f225 _start+0x25 (/tmp/nunatak-capture-stacks/workload+0x1225)
+
+workload 2676554/2676554 28629997.073841:    1003009                                            task-clock:u: 
+	    5af33826f1b8 main+0xf8 (/tmp/nunatak-capture-stacks/workload+0x11b8)
+	    719c94a2a578 __libc_start_call_main+0x78 (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a578)
+	    719c94a2a63b __libc_start_main@@GLIBC_2.34+0x8b (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a63b)
+	    5af33826f225 _start+0x25 (/tmp/nunatak-capture-stacks/workload+0x1225)
+
+workload 2676554/2676554 28629997.074844:    1003009                                            task-clock:u: 
+	    5af33826f1b4 main+0xf4 (/tmp/nunatak-capture-stacks/workload+0x11b4)
+	    719c94a2a578 __libc_start_call_main+0x78 (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a578)
+	    719c94a2a63b __libc_start_main@@GLIBC_2.34+0x8b (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a63b)
+	    5af33826f225 _start+0x25 (/tmp/nunatak-capture-stacks/workload+0x1225)
+
+workload 2676554/2676554 28629997.076154:    4999999                 fp_ret_sse_avx_ops.all/period=4999999/u: 
+	    5af33826f1b4 main+0xf4 (/tmp/nunatak-capture-stacks/workload+0x11b4)
+	    719c94a2a578 __libc_start_call_main+0x78 (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a578)
+	    719c94a2a63b __libc_start_main@@GLIBC_2.34+0x8b (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a63b)
+	    5af33826f225 _start+0x25 (/tmp/nunatak-capture-stacks/workload+0x1225)
+
+workload 2676554/2676554 28629997.076163:    1003009                                            task-clock:u: 
+	    5af33826f1b4 main+0xf4 (/tmp/nunatak-capture-stacks/workload+0x11b4)
+	    719c94a2a578 __libc_start_call_main+0x78 (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a578)
+	    719c94a2a63b __libc_start_main@@GLIBC_2.34+0x8b (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a63b)
+	    5af33826f225 _start+0x25 (/tmp/nunatak-capture-stacks/workload+0x1225)
+
+workload 2676554/2676554 28629997.076850:    1003009                                            task-clock:u: 
+	    5af33826f1b4 main+0xf4 (/tmp/nunatak-capture-stacks/workload+0x11b4)
+	    719c94a2a578 __libc_start_call_main+0x78 (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a578)
+	    719c94a2a63b __libc_start_main@@GLIBC_2.34+0x8b (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a63b)
+	    5af33826f225 _start+0x25 (/tmp/nunatak-capture-stacks/workload+0x1225)
+
+workload 2676554/2676554 28629997.077853:    1003009                                            task-clock:u: 
+	    5af33826f1b8 main+0xf8 (/tmp/nunatak-capture-stacks/workload+0x11b8)
+	    719c94a2a578 __libc_start_call_main+0x78 (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a578)
+	    719c94a2a63b __libc_start_main@@GLIBC_2.34+0x8b (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a63b)
+	    5af33826f225 _start+0x25 (/tmp/nunatak-capture-stacks/workload+0x1225)
+
+workload 2676554/2676554 28629997.078691:    4999999                 fp_ret_sse_avx_ops.all/period=4999999/u: 
+	    5af33826f1b8 main+0xf8 (/tmp/nunatak-capture-stacks/workload+0x11b8)
+	    719c94a2a578 __libc_start_call_main+0x78 (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a578)
+	    719c94a2a63b __libc_start_main@@GLIBC_2.34+0x8b (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a63b)
+	    5af33826f225 _start+0x25 (/tmp/nunatak-capture-stacks/workload+0x1225)
+
+workload 2676554/2676554 28629997.078855:    1003009                                            task-clock:u: 
+	    5af33826f1b8 main+0xf8 (/tmp/nunatak-capture-stacks/workload+0x11b8)
+	    719c94a2a578 __libc_start_call_main+0x78 (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a578)
+	    719c94a2a63b __libc_start_main@@GLIBC_2.34+0x8b (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a63b)
+	    5af33826f225 _start+0x25 (/tmp/nunatak-capture-stacks/workload+0x1225)
+
+workload 2676554/2676554 28629997.079859:    1003009                                            task-clock:u: 
+	    5af33826f1b4 main+0xf4 (/tmp/nunatak-capture-stacks/workload+0x11b4)
+	    719c94a2a578 __libc_start_call_main+0x78 (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a578)
+	    719c94a2a63b __libc_start_main@@GLIBC_2.34+0x8b (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a63b)
+	    5af33826f225 _start+0x25 (/tmp/nunatak-capture-stacks/workload+0x1225)
+
+workload 2676554/2676554 28629997.081234:    4999999                 fp_ret_sse_avx_ops.all/period=4999999/u: 
+	    5af33826f1b4 main+0xf4 (/tmp/nunatak-capture-stacks/workload+0x11b4)
+	    719c94a2a578 __libc_start_call_main+0x78 (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a578)
+	    719c94a2a63b __libc_start_main@@GLIBC_2.34+0x8b (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a63b)
+	    5af33826f225 _start+0x25 (/tmp/nunatak-capture-stacks/workload+0x1225)
+
+workload 2676554/2676554 28629997.081243:    1003009                                            task-clock:u: 
+	    5af33826f1b4 main+0xf4 (/tmp/nunatak-capture-stacks/workload+0x11b4)
+	    719c94a2a578 __libc_start_call_main+0x78 (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a578)
+	    719c94a2a63b __libc_start_main@@GLIBC_2.34+0x8b (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a63b)
+	    5af33826f225 _start+0x25 (/tmp/nunatak-capture-stacks/workload+0x1225)
+
+workload 2676554/2676554 28629997.081865:    1003009                                            task-clock:u: 
+	    5af33826f1b8 main+0xf8 (/tmp/nunatak-capture-stacks/workload+0x11b8)
+	    719c94a2a578 __libc_start_call_main+0x78 (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a578)
+	    719c94a2a63b __libc_start_main@@GLIBC_2.34+0x8b (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a63b)
+	    5af33826f225 _start+0x25 (/tmp/nunatak-capture-stacks/workload+0x1225)
+
+workload 2676554/2676554 28629997.082868:    1003009                                            task-clock:u: 
+	    5af33826f1b4 main+0xf4 (/tmp/nunatak-capture-stacks/workload+0x11b4)
+	    719c94a2a578 __libc_start_call_main+0x78 (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a578)
+	    719c94a2a63b __libc_start_main@@GLIBC_2.34+0x8b (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a63b)
+	    5af33826f225 _start+0x25 (/tmp/nunatak-capture-stacks/workload+0x1225)
+
+workload 2676554/2676554 28629997.083766:    4999999                 fp_ret_sse_avx_ops.all/period=4999999/u: 
+	    5af33826f1b8 main+0xf8 (/tmp/nunatak-capture-stacks/workload+0x11b8)
+	    719c94a2a578 __libc_start_call_main+0x78 (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a578)
+	    719c94a2a63b __libc_start_main@@GLIBC_2.34+0x8b (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a63b)
+	    5af33826f225 _start+0x25 (/tmp/nunatak-capture-stacks/workload+0x1225)
+
+workload 2676554/2676554 28629997.083871:    1003009                                            task-clock:u: 
+	    5af33826f1b8 main+0xf8 (/tmp/nunatak-capture-stacks/workload+0x11b8)
+	    719c94a2a578 __libc_start_call_main+0x78 (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a578)
+	    719c94a2a63b __libc_start_main@@GLIBC_2.34+0x8b (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a63b)
+	    5af33826f225 _start+0x25 (/tmp/nunatak-capture-stacks/workload+0x1225)
+
+workload 2676554/2676554 28629997.084874:    1003009                                            task-clock:u: 
+	    5af33826f1b8 main+0xf8 (/tmp/nunatak-capture-stacks/workload+0x11b8)
+	    719c94a2a578 __libc_start_call_main+0x78 (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a578)
+	    719c94a2a63b __libc_start_main@@GLIBC_2.34+0x8b (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a63b)
+	    5af33826f225 _start+0x25 (/tmp/nunatak-capture-stacks/workload+0x1225)
+
+workload 2676554/2676554 28629997.086315:    4999999                 fp_ret_sse_avx_ops.all/period=4999999/u: 
+	    5af33826f1b4 main+0xf4 (/tmp/nunatak-capture-stacks/workload+0x11b4)
+	    719c94a2a578 __libc_start_call_main+0x78 (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a578)
+	    719c94a2a63b __libc_start_main@@GLIBC_2.34+0x8b (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a63b)
+	    5af33826f225 _start+0x25 (/tmp/nunatak-capture-stacks/workload+0x1225)
+
+workload 2676554/2676554 28629997.086324:    1003009                                            task-clock:u: 
+	    5af33826f1b4 main+0xf4 (/tmp/nunatak-capture-stacks/workload+0x11b4)
+	    719c94a2a578 __libc_start_call_main+0x78 (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a578)
+	    719c94a2a63b __libc_start_main@@GLIBC_2.34+0x8b (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a63b)
+	    5af33826f225 _start+0x25 (/tmp/nunatak-capture-stacks/workload+0x1225)
+
+workload 2676554/2676554 28629997.086880:    1003009                                            task-clock:u: 
+	    5af33826f1b4 main+0xf4 (/tmp/nunatak-capture-stacks/workload+0x11b4)
+	    719c94a2a578 __libc_start_call_main+0x78 (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a578)
+	    719c94a2a63b __libc_start_main@@GLIBC_2.34+0x8b (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a63b)
+	    5af33826f225 _start+0x25 (/tmp/nunatak-capture-stacks/workload+0x1225)
+
+workload 2676554/2676554 28629997.087883:    1003009                                            task-clock:u: 
+	    5af33826f1b4 main+0xf4 (/tmp/nunatak-capture-stacks/workload+0x11b4)
+	    719c94a2a578 __libc_start_call_main+0x78 (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a578)
+	    719c94a2a63b __libc_start_main@@GLIBC_2.34+0x8b (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a63b)
+	    5af33826f225 _start+0x25 (/tmp/nunatak-capture-stacks/workload+0x1225)
+
+workload 2676554/2676554 28629997.088861:    4999999                 fp_ret_sse_avx_ops.all/period=4999999/u: 
+	    5af33826f1b8 main+0xf8 (/tmp/nunatak-capture-stacks/workload+0x11b8)
+	    719c94a2a578 __libc_start_call_main+0x78 (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a578)
+	    719c94a2a63b __libc_start_main@@GLIBC_2.34+0x8b (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a63b)
+	    5af33826f225 _start+0x25 (/tmp/nunatak-capture-stacks/workload+0x1225)
+
+workload 2676554/2676554 28629997.088885:    1003009                                            task-clock:u: 
+	    5af33826f1b8 main+0xf8 (/tmp/nunatak-capture-stacks/workload+0x11b8)
+	    719c94a2a578 __libc_start_call_main+0x78 (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a578)
+	    719c94a2a63b __libc_start_main@@GLIBC_2.34+0x8b (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a63b)
+	    5af33826f225 _start+0x25 (/tmp/nunatak-capture-stacks/workload+0x1225)
+
+workload 2676554/2676554 28629997.089889:    1003009                                            task-clock:u: 
+	    5af33826f1b4 main+0xf4 (/tmp/nunatak-capture-stacks/workload+0x11b4)
+	    719c94a2a578 __libc_start_call_main+0x78 (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a578)
+	    719c94a2a63b __libc_start_main@@GLIBC_2.34+0x8b (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a63b)
+	    5af33826f225 _start+0x25 (/tmp/nunatak-capture-stacks/workload+0x1225)
+
+workload 2676554/2676554 28629997.091406:    4999999                 fp_ret_sse_avx_ops.all/period=4999999/u: 
+	    5af33826f1b4 main+0xf4 (/tmp/nunatak-capture-stacks/workload+0x11b4)
+	    719c94a2a578 __libc_start_call_main+0x78 (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a578)
+	    719c94a2a63b __libc_start_main@@GLIBC_2.34+0x8b (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a63b)
+	    5af33826f225 _start+0x25 (/tmp/nunatak-capture-stacks/workload+0x1225)
+
+workload 2676554/2676554 28629997.091416:    1003009                                            task-clock:u: 
+	    5af33826f1b4 main+0xf4 (/tmp/nunatak-capture-stacks/workload+0x11b4)
+	    719c94a2a578 __libc_start_call_main+0x78 (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a578)
+	    719c94a2a63b __libc_start_main@@GLIBC_2.34+0x8b (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a63b)
+	    5af33826f225 _start+0x25 (/tmp/nunatak-capture-stacks/workload+0x1225)
+
+workload 2676554/2676554 28629997.091895:    1003009                                            task-clock:u: 
+	    5af33826f1b4 main+0xf4 (/tmp/nunatak-capture-stacks/workload+0x11b4)
+	    719c94a2a578 __libc_start_call_main+0x78 (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a578)
+	    719c94a2a63b __libc_start_main@@GLIBC_2.34+0x8b (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a63b)
+	    5af33826f225 _start+0x25 (/tmp/nunatak-capture-stacks/workload+0x1225)
+
+workload 2676554/2676554 28629997.092898:    1003009                                            task-clock:u: 
+	    5af33826f1b8 main+0xf8 (/tmp/nunatak-capture-stacks/workload+0x11b8)
+	    719c94a2a578 __libc_start_call_main+0x78 (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a578)
+	    719c94a2a63b __libc_start_main@@GLIBC_2.34+0x8b (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a63b)
+	    5af33826f225 _start+0x25 (/tmp/nunatak-capture-stacks/workload+0x1225)
+
+workload 2676554/2676554 28629997.093937:    4999999                 fp_ret_sse_avx_ops.all/period=4999999/u: 
+	    5af33826f1b4 main+0xf4 (/tmp/nunatak-capture-stacks/workload+0x11b4)
+	    719c94a2a578 __libc_start_call_main+0x78 (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a578)
+	    719c94a2a63b __libc_start_main@@GLIBC_2.34+0x8b (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a63b)
+	    5af33826f225 _start+0x25 (/tmp/nunatak-capture-stacks/workload+0x1225)
+
+workload 2676554/2676554 28629997.093950:    1003009                                            task-clock:u: 
+	    5af33826f1b4 main+0xf4 (/tmp/nunatak-capture-stacks/workload+0x11b4)
+	    719c94a2a578 __libc_start_call_main+0x78 (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a578)
+	    719c94a2a63b __libc_start_main@@GLIBC_2.34+0x8b (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a63b)
+	    5af33826f225 _start+0x25 (/tmp/nunatak-capture-stacks/workload+0x1225)
+
+workload 2676554/2676554 28629997.094904:    1003009                                            task-clock:u: 
+	    5af33826f1b8 main+0xf8 (/tmp/nunatak-capture-stacks/workload+0x11b8)
+	    719c94a2a578 __libc_start_call_main+0x78 (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a578)
+	    719c94a2a63b __libc_start_main@@GLIBC_2.34+0x8b (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a63b)
+	    5af33826f225 _start+0x25 (/tmp/nunatak-capture-stacks/workload+0x1225)
+
+workload 2676554/2676554 28629997.096462:    4999999                 fp_ret_sse_avx_ops.all/period=4999999/u: 
+	    5af33826f1b8 main+0xf8 (/tmp/nunatak-capture-stacks/workload+0x11b8)
+	    719c94a2a578 __libc_start_call_main+0x78 (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a578)
+	    719c94a2a63b __libc_start_main@@GLIBC_2.34+0x8b (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a63b)
+	    5af33826f225 _start+0x25 (/tmp/nunatak-capture-stacks/workload+0x1225)
+
+workload 2676554/2676554 28629997.096471:    1003009                                            task-clock:u: 
+	    5af33826f1b8 main+0xf8 (/tmp/nunatak-capture-stacks/workload+0x11b8)
+	    719c94a2a578 __libc_start_call_main+0x78 (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a578)
+	    719c94a2a63b __libc_start_main@@GLIBC_2.34+0x8b (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a63b)
+	    5af33826f225 _start+0x25 (/tmp/nunatak-capture-stacks/workload+0x1225)
+
+workload 2676554/2676554 28629997.096910:    1003009                                            task-clock:u: 
+	    5af33826f1b8 main+0xf8 (/tmp/nunatak-capture-stacks/workload+0x11b8)
+	    719c94a2a578 __libc_start_call_main+0x78 (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a578)
+	    719c94a2a63b __libc_start_main@@GLIBC_2.34+0x8b (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a63b)
+	    5af33826f225 _start+0x25 (/tmp/nunatak-capture-stacks/workload+0x1225)
+
+workload 2676554/2676554 28629997.097913:    1003009                                            task-clock:u: 
+	    5af33826f1b8 main+0xf8 (/tmp/nunatak-capture-stacks/workload+0x11b8)
+	    719c94a2a578 __libc_start_call_main+0x78 (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a578)
+	    719c94a2a63b __libc_start_main@@GLIBC_2.34+0x8b (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a63b)
+	    5af33826f225 _start+0x25 (/tmp/nunatak-capture-stacks/workload+0x1225)
+
+workload 2676554/2676554 28629997.099009:    4999999                 fp_ret_sse_avx_ops.all/period=4999999/u: 
+	    5af33826f1b8 main+0xf8 (/tmp/nunatak-capture-stacks/workload+0x11b8)
+	    719c94a2a578 __libc_start_call_main+0x78 (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a578)
+	    719c94a2a63b __libc_start_main@@GLIBC_2.34+0x8b (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a63b)
+	    5af33826f225 _start+0x25 (/tmp/nunatak-capture-stacks/workload+0x1225)
+
+workload 2676554/2676554 28629997.099022:    1003009                                            task-clock:u: 
+	    5af33826f1b8 main+0xf8 (/tmp/nunatak-capture-stacks/workload+0x11b8)
+	    719c94a2a578 __libc_start_call_main+0x78 (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a578)
+	    719c94a2a63b __libc_start_main@@GLIBC_2.34+0x8b (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a63b)
+	    5af33826f225 _start+0x25 (/tmp/nunatak-capture-stacks/workload+0x1225)
+
+workload 2676554/2676554 28629997.099919:    1003009                                            task-clock:u: 
+	    5af33826f1b4 main+0xf4 (/tmp/nunatak-capture-stacks/workload+0x11b4)
+	    719c94a2a578 __libc_start_call_main+0x78 (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a578)
+	    719c94a2a63b __libc_start_main@@GLIBC_2.34+0x8b (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a63b)
+	    5af33826f225 _start+0x25 (/tmp/nunatak-capture-stacks/workload+0x1225)
+
+workload 2676554/2676554 28629997.101557:    4999999                 fp_ret_sse_avx_ops.all/period=4999999/u: 
+	    5af33826f1b8 main+0xf8 (/tmp/nunatak-capture-stacks/workload+0x11b8)
+	    719c94a2a578 __libc_start_call_main+0x78 (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a578)
+	    719c94a2a63b __libc_start_main@@GLIBC_2.34+0x8b (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a63b)
+	    5af33826f225 _start+0x25 (/tmp/nunatak-capture-stacks/workload+0x1225)
+
+workload 2676554/2676554 28629997.101566:    1003009                                            task-clock:u: 
+	    5af33826f1b8 main+0xf8 (/tmp/nunatak-capture-stacks/workload+0x11b8)
+	    719c94a2a578 __libc_start_call_main+0x78 (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a578)
+	    719c94a2a63b __libc_start_main@@GLIBC_2.34+0x8b (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a63b)
+	    5af33826f225 _start+0x25 (/tmp/nunatak-capture-stacks/workload+0x1225)
+
+workload 2676554/2676554 28629997.101925:    1003009                                            task-clock:u: 
+	    5af33826f1b4 main+0xf4 (/tmp/nunatak-capture-stacks/workload+0x11b4)
+	    719c94a2a578 __libc_start_call_main+0x78 (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a578)
+	    719c94a2a63b __libc_start_main@@GLIBC_2.34+0x8b (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a63b)
+	    5af33826f225 _start+0x25 (/tmp/nunatak-capture-stacks/workload+0x1225)
+
+workload 2676554/2676554 28629997.102928:    1003009                                            task-clock:u: 
+	    5af33826f1b4 main+0xf4 (/tmp/nunatak-capture-stacks/workload+0x11b4)
+	    719c94a2a578 __libc_start_call_main+0x78 (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a578)
+	    719c94a2a63b __libc_start_main@@GLIBC_2.34+0x8b (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a63b)
+	    5af33826f225 _start+0x25 (/tmp/nunatak-capture-stacks/workload+0x1225)
+
+workload 2676554/2676554 28629997.104111:    4999999                 fp_ret_sse_avx_ops.all/period=4999999/u: 
+	    5af33826f1b4 main+0xf4 (/tmp/nunatak-capture-stacks/workload+0x11b4)
+	    719c94a2a578 __libc_start_call_main+0x78 (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a578)
+	    719c94a2a63b __libc_start_main@@GLIBC_2.34+0x8b (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a63b)
+	    5af33826f225 _start+0x25 (/tmp/nunatak-capture-stacks/workload+0x1225)
+
+workload 2676554/2676554 28629997.104130:    1003009                                            task-clock:u: 
+	    5af33826f1b4 main+0xf4 (/tmp/nunatak-capture-stacks/workload+0x11b4)
+	    719c94a2a578 __libc_start_call_main+0x78 (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a578)
+	    719c94a2a63b __libc_start_main@@GLIBC_2.34+0x8b (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a63b)
+	    5af33826f225 _start+0x25 (/tmp/nunatak-capture-stacks/workload+0x1225)
+
+workload 2676554/2676554 28629997.104934:    1003009                                            task-clock:u: 
+	    5af33826f1b8 main+0xf8 (/tmp/nunatak-capture-stacks/workload+0x11b8)
+	    719c94a2a578 __libc_start_call_main+0x78 (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a578)
+	    719c94a2a63b __libc_start_main@@GLIBC_2.34+0x8b (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a63b)
+	    5af33826f225 _start+0x25 (/tmp/nunatak-capture-stacks/workload+0x1225)
+
+workload 2676554/2676554 28629997.105937:    1003009                                            task-clock:u: 
+	    5af33826f1b4 main+0xf4 (/tmp/nunatak-capture-stacks/workload+0x11b4)
+	    719c94a2a578 __libc_start_call_main+0x78 (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a578)
+	    719c94a2a63b __libc_start_main@@GLIBC_2.34+0x8b (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a63b)
+	    5af33826f225 _start+0x25 (/tmp/nunatak-capture-stacks/workload+0x1225)
+
+workload 2676554/2676554 28629997.106653:    4999999                 fp_ret_sse_avx_ops.all/period=4999999/u: 
+	    5af33826f1b8 main+0xf8 (/tmp/nunatak-capture-stacks/workload+0x11b8)
+	    719c94a2a578 __libc_start_call_main+0x78 (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a578)
+	    719c94a2a63b __libc_start_main@@GLIBC_2.34+0x8b (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a63b)
+	    5af33826f225 _start+0x25 (/tmp/nunatak-capture-stacks/workload+0x1225)
+
+workload 2676554/2676554 28629997.106940:    1003009                                            task-clock:u: 
+	    5af33826f1b8 main+0xf8 (/tmp/nunatak-capture-stacks/workload+0x11b8)
+	    719c94a2a578 __libc_start_call_main+0x78 (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a578)
+	    719c94a2a63b __libc_start_main@@GLIBC_2.34+0x8b (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a63b)
+	    5af33826f225 _start+0x25 (/tmp/nunatak-capture-stacks/workload+0x1225)
+
+workload 2676554/2676554 28629997.107943:    1003009                                            task-clock:u: 
+	    5af33826f1b8 main+0xf8 (/tmp/nunatak-capture-stacks/workload+0x11b8)
+	    719c94a2a578 __libc_start_call_main+0x78 (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a578)
+	    719c94a2a63b __libc_start_main@@GLIBC_2.34+0x8b (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a63b)
+	    5af33826f225 _start+0x25 (/tmp/nunatak-capture-stacks/workload+0x1225)
+
+workload 2676554/2676554 28629997.109199:    4999999                 fp_ret_sse_avx_ops.all/period=4999999/u: 
+	    5af33826f1b8 main+0xf8 (/tmp/nunatak-capture-stacks/workload+0x11b8)
+	    719c94a2a578 __libc_start_call_main+0x78 (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a578)
+	    719c94a2a63b __libc_start_main@@GLIBC_2.34+0x8b (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a63b)
+	    5af33826f225 _start+0x25 (/tmp/nunatak-capture-stacks/workload+0x1225)
+
+workload 2676554/2676554 28629997.109207:    1003009                                            task-clock:u: 
+	    5af33826f1b8 main+0xf8 (/tmp/nunatak-capture-stacks/workload+0x11b8)
+	    719c94a2a578 __libc_start_call_main+0x78 (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a578)
+	    719c94a2a63b __libc_start_main@@GLIBC_2.34+0x8b (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a63b)
+	    5af33826f225 _start+0x25 (/tmp/nunatak-capture-stacks/workload+0x1225)
+
+workload 2676554/2676554 28629997.109949:    1003009                                            task-clock:u: 
+	    5af33826f1b4 main+0xf4 (/tmp/nunatak-capture-stacks/workload+0x11b4)
+	    719c94a2a578 __libc_start_call_main+0x78 (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a578)
+	    719c94a2a63b __libc_start_main@@GLIBC_2.34+0x8b (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a63b)
+	    5af33826f225 _start+0x25 (/tmp/nunatak-capture-stacks/workload+0x1225)
+
+workload 2676554/2676554 28629997.110952:    1003009                                            task-clock:u: 
+	    5af33826f1b8 main+0xf8 (/tmp/nunatak-capture-stacks/workload+0x11b8)
+	    719c94a2a578 __libc_start_call_main+0x78 (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a578)
+	    719c94a2a63b __libc_start_main@@GLIBC_2.34+0x8b (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a63b)
+	    5af33826f225 _start+0x25 (/tmp/nunatak-capture-stacks/workload+0x1225)
+
+workload 2676554/2676554 28629997.111741:    4999999                 fp_ret_sse_avx_ops.all/period=4999999/u: 
+	    5af33826f1b8 main+0xf8 (/tmp/nunatak-capture-stacks/workload+0x11b8)
+	    719c94a2a578 __libc_start_call_main+0x78 (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a578)
+	    719c94a2a63b __libc_start_main@@GLIBC_2.34+0x8b (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a63b)
+	    5af33826f225 _start+0x25 (/tmp/nunatak-capture-stacks/workload+0x1225)
+
+workload 2676554/2676554 28629997.111955:    1003009                                            task-clock:u: 
+	    5af33826f1b4 main+0xf4 (/tmp/nunatak-capture-stacks/workload+0x11b4)
+	    719c94a2a578 __libc_start_call_main+0x78 (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a578)
+	    719c94a2a63b __libc_start_main@@GLIBC_2.34+0x8b (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a63b)
+	    5af33826f225 _start+0x25 (/tmp/nunatak-capture-stacks/workload+0x1225)
+
+workload 2676554/2676554 28629997.112958:    1003009                                            task-clock:u: 
+	    5af33826f1b4 main+0xf4 (/tmp/nunatak-capture-stacks/workload+0x11b4)
+	    719c94a2a578 __libc_start_call_main+0x78 (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a578)
+	    719c94a2a63b __libc_start_main@@GLIBC_2.34+0x8b (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a63b)
+	    5af33826f225 _start+0x25 (/tmp/nunatak-capture-stacks/workload+0x1225)
+
+workload 2676554/2676554 28629997.114291:    4999999                 fp_ret_sse_avx_ops.all/period=4999999/u: 
+	    5af33826f1b8 main+0xf8 (/tmp/nunatak-capture-stacks/workload+0x11b8)
+	    719c94a2a578 __libc_start_call_main+0x78 (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a578)
+	    719c94a2a63b __libc_start_main@@GLIBC_2.34+0x8b (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a63b)
+	    5af33826f225 _start+0x25 (/tmp/nunatak-capture-stacks/workload+0x1225)
+
+workload 2676554/2676554 28629997.114299:    1003009                                            task-clock:u: 
+	    5af33826f1b8 main+0xf8 (/tmp/nunatak-capture-stacks/workload+0x11b8)
+	    719c94a2a578 __libc_start_call_main+0x78 (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a578)
+	    719c94a2a63b __libc_start_main@@GLIBC_2.34+0x8b (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a63b)
+	    5af33826f225 _start+0x25 (/tmp/nunatak-capture-stacks/workload+0x1225)
+
+workload 2676554/2676554 28629997.114964:    1003009                                            task-clock:u: 
+	    5af33826f1b8 main+0xf8 (/tmp/nunatak-capture-stacks/workload+0x11b8)
+	    719c94a2a578 __libc_start_call_main+0x78 (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a578)
+	    719c94a2a63b __libc_start_main@@GLIBC_2.34+0x8b (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a63b)
+	    5af33826f225 _start+0x25 (/tmp/nunatak-capture-stacks/workload+0x1225)
+
+workload 2676554/2676554 28629997.115967:    1003009                                            task-clock:u: 
+	    5af33826f1b4 main+0xf4 (/tmp/nunatak-capture-stacks/workload+0x11b4)
+	    719c94a2a578 __libc_start_call_main+0x78 (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a578)
+	    719c94a2a63b __libc_start_main@@GLIBC_2.34+0x8b (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a63b)
+	    5af33826f225 _start+0x25 (/tmp/nunatak-capture-stacks/workload+0x1225)
+
+workload 2676554/2676554 28629997.116847:    4999999                 fp_ret_sse_avx_ops.all/period=4999999/u: 
+	    5af33826f1b8 main+0xf8 (/tmp/nunatak-capture-stacks/workload+0x11b8)
+	    719c94a2a578 __libc_start_call_main+0x78 (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a578)
+	    719c94a2a63b __libc_start_main@@GLIBC_2.34+0x8b (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a63b)
+	    5af33826f225 _start+0x25 (/tmp/nunatak-capture-stacks/workload+0x1225)
+
+workload 2676554/2676554 28629997.116970:    1003009                                            task-clock:u: 
+	    5af33826f1b4 main+0xf4 (/tmp/nunatak-capture-stacks/workload+0x11b4)
+	    719c94a2a578 __libc_start_call_main+0x78 (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a578)
+	    719c94a2a63b __libc_start_main@@GLIBC_2.34+0x8b (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a63b)
+	    5af33826f225 _start+0x25 (/tmp/nunatak-capture-stacks/workload+0x1225)
+
+workload 2676554/2676554 28629997.117973:    1003009                                            task-clock:u: 
+	    5af33826f1b4 main+0xf4 (/tmp/nunatak-capture-stacks/workload+0x11b4)
+	    719c94a2a578 __libc_start_call_main+0x78 (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a578)
+	    719c94a2a63b __libc_start_main@@GLIBC_2.34+0x8b (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a63b)
+	    5af33826f225 _start+0x25 (/tmp/nunatak-capture-stacks/workload+0x1225)
+
+workload 2676554/2676554 28629997.119387:    4999999                 fp_ret_sse_avx_ops.all/period=4999999/u: 
+	    5af33826f1b4 main+0xf4 (/tmp/nunatak-capture-stacks/workload+0x11b4)
+	    719c94a2a578 __libc_start_call_main+0x78 (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a578)
+	    719c94a2a63b __libc_start_main@@GLIBC_2.34+0x8b (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a63b)
+	    5af33826f225 _start+0x25 (/tmp/nunatak-capture-stacks/workload+0x1225)
+
+workload 2676554/2676554 28629997.119395:    1003009                                            task-clock:u: 
+	    5af33826f1b4 main+0xf4 (/tmp/nunatak-capture-stacks/workload+0x11b4)
+	    719c94a2a578 __libc_start_call_main+0x78 (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a578)
+	    719c94a2a63b __libc_start_main@@GLIBC_2.34+0x8b (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a63b)
+	    5af33826f225 _start+0x25 (/tmp/nunatak-capture-stacks/workload+0x1225)
+
+workload 2676554/2676554 28629997.119979:    1003009                                            task-clock:u: 
+	    5af33826f1b8 main+0xf8 (/tmp/nunatak-capture-stacks/workload+0x11b8)
+	    719c94a2a578 __libc_start_call_main+0x78 (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a578)
+	    719c94a2a63b __libc_start_main@@GLIBC_2.34+0x8b (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a63b)
+	    5af33826f225 _start+0x25 (/tmp/nunatak-capture-stacks/workload+0x1225)
+
+workload 2676554/2676554 28629997.120982:    1003009                                            task-clock:u: 
+	    5af33826f1b8 main+0xf8 (/tmp/nunatak-capture-stacks/workload+0x11b8)
+	    719c94a2a578 __libc_start_call_main+0x78 (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a578)
+	    719c94a2a63b __libc_start_main@@GLIBC_2.34+0x8b (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a63b)
+	    5af33826f225 _start+0x25 (/tmp/nunatak-capture-stacks/workload+0x1225)
+
+workload 2676554/2676554 28629997.121927:    4999999                 fp_ret_sse_avx_ops.all/period=4999999/u: 
+	    5af33826f1b4 main+0xf4 (/tmp/nunatak-capture-stacks/workload+0x11b4)
+	    719c94a2a578 __libc_start_call_main+0x78 (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a578)
+	    719c94a2a63b __libc_start_main@@GLIBC_2.34+0x8b (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a63b)
+	    5af33826f225 _start+0x25 (/tmp/nunatak-capture-stacks/workload+0x1225)
+
+workload 2676554/2676554 28629997.121985:    1003009                                            task-clock:u: 
+	    5af33826f1b4 main+0xf4 (/tmp/nunatak-capture-stacks/workload+0x11b4)
+	    719c94a2a578 __libc_start_call_main+0x78 (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a578)
+	    719c94a2a63b __libc_start_main@@GLIBC_2.34+0x8b (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a63b)
+	    5af33826f225 _start+0x25 (/tmp/nunatak-capture-stacks/workload+0x1225)
+
+workload 2676554/2676554 28629997.122988:    1003009                                            task-clock:u: 
+	    5af33826f1b4 main+0xf4 (/tmp/nunatak-capture-stacks/workload+0x11b4)
+	    719c94a2a578 __libc_start_call_main+0x78 (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a578)
+	    719c94a2a63b __libc_start_main@@GLIBC_2.34+0x8b (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a63b)
+	    5af33826f225 _start+0x25 (/tmp/nunatak-capture-stacks/workload+0x1225)
+
+workload 2676554/2676554 28629997.124463:    4999999                 fp_ret_sse_avx_ops.all/period=4999999/u: 
+	    5af33826f1b8 main+0xf8 (/tmp/nunatak-capture-stacks/workload+0x11b8)
+	    719c94a2a578 __libc_start_call_main+0x78 (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a578)
+	    719c94a2a63b __libc_start_main@@GLIBC_2.34+0x8b (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a63b)
+	    5af33826f225 _start+0x25 (/tmp/nunatak-capture-stacks/workload+0x1225)
+
+workload 2676554/2676554 28629997.124473:    1003009                                            task-clock:u: 
+	    5af33826f1b8 main+0xf8 (/tmp/nunatak-capture-stacks/workload+0x11b8)
+	    719c94a2a578 __libc_start_call_main+0x78 (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a578)
+	    719c94a2a63b __libc_start_main@@GLIBC_2.34+0x8b (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a63b)
+	    5af33826f225 _start+0x25 (/tmp/nunatak-capture-stacks/workload+0x1225)
+
+workload 2676554/2676554 28629997.124994:    1003009                                            task-clock:u: 
+	    5af33826f1b8 main+0xf8 (/tmp/nunatak-capture-stacks/workload+0x11b8)
+	    719c94a2a578 __libc_start_call_main+0x78 (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a578)
+	    719c94a2a63b __libc_start_main@@GLIBC_2.34+0x8b (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a63b)
+	    5af33826f225 _start+0x25 (/tmp/nunatak-capture-stacks/workload+0x1225)
+
+workload 2676554/2676554 28629997.125997:    1003009                                            task-clock:u: 
+	    5af33826f1b4 main+0xf4 (/tmp/nunatak-capture-stacks/workload+0x11b4)
+	    719c94a2a578 __libc_start_call_main+0x78 (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a578)
+	    719c94a2a63b __libc_start_main@@GLIBC_2.34+0x8b (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a63b)
+	    5af33826f225 _start+0x25 (/tmp/nunatak-capture-stacks/workload+0x1225)
+
+workload 2676554/2676554 28629997.127006:    4999999                 fp_ret_sse_avx_ops.all/period=4999999/u: 
+	    5af33826f1b4 main+0xf4 (/tmp/nunatak-capture-stacks/workload+0x11b4)
+	    719c94a2a578 __libc_start_call_main+0x78 (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a578)
+	    719c94a2a63b __libc_start_main@@GLIBC_2.34+0x8b (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a63b)
+	    5af33826f225 _start+0x25 (/tmp/nunatak-capture-stacks/workload+0x1225)
+
+workload 2676554/2676554 28629997.127018:    1003009                                            task-clock:u: 
+	    5af33826f1b4 main+0xf4 (/tmp/nunatak-capture-stacks/workload+0x11b4)
+	    719c94a2a578 __libc_start_call_main+0x78 (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a578)
+	    719c94a2a63b __libc_start_main@@GLIBC_2.34+0x8b (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a63b)
+	    5af33826f225 _start+0x25 (/tmp/nunatak-capture-stacks/workload+0x1225)
+
+workload 2676554/2676554 28629997.128003:    1003009                                            task-clock:u: 
+	    5af33826f1b4 main+0xf4 (/tmp/nunatak-capture-stacks/workload+0x11b4)
+	    719c94a2a578 __libc_start_call_main+0x78 (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a578)
+	    719c94a2a63b __libc_start_main@@GLIBC_2.34+0x8b (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a63b)
+	    5af33826f225 _start+0x25 (/tmp/nunatak-capture-stacks/workload+0x1225)
+
+workload 2676554/2676554 28629997.129522:    4999999                 fp_ret_sse_avx_ops.all/period=4999999/u: 
+	    5af33826f1b4 main+0xf4 (/tmp/nunatak-capture-stacks/workload+0x11b4)
+	    719c94a2a578 __libc_start_call_main+0x78 (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a578)
+	    719c94a2a63b __libc_start_main@@GLIBC_2.34+0x8b (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a63b)
+	    5af33826f225 _start+0x25 (/tmp/nunatak-capture-stacks/workload+0x1225)
+
+workload 2676554/2676554 28629997.129531:    1003009                                            task-clock:u: 
+	    5af33826f1b4 main+0xf4 (/tmp/nunatak-capture-stacks/workload+0x11b4)
+	    719c94a2a578 __libc_start_call_main+0x78 (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a578)
+	    719c94a2a63b __libc_start_main@@GLIBC_2.34+0x8b (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a63b)
+	    5af33826f225 _start+0x25 (/tmp/nunatak-capture-stacks/workload+0x1225)
+
+workload 2676554/2676554 28629997.130009:    1003009                                            task-clock:u: 
+	    5af33826f1b8 main+0xf8 (/tmp/nunatak-capture-stacks/workload+0x11b8)
+	    719c94a2a578 __libc_start_call_main+0x78 (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a578)
+	    719c94a2a63b __libc_start_main@@GLIBC_2.34+0x8b (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a63b)
+	    5af33826f225 _start+0x25 (/tmp/nunatak-capture-stacks/workload+0x1225)
+
+workload 2676554/2676554 28629997.131012:    1003009                                            task-clock:u: 
+	    5af33826f1b4 main+0xf4 (/tmp/nunatak-capture-stacks/workload+0x11b4)
+	    719c94a2a578 __libc_start_call_main+0x78 (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a578)
+	    719c94a2a63b __libc_start_main@@GLIBC_2.34+0x8b (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a63b)
+	    5af33826f225 _start+0x25 (/tmp/nunatak-capture-stacks/workload+0x1225)
+
+workload 2676554/2676554 28629997.132057:    4999999                 fp_ret_sse_avx_ops.all/period=4999999/u: 
+	    5af33826f1b4 main+0xf4 (/tmp/nunatak-capture-stacks/workload+0x11b4)
+	    719c94a2a578 __libc_start_call_main+0x78 (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a578)
+	    719c94a2a63b __libc_start_main@@GLIBC_2.34+0x8b (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a63b)
+	    5af33826f225 _start+0x25 (/tmp/nunatak-capture-stacks/workload+0x1225)
+
+workload 2676554/2676554 28629997.132069:    1003009                                            task-clock:u: 
+	    5af33826f1b4 main+0xf4 (/tmp/nunatak-capture-stacks/workload+0x11b4)
+	    719c94a2a578 __libc_start_call_main+0x78 (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a578)
+	    719c94a2a63b __libc_start_main@@GLIBC_2.34+0x8b (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a63b)
+	    5af33826f225 _start+0x25 (/tmp/nunatak-capture-stacks/workload+0x1225)
+
+workload 2676554/2676554 28629997.133018:    1003009                                            task-clock:u: 
+	    5af33826f1b4 main+0xf4 (/tmp/nunatak-capture-stacks/workload+0x11b4)
+	    719c94a2a578 __libc_start_call_main+0x78 (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a578)
+	    719c94a2a63b __libc_start_main@@GLIBC_2.34+0x8b (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a63b)
+	    5af33826f225 _start+0x25 (/tmp/nunatak-capture-stacks/workload+0x1225)
+
+workload 2676554/2676554 28629997.134588:    4999999                 fp_ret_sse_avx_ops.all/period=4999999/u: 
+	    5af33826f1b4 main+0xf4 (/tmp/nunatak-capture-stacks/workload+0x11b4)
+	    719c94a2a578 __libc_start_call_main+0x78 (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a578)
+	    719c94a2a63b __libc_start_main@@GLIBC_2.34+0x8b (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a63b)
+	    5af33826f225 _start+0x25 (/tmp/nunatak-capture-stacks/workload+0x1225)
+
+workload 2676554/2676554 28629997.134597:    1003009                                            task-clock:u: 
+	    5af33826f1b4 main+0xf4 (/tmp/nunatak-capture-stacks/workload+0x11b4)
+	    719c94a2a578 __libc_start_call_main+0x78 (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a578)
+	    719c94a2a63b __libc_start_main@@GLIBC_2.34+0x8b (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a63b)
+	    5af33826f225 _start+0x25 (/tmp/nunatak-capture-stacks/workload+0x1225)
+
+workload 2676554/2676554 28629997.135024:    1003009                                            task-clock:u: 
+	    5af33826f1b4 main+0xf4 (/tmp/nunatak-capture-stacks/workload+0x11b4)
+	    719c94a2a578 __libc_start_call_main+0x78 (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a578)
+	    719c94a2a63b __libc_start_main@@GLIBC_2.34+0x8b (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a63b)
+	    5af33826f225 _start+0x25 (/tmp/nunatak-capture-stacks/workload+0x1225)
+
+workload 2676554/2676554 28629997.136027:    1003009                                            task-clock:u: 
+	    5af33826f1b4 main+0xf4 (/tmp/nunatak-capture-stacks/workload+0x11b4)
+	    719c94a2a578 __libc_start_call_main+0x78 (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a578)
+	    719c94a2a63b __libc_start_main@@GLIBC_2.34+0x8b (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a63b)
+	    5af33826f225 _start+0x25 (/tmp/nunatak-capture-stacks/workload+0x1225)
+
+workload 2676554/2676554 28629997.137127:    4999999                 fp_ret_sse_avx_ops.all/period=4999999/u: 
+	    5af33826f1b4 main+0xf4 (/tmp/nunatak-capture-stacks/workload+0x11b4)
+	    719c94a2a578 __libc_start_call_main+0x78 (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a578)
+	    719c94a2a63b __libc_start_main@@GLIBC_2.34+0x8b (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a63b)
+	    5af33826f225 _start+0x25 (/tmp/nunatak-capture-stacks/workload+0x1225)
+
+workload 2676554/2676554 28629997.137136:    1003009                                            task-clock:u: 
+	    5af33826f1b4 main+0xf4 (/tmp/nunatak-capture-stacks/workload+0x11b4)
+	    719c94a2a578 __libc_start_call_main+0x78 (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a578)
+	    719c94a2a63b __libc_start_main@@GLIBC_2.34+0x8b (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a63b)
+	    5af33826f225 _start+0x25 (/tmp/nunatak-capture-stacks/workload+0x1225)
+
+workload 2676554/2676554 28629997.138033:    1003009                                            task-clock:u: 
+	    5af33826f1b8 main+0xf8 (/tmp/nunatak-capture-stacks/workload+0x11b8)
+	    719c94a2a578 __libc_start_call_main+0x78 (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a578)
+	    719c94a2a63b __libc_start_main@@GLIBC_2.34+0x8b (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a63b)
+	    5af33826f225 _start+0x25 (/tmp/nunatak-capture-stacks/workload+0x1225)
+
+workload 2676554/2676554 28629997.139655:    4999999                 fp_ret_sse_avx_ops.all/period=4999999/u: 
+	    5af33826f1b4 main+0xf4 (/tmp/nunatak-capture-stacks/workload+0x11b4)
+	    719c94a2a578 __libc_start_call_main+0x78 (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a578)
+	    719c94a2a63b __libc_start_main@@GLIBC_2.34+0x8b (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a63b)
+	    5af33826f225 _start+0x25 (/tmp/nunatak-capture-stacks/workload+0x1225)
+
+workload 2676554/2676554 28629997.139664:    1003009                                            task-clock:u: 
+	    5af33826f1b4 main+0xf4 (/tmp/nunatak-capture-stacks/workload+0x11b4)
+	    719c94a2a578 __libc_start_call_main+0x78 (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a578)
+	    719c94a2a63b __libc_start_main@@GLIBC_2.34+0x8b (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a63b)
+	    5af33826f225 _start+0x25 (/tmp/nunatak-capture-stacks/workload+0x1225)
+
+workload 2676554/2676554 28629997.140039:    1003009                                            task-clock:u: 
+	    5af33826f1b4 main+0xf4 (/tmp/nunatak-capture-stacks/workload+0x11b4)
+	    719c94a2a578 __libc_start_call_main+0x78 (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a578)
+	    719c94a2a63b __libc_start_main@@GLIBC_2.34+0x8b (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a63b)
+	    5af33826f225 _start+0x25 (/tmp/nunatak-capture-stacks/workload+0x1225)
+
+workload 2676554/2676554 28629997.141042:    1003009                                            task-clock:u: 
+	    5af33826f1b8 main+0xf8 (/tmp/nunatak-capture-stacks/workload+0x11b8)
+	    719c94a2a578 __libc_start_call_main+0x78 (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a578)
+	    719c94a2a63b __libc_start_main@@GLIBC_2.34+0x8b (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a63b)
+	    5af33826f225 _start+0x25 (/tmp/nunatak-capture-stacks/workload+0x1225)
+
+workload 2676554/2676554 28629997.142193:    4999999                 fp_ret_sse_avx_ops.all/period=4999999/u: 
+	    5af33826f1b8 main+0xf8 (/tmp/nunatak-capture-stacks/workload+0x11b8)
+	    719c94a2a578 __libc_start_call_main+0x78 (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a578)
+	    719c94a2a63b __libc_start_main@@GLIBC_2.34+0x8b (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a63b)
+	    5af33826f225 _start+0x25 (/tmp/nunatak-capture-stacks/workload+0x1225)
+
+workload 2676554/2676554 28629997.142202:    1003009                                            task-clock:u: 
+	    5af33826f1b8 main+0xf8 (/tmp/nunatak-capture-stacks/workload+0x11b8)
+	    719c94a2a578 __libc_start_call_main+0x78 (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a578)
+	    719c94a2a63b __libc_start_main@@GLIBC_2.34+0x8b (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a63b)
+	    5af33826f225 _start+0x25 (/tmp/nunatak-capture-stacks/workload+0x1225)
+
+workload 2676554/2676554 28629997.143048:    1003009                                            task-clock:u: 
+	    5af33826f1b4 main+0xf4 (/tmp/nunatak-capture-stacks/workload+0x11b4)
+	    719c94a2a578 __libc_start_call_main+0x78 (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a578)
+	    719c94a2a63b __libc_start_main@@GLIBC_2.34+0x8b (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a63b)
+	    5af33826f225 _start+0x25 (/tmp/nunatak-capture-stacks/workload+0x1225)
+
+workload 2676554/2676554 28629997.144051:    1003009                                            task-clock:u: 
+	    5af33826f1b8 main+0xf8 (/tmp/nunatak-capture-stacks/workload+0x11b8)
+	    719c94a2a578 __libc_start_call_main+0x78 (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a578)
+	    719c94a2a63b __libc_start_main@@GLIBC_2.34+0x8b (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a63b)
+	    5af33826f225 _start+0x25 (/tmp/nunatak-capture-stacks/workload+0x1225)
+
+workload 2676554/2676554 28629997.144737:    4999999                 fp_ret_sse_avx_ops.all/period=4999999/u: 
+	    5af33826f1b4 main+0xf4 (/tmp/nunatak-capture-stacks/workload+0x11b4)
+	    719c94a2a578 __libc_start_call_main+0x78 (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a578)
+	    719c94a2a63b __libc_start_main@@GLIBC_2.34+0x8b (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a63b)
+	    5af33826f225 _start+0x25 (/tmp/nunatak-capture-stacks/workload+0x1225)
+
+workload 2676554/2676554 28629997.145054:    1003009                                            task-clock:u: 
+	    5af33826f1b4 main+0xf4 (/tmp/nunatak-capture-stacks/workload+0x11b4)
+	    719c94a2a578 __libc_start_call_main+0x78 (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a578)
+	    719c94a2a63b __libc_start_main@@GLIBC_2.34+0x8b (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a63b)
+	    5af33826f225 _start+0x25 (/tmp/nunatak-capture-stacks/workload+0x1225)
+
+workload 2676554/2676554 28629997.146057:    1003009                                            task-clock:u: 
+	    5af33826f1b8 main+0xf8 (/tmp/nunatak-capture-stacks/workload+0x11b8)
+	    719c94a2a578 __libc_start_call_main+0x78 (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a578)
+	    719c94a2a63b __libc_start_main@@GLIBC_2.34+0x8b (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a63b)
+	    5af33826f225 _start+0x25 (/tmp/nunatak-capture-stacks/workload+0x1225)
+
+workload 2676554/2676554 28629997.147291:    4999999                 fp_ret_sse_avx_ops.all/period=4999999/u: 
+	    5af33826f1b4 main+0xf4 (/tmp/nunatak-capture-stacks/workload+0x11b4)
+	    719c94a2a578 __libc_start_call_main+0x78 (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a578)
+	    719c94a2a63b __libc_start_main@@GLIBC_2.34+0x8b (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a63b)
+	    5af33826f225 _start+0x25 (/tmp/nunatak-capture-stacks/workload+0x1225)
+
+workload 2676554/2676554 28629997.147300:    1003009                                            task-clock:u: 
+	    5af33826f1b4 main+0xf4 (/tmp/nunatak-capture-stacks/workload+0x11b4)
+	    719c94a2a578 __libc_start_call_main+0x78 (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a578)
+	    719c94a2a63b __libc_start_main@@GLIBC_2.34+0x8b (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a63b)
+	    5af33826f225 _start+0x25 (/tmp/nunatak-capture-stacks/workload+0x1225)
+
+workload 2676554/2676554 28629997.148064:    1003009                                            task-clock:u: 
+	    5af33826f1b4 main+0xf4 (/tmp/nunatak-capture-stacks/workload+0x11b4)
+	    719c94a2a578 __libc_start_call_main+0x78 (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a578)
+	    719c94a2a63b __libc_start_main@@GLIBC_2.34+0x8b (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a63b)
+	    5af33826f225 _start+0x25 (/tmp/nunatak-capture-stacks/workload+0x1225)
+
+workload 2676554/2676554 28629997.149066:    1003009                                            task-clock:u: 
+	    5af33826f1b8 main+0xf8 (/tmp/nunatak-capture-stacks/workload+0x11b8)
+	    719c94a2a578 __libc_start_call_main+0x78 (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a578)
+	    719c94a2a63b __libc_start_main@@GLIBC_2.34+0x8b (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a63b)
+	    5af33826f225 _start+0x25 (/tmp/nunatak-capture-stacks/workload+0x1225)
+
+workload 2676554/2676554 28629997.149854:    4999999                 fp_ret_sse_avx_ops.all/period=4999999/u: 
+	    5af33826f1b8 main+0xf8 (/tmp/nunatak-capture-stacks/workload+0x11b8)
+	    719c94a2a578 __libc_start_call_main+0x78 (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a578)
+	    719c94a2a63b __libc_start_main@@GLIBC_2.34+0x8b (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a63b)
+	    5af33826f225 _start+0x25 (/tmp/nunatak-capture-stacks/workload+0x1225)
+
+workload 2676554/2676554 28629997.150069:    1003009                                            task-clock:u: 
+	    5af33826f1b8 main+0xf8 (/tmp/nunatak-capture-stacks/workload+0x11b8)
+	    719c94a2a578 __libc_start_call_main+0x78 (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a578)
+	    719c94a2a63b __libc_start_main@@GLIBC_2.34+0x8b (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a63b)
+	    5af33826f225 _start+0x25 (/tmp/nunatak-capture-stacks/workload+0x1225)
+
+workload 2676554/2676554 28629997.151072:    1003009                                            task-clock:u: 
+	    5af33826f1b8 main+0xf8 (/tmp/nunatak-capture-stacks/workload+0x11b8)
+	    719c94a2a578 __libc_start_call_main+0x78 (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a578)
+	    719c94a2a63b __libc_start_main@@GLIBC_2.34+0x8b (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a63b)
+	    5af33826f225 _start+0x25 (/tmp/nunatak-capture-stacks/workload+0x1225)
+
+workload 2676554/2676554 28629997.152410:    4999999                 fp_ret_sse_avx_ops.all/period=4999999/u: 
+	    5af33826f1b4 main+0xf4 (/tmp/nunatak-capture-stacks/workload+0x11b4)
+	    719c94a2a578 __libc_start_call_main+0x78 (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a578)
+	    719c94a2a63b __libc_start_main@@GLIBC_2.34+0x8b (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a63b)
+	    5af33826f225 _start+0x25 (/tmp/nunatak-capture-stacks/workload+0x1225)
+
+workload 2676554/2676554 28629997.152419:    1003009                                            task-clock:u: 
+	    5af33826f1b4 main+0xf4 (/tmp/nunatak-capture-stacks/workload+0x11b4)
+	    719c94a2a578 __libc_start_call_main+0x78 (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a578)
+	    719c94a2a63b __libc_start_main@@GLIBC_2.34+0x8b (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a63b)
+	    5af33826f225 _start+0x25 (/tmp/nunatak-capture-stacks/workload+0x1225)
+
+workload 2676554/2676554 28629997.153079:    1003009                                            task-clock:u: 
+	    5af33826f1b4 main+0xf4 (/tmp/nunatak-capture-stacks/workload+0x11b4)
+	    719c94a2a578 __libc_start_call_main+0x78 (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a578)
+	    719c94a2a63b __libc_start_main@@GLIBC_2.34+0x8b (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a63b)
+	    5af33826f225 _start+0x25 (/tmp/nunatak-capture-stacks/workload+0x1225)
+
+workload 2676554/2676554 28629997.154081:    1003009                                            task-clock:u: 
+	    5af33826f1b8 main+0xf8 (/tmp/nunatak-capture-stacks/workload+0x11b8)
+	    719c94a2a578 __libc_start_call_main+0x78 (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a578)
+	    719c94a2a63b __libc_start_main@@GLIBC_2.34+0x8b (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a63b)
+	    5af33826f225 _start+0x25 (/tmp/nunatak-capture-stacks/workload+0x1225)
+
+workload 2676554/2676554 28629997.154944:    4999999                 fp_ret_sse_avx_ops.all/period=4999999/u: 
+	    5af33826f1b4 main+0xf4 (/tmp/nunatak-capture-stacks/workload+0x11b4)
+	    719c94a2a578 __libc_start_call_main+0x78 (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a578)
+	    719c94a2a63b __libc_start_main@@GLIBC_2.34+0x8b (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a63b)
+	    5af33826f225 _start+0x25 (/tmp/nunatak-capture-stacks/workload+0x1225)
+
+workload 2676554/2676554 28629997.155084:    1003009                                            task-clock:u: 
+	    5af33826f1b8 main+0xf8 (/tmp/nunatak-capture-stacks/workload+0x11b8)
+	    719c94a2a578 __libc_start_call_main+0x78 (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a578)
+	    719c94a2a63b __libc_start_main@@GLIBC_2.34+0x8b (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a63b)
+	    5af33826f225 _start+0x25 (/tmp/nunatak-capture-stacks/workload+0x1225)
+
+workload 2676554/2676554 28629997.156088:    1003009                                            task-clock:u: 
+	    5af33826f1b4 main+0xf4 (/tmp/nunatak-capture-stacks/workload+0x11b4)
+	    719c94a2a578 __libc_start_call_main+0x78 (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a578)
+	    719c94a2a63b __libc_start_main@@GLIBC_2.34+0x8b (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a63b)
+	    5af33826f225 _start+0x25 (/tmp/nunatak-capture-stacks/workload+0x1225)
+
+workload 2676554/2676554 28629997.157492:    4999999                 fp_ret_sse_avx_ops.all/period=4999999/u: 
+	    5af33826f1b4 main+0xf4 (/tmp/nunatak-capture-stacks/workload+0x11b4)
+	    719c94a2a578 __libc_start_call_main+0x78 (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a578)
+	    719c94a2a63b __libc_start_main@@GLIBC_2.34+0x8b (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a63b)
+	    5af33826f225 _start+0x25 (/tmp/nunatak-capture-stacks/workload+0x1225)
+
+workload 2676554/2676554 28629997.157501:    1003009                                            task-clock:u: 
+	    5af33826f1b4 main+0xf4 (/tmp/nunatak-capture-stacks/workload+0x11b4)
+	    719c94a2a578 __libc_start_call_main+0x78 (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a578)
+	    719c94a2a63b __libc_start_main@@GLIBC_2.34+0x8b (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a63b)
+	    5af33826f225 _start+0x25 (/tmp/nunatak-capture-stacks/workload+0x1225)
+
+workload 2676554/2676554 28629997.158093:    1003009                                            task-clock:u: 
+	    5af33826f1b4 main+0xf4 (/tmp/nunatak-capture-stacks/workload+0x11b4)
+	    719c94a2a578 __libc_start_call_main+0x78 (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a578)
+	    719c94a2a63b __libc_start_main@@GLIBC_2.34+0x8b (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a63b)
+	    5af33826f225 _start+0x25 (/tmp/nunatak-capture-stacks/workload+0x1225)
+
+workload 2676554/2676554 28629997.159096:    1003009                                            task-clock:u: 
+	    5af33826f1b8 main+0xf8 (/tmp/nunatak-capture-stacks/workload+0x11b8)
+	    719c94a2a578 __libc_start_call_main+0x78 (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a578)
+	    719c94a2a63b __libc_start_main@@GLIBC_2.34+0x8b (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a63b)
+	    5af33826f225 _start+0x25 (/tmp/nunatak-capture-stacks/workload+0x1225)
+
+workload 2676554/2676554 28629997.160033:    4999999                 fp_ret_sse_avx_ops.all/period=4999999/u: 
+	    5af33826f1b8 main+0xf8 (/tmp/nunatak-capture-stacks/workload+0x11b8)
+	    719c94a2a578 __libc_start_call_main+0x78 (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a578)
+	    719c94a2a63b __libc_start_main@@GLIBC_2.34+0x8b (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a63b)
+	    5af33826f225 _start+0x25 (/tmp/nunatak-capture-stacks/workload+0x1225)
+
+workload 2676554/2676554 28629997.160099:    1003009                                            task-clock:u: 
+	    5af33826f1b4 main+0xf4 (/tmp/nunatak-capture-stacks/workload+0x11b4)
+	    719c94a2a578 __libc_start_call_main+0x78 (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a578)
+	    719c94a2a63b __libc_start_main@@GLIBC_2.34+0x8b (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a63b)
+	    5af33826f225 _start+0x25 (/tmp/nunatak-capture-stacks/workload+0x1225)
+
+workload 2676554/2676554 28629997.161103:    1003009                                            task-clock:u: 
+	    5af33826f1b8 main+0xf8 (/tmp/nunatak-capture-stacks/workload+0x11b8)
+	    719c94a2a578 __libc_start_call_main+0x78 (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a578)
+	    719c94a2a63b __libc_start_main@@GLIBC_2.34+0x8b (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a63b)
+	    5af33826f225 _start+0x25 (/tmp/nunatak-capture-stacks/workload+0x1225)
+
+workload 2676554/2676554 28629997.162589:    4999999                 fp_ret_sse_avx_ops.all/period=4999999/u: 
+	    5af33826f1b4 main+0xf4 (/tmp/nunatak-capture-stacks/workload+0x11b4)
+	    719c94a2a578 __libc_start_call_main+0x78 (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a578)
+	    719c94a2a63b __libc_start_main@@GLIBC_2.34+0x8b (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a63b)
+	    5af33826f225 _start+0x25 (/tmp/nunatak-capture-stacks/workload+0x1225)
+
+workload 2676554/2676554 28629997.162598:    1003009                                            task-clock:u: 
+	    5af33826f1b4 main+0xf4 (/tmp/nunatak-capture-stacks/workload+0x11b4)
+	    719c94a2a578 __libc_start_call_main+0x78 (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a578)
+	    719c94a2a63b __libc_start_main@@GLIBC_2.34+0x8b (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a63b)
+	    5af33826f225 _start+0x25 (/tmp/nunatak-capture-stacks/workload+0x1225)
+
+workload 2676554/2676554 28629997.163108:    1003009                                            task-clock:u: 
+	    5af33826f1b4 main+0xf4 (/tmp/nunatak-capture-stacks/workload+0x11b4)
+	    719c94a2a578 __libc_start_call_main+0x78 (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a578)
+	    719c94a2a63b __libc_start_main@@GLIBC_2.34+0x8b (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a63b)
+	    5af33826f225 _start+0x25 (/tmp/nunatak-capture-stacks/workload+0x1225)
+
+workload 2676554/2676554 28629997.164111:    1003009                                            task-clock:u: 
+	    5af33826f1b4 main+0xf4 (/tmp/nunatak-capture-stacks/workload+0x11b4)
+	    719c94a2a578 __libc_start_call_main+0x78 (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a578)
+	    719c94a2a63b __libc_start_main@@GLIBC_2.34+0x8b (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a63b)
+	    5af33826f225 _start+0x25 (/tmp/nunatak-capture-stacks/workload+0x1225)
+
+workload 2676554/2676554 28629997.165146:    4999999                 fp_ret_sse_avx_ops.all/period=4999999/u: 
+	    5af33826f1b8 main+0xf8 (/tmp/nunatak-capture-stacks/workload+0x11b8)
+	    719c94a2a578 __libc_start_call_main+0x78 (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a578)
+	    719c94a2a63b __libc_start_main@@GLIBC_2.34+0x8b (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a63b)
+	    5af33826f225 _start+0x25 (/tmp/nunatak-capture-stacks/workload+0x1225)
+
+workload 2676554/2676554 28629997.165155:    1003009                                            task-clock:u: 
+	    5af33826f1b8 main+0xf8 (/tmp/nunatak-capture-stacks/workload+0x11b8)
+	    719c94a2a578 __libc_start_call_main+0x78 (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a578)
+	    719c94a2a63b __libc_start_main@@GLIBC_2.34+0x8b (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a63b)
+	    5af33826f225 _start+0x25 (/tmp/nunatak-capture-stacks/workload+0x1225)
+
+workload 2676554/2676554 28629997.166122:    1003009                                            task-clock:u: 
+	    5af33826f1b8 main+0xf8 (/tmp/nunatak-capture-stacks/workload+0x11b8)
+	    719c94a2a578 __libc_start_call_main+0x78 (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a578)
+	    719c94a2a63b __libc_start_main@@GLIBC_2.34+0x8b (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a63b)
+	    5af33826f225 _start+0x25 (/tmp/nunatak-capture-stacks/workload+0x1225)
+
+workload 2676554/2676554 28629997.167674:    4999999                 fp_ret_sse_avx_ops.all/period=4999999/u: 
+	    5af33826f1b4 main+0xf4 (/tmp/nunatak-capture-stacks/workload+0x11b4)
+	    719c94a2a578 __libc_start_call_main+0x78 (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a578)
+	    719c94a2a63b __libc_start_main@@GLIBC_2.34+0x8b (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a63b)
+	    5af33826f225 _start+0x25 (/tmp/nunatak-capture-stacks/workload+0x1225)
+
+workload 2676554/2676554 28629997.167683:    1003009                                            task-clock:u: 
+	    5af33826f1b4 main+0xf4 (/tmp/nunatak-capture-stacks/workload+0x11b4)
+	    719c94a2a578 __libc_start_call_main+0x78 (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a578)
+	    719c94a2a63b __libc_start_main@@GLIBC_2.34+0x8b (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a63b)
+	    5af33826f225 _start+0x25 (/tmp/nunatak-capture-stacks/workload+0x1225)
+
+workload 2676554/2676554 28629997.168124:    1003009                                            task-clock:u: 
+	    5af33826f1b8 main+0xf8 (/tmp/nunatak-capture-stacks/workload+0x11b8)
+	    719c94a2a578 __libc_start_call_main+0x78 (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a578)
+	    719c94a2a63b __libc_start_main@@GLIBC_2.34+0x8b (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a63b)
+	    5af33826f225 _start+0x25 (/tmp/nunatak-capture-stacks/workload+0x1225)
+
+workload 2676554/2676554 28629997.169126:    1003009                                            task-clock:u: 
+	    5af33826f1b8 main+0xf8 (/tmp/nunatak-capture-stacks/workload+0x11b8)
+	    719c94a2a578 __libc_start_call_main+0x78 (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a578)
+	    719c94a2a63b __libc_start_main@@GLIBC_2.34+0x8b (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a63b)
+	    5af33826f225 _start+0x25 (/tmp/nunatak-capture-stacks/workload+0x1225)
+
+workload 2676554/2676554 28629997.170216:    4999999                 fp_ret_sse_avx_ops.all/period=4999999/u: 
+	    5af33826f1b4 main+0xf4 (/tmp/nunatak-capture-stacks/workload+0x11b4)
+	    719c94a2a578 __libc_start_call_main+0x78 (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a578)
+	    719c94a2a63b __libc_start_main@@GLIBC_2.34+0x8b (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a63b)
+	    5af33826f225 _start+0x25 (/tmp/nunatak-capture-stacks/workload+0x1225)
+
+workload 2676554/2676554 28629997.170225:    1003009                                            task-clock:u: 
+	    5af33826f1b4 main+0xf4 (/tmp/nunatak-capture-stacks/workload+0x11b4)
+	    719c94a2a578 __libc_start_call_main+0x78 (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a578)
+	    719c94a2a63b __libc_start_main@@GLIBC_2.34+0x8b (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a63b)
+	    5af33826f225 _start+0x25 (/tmp/nunatak-capture-stacks/workload+0x1225)
+
+workload 2676554/2676554 28629997.171132:    1003009                                            task-clock:u: 
+	    5af33826f1b4 main+0xf4 (/tmp/nunatak-capture-stacks/workload+0x11b4)
+	    719c94a2a578 __libc_start_call_main+0x78 (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a578)
+	    719c94a2a63b __libc_start_main@@GLIBC_2.34+0x8b (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a63b)
+	    5af33826f225 _start+0x25 (/tmp/nunatak-capture-stacks/workload+0x1225)
+
+workload 2676554/2676554 28629997.172760:    4999999                 fp_ret_sse_avx_ops.all/period=4999999/u: 
+	    5af33826f1b8 main+0xf8 (/tmp/nunatak-capture-stacks/workload+0x11b8)
+	    719c94a2a578 __libc_start_call_main+0x78 (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a578)
+	    719c94a2a63b __libc_start_main@@GLIBC_2.34+0x8b (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a63b)
+	    5af33826f225 _start+0x25 (/tmp/nunatak-capture-stacks/workload+0x1225)
+
+workload 2676554/2676554 28629997.172770:    1003009                                            task-clock:u: 
+	    5af33826f1b8 main+0xf8 (/tmp/nunatak-capture-stacks/workload+0x11b8)
+	    719c94a2a578 __libc_start_call_main+0x78 (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a578)
+	    719c94a2a63b __libc_start_main@@GLIBC_2.34+0x8b (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a63b)
+	    5af33826f225 _start+0x25 (/tmp/nunatak-capture-stacks/workload+0x1225)
+
+workload 2676554/2676554 28629997.173138:    1003009                                            task-clock:u: 
+	    5af33826f1b4 main+0xf4 (/tmp/nunatak-capture-stacks/workload+0x11b4)
+	    719c94a2a578 __libc_start_call_main+0x78 (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a578)
+	    719c94a2a63b __libc_start_main@@GLIBC_2.34+0x8b (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a63b)
+	    5af33826f225 _start+0x25 (/tmp/nunatak-capture-stacks/workload+0x1225)
+
+workload 2676554/2676554 28629997.174141:    1003009                                            task-clock:u: 
+	    5af33826f1b4 main+0xf4 (/tmp/nunatak-capture-stacks/workload+0x11b4)
+	    719c94a2a578 __libc_start_call_main+0x78 (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a578)
+	    719c94a2a63b __libc_start_main@@GLIBC_2.34+0x8b (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a63b)
+	    5af33826f225 _start+0x25 (/tmp/nunatak-capture-stacks/workload+0x1225)
+
+workload 2676554/2676554 28629997.175315:    4999999                 fp_ret_sse_avx_ops.all/period=4999999/u: 
+	    5af33826f1b4 main+0xf4 (/tmp/nunatak-capture-stacks/workload+0x11b4)
+	    719c94a2a578 __libc_start_call_main+0x78 (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a578)
+	    719c94a2a63b __libc_start_main@@GLIBC_2.34+0x8b (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a63b)
+	    5af33826f225 _start+0x25 (/tmp/nunatak-capture-stacks/workload+0x1225)
+
+workload 2676554/2676554 28629997.175323:    1003009                                            task-clock:u: 
+	    5af33826f1b4 main+0xf4 (/tmp/nunatak-capture-stacks/workload+0x11b4)
+	    719c94a2a578 __libc_start_call_main+0x78 (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a578)
+	    719c94a2a63b __libc_start_main@@GLIBC_2.34+0x8b (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a63b)
+	    5af33826f225 _start+0x25 (/tmp/nunatak-capture-stacks/workload+0x1225)
+
+workload 2676554/2676554 28629997.176147:    1003009                                            task-clock:u: 
+	    5af33826f1b4 main+0xf4 (/tmp/nunatak-capture-stacks/workload+0x11b4)
+	    719c94a2a578 __libc_start_call_main+0x78 (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a578)
+	    719c94a2a63b __libc_start_main@@GLIBC_2.34+0x8b (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a63b)
+	    5af33826f225 _start+0x25 (/tmp/nunatak-capture-stacks/workload+0x1225)
+
+workload 2676554/2676554 28629997.177150:    1003009                                            task-clock:u: 
+	    5af33826f1b8 main+0xf8 (/tmp/nunatak-capture-stacks/workload+0x11b8)
+	    719c94a2a578 __libc_start_call_main+0x78 (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a578)
+	    719c94a2a63b __libc_start_main@@GLIBC_2.34+0x8b (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a63b)
+	    5af33826f225 _start+0x25 (/tmp/nunatak-capture-stacks/workload+0x1225)
+
+workload 2676554/2676554 28629997.177859:    4999999                 fp_ret_sse_avx_ops.all/period=4999999/u: 
+	    5af33826f1b8 main+0xf8 (/tmp/nunatak-capture-stacks/workload+0x11b8)
+	    719c94a2a578 __libc_start_call_main+0x78 (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a578)
+	    719c94a2a63b __libc_start_main@@GLIBC_2.34+0x8b (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a63b)
+	    5af33826f225 _start+0x25 (/tmp/nunatak-capture-stacks/workload+0x1225)
+
+workload 2676554/2676554 28629997.178153:    1003009                                            task-clock:u: 
+	    5af33826f1b4 main+0xf4 (/tmp/nunatak-capture-stacks/workload+0x11b4)
+	    719c94a2a578 __libc_start_call_main+0x78 (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a578)
+	    719c94a2a63b __libc_start_main@@GLIBC_2.34+0x8b (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a63b)
+	    5af33826f225 _start+0x25 (/tmp/nunatak-capture-stacks/workload+0x1225)
+
+workload 2676554/2676554 28629997.179156:    1003009                                            task-clock:u: 
+	    5af33826f1b8 main+0xf8 (/tmp/nunatak-capture-stacks/workload+0x11b8)
+	    719c94a2a578 __libc_start_call_main+0x78 (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a578)
+	    719c94a2a63b __libc_start_main@@GLIBC_2.34+0x8b (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a63b)
+	    5af33826f225 _start+0x25 (/tmp/nunatak-capture-stacks/workload+0x1225)
+
+workload 2676554/2676554 28629997.180422:    4999999                 fp_ret_sse_avx_ops.all/period=4999999/u: 
+	    5af33826f1b4 main+0xf4 (/tmp/nunatak-capture-stacks/workload+0x11b4)
+	    719c94a2a578 __libc_start_call_main+0x78 (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a578)
+	    719c94a2a63b __libc_start_main@@GLIBC_2.34+0x8b (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a63b)
+	    5af33826f225 _start+0x25 (/tmp/nunatak-capture-stacks/workload+0x1225)
+
+workload 2676554/2676554 28629997.180431:    1003009                                            task-clock:u: 
+	    5af33826f1b4 main+0xf4 (/tmp/nunatak-capture-stacks/workload+0x11b4)
+	    719c94a2a578 __libc_start_call_main+0x78 (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a578)
+	    719c94a2a63b __libc_start_main@@GLIBC_2.34+0x8b (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a63b)
+	    5af33826f225 _start+0x25 (/tmp/nunatak-capture-stacks/workload+0x1225)
+
+workload 2676554/2676554 28629997.181162:    1003009                                            task-clock:u: 
+	    5af33826f1b4 main+0xf4 (/tmp/nunatak-capture-stacks/workload+0x11b4)
+	    719c94a2a578 __libc_start_call_main+0x78 (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a578)
+	    719c94a2a63b __libc_start_main@@GLIBC_2.34+0x8b (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a63b)
+	    5af33826f225 _start+0x25 (/tmp/nunatak-capture-stacks/workload+0x1225)
+
+workload 2676554/2676554 28629997.182165:    1003009                                            task-clock:u: 
+	    5af33826f1b4 main+0xf4 (/tmp/nunatak-capture-stacks/workload+0x11b4)
+	    719c94a2a578 __libc_start_call_main+0x78 (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a578)
+	    719c94a2a63b __libc_start_main@@GLIBC_2.34+0x8b (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a63b)
+	    5af33826f225 _start+0x25 (/tmp/nunatak-capture-stacks/workload+0x1225)
+
+workload 2676554/2676554 28629997.182949:    4999999                 fp_ret_sse_avx_ops.all/period=4999999/u: 
+	    5af33826f1b8 main+0xf8 (/tmp/nunatak-capture-stacks/workload+0x11b8)
+	    719c94a2a578 __libc_start_call_main+0x78 (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a578)
+	    719c94a2a63b __libc_start_main@@GLIBC_2.34+0x8b (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a63b)
+	    5af33826f225 _start+0x25 (/tmp/nunatak-capture-stacks/workload+0x1225)
+
+workload 2676554/2676554 28629997.183168:    1003009                                            task-clock:u: 
+	    5af33826f1b8 main+0xf8 (/tmp/nunatak-capture-stacks/workload+0x11b8)
+	    719c94a2a578 __libc_start_call_main+0x78 (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a578)
+	    719c94a2a63b __libc_start_main@@GLIBC_2.34+0x8b (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a63b)
+	    5af33826f225 _start+0x25 (/tmp/nunatak-capture-stacks/workload+0x1225)
+
+workload 2676554/2676554 28629997.184171:    1003009                                            task-clock:u: 
+	    5af33826f1b8 main+0xf8 (/tmp/nunatak-capture-stacks/workload+0x11b8)
+	    719c94a2a578 __libc_start_call_main+0x78 (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a578)
+	    719c94a2a63b __libc_start_main@@GLIBC_2.34+0x8b (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a63b)
+	    5af33826f225 _start+0x25 (/tmp/nunatak-capture-stacks/workload+0x1225)
+
+workload 2676554/2676554 28629997.185492:    4999999                 fp_ret_sse_avx_ops.all/period=4999999/u: 
+	    5af33826f1b4 main+0xf4 (/tmp/nunatak-capture-stacks/workload+0x11b4)
+	    719c94a2a578 __libc_start_call_main+0x78 (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a578)
+	    719c94a2a63b __libc_start_main@@GLIBC_2.34+0x8b (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a63b)
+	    5af33826f225 _start+0x25 (/tmp/nunatak-capture-stacks/workload+0x1225)
+
+workload 2676554/2676554 28629997.185501:    1003009                                            task-clock:u: 
+	    5af33826f1b4 main+0xf4 (/tmp/nunatak-capture-stacks/workload+0x11b4)
+	    719c94a2a578 __libc_start_call_main+0x78 (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a578)
+	    719c94a2a63b __libc_start_main@@GLIBC_2.34+0x8b (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a63b)
+	    5af33826f225 _start+0x25 (/tmp/nunatak-capture-stacks/workload+0x1225)
+
+workload 2676554/2676554 28629997.186177:    1003009                                            task-clock:u: 
+	    5af33826f1b8 main+0xf8 (/tmp/nunatak-capture-stacks/workload+0x11b8)
+	    719c94a2a578 __libc_start_call_main+0x78 (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a578)
+	    719c94a2a63b __libc_start_main@@GLIBC_2.34+0x8b (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a63b)
+	    5af33826f225 _start+0x25 (/tmp/nunatak-capture-stacks/workload+0x1225)
+
+workload 2676554/2676554 28629997.187180:    1003009                                            task-clock:u: 
+	    5af33826f1b4 main+0xf4 (/tmp/nunatak-capture-stacks/workload+0x11b4)
+	    719c94a2a578 __libc_start_call_main+0x78 (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a578)
+	    719c94a2a63b __libc_start_main@@GLIBC_2.34+0x8b (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a63b)
+	    5af33826f225 _start+0x25 (/tmp/nunatak-capture-stacks/workload+0x1225)
+
+workload 2676554/2676554 28629997.188038:    4999999                 fp_ret_sse_avx_ops.all/period=4999999/u: 
+	    5af33826f1b4 main+0xf4 (/tmp/nunatak-capture-stacks/workload+0x11b4)
+	    719c94a2a578 __libc_start_call_main+0x78 (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a578)
+	    719c94a2a63b __libc_start_main@@GLIBC_2.34+0x8b (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a63b)
+	    5af33826f225 _start+0x25 (/tmp/nunatak-capture-stacks/workload+0x1225)
+
+workload 2676554/2676554 28629997.188183:    1003009                                            task-clock:u: 
+	    5af33826f1b8 main+0xf8 (/tmp/nunatak-capture-stacks/workload+0x11b8)
+	    719c94a2a578 __libc_start_call_main+0x78 (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a578)
+	    719c94a2a63b __libc_start_main@@GLIBC_2.34+0x8b (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a63b)
+	    5af33826f225 _start+0x25 (/tmp/nunatak-capture-stacks/workload+0x1225)
+
+workload 2676554/2676554 28629997.189186:    1003009                                            task-clock:u: 
+	    5af33826f1b8 main+0xf8 (/tmp/nunatak-capture-stacks/workload+0x11b8)
+	    719c94a2a578 __libc_start_call_main+0x78 (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a578)
+	    719c94a2a63b __libc_start_main@@GLIBC_2.34+0x8b (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a63b)
+	    5af33826f225 _start+0x25 (/tmp/nunatak-capture-stacks/workload+0x1225)
+
+workload 2676554/2676554 28629997.190572:    4999999                 fp_ret_sse_avx_ops.all/period=4999999/u: 
+	    5af33826f1b8 main+0xf8 (/tmp/nunatak-capture-stacks/workload+0x11b8)
+	    719c94a2a578 __libc_start_call_main+0x78 (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a578)
+	    719c94a2a63b __libc_start_main@@GLIBC_2.34+0x8b (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a63b)
+	    5af33826f225 _start+0x25 (/tmp/nunatak-capture-stacks/workload+0x1225)
+
+workload 2676554/2676554 28629997.190581:    1003009                                            task-clock:u: 
+	    5af33826f1b8 main+0xf8 (/tmp/nunatak-capture-stacks/workload+0x11b8)
+	    719c94a2a578 __libc_start_call_main+0x78 (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a578)
+	    719c94a2a63b __libc_start_main@@GLIBC_2.34+0x8b (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a63b)
+	    5af33826f225 _start+0x25 (/tmp/nunatak-capture-stacks/workload+0x1225)
+
+workload 2676554/2676554 28629997.191192:    1003009                                            task-clock:u: 
+	    5af33826f1b8 main+0xf8 (/tmp/nunatak-capture-stacks/workload+0x11b8)
+	    719c94a2a578 __libc_start_call_main+0x78 (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a578)
+	    719c94a2a63b __libc_start_main@@GLIBC_2.34+0x8b (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a63b)
+	    5af33826f225 _start+0x25 (/tmp/nunatak-capture-stacks/workload+0x1225)
+
+workload 2676554/2676554 28629997.192195:    1003009                                            task-clock:u: 
+	    5af33826f1b4 main+0xf4 (/tmp/nunatak-capture-stacks/workload+0x11b4)
+	    719c94a2a578 __libc_start_call_main+0x78 (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a578)
+	    719c94a2a63b __libc_start_main@@GLIBC_2.34+0x8b (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a63b)
+	    5af33826f225 _start+0x25 (/tmp/nunatak-capture-stacks/workload+0x1225)
+
+workload 2676554/2676554 28629997.193126:    4999999                 fp_ret_sse_avx_ops.all/period=4999999/u: 
+	    5af33826f1b4 main+0xf4 (/tmp/nunatak-capture-stacks/workload+0x11b4)
+	    719c94a2a578 __libc_start_call_main+0x78 (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a578)
+	    719c94a2a63b __libc_start_main@@GLIBC_2.34+0x8b (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a63b)
+	    5af33826f225 _start+0x25 (/tmp/nunatak-capture-stacks/workload+0x1225)
+
+workload 2676554/2676554 28629997.193198:    1003009                                            task-clock:u: 
+	    5af33826f1b4 main+0xf4 (/tmp/nunatak-capture-stacks/workload+0x11b4)
+	    719c94a2a578 __libc_start_call_main+0x78 (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a578)
+	    719c94a2a63b __libc_start_main@@GLIBC_2.34+0x8b (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a63b)
+	    5af33826f225 _start+0x25 (/tmp/nunatak-capture-stacks/workload+0x1225)
+
+workload 2676554/2676554 28629997.194201:    1003009                                            task-clock:u: 
+	    5af33826f1b8 main+0xf8 (/tmp/nunatak-capture-stacks/workload+0x11b8)
+	    719c94a2a578 __libc_start_call_main+0x78 (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a578)
+	    719c94a2a63b __libc_start_main@@GLIBC_2.34+0x8b (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a63b)
+	    5af33826f225 _start+0x25 (/tmp/nunatak-capture-stacks/workload+0x1225)
+
+workload 2676554/2676554 28629997.195653:    4999999                 fp_ret_sse_avx_ops.all/period=4999999/u: 
+	    5af33826f1b4 main+0xf4 (/tmp/nunatak-capture-stacks/workload+0x11b4)
+	    719c94a2a578 __libc_start_call_main+0x78 (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a578)
+	    719c94a2a63b __libc_start_main@@GLIBC_2.34+0x8b (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a63b)
+	    5af33826f225 _start+0x25 (/tmp/nunatak-capture-stacks/workload+0x1225)
+
+workload 2676554/2676554 28629997.195662:    1003009                                            task-clock:u: 
+	    5af33826f1b4 main+0xf4 (/tmp/nunatak-capture-stacks/workload+0x11b4)
+	    719c94a2a578 __libc_start_call_main+0x78 (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a578)
+	    719c94a2a63b __libc_start_main@@GLIBC_2.34+0x8b (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a63b)
+	    5af33826f225 _start+0x25 (/tmp/nunatak-capture-stacks/workload+0x1225)
+
+workload 2676554/2676554 28629997.196207:    1003009                                            task-clock:u: 
+	    5af33826f1b4 main+0xf4 (/tmp/nunatak-capture-stacks/workload+0x11b4)
+	    719c94a2a578 __libc_start_call_main+0x78 (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a578)
+	    719c94a2a63b __libc_start_main@@GLIBC_2.34+0x8b (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a63b)
+	    5af33826f225 _start+0x25 (/tmp/nunatak-capture-stacks/workload+0x1225)
+
+workload 2676554/2676554 28629997.197210:    1003009                                            task-clock:u: 
+	    5af33826f1b8 main+0xf8 (/tmp/nunatak-capture-stacks/workload+0x11b8)
+	    719c94a2a578 __libc_start_call_main+0x78 (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a578)
+	    719c94a2a63b __libc_start_main@@GLIBC_2.34+0x8b (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a63b)
+	    5af33826f225 _start+0x25 (/tmp/nunatak-capture-stacks/workload+0x1225)
+
+workload 2676554/2676554 28629997.198200:    4999999                 fp_ret_sse_avx_ops.all/period=4999999/u: 
+	    5af33826f1b8 main+0xf8 (/tmp/nunatak-capture-stacks/workload+0x11b8)
+	    719c94a2a578 __libc_start_call_main+0x78 (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a578)
+	    719c94a2a63b __libc_start_main@@GLIBC_2.34+0x8b (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a63b)
+	    5af33826f225 _start+0x25 (/tmp/nunatak-capture-stacks/workload+0x1225)
+
+workload 2676554/2676554 28629997.198212:    1003009                                            task-clock:u: 
+	    5af33826f1b4 main+0xf4 (/tmp/nunatak-capture-stacks/workload+0x11b4)
+	    719c94a2a578 __libc_start_call_main+0x78 (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a578)
+	    719c94a2a63b __libc_start_main@@GLIBC_2.34+0x8b (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a63b)
+	    5af33826f225 _start+0x25 (/tmp/nunatak-capture-stacks/workload+0x1225)
+
+workload 2676554/2676554 28629997.199216:    1003009                                            task-clock:u: 
+	    5af33826f1b8 main+0xf8 (/tmp/nunatak-capture-stacks/workload+0x11b8)
+	    719c94a2a578 __libc_start_call_main+0x78 (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a578)
+	    719c94a2a63b __libc_start_main@@GLIBC_2.34+0x8b (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a63b)
+	    5af33826f225 _start+0x25 (/tmp/nunatak-capture-stacks/workload+0x1225)
+
+workload 2676554/2676554 28629997.200728:    4999999                 fp_ret_sse_avx_ops.all/period=4999999/u: 
+	    5af33826f1b8 main+0xf8 (/tmp/nunatak-capture-stacks/workload+0x11b8)
+	    719c94a2a578 __libc_start_call_main+0x78 (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a578)
+	    719c94a2a63b __libc_start_main@@GLIBC_2.34+0x8b (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a63b)
+	    5af33826f225 _start+0x25 (/tmp/nunatak-capture-stacks/workload+0x1225)
+
+workload 2676554/2676554 28629997.200738:    1003009                                            task-clock:u: 
+	    5af33826f1b8 main+0xf8 (/tmp/nunatak-capture-stacks/workload+0x11b8)
+	    719c94a2a578 __libc_start_call_main+0x78 (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a578)
+	    719c94a2a63b __libc_start_main@@GLIBC_2.34+0x8b (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a63b)
+	    5af33826f225 _start+0x25 (/tmp/nunatak-capture-stacks/workload+0x1225)
+
+workload 2676554/2676554 28629997.201222:    1003009                                            task-clock:u: 
+	    5af33826f1b4 main+0xf4 (/tmp/nunatak-capture-stacks/workload+0x11b4)
+	    719c94a2a578 __libc_start_call_main+0x78 (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a578)
+	    719c94a2a63b __libc_start_main@@GLIBC_2.34+0x8b (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a63b)
+	    5af33826f225 _start+0x25 (/tmp/nunatak-capture-stacks/workload+0x1225)
+
+workload 2676554/2676554 28629997.202225:    1003009                                            task-clock:u: 
+	    5af33826f1b4 main+0xf4 (/tmp/nunatak-capture-stacks/workload+0x11b4)
+	    719c94a2a578 __libc_start_call_main+0x78 (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a578)
+	    719c94a2a63b __libc_start_main@@GLIBC_2.34+0x8b (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a63b)
+	    5af33826f225 _start+0x25 (/tmp/nunatak-capture-stacks/workload+0x1225)
+
+workload 2676554/2676554 28629997.203282:    4999999                 fp_ret_sse_avx_ops.all/period=4999999/u: 
+	    5af33826f1b8 main+0xf8 (/tmp/nunatak-capture-stacks/workload+0x11b8)
+	    719c94a2a578 __libc_start_call_main+0x78 (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a578)
+	    719c94a2a63b __libc_start_main@@GLIBC_2.34+0x8b (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a63b)
+	    5af33826f225 _start+0x25 (/tmp/nunatak-capture-stacks/workload+0x1225)
+
+workload 2676554/2676554 28629997.203290:    1003009                                            task-clock:u: 
+	    5af33826f1b8 main+0xf8 (/tmp/nunatak-capture-stacks/workload+0x11b8)
+	    719c94a2a578 __libc_start_call_main+0x78 (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a578)
+	    719c94a2a63b __libc_start_main@@GLIBC_2.34+0x8b (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a63b)
+	    5af33826f225 _start+0x25 (/tmp/nunatak-capture-stacks/workload+0x1225)
+
+workload 2676554/2676554 28629997.204231:    1003009                                            task-clock:u: 
+	    5af33826f1b8 main+0xf8 (/tmp/nunatak-capture-stacks/workload+0x11b8)
+	    719c94a2a578 __libc_start_call_main+0x78 (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a578)
+	    719c94a2a63b __libc_start_main@@GLIBC_2.34+0x8b (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a63b)
+	    5af33826f225 _start+0x25 (/tmp/nunatak-capture-stacks/workload+0x1225)
+
+workload 2676554/2676554 28629997.205805:    4999999                 fp_ret_sse_avx_ops.all/period=4999999/u: 
+	    5af33826f1b8 main+0xf8 (/tmp/nunatak-capture-stacks/workload+0x11b8)
+	    719c94a2a578 __libc_start_call_main+0x78 (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a578)
+	    719c94a2a63b __libc_start_main@@GLIBC_2.34+0x8b (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a63b)
+	    5af33826f225 _start+0x25 (/tmp/nunatak-capture-stacks/workload+0x1225)
+
+workload 2676554/2676554 28629997.205814:    1003009                                            task-clock:u: 
+	    5af33826f1b8 main+0xf8 (/tmp/nunatak-capture-stacks/workload+0x11b8)
+	    719c94a2a578 __libc_start_call_main+0x78 (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a578)
+	    719c94a2a63b __libc_start_main@@GLIBC_2.34+0x8b (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a63b)
+	    5af33826f225 _start+0x25 (/tmp/nunatak-capture-stacks/workload+0x1225)
+
+workload 2676554/2676554 28629997.206237:    1003009                                            task-clock:u: 
+	    5af33826f1b4 main+0xf4 (/tmp/nunatak-capture-stacks/workload+0x11b4)
+	    719c94a2a578 __libc_start_call_main+0x78 (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a578)
+	    719c94a2a63b __libc_start_main@@GLIBC_2.34+0x8b (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a63b)
+	    5af33826f225 _start+0x25 (/tmp/nunatak-capture-stacks/workload+0x1225)
+
+workload 2676554/2676554 28629997.207240:    1003009                                            task-clock:u: 
+	    5af33826f1b8 main+0xf8 (/tmp/nunatak-capture-stacks/workload+0x11b8)
+	    719c94a2a578 __libc_start_call_main+0x78 (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a578)
+	    719c94a2a63b __libc_start_main@@GLIBC_2.34+0x8b (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a63b)
+	    5af33826f225 _start+0x25 (/tmp/nunatak-capture-stacks/workload+0x1225)
+
+workload 2676554/2676554 28629997.208342:    4999999                 fp_ret_sse_avx_ops.all/period=4999999/u: 
+	    5af33826f1b8 main+0xf8 (/tmp/nunatak-capture-stacks/workload+0x11b8)
+	    719c94a2a578 __libc_start_call_main+0x78 (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a578)
+	    719c94a2a63b __libc_start_main@@GLIBC_2.34+0x8b (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a63b)
+	    5af33826f225 _start+0x25 (/tmp/nunatak-capture-stacks/workload+0x1225)
+
+workload 2676554/2676554 28629997.208351:    1003009                                            task-clock:u: 
+	    5af33826f1b8 main+0xf8 (/tmp/nunatak-capture-stacks/workload+0x11b8)
+	    719c94a2a578 __libc_start_call_main+0x78 (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a578)
+	    719c94a2a63b __libc_start_main@@GLIBC_2.34+0x8b (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a63b)
+	    5af33826f225 _start+0x25 (/tmp/nunatak-capture-stacks/workload+0x1225)
+
+workload 2676554/2676554 28629997.209246:    1003009                                            task-clock:u: 
+	    5af33826f1b4 main+0xf4 (/tmp/nunatak-capture-stacks/workload+0x11b4)
+	    719c94a2a578 __libc_start_call_main+0x78 (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a578)
+	    719c94a2a63b __libc_start_main@@GLIBC_2.34+0x8b (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a63b)
+	    5af33826f225 _start+0x25 (/tmp/nunatak-capture-stacks/workload+0x1225)
+
+workload 2676554/2676554 28629997.210880:    4999999                 fp_ret_sse_avx_ops.all/period=4999999/u: 
+	    5af33826f1b8 main+0xf8 (/tmp/nunatak-capture-stacks/workload+0x11b8)
+	    719c94a2a578 __libc_start_call_main+0x78 (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a578)
+	    719c94a2a63b __libc_start_main@@GLIBC_2.34+0x8b (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a63b)
+	    5af33826f225 _start+0x25 (/tmp/nunatak-capture-stacks/workload+0x1225)
+
+workload 2676554/2676554 28629997.210889:    1003009                                            task-clock:u: 
+	    5af33826f1b8 main+0xf8 (/tmp/nunatak-capture-stacks/workload+0x11b8)
+	    719c94a2a578 __libc_start_call_main+0x78 (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a578)
+	    719c94a2a63b __libc_start_main@@GLIBC_2.34+0x8b (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a63b)
+	    5af33826f225 _start+0x25 (/tmp/nunatak-capture-stacks/workload+0x1225)
+
+workload 2676554/2676554 28629997.212451:    1003009                                            task-clock:u: 
+	    5af33826f1b4 main+0xf4 (/tmp/nunatak-capture-stacks/workload+0x11b4)
+	    719c94a2a578 __libc_start_call_main+0x78 (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a578)
+	    719c94a2a63b __libc_start_main@@GLIBC_2.34+0x8b (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a63b)
+	    5af33826f225 _start+0x25 (/tmp/nunatak-capture-stacks/workload+0x1225)
+
+workload 2676554/2676554 28629997.213454:    1003009                                            task-clock:u: 
+	    5af33826f1b8 main+0xf8 (/tmp/nunatak-capture-stacks/workload+0x11b8)
+	    719c94a2a578 __libc_start_call_main+0x78 (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a578)
+	    719c94a2a63b __libc_start_main@@GLIBC_2.34+0x8b (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a63b)
+	    5af33826f225 _start+0x25 (/tmp/nunatak-capture-stacks/workload+0x1225)
+
+workload 2676554/2676554 28629997.214300:    4999999                 fp_ret_sse_avx_ops.all/period=4999999/u: 
+	    5af33826f1b4 main+0xf4 (/tmp/nunatak-capture-stacks/workload+0x11b4)
+	    719c94a2a578 __libc_start_call_main+0x78 (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a578)
+	    719c94a2a63b __libc_start_main@@GLIBC_2.34+0x8b (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a63b)
+	    5af33826f225 _start+0x25 (/tmp/nunatak-capture-stacks/workload+0x1225)
+
+workload 2676554/2676554 28629997.214457:    1003009                                            task-clock:u: 
+	    5af33826f1b8 main+0xf8 (/tmp/nunatak-capture-stacks/workload+0x11b8)
+	    719c94a2a578 __libc_start_call_main+0x78 (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a578)
+	    719c94a2a63b __libc_start_main@@GLIBC_2.34+0x8b (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a63b)
+	    5af33826f225 _start+0x25 (/tmp/nunatak-capture-stacks/workload+0x1225)
+
+workload 2676554/2676554 28629997.215460:    1003009                                            task-clock:u: 
+	    5af33826f1b8 main+0xf8 (/tmp/nunatak-capture-stacks/workload+0x11b8)
+	    719c94a2a578 __libc_start_call_main+0x78 (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a578)
+	    719c94a2a63b __libc_start_main@@GLIBC_2.34+0x8b (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a63b)
+	    5af33826f225 _start+0x25 (/tmp/nunatak-capture-stacks/workload+0x1225)
+
+workload 2676554/2676554 28629997.216849:    4999999                 fp_ret_sse_avx_ops.all/period=4999999/u: 
+	    5af33826f1b8 main+0xf8 (/tmp/nunatak-capture-stacks/workload+0x11b8)
+	    719c94a2a578 __libc_start_call_main+0x78 (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a578)
+	    719c94a2a63b __libc_start_main@@GLIBC_2.34+0x8b (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a63b)
+	    5af33826f225 _start+0x25 (/tmp/nunatak-capture-stacks/workload+0x1225)
+
+workload 2676554/2676554 28629997.216861:    1003009                                            task-clock:u: 
+	    5af33826f1b8 main+0xf8 (/tmp/nunatak-capture-stacks/workload+0x11b8)
+	    719c94a2a578 __libc_start_call_main+0x78 (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a578)
+	    719c94a2a63b __libc_start_main@@GLIBC_2.34+0x8b (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a63b)
+	    5af33826f225 _start+0x25 (/tmp/nunatak-capture-stacks/workload+0x1225)
+
+workload 2676554/2676554 28629997.217466:    1003009                                            task-clock:u: 
+	    5af33826f1b8 main+0xf8 (/tmp/nunatak-capture-stacks/workload+0x11b8)
+	    719c94a2a578 __libc_start_call_main+0x78 (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a578)
+	    719c94a2a63b __libc_start_main@@GLIBC_2.34+0x8b (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a63b)
+	    5af33826f225 _start+0x25 (/tmp/nunatak-capture-stacks/workload+0x1225)
+
+workload 2676554/2676554 28629997.218469:    1003009                                            task-clock:u: 
+	    5af33826f1b8 main+0xf8 (/tmp/nunatak-capture-stacks/workload+0x11b8)
+	    719c94a2a578 __libc_start_call_main+0x78 (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a578)
+	    719c94a2a63b __libc_start_main@@GLIBC_2.34+0x8b (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a63b)
+	    5af33826f225 _start+0x25 (/tmp/nunatak-capture-stacks/workload+0x1225)
+
+workload 2676554/2676554 28629997.219405:    4999999                 fp_ret_sse_avx_ops.all/period=4999999/u: 
+	    5af33826f1b4 main+0xf4 (/tmp/nunatak-capture-stacks/workload+0x11b4)
+	    719c94a2a578 __libc_start_call_main+0x78 (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a578)
+	    719c94a2a63b __libc_start_main@@GLIBC_2.34+0x8b (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a63b)
+	    5af33826f225 _start+0x25 (/tmp/nunatak-capture-stacks/workload+0x1225)
+
+workload 2676554/2676554 28629997.219472:    1003009                                            task-clock:u: 
+	    5af33826f1b8 main+0xf8 (/tmp/nunatak-capture-stacks/workload+0x11b8)
+	    719c94a2a578 __libc_start_call_main+0x78 (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a578)
+	    719c94a2a63b __libc_start_main@@GLIBC_2.34+0x8b (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a63b)
+	    5af33826f225 _start+0x25 (/tmp/nunatak-capture-stacks/workload+0x1225)
+
+workload 2676554/2676554 28629997.220475:    1003009                                            task-clock:u: 
+	    5af33826f1b4 main+0xf4 (/tmp/nunatak-capture-stacks/workload+0x11b4)
+	    719c94a2a578 __libc_start_call_main+0x78 (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a578)
+	    719c94a2a63b __libc_start_main@@GLIBC_2.34+0x8b (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a63b)
+	    5af33826f225 _start+0x25 (/tmp/nunatak-capture-stacks/workload+0x1225)
+
+workload 2676554/2676554 28629997.221933:    4999999                 fp_ret_sse_avx_ops.all/period=4999999/u: 
+	    5af33826f1b4 main+0xf4 (/tmp/nunatak-capture-stacks/workload+0x11b4)
+	    719c94a2a578 __libc_start_call_main+0x78 (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a578)
+	    719c94a2a63b __libc_start_main@@GLIBC_2.34+0x8b (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a63b)
+	    5af33826f225 _start+0x25 (/tmp/nunatak-capture-stacks/workload+0x1225)
+
+workload 2676554/2676554 28629997.221945:    1003009                                            task-clock:u: 
+	    5af33826f1b4 main+0xf4 (/tmp/nunatak-capture-stacks/workload+0x11b4)
+	    719c94a2a578 __libc_start_call_main+0x78 (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a578)
+	    719c94a2a63b __libc_start_main@@GLIBC_2.34+0x8b (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a63b)
+	    5af33826f225 _start+0x25 (/tmp/nunatak-capture-stacks/workload+0x1225)
+
+workload 2676554/2676554 28629997.222481:    1003009                                            task-clock:u: 
+	    5af33826f1b4 main+0xf4 (/tmp/nunatak-capture-stacks/workload+0x11b4)
+	    719c94a2a578 __libc_start_call_main+0x78 (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a578)
+	    719c94a2a63b __libc_start_main@@GLIBC_2.34+0x8b (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a63b)
+	    5af33826f225 _start+0x25 (/tmp/nunatak-capture-stacks/workload+0x1225)
+
+workload 2676554/2676554 28629997.223484:    1003009                                            task-clock:u: 
+	    5af33826f1b4 main+0xf4 (/tmp/nunatak-capture-stacks/workload+0x11b4)
+	    719c94a2a578 __libc_start_call_main+0x78 (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a578)
+	    719c94a2a63b __libc_start_main@@GLIBC_2.34+0x8b (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a63b)
+	    5af33826f225 _start+0x25 (/tmp/nunatak-capture-stacks/workload+0x1225)
+
+workload 2676554/2676554 28629997.224470:    4999999                 fp_ret_sse_avx_ops.all/period=4999999/u: 
+	    5af33826f1b4 main+0xf4 (/tmp/nunatak-capture-stacks/workload+0x11b4)
+	    719c94a2a578 __libc_start_call_main+0x78 (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a578)
+	    719c94a2a63b __libc_start_main@@GLIBC_2.34+0x8b (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a63b)
+	    5af33826f225 _start+0x25 (/tmp/nunatak-capture-stacks/workload+0x1225)
+
+workload 2676554/2676554 28629997.224489:    1003009                                            task-clock:u: 
+	    5af33826f1b8 main+0xf8 (/tmp/nunatak-capture-stacks/workload+0x11b8)
+	    719c94a2a578 __libc_start_call_main+0x78 (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a578)
+	    719c94a2a63b __libc_start_main@@GLIBC_2.34+0x8b (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a63b)
+	    5af33826f225 _start+0x25 (/tmp/nunatak-capture-stacks/workload+0x1225)
+
+workload 2676554/2676554 28629997.225490:    1003009                                            task-clock:u: 
+	    5af33826f1b4 main+0xf4 (/tmp/nunatak-capture-stacks/workload+0x11b4)
+	    719c94a2a578 __libc_start_call_main+0x78 (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a578)
+	    719c94a2a63b __libc_start_main@@GLIBC_2.34+0x8b (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a63b)
+	    5af33826f225 _start+0x25 (/tmp/nunatak-capture-stacks/workload+0x1225)
+
+workload 2676554/2676554 28629997.227012:    4999999                 fp_ret_sse_avx_ops.all/period=4999999/u: 
+	    5af33826f1b8 main+0xf8 (/tmp/nunatak-capture-stacks/workload+0x11b8)
+	    719c94a2a578 __libc_start_call_main+0x78 (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a578)
+	    719c94a2a63b __libc_start_main@@GLIBC_2.34+0x8b (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a63b)
+	    5af33826f225 _start+0x25 (/tmp/nunatak-capture-stacks/workload+0x1225)
+
+workload 2676554/2676554 28629997.227023:    1003009                                            task-clock:u: 
+	    5af33826f1b8 main+0xf8 (/tmp/nunatak-capture-stacks/workload+0x11b8)
+	    719c94a2a578 __libc_start_call_main+0x78 (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a578)
+	    719c94a2a63b __libc_start_main@@GLIBC_2.34+0x8b (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a63b)
+	    5af33826f225 _start+0x25 (/tmp/nunatak-capture-stacks/workload+0x1225)
+
+workload 2676554/2676554 28629997.227496:    1003009                                            task-clock:u: 
+	    5af33826f1b8 main+0xf8 (/tmp/nunatak-capture-stacks/workload+0x11b8)
+	    719c94a2a578 __libc_start_call_main+0x78 (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a578)
+	    719c94a2a63b __libc_start_main@@GLIBC_2.34+0x8b (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a63b)
+	    5af33826f225 _start+0x25 (/tmp/nunatak-capture-stacks/workload+0x1225)
+
+workload 2676554/2676554 28629997.228499:    1003009                                            task-clock:u: 
+	    5af33826f1b4 main+0xf4 (/tmp/nunatak-capture-stacks/workload+0x11b4)
+	    719c94a2a578 __libc_start_call_main+0x78 (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a578)
+	    719c94a2a63b __libc_start_main@@GLIBC_2.34+0x8b (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a63b)
+	    5af33826f225 _start+0x25 (/tmp/nunatak-capture-stacks/workload+0x1225)
+
+workload 2676554/2676554 28629997.229570:    4999999                 fp_ret_sse_avx_ops.all/period=4999999/u: 
+	    5af33826f1b4 main+0xf4 (/tmp/nunatak-capture-stacks/workload+0x11b4)
+	    719c94a2a578 __libc_start_call_main+0x78 (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a578)
+	    719c94a2a63b __libc_start_main@@GLIBC_2.34+0x8b (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a63b)
+	    5af33826f225 _start+0x25 (/tmp/nunatak-capture-stacks/workload+0x1225)
+
+workload 2676554/2676554 28629997.229582:    1003009                                            task-clock:u: 
+	    5af33826f1b4 main+0xf4 (/tmp/nunatak-capture-stacks/workload+0x11b4)
+	    719c94a2a578 __libc_start_call_main+0x78 (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a578)
+	    719c94a2a63b __libc_start_main@@GLIBC_2.34+0x8b (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a63b)
+	    5af33826f225 _start+0x25 (/tmp/nunatak-capture-stacks/workload+0x1225)
+
+workload 2676554/2676554 28629997.230505:    1003009                                            task-clock:u: 
+	    5af33826f1b8 main+0xf8 (/tmp/nunatak-capture-stacks/workload+0x11b8)
+	    719c94a2a578 __libc_start_call_main+0x78 (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a578)
+	    719c94a2a63b __libc_start_main@@GLIBC_2.34+0x8b (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a63b)
+	    5af33826f225 _start+0x25 (/tmp/nunatak-capture-stacks/workload+0x1225)
+
+workload 2676554/2676554 28629997.232125:    4999999                 fp_ret_sse_avx_ops.all/period=4999999/u: 
+	    5af33826f1b4 main+0xf4 (/tmp/nunatak-capture-stacks/workload+0x11b4)
+	    719c94a2a578 __libc_start_call_main+0x78 (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a578)
+	    719c94a2a63b __libc_start_main@@GLIBC_2.34+0x8b (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a63b)
+	    5af33826f225 _start+0x25 (/tmp/nunatak-capture-stacks/workload+0x1225)
+
+workload 2676554/2676554 28629997.232134:    1003009                                            task-clock:u: 
+	    5af33826f1b4 main+0xf4 (/tmp/nunatak-capture-stacks/workload+0x11b4)
+	    719c94a2a578 __libc_start_call_main+0x78 (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a578)
+	    719c94a2a63b __libc_start_main@@GLIBC_2.34+0x8b (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a63b)
+	    5af33826f225 _start+0x25 (/tmp/nunatak-capture-stacks/workload+0x1225)
+
+workload 2676554/2676554 28629997.232511:    1003009                                            task-clock:u: 
+	    5af33826f1b8 main+0xf8 (/tmp/nunatak-capture-stacks/workload+0x11b8)
+	    719c94a2a578 __libc_start_call_main+0x78 (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a578)
+	    719c94a2a63b __libc_start_main@@GLIBC_2.34+0x8b (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a63b)
+	    5af33826f225 _start+0x25 (/tmp/nunatak-capture-stacks/workload+0x1225)
+
+workload 2676554/2676554 28629997.233514:    1003009                                            task-clock:u: 
+	    5af33826f1b8 main+0xf8 (/tmp/nunatak-capture-stacks/workload+0x11b8)
+	    719c94a2a578 __libc_start_call_main+0x78 (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a578)
+	    719c94a2a63b __libc_start_main@@GLIBC_2.34+0x8b (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a63b)
+	    5af33826f225 _start+0x25 (/tmp/nunatak-capture-stacks/workload+0x1225)
+
+workload 2676554/2676554 28629997.234636:    4999999                 fp_ret_sse_avx_ops.all/period=4999999/u: 
+	    5af33826f1b8 main+0xf8 (/tmp/nunatak-capture-stacks/workload+0x11b8)
+	    719c94a2a578 __libc_start_call_main+0x78 (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a578)
+	    719c94a2a63b __libc_start_main@@GLIBC_2.34+0x8b (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a63b)
+	    5af33826f225 _start+0x25 (/tmp/nunatak-capture-stacks/workload+0x1225)
+
+workload 2676554/2676554 28629997.234649:    1003009                                            task-clock:u: 
+	    5af33826f1b8 main+0xf8 (/tmp/nunatak-capture-stacks/workload+0x11b8)
+	    719c94a2a578 __libc_start_call_main+0x78 (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a578)
+	    719c94a2a63b __libc_start_main@@GLIBC_2.34+0x8b (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a63b)
+	    5af33826f225 _start+0x25 (/tmp/nunatak-capture-stacks/workload+0x1225)
+
+workload 2676554/2676554 28629997.235520:    1003009                                            task-clock:u: 
+	    5af33826f1b4 main+0xf4 (/tmp/nunatak-capture-stacks/workload+0x11b4)
+	    719c94a2a578 __libc_start_call_main+0x78 (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a578)
+	    719c94a2a63b __libc_start_main@@GLIBC_2.34+0x8b (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a63b)
+	    5af33826f225 _start+0x25 (/tmp/nunatak-capture-stacks/workload+0x1225)
+
+workload 2676554/2676554 28629997.237176:    4999999                 fp_ret_sse_avx_ops.all/period=4999999/u: 
+	    5af33826f1b4 main+0xf4 (/tmp/nunatak-capture-stacks/workload+0x11b4)
+	    719c94a2a578 __libc_start_call_main+0x78 (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a578)
+	    719c94a2a63b __libc_start_main@@GLIBC_2.34+0x8b (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a63b)
+	    5af33826f225 _start+0x25 (/tmp/nunatak-capture-stacks/workload+0x1225)
+
+workload 2676554/2676554 28629997.237185:    1003009                                            task-clock:u: 
+	    5af33826f1b4 main+0xf4 (/tmp/nunatak-capture-stacks/workload+0x11b4)
+	    719c94a2a578 __libc_start_call_main+0x78 (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a578)
+	    719c94a2a63b __libc_start_main@@GLIBC_2.34+0x8b (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a63b)
+	    5af33826f225 _start+0x25 (/tmp/nunatak-capture-stacks/workload+0x1225)
+
+workload 2676554/2676554 28629997.237527:    1003009                                            task-clock:u: 
+	    5af33826f1b8 main+0xf8 (/tmp/nunatak-capture-stacks/workload+0x11b8)
+	    719c94a2a578 __libc_start_call_main+0x78 (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a578)
+	    719c94a2a63b __libc_start_main@@GLIBC_2.34+0x8b (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a63b)
+	    5af33826f225 _start+0x25 (/tmp/nunatak-capture-stacks/workload+0x1225)
+
+workload 2676554/2676554 28629997.238530:    1003009                                            task-clock:u: 
+	    5af33826f1b8 main+0xf8 (/tmp/nunatak-capture-stacks/workload+0x11b8)
+	    719c94a2a578 __libc_start_call_main+0x78 (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a578)
+	    719c94a2a63b __libc_start_main@@GLIBC_2.34+0x8b (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a63b)
+	    5af33826f225 _start+0x25 (/tmp/nunatak-capture-stacks/workload+0x1225)
+
+workload 2676554/2676554 28629997.239717:    4999999                 fp_ret_sse_avx_ops.all/period=4999999/u: 
+	    5af33826f1b8 main+0xf8 (/tmp/nunatak-capture-stacks/workload+0x11b8)
+	    719c94a2a578 __libc_start_call_main+0x78 (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a578)
+	    719c94a2a63b __libc_start_main@@GLIBC_2.34+0x8b (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a63b)
+	    5af33826f225 _start+0x25 (/tmp/nunatak-capture-stacks/workload+0x1225)
+
+workload 2676554/2676554 28629997.239729:    1003009                                            task-clock:u: 
+	    5af33826f1b8 main+0xf8 (/tmp/nunatak-capture-stacks/workload+0x11b8)
+	    719c94a2a578 __libc_start_call_main+0x78 (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a578)
+	    719c94a2a63b __libc_start_main@@GLIBC_2.34+0x8b (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a63b)
+	    5af33826f225 _start+0x25 (/tmp/nunatak-capture-stacks/workload+0x1225)
+
+workload 2676554/2676554 28629997.240535:    1003009                                            task-clock:u: 
+	    5af33826f1b8 main+0xf8 (/tmp/nunatak-capture-stacks/workload+0x11b8)
+	    719c94a2a578 __libc_start_call_main+0x78 (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a578)
+	    719c94a2a63b __libc_start_main@@GLIBC_2.34+0x8b (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a63b)
+	    5af33826f225 _start+0x25 (/tmp/nunatak-capture-stacks/workload+0x1225)
+
+workload 2676554/2676554 28629997.241539:    1003009                                            task-clock:u: 
+	    5af33826f1b8 main+0xf8 (/tmp/nunatak-capture-stacks/workload+0x11b8)
+	    719c94a2a578 __libc_start_call_main+0x78 (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a578)
+	    719c94a2a63b __libc_start_main@@GLIBC_2.34+0x8b (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a63b)
+	    5af33826f225 _start+0x25 (/tmp/nunatak-capture-stacks/workload+0x1225)
+
+workload 2676554/2676554 28629997.242258:    4999999                 fp_ret_sse_avx_ops.all/period=4999999/u: 
+	    5af33826f1b4 main+0xf4 (/tmp/nunatak-capture-stacks/workload+0x11b4)
+	    719c94a2a578 __libc_start_call_main+0x78 (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a578)
+	    719c94a2a63b __libc_start_main@@GLIBC_2.34+0x8b (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a63b)
+	    5af33826f225 _start+0x25 (/tmp/nunatak-capture-stacks/workload+0x1225)
+
+workload 2676554/2676554 28629997.242542:    1003009                                            task-clock:u: 
+	    5af33826f1b8 main+0xf8 (/tmp/nunatak-capture-stacks/workload+0x11b8)
+	    719c94a2a578 __libc_start_call_main+0x78 (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a578)
+	    719c94a2a63b __libc_start_main@@GLIBC_2.34+0x8b (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a63b)
+	    5af33826f225 _start+0x25 (/tmp/nunatak-capture-stacks/workload+0x1225)
+
+workload 2676554/2676554 28629997.243545:    1003009                                            task-clock:u: 
+	    5af33826f1b8 main+0xf8 (/tmp/nunatak-capture-stacks/workload+0x11b8)
+	    719c94a2a578 __libc_start_call_main+0x78 (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a578)
+	    719c94a2a63b __libc_start_main@@GLIBC_2.34+0x8b (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a63b)
+	    5af33826f225 _start+0x25 (/tmp/nunatak-capture-stacks/workload+0x1225)
+
+workload 2676554/2676554 28629997.244775:    4999999                 fp_ret_sse_avx_ops.all/period=4999999/u: 
+	    5af33826f1b4 main+0xf4 (/tmp/nunatak-capture-stacks/workload+0x11b4)
+	    719c94a2a578 __libc_start_call_main+0x78 (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a578)
+	    719c94a2a63b __libc_start_main@@GLIBC_2.34+0x8b (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a63b)
+	    5af33826f225 _start+0x25 (/tmp/nunatak-capture-stacks/workload+0x1225)
+
+workload 2676554/2676554 28629997.244788:    1003009                                            task-clock:u: 
+	    5af33826f1b4 main+0xf4 (/tmp/nunatak-capture-stacks/workload+0x11b4)
+	    719c94a2a578 __libc_start_call_main+0x78 (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a578)
+	    719c94a2a63b __libc_start_main@@GLIBC_2.34+0x8b (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a63b)
+	    5af33826f225 _start+0x25 (/tmp/nunatak-capture-stacks/workload+0x1225)
+
+workload 2676554/2676554 28629997.245551:    1003009                                            task-clock:u: 
+	    5af33826f1b4 main+0xf4 (/tmp/nunatak-capture-stacks/workload+0x11b4)
+	    719c94a2a578 __libc_start_call_main+0x78 (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a578)
+	    719c94a2a63b __libc_start_main@@GLIBC_2.34+0x8b (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a63b)
+	    5af33826f225 _start+0x25 (/tmp/nunatak-capture-stacks/workload+0x1225)
+
+workload 2676554/2676554 28629997.246554:    1003009                                            task-clock:u: 
+	    5af33826f1b4 main+0xf4 (/tmp/nunatak-capture-stacks/workload+0x11b4)
+	    719c94a2a578 __libc_start_call_main+0x78 (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a578)
+	    719c94a2a63b __libc_start_main@@GLIBC_2.34+0x8b (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a63b)
+	    5af33826f225 _start+0x25 (/tmp/nunatak-capture-stacks/workload+0x1225)
+
+workload 2676554/2676554 28629997.247409:    4999999                 fp_ret_sse_avx_ops.all/period=4999999/u: 
+	    5af33826f1b8 main+0xf8 (/tmp/nunatak-capture-stacks/workload+0x11b8)
+	    719c94a2a578 __libc_start_call_main+0x78 (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a578)
+	    719c94a2a63b __libc_start_main@@GLIBC_2.34+0x8b (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a63b)
+	    5af33826f225 _start+0x25 (/tmp/nunatak-capture-stacks/workload+0x1225)
+
+workload 2676554/2676554 28629997.247557:    1003009                                            task-clock:u: 
+	    5af33826f1b4 main+0xf4 (/tmp/nunatak-capture-stacks/workload+0x11b4)
+	    719c94a2a578 __libc_start_call_main+0x78 (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a578)
+	    719c94a2a63b __libc_start_main@@GLIBC_2.34+0x8b (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a63b)
+	    5af33826f225 _start+0x25 (/tmp/nunatak-capture-stacks/workload+0x1225)
+
+workload 2676554/2676554 28629997.248559:    1003009                                            task-clock:u: 
+	    5af33826f1b4 main+0xf4 (/tmp/nunatak-capture-stacks/workload+0x11b4)
+	    719c94a2a578 __libc_start_call_main+0x78 (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a578)
+	    719c94a2a63b __libc_start_main@@GLIBC_2.34+0x8b (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a63b)
+	    5af33826f225 _start+0x25 (/tmp/nunatak-capture-stacks/workload+0x1225)
+
+workload 2676554/2676554 28629997.249937:    4999999                 fp_ret_sse_avx_ops.all/period=4999999/u: 
+	    5af33826f1b8 main+0xf8 (/tmp/nunatak-capture-stacks/workload+0x11b8)
+	    719c94a2a578 __libc_start_call_main+0x78 (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a578)
+	    719c94a2a63b __libc_start_main@@GLIBC_2.34+0x8b (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a63b)
+	    5af33826f225 _start+0x25 (/tmp/nunatak-capture-stacks/workload+0x1225)
+
+workload 2676554/2676554 28629997.249949:    1003009                                            task-clock:u: 
+	    5af33826f1b8 main+0xf8 (/tmp/nunatak-capture-stacks/workload+0x11b8)
+	    719c94a2a578 __libc_start_call_main+0x78 (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a578)
+	    719c94a2a63b __libc_start_main@@GLIBC_2.34+0x8b (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a63b)
+	    5af33826f225 _start+0x25 (/tmp/nunatak-capture-stacks/workload+0x1225)
+
+workload 2676554/2676554 28629997.250566:    1003009                                            task-clock:u: 
+	    5af33826f1b4 main+0xf4 (/tmp/nunatak-capture-stacks/workload+0x11b4)
+	    719c94a2a578 __libc_start_call_main+0x78 (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a578)
+	    719c94a2a63b __libc_start_main@@GLIBC_2.34+0x8b (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a63b)
+	    5af33826f225 _start+0x25 (/tmp/nunatak-capture-stacks/workload+0x1225)
+
+workload 2676554/2676554 28629997.251569:    1003009                                            task-clock:u: 
+	    5af33826f1b8 main+0xf8 (/tmp/nunatak-capture-stacks/workload+0x11b8)
+	    719c94a2a578 __libc_start_call_main+0x78 (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a578)
+	    719c94a2a63b __libc_start_main@@GLIBC_2.34+0x8b (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a63b)
+	    5af33826f225 _start+0x25 (/tmp/nunatak-capture-stacks/workload+0x1225)
+
+workload 2676554/2676554 28629997.252470:    4999999                 fp_ret_sse_avx_ops.all/period=4999999/u: 
+	    5af33826f1b4 main+0xf4 (/tmp/nunatak-capture-stacks/workload+0x11b4)
+	    719c94a2a578 __libc_start_call_main+0x78 (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a578)
+	    719c94a2a63b __libc_start_main@@GLIBC_2.34+0x8b (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a63b)
+	    5af33826f225 _start+0x25 (/tmp/nunatak-capture-stacks/workload+0x1225)
+
+workload 2676554/2676554 28629997.252571:    1003009                                            task-clock:u: 
+	    5af33826f1b8 main+0xf8 (/tmp/nunatak-capture-stacks/workload+0x11b8)
+	    719c94a2a578 __libc_start_call_main+0x78 (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a578)
+	    719c94a2a63b __libc_start_main@@GLIBC_2.34+0x8b (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a63b)
+	    5af33826f225 _start+0x25 (/tmp/nunatak-capture-stacks/workload+0x1225)
+

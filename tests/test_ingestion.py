@@ -18,6 +18,7 @@ from nunatak.pivot import Quality, ResolutionLevel, read_run
 RECORDINGS = Path(__file__).resolve().parent.parent / "corpus" / "recordings"
 CORPUS = RECORDINGS / "perf" / "6.12.101" / "linux-aarch64" / "workload-c"
 X86_CORPUS = RECORDINGS / "perf" / "6.14.11" / "linux-x86_64" / "workload-c"
+STACKS_CORPUS = RECORDINGS / "perf" / "6.14.11" / "linux-x86_64" / "workload-c-stacks"
 WORKLOAD_BUILDID = "c176e72d0b29a13e48d8b5e6a98f2ef6894d7e69"
 
 
@@ -127,3 +128,84 @@ class TestReplayedPipeline:
         assert run.passes[0].collectors[0].version == "6.14.11"
         assert all(m.unit == "cycles" for m in run.measurements)
         assert sum(m.value for m in run.measurements) == sum(s.period for s in samples)
+
+
+class TestCallchainParser:
+    """The verbatim --call-graph fp recording: bare headers, indented
+    frames innermost first, one blank line per sample."""
+
+    def test_every_block_parses_into_one_sample(self):
+        from tests.support import PERF_SCRIPT_CALLCHAIN
+
+        samples, unparsed = parse_samples(PERF_SCRIPT_CALLCHAIN)
+        assert unparsed == []
+        assert len(samples) == 5
+
+    def test_the_hit_is_the_innermost_frame_and_callers_follow_outward(self):
+        from tests.support import PERF_SCRIPT_CALLCHAIN
+
+        samples, _ = parse_samples(PERF_SCRIPT_CALLCHAIN)
+        first = samples[0]
+        assert first.module.endswith("/workload-fp")
+        assert first.offset == 0x11B8
+        assert [module.rsplit("/", 1)[-1] for module, _ in first.callers] == [
+            "libc.so.6",
+            "libc.so.6",
+            "workload-fp",
+        ]
+        assert first.callers[-1][1] == 0x1225
+
+    def test_flat_recordings_still_carry_no_callers(self):
+        samples, _ = parse_samples(recorded_stdout("script"))
+        assert all(s.callers == () for s in samples)
+
+    def test_a_header_without_frames_is_unparsed_not_swallowed(self):
+        headerless = (
+            "workload-fp 1/1 1.000000:    1003009 task-clock:u: \n"
+            "\n"
+        )
+        samples, unparsed = parse_samples(headerless)
+        assert samples == []
+        assert len(unparsed) == 1
+
+
+class TestReplayedStacks:
+    """The workload-c-stacks entry: recorded by the full new chain on the
+    EPYC - prologues probed, fp settled, `--call-graph fp` on the record,
+    every sample carrying its stack."""
+
+    @pytest.fixture(autouse=True)
+    def in_tmp_cwd(self, tmp_path, monkeypatch):
+        from tests.support import WORKLOAD_C
+
+        (tmp_path / "nunatak.toml").write_text(
+            '[tools]\nllvm-symbolizer = "/usr/lib/llvm-19/bin/llvm-symbolizer"\n'
+        )
+        (tmp_path / "workload.c").write_text(WORKLOAD_C)
+        monkeypatch.chdir(tmp_path)
+
+    def test_every_stacked_sample_parses_with_its_callers(self):
+        samples, unparsed = parse_samples(recorded_stdout("script", STACKS_CORPUS))
+        assert unparsed == []
+        assert samples
+        stacked = [s for s in samples if s.callers]
+        assert len(stacked) == len(samples)
+        # fp walks from main always reach _start: the outermost caller
+        # lives in the workload itself.
+        assert all(s.callers[-1][0].endswith("/workload") for s in stacked)
+
+    def test_the_entry_replays_into_a_measured_pivot_without_noise(self, capsys):
+        assert (
+            principal(
+                ["run", "--replay", str(STACKS_CORPUS), "--json",
+                 "--no-calibrate", "--", "./workload"]
+            )
+            == 0
+        )
+        summary = json.loads(capsys.readouterr().out)
+        names = {d["name"] for d in summary["degradations"]}
+        assert "perf-script-unparsed" not in names
+        assert "call-stacks-unavailable" not in names
+        assert summary["measurements"] > 0
+        run = read_run(summary["run"])
+        assert run.passes[0].collectors[0].version == "6.14.11"

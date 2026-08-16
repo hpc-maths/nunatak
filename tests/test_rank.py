@@ -373,6 +373,18 @@ class TestCollectionCommand:
         assert command[8:12] == ["--frequency", "997", "--rank-threshold", "64"]
         assert command[-2:] == ["--", str(solver)]
 
+    def test_the_settled_stack_mode_rides_the_shim(self, tmp_path):
+        solver = script(tmp_path, "solver", "#!/bin/sh\nexit 0\n")
+        command = collection_command(
+            split(["mpirun", "-n", "4", str(solver)]),
+            tmp_path / "collect",
+            Config(),
+            call_graph="fp",
+            frequency=97,
+        )
+        assert command[command.index("--call-graph") + 1] == "fp"
+        assert command[command.index("--frequency") + 1] == "97"
+
 
 class TestLauncherToPivotChain:
     def test_the_subset_samples_and_the_rest_counts(self, tmp_path):
