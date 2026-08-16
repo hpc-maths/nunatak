@@ -472,6 +472,11 @@ class TestRealStackCollection:
         assert unparsed == []
         assert samples and all(s.callers for s in samples)
 
+        run = read_run(summary["run"])
+        assert run.stacks
+        clock = sum(s.value for s in run.stacks if s.counter == "task-clock")
+        assert clock == sum(s.period for s in samples if s.counter == "task-clock")
+
 
 class TestRealFallbackSymbolizer:
     def test_addr2line_resolves_a_fresh_binary_with_the_extent_rule(

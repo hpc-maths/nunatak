@@ -138,8 +138,11 @@ sample - a cost that would break the observer-effect budget at full
 rate, so the sampling frequency is lowered to 97 Hz and the cost
 announced. There is no silent dwarf: asking is the point.
 
-Stacks recorded this way land in the Run's raw `collect/` artifacts;
-their ingestion into the pivot arrives with stack persistence.
+Recorded stacks are aggregated by call path and persisted in the pivot
+(`pivot/stacks.parquet`, frames normalized to `(module, offset)` like
+every sampled address): a per-context split of a Hotspot stays addable
+years later, on a machine where the binary no longer exists. Stacks
+never enter the Hotspot identity.
 
 ## Exit codes
 
@@ -180,7 +183,7 @@ provenance: a threshold can be tuned, it cannot be tuned silently.
 ```
 .nunatak/solver-20260809-142233/
   manifest.json        machine snapshot, provenance, passes, degradations
-  pivot/               measurements, events, attribution detail (Parquet)
+  pivot/               measurements, events, attribution detail, call paths (Parquet)
   collect/             raw collector outputs (perf.data, perf script text)
 ```
 

@@ -34,6 +34,8 @@ from nunatak.pivot.model import (
     ResolutionLevel,
     Run,
     SourceExtract,
+    Stack,
+    StackFrame,
 )
 
 MANIFEST = "manifest.json"
@@ -119,6 +121,30 @@ _FRAMES = pa.schema(
     ]
 )
 
+# Call paths in two tables joined by the stack id, like the attribution
+# detail: the weight of each aggregated path, and its frames one row per
+# depth - the hit at depth 0, callers outward.
+_STACKS = pa.schema(
+    [
+        ("id", pa.int32()),
+        ("locus", pa.int32()),
+        ("pass_index", pa.int32()),
+        ("counter", pa.string()),
+        ("value", pa.float64()),
+        ("unit", pa.string()),
+        ("sample_count", pa.int64()),
+    ]
+)
+
+_STACK_FRAMES = pa.schema(
+    [
+        ("stack", pa.int32()),
+        ("depth", pa.int32()),
+        ("module", pa.string()),
+        ("offset", pa.int64()),
+    ]
+)
+
 # Source extracts are the one non-measured content of the pivot: they are
 # raw material for the report and the Explanation, embedded so the Run
 # stays self-sufficient, never a conclusion.
@@ -143,6 +169,8 @@ _FILES = {
     "addresses": f"{PIVOT_DIR}/addresses.parquet",
     "frames": f"{PIVOT_DIR}/frames.parquet",
     "extracts": f"{PIVOT_DIR}/extracts.parquet",
+    "stacks": f"{PIVOT_DIR}/stacks.parquet",
+    "stack_frames": f"{PIVOT_DIR}/stack-frames.parquet",
 }
 
 
@@ -176,6 +204,8 @@ def write_run(directory: Path, run: Run) -> Path:
         hotspots.setdefault(_hotspot_key(extract.hotspot), (len(hotspots), extract.hotspot))
     for event in run.events:
         loci.setdefault(event.locus, len(loci))
+    for stack in run.stacks:
+        loci.setdefault(stack.locus, len(loci))
 
     # One offset column serves both identities: an unresolved Hotspot keys
     # its physical identity with the same sampled address it displays, and
@@ -261,6 +291,29 @@ def write_run(directory: Path, run: Run) -> Path:
         for depth, frame in enumerate(frames)
     ]
 
+    stack_rows = [
+        {
+            "id": index,
+            "locus": loci[s.locus],
+            "pass_index": s.pass_index,
+            "counter": s.counter,
+            "value": s.value,
+            "unit": s.unit,
+            "sample_count": s.sample_count,
+        }
+        for index, s in enumerate(run.stacks)
+    ]
+    stack_frame_rows = [
+        {
+            "stack": index,
+            "depth": depth,
+            "module": frame.module,
+            "offset": frame.offset,
+        }
+        for index, s in enumerate(run.stacks)
+        for depth, frame in enumerate(s.frames)
+    ]
+
     extract_rows = [
         {
             "hotspot": hotspots[_hotspot_key(e.hotspot)][0],
@@ -283,6 +336,8 @@ def write_run(directory: Path, run: Run) -> Path:
         ("addresses", _ADDRESSES, address_rows),
         ("frames", _FRAMES, frame_rows),
         ("extracts", _EXTRACTS, extract_rows),
+        ("stacks", _STACKS, stack_rows),
+        ("stack_frames", _STACK_FRAMES, stack_frame_rows),
     ):
         pq.write_table(pa.Table.from_pylist(rows, schema=schema), directory / _FILES[name])
 
@@ -511,6 +566,26 @@ def read_run(directory: Path) -> Run:
         for row in tables.get("addresses", [])
     ]
 
+    stack_chains: dict[int, dict[int, StackFrame]] = {}
+    for row in tables.get("stack_frames", []):
+        stack_chains.setdefault(row["stack"], {})[row["depth"]] = StackFrame(
+            module=row["module"], offset=row["offset"]
+        )
+    stacks = [
+        Stack(
+            locus=loci[row["locus"]],
+            counter=row["counter"],
+            frames=tuple(
+                frame for _, frame in sorted(stack_chains.get(row["id"], {}).items())
+            ),
+            value=row["value"],
+            unit=row["unit"],
+            sample_count=row["sample_count"],
+            pass_index=row["pass_index"],
+        )
+        for row in tables.get("stacks", [])
+    ]
+
     machine = machine_from_dict(manifest["machine"])
     provenance_data = manifest["provenance"]
     provenance = Provenance(
@@ -546,6 +621,7 @@ def read_run(directory: Path) -> Run:
         measurements=measurements,
         events=events,
         address_details=address_details,
+        stacks=stacks,
         source_extracts=[
             SourceExtract(
                 hotspot=hotspots[row["hotspot"]],

@@ -24,6 +24,8 @@ from nunatak.pivot import (
     ResolutionLevel,
     Run,
     SourceExtract,
+    Stack,
+    StackFrame,
     read_run,
     write_run,
 )
@@ -151,6 +153,8 @@ def test_a_run_is_a_single_directory(tmp_path):
         directory / "pivot" / "addresses.parquet",
         directory / "pivot" / "frames.parquet",
         directory / "pivot" / "extracts.parquet",
+        directory / "pivot" / "stacks.parquet",
+        directory / "pivot" / "stack-frames.parquet",
     }
 
 
@@ -337,3 +341,44 @@ def test_round_trip_preserves_a_locus_level_aggregate(tmp_path):
     # The counting layer adds no Hotspot row: there is nothing to attribute.
     hotspots = pq.read_table(directory / "pivot" / "hotspots.parquet").to_pylist()
     assert len(hotspots) == 1
+
+
+def test_round_trip_preserves_the_stacks(tmp_path):
+    original = sample_run()
+    locus = Locus(node="n0", rank=None, thread=4242)
+    original.stacks = [
+        Stack(
+            locus=locus,
+            counter="task-clock",
+            frames=(
+                StackFrame(module="/opt/app/solver", offset=0x1A2B),
+                StackFrame(module="/lib/libc.so.6", offset=0x2A578),
+                StackFrame(module="[vdso]", offset=None),
+            ),
+            value=2.5e9,
+            unit="ns",
+            sample_count=10000,
+        ),
+        Stack(
+            locus=locus,
+            counter="task-clock",
+            frames=(StackFrame(module="/opt/app/solver", offset=0x1F00),),
+            value=1.0e9,
+            unit="ns",
+            sample_count=4000,
+        ),
+    ]
+    run = read_run(write_run(tmp_path / "run", original))
+    assert run.stacks == original.stacks
+
+
+def test_a_run_written_before_the_stack_tables_reads_back(tmp_path):
+    directory = write_run(tmp_path / "run", sample_run())
+    manifest = json.loads((directory / "manifest.json").read_text())
+    for name in ("stacks", "stack_frames"):
+        (directory / manifest["files"].pop(name)).unlink()
+    (directory / "manifest.json").write_text(json.dumps(manifest))
+
+    run = read_run(directory)
+    assert run.stacks == []
+    assert run.measurements == sample_run().measurements
