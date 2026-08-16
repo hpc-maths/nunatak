@@ -245,8 +245,8 @@ def execute(args, command: list[str], console: Console) -> int:
             f"plus one rank per node beyond {config.sampling_rank_threshold} "
             f"ranks): {' '.join(command)}"
         )
-        mpip_library = mpip.locate(config)
         mpi_stack = probe.stack(executor, config)
+        mpip_library = mpip.locate(config, mpi_stack=mpi_stack)
         if not args.no_calibrate:
             # The probe launches through the allocation's own launcher,
             # before the application - the only moment the network is

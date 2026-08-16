@@ -20,6 +20,7 @@ import pytest
 
 from nunatak import probe
 from nunatak.cli import principal
+from nunatak.collect import mpip
 from nunatak.collect.execution import SubprocessExecutor
 from nunatak.config import Config
 from nunatak.pivot import Quality, locus_level, read_run
@@ -341,3 +342,48 @@ class TestRealProbe:
         assert bandwidth.quality is Quality.ESTIMATED
         assert "shared memory" in bandwidth.reason
         assert ceilings["network_latency"].value > 0
+
+
+class TestRealMpipBuild:
+    def test_doctor_builds_mpip_and_the_run_uses_it(
+        self, tmp_path, monkeypatch, capsys
+    ):
+        # The whole first-use chain, nothing stubbed: the pinned source
+        # downloaded from GitHub, configure/make with the real wrappers,
+        # the library cached by stack, then a real MPI run that locates
+        # it there - no tools.mpip, no module.
+        mpicc = shutil.which("mpicc")
+        if mpicc is None or shutil.which("mpirun") is None:
+            pytest.fail("tier 2 needs Open MPI (mpicc and mpirun) on the runner")
+        executor = SubprocessExecutor()
+        mpi_stack = probe.stack(executor, Config())
+        fortran = mpip.fortran_wrapper(executor, Config())
+        if fortran is None:
+            pytest.fail("tier 2 needs a Fortran MPI wrapper on the runner")
+        library = mpip.build(executor, mpi_stack, fortran)
+        assert library is not None, "the pinned mpiP did not build"
+        assert mpip.locate(Config(), mpi_stack=mpi_stack) == str(library)
+
+        source = tmp_path / "mpi_workload.c"
+        source.write_text(MPI_WORKLOAD_C)
+        binary = tmp_path / "mpi_workload"
+        built = subprocess.run(
+            [mpicc, "-O2", "-g", str(source), "-o", str(binary)],
+            capture_output=True,
+            text=True,
+        )
+        assert built.returncode == 0, built.stderr
+        monkeypatch.chdir(tmp_path)
+
+        assert principal(["run", "--json", "--", "mpirun", "-n", "2", str(binary)]) == 0
+        summary = json.loads(capsys.readouterr().out)
+        names = {d["name"] for d in summary["degradations"]}
+        assert "mpi-analysis-unavailable" not in names, summary["degradations"]
+        assert "mpi-report-missing" not in names, summary["degradations"]
+
+        run = read_run(summary["run"])
+        mpi_times = [
+            m for m in locus_level(run.measurements) if m.counter == "mpi_time"
+        ]
+        assert {m.locus.rank for m in mpi_times} == {0, 1}
+        assert all(m.value and m.value > 0 for m in mpi_times)

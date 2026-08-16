@@ -6,13 +6,19 @@ Allreduce rounds plus rank-to-0 Sends: distinguishable per-rank times
 and volumes, real formatting quirks included.
 """
 
+import hashlib
 import json
 import os
+import stat
 import subprocess
 import sys
+import tarfile
 from pathlib import Path
 
+from nunatak import probe
 from nunatak.cli import doctor
+from nunatak.collect.execution import SubprocessExecutor
+from tests.support import ScriptedExecutor
 from nunatak.collect import mpip
 from nunatak.config import Config
 from nunatak.ingestion import mpip_report
@@ -44,14 +50,19 @@ class TestLocate:
 
 class TestDoctor:
     def test_an_mpi_launch_without_mpip_is_told_before_the_run(self, tmp_path):
-        check = doctor._mpi_analysis(Config(tools={"mpip": str(tmp_path / "no.so")}))
+        executor = ScriptedExecutor().on("mpicc", exit_code=127)
+        check = doctor._mpi_analysis(
+            executor, Config(tools={"mpip": str(tmp_path / "no.so")})
+        )
         assert check.status == "missing"
         assert check.degradation.name == "mpi-analysis-unavailable"
 
     def test_a_located_library_reports_ok(self, tmp_path):
         library = tmp_path / "libmpiP.so"
         library.write_text("")
-        check = doctor._mpi_analysis(Config(tools={"mpip": str(library)}))
+        check = doctor._mpi_analysis(
+            ScriptedExecutor(), Config(tools={"mpip": str(library)})
+        )
         assert check.status == "ok"
         assert check.detail == str(library)
 
@@ -153,3 +164,139 @@ class TestShimPreload:
         # Appended, never written over: the site's preload survives.
         assert seen["LD_PRELOAD"] == "/opt/mpiP/lib/libmpiP.so:/site/libpreexisting.so"
         assert seen["MPIP"] == f"-f {collect}"
+
+
+STACK = probe.MpiStack("Open MPI", "5.0.7", "mpicc")
+
+
+def source_archive(tmp_path, configure_body="touch configured\n"):
+    """A source-shaped tarball: a configure that logs, a Makefile whose
+    `shared` target emits the library - the build contract, nothing else."""
+    tree = tmp_path / "mpiP-pinned"
+    tree.mkdir()
+    configure = tree / "configure"
+    configure.write_text("#!/bin/sh\necho \"$@\" >> configure.log\n" + configure_body)
+    configure.chmod(configure.stat().st_mode | stat.S_IXUSR)
+    (tree / "Makefile").write_text("shared:\n\tprintf built > libmpiP.so\n")
+    tarball = tmp_path / "source.tar.gz"
+    with tarfile.open(tarball, "w:gz") as archive:
+        archive.add(tree, arcname=tree.name)
+    return tarball, hashlib.sha256(tarball.read_bytes()).hexdigest()
+
+
+class TestDownload:
+    def test_a_verified_archive_lands_and_is_reused_offline(self, tmp_path):
+        tarball, digest = source_archive(tmp_path)
+        destination = tmp_path / "cache" / "mpip-source.tar.gz"
+        destination.parent.mkdir()
+        assert mpip.download(destination, url=tarball.as_uri(), digest=digest)
+        # Once fetched, the pin works without any network at all.
+        assert mpip.download(destination, url="file:///nowhere", digest=digest)
+
+    def test_a_wrong_checksum_is_refused_and_removed(self, tmp_path):
+        tarball, _ = source_archive(tmp_path)
+        destination = tmp_path / "mpip-source.tar.gz"
+        assert not mpip.download(destination, url=tarball.as_uri(), digest="0" * 64)
+        assert not destination.exists()
+
+    def test_an_unreachable_source_is_a_refusal_not_a_crash(self, tmp_path):
+        destination = tmp_path / "mpip-source.tar.gz"
+        assert not mpip.download(
+            destination, url=(tmp_path / "absent.tar.gz").as_uri(), digest="0" * 64
+        )
+
+
+class TestBuild:
+    def test_the_first_build_compiles_and_the_second_reuses(self, tmp_path):
+        tarball, digest = source_archive(tmp_path)
+        cache = tmp_path / "cache"
+        library = mpip.build(
+            SubprocessExecutor(), STACK, "mpifort",
+            directory=cache, url=tarball.as_uri(), digest=digest,
+        )
+        assert library is not None
+        assert library.read_text() == "built"
+        assert library.parent == cache / probe.stack_key(STACK)
+        again = mpip.build(
+            SubprocessExecutor(), STACK, "mpifort",
+            directory=cache, url="file:///nowhere", digest=digest,
+        )
+        assert again == library
+
+    def test_configure_receives_the_site_compilers(self, tmp_path):
+        tarball, digest = source_archive(tmp_path)
+        cache = tmp_path / "cache"
+        recorded = []
+
+        class Recording(SubprocessExecutor):
+            def run(self, argv, capture=True, env=None, cwd=None):
+                recorded.append(list(argv))
+                return super().run(argv, capture=capture, env=env, cwd=cwd)
+
+        mpip.build(
+            Recording(), STACK, "mpif77",
+            directory=cache, url=tarball.as_uri(), digest=digest,
+        )
+        assert recorded[0] == ["./configure", "CC=mpicc", "F77=mpif77"]
+        assert recorded[1] == ["make", "shared"]
+
+    def test_a_failing_configure_yields_none_not_a_library(self, tmp_path):
+        tarball, digest = source_archive(tmp_path, configure_body="exit 1\n")
+        library = mpip.build(
+            SubprocessExecutor(), STACK, "mpifort",
+            directory=tmp_path / "cache", url=tarball.as_uri(), digest=digest,
+        )
+        assert library is None
+
+
+class TestFortranWrapper:
+    def test_the_configured_wrapper_wins(self):
+        executor = ScriptedExecutor().on("site-fort", exit_code=0)
+        config = Config(tools={"mpifort": "site-fort"})
+        assert mpip.fortran_wrapper(executor, config) == "site-fort"
+
+    def test_mpif77_answers_when_mpifort_does_not(self):
+        executor = (
+            ScriptedExecutor().on("mpifort", exit_code=127).on("mpif77", exit_code=0)
+        )
+        assert mpip.fortran_wrapper(executor, Config()) == "mpif77"
+
+    def test_without_any_wrapper_there_is_nothing(self):
+        executor = (
+            ScriptedExecutor().on("mpifort", exit_code=127).on("mpif77", exit_code=127)
+        )
+        assert mpip.fortran_wrapper(executor, Config()) is None
+
+
+class TestLocateStackCache:
+    def test_the_stack_cache_is_the_last_resort(self, tmp_path, monkeypatch):
+        monkeypatch.setenv("XDG_CACHE_HOME", str(tmp_path))
+        entry = probe.cache_directory() / probe.stack_key(STACK)
+        entry.mkdir(parents=True)
+        (entry / "libmpiP.so").write_text("cached")
+        assert mpip.locate(Config(), environment={}) is None
+        located = mpip.locate(Config(), environment={}, mpi_stack=STACK)
+        assert located == str(entry / "libmpiP.so")
+
+
+class TestDoctorBuild:
+    def test_without_a_fortran_wrapper_the_build_is_declared_impossible(self):
+        executor = (
+            ScriptedExecutor()
+            .on("mpicc", stdout="gcc 14")
+            .on("mpirun", stdout="mpirun (Open MPI) 5.0.7")
+            .on("mpifort", exit_code=127)
+            .on("mpif77", exit_code=127)
+        )
+        check = doctor._mpip_build(executor, Config())
+        assert check.status == "missing"
+        assert "Fortran" in check.detail
+        assert check.degradation.name == "mpi-analysis-unavailable"
+
+    def test_an_already_located_copy_needs_no_build(self, tmp_path):
+        library = tmp_path / "libmpiP.so"
+        library.write_text("")
+        executor = ScriptedExecutor().on("mpicc", stdout="gcc 14")
+        check = doctor._mpip_build(executor, Config(tools={"mpip": str(library)}))
+        assert check.status == "ok"
+        assert check.detail == str(library)
