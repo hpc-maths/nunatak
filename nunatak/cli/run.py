@@ -20,7 +20,7 @@ import sys
 from pathlib import Path
 
 from nunatak import analysis, attribution, corpus, ingestion, launch, machine, probe, provenance, summary
-from nunatak.attribution import source, staleness
+from nunatak.attribution import debuginfod, source, staleness
 from nunatak.collect import events as counter_events
 from nunatak.calibration import theory
 from nunatak.cli import calibrate, doctor
@@ -374,7 +374,8 @@ def execute(args, command: list[str], console: Console) -> int:
 
     if measured:
         measurements, address_details, attribution_degradations = attribution.attribute(
-            measurements, symbolizer, executor
+            measurements, symbolizer, executor,
+            environment=debuginfod.environment(config),
         )
         if not args.no_source:
             # The fallback symbolizer reads no line-table fingerprints:

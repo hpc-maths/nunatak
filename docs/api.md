@@ -80,6 +80,9 @@
 .. automodule:: nunatak.attribution.addr2line
    :members:
 
+.. automodule:: nunatak.attribution.debuginfod
+   :members:
+
 .. automodule:: nunatak.attribution.inspection
    :members:
 

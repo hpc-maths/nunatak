@@ -14,7 +14,7 @@ import shutil
 from dataclasses import asdict, dataclass
 from pathlib import Path
 
-from nunatak.attribution import inspection
+from nunatak.attribution import debuginfod, inspection
 from nunatak.attribution.addr2line import Addr2Line
 from nunatak.attribution.symbolizer import MINIMUM_LLVM, RECOMMENDED_LLVM
 from nunatak.collect.execution import Executor
@@ -231,6 +231,17 @@ def _attribution_ceiling(
     )
 
 
+def _debuginfod(config: Config) -> CheckResult | None:
+    """What debuginfod will do at analysis time, None when no server is
+    configured - absence is the normal case, not a finding. The controls
+    exist because both symbolization paths consult the client on their
+    own: better a declared timeout than a silent 90-second hang."""
+    sentence = debuginfod.status(config)
+    if sentence is None:
+        return None
+    return CheckResult(name="debuginfod", status="ok", detail=sentence)
+
+
 def _report_asset() -> CheckResult:
     """Presence of the compiled report mini-app in this installation."""
     from nunatak.report import html
@@ -415,6 +426,9 @@ def light_checks(
     symbolizer = llvm[0] if llvm is not None else locate_any(executor, config)
     checks = _cpu_collector(executor, config, preselected=cpu)
     checks.append(_llvm(symbolizer))
+    server = _debuginfod(config)
+    if server is not None:
+        checks.append(server)
     checks.append(_report_asset())
     if command:
         checks.append(_target(command))

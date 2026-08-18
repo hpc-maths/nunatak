@@ -158,6 +158,7 @@ def attribute(
     measurements: list[Measurement],
     symbolizer: Symbolizer | None,
     executor: Executor,
+    environment: dict[str, str] | None = None,
 ) -> tuple[list[Measurement], list[AddressDetail], list[Degradation]]:
     """Name the unresolved Hotspots of `measurements`.
 
@@ -198,7 +199,9 @@ def attribute(
     chains: dict[tuple[str, int], AttributionChain] = {}
     errors: list[tuple[str, str]] = []
     for module in sorted(offsets):
-        outcome = symbolizer.symbolize(executor, module, sorted(offsets[module]))
+        outcome = symbolizer.symbolize(
+            executor, module, sorted(offsets[module]), env=environment
+        )
         if outcome.error is not None:
             errors.append((module, outcome.error))
         for offset, chain in outcome.chains.items():

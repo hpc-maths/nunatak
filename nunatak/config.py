@@ -35,6 +35,8 @@ class Config:
     sampling_frequency: int = 997
     sampling_rank_threshold: int = 64
     stacks_fp_threshold: float = 0.75
+    debuginfod_enabled: bool = True
+    debuginfod_timeout: int = 10
 
 
 def find_project_config(cwd: Path) -> Path | None:
@@ -90,6 +92,9 @@ def load(
         config.stacks_fp_threshold = stacks.get(
             "fp_threshold", config.stacks_fp_threshold
         )
+        debuginfod = data.get("debuginfod", {})
+        config.debuginfod_enabled = debuginfod.get("enabled", config.debuginfod_enabled)
+        config.debuginfod_timeout = debuginfod.get("timeout", config.debuginfod_timeout)
 
     if name is not None:
         config.project_name = name
@@ -100,6 +105,8 @@ def load(
         "sampling.frequency": config.sampling_frequency,
         "sampling.rank_threshold": config.sampling_rank_threshold,
         "stacks.fp_threshold": config.stacks_fp_threshold,
+        "debuginfod.enabled": config.debuginfod_enabled,
+        "debuginfod.timeout": config.debuginfod_timeout,
     }
     if config.project_name is not None:
         effective["name"] = config.project_name

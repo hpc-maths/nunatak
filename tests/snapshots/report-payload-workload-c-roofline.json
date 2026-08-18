@@ -196,6 +196,8 @@
     "dependencies": {},
     "dirty_tree": null,
     "effective_configuration": {
+      "debuginfod.enabled": true,
+      "debuginfod.timeout": 10,
       "runs_dir": ".nunatak",
       "sampling.frequency": 997,
       "sampling.rank_threshold": 64,
