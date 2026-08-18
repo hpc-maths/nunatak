@@ -12,6 +12,7 @@ import { detail } from "./detail";
 import { esc } from "./format";
 import { inventory } from "./inventory";
 import { synthesis } from "./synthesis";
+import { transverse } from "./transverse";
 import type { InventoryState, SortKey } from "./inventory";
 import type { Payload } from "./data";
 
@@ -156,7 +157,7 @@ function zone(payload: Payload): string {
   if (entry !== undefined) {
     return `<div class="det">${detail(payload, entry)}</div>`;
   }
-  return inventory(payload, state);
+  return inventory(payload, state) + transverse(payload);
 }
 
 function render(payload: Payload): void {

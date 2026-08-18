@@ -72,6 +72,7 @@ function payload(hotspot: HotspotEntry): Payload {
     hotspots: [hotspot],
     others: null,
     ranks: null,
+    inline_view: null,
   };
 }
 

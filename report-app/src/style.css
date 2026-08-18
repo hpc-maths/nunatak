@@ -289,6 +289,15 @@ p {
   margin-top: 6px;
   background: var(--surface);
 }
+
+/* The transverse view: secondary under the inventory, never replacing it. */
+.trans {
+  padding-top: 18px;
+  padding-bottom: 24px;
+}
+.trans .tab {
+  margin-top: 10px;
+}
 .filters {
   display: flex;
   gap: 7px;

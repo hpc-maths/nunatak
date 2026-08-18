@@ -1,5 +1,5 @@
 /**
- * Payload schema 2: the contract with the Python core.
+ * Payload schema 3: the contract with the Python core.
  *
  * These types mirror `nunatak/report/payload.py` field for field. The
  * app renders the payload, it never computes it: every number arrives
@@ -131,6 +131,21 @@ export interface Payload {
   hotspots: HotspotEntry[];
   others: { count: number; share: number | null } | null;
   ranks: RanksSection | null;
+  inline_view: InlineViewRow[] | null;
+}
+
+/**
+ * One row of the transverse view: time by innermost inline frame, all
+ * Hotspots combined. `sites` counts the Hotspots the frame appears in -
+ * the header routine inlined everywhere shows a high count here while
+ * staying invisible in each Hotspot alone.
+ */
+export interface InlineViewRow {
+  function: string;
+  file: string | null;
+  line: number | null;
+  share: number;
+  sites: number;
 }
 
 /** Read the payload embedded in the page by `nunatak/report/html.py`. */
