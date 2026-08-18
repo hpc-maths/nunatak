@@ -471,3 +471,34 @@ class TestRealStackCollection:
         samples, unparsed = parse_samples(script_text)
         assert unparsed == []
         assert samples and all(s.callers for s in samples)
+
+
+class TestRealFallbackSymbolizer:
+    def test_addr2line_resolves_a_fresh_binary_with_the_extent_rule(
+        self, workload
+    ):
+        # The real Binutils pair on a binary compiled minutes ago: the
+        # located addr2line resolves a line-level chain anchored at the
+        # symbol start, and an address in the padding past the last
+        # function stays out of the chains - whatever the tool answered.
+        from nunatak.attribution import addr2line
+
+        executor = SubprocessExecutor()
+        tool = addr2line.locate(executor, Config())
+        assert tool is not None, "tier 2 needs binutils on the runner"
+
+        extents = addr2line._function_extents(executor, tool.readelf, str(workload))
+        assert extents, "no function extents in a freshly compiled binary"
+        start, size = max(extents, key=lambda entry: entry[1])
+        inside, gap = start + size // 2, start + size + 1
+
+        outcome = tool.symbolize(executor, str(workload), [inside, gap])
+        assert outcome.error is None
+        chain = outcome.chains[inside]
+        assert chain.physical.start_address == start
+        assert chain.frames[0].file and chain.frames[0].line
+        assert gap not in outcome.chains or (
+            # The gap may fall inside the next function; only a covered
+            # address is allowed to resolve.
+            any(v <= gap < v + s for v, s in extents)
+        )

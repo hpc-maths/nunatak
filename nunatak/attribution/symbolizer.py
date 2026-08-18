@@ -97,6 +97,22 @@ class Symbolizer:
     path: str
     major: int
 
+    @property
+    def readelf(self) -> str:
+        """The llvm-readelf sibling of this symbolizer: same install,
+        same version."""
+        from nunatak.attribution import inspection
+
+        return inspection.readelf_path(self.path)
+
+    @property
+    def dwarfdump(self) -> str:
+        """The llvm-dwarfdump sibling, reader of the DWARF 5 line-table
+        fingerprints the staleness guard compares."""
+        from nunatak.attribution import staleness
+
+        return staleness.dwarfdump_path(self.path)
+
     def symbolize(
         self, executor: Executor, module: str, offsets: list[int]
     ) -> ModuleSymbolization:

@@ -236,7 +236,7 @@ def execute(args, command: list[str], console: Console) -> int:
         executor = SubprocessExecutor()
 
     adapter, version = cpu_collector(executor, config)
-    symbolizer = attribution.locate(executor, config)
+    symbolizer = attribution.locate_any(executor, config)
     checks = doctor.light_checks(
         executor, config, command, cpu=(adapter, version), llvm=(symbolizer,)
     )
@@ -377,13 +377,15 @@ def execute(args, command: list[str], console: Console) -> int:
             measurements, symbolizer, executor
         )
         if not args.no_source:
+            # The fallback symbolizer reads no line-table fingerprints:
+            # nothing is present, so nothing can be discordant, and the
+            # extracts are accepted exactly as gcc's unfingerprinted ones
+            # already are.
             checksums = (
                 staleness.checksums_for(
-                    executor,
-                    staleness.dwarfdump_path(symbolizer.path),
-                    address_details,
+                    executor, symbolizer.dwarfdump, address_details
                 )
-                if symbolizer is not None
+                if symbolizer is not None and symbolizer.dwarfdump is not None
                 else {}
             )
             source_extracts = source.extract(

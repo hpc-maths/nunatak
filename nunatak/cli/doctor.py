@@ -15,7 +15,8 @@ from dataclasses import asdict, dataclass
 from pathlib import Path
 
 from nunatak.attribution import inspection
-from nunatak.attribution.symbolizer import MINIMUM_LLVM, RECOMMENDED_LLVM, locate
+from nunatak.attribution.addr2line import Addr2Line
+from nunatak.attribution.symbolizer import MINIMUM_LLVM, RECOMMENDED_LLVM
 from nunatak.collect.execution import Executor
 from nunatak.config import Config
 from nunatak.console import Console
@@ -97,8 +98,23 @@ def _cpu_collector(
 
 
 def _llvm(symbolizer) -> CheckResult:
-    """Verdict on the located llvm-symbolizer; old versions restrict loop
-    analysis."""
+    """Verdict on the located symbolizer; old LLVM versions restrict loop
+    analysis, and the addr2line fallback is declared second-choice."""
+    if isinstance(symbolizer, Addr2Line):
+        degradation = Degradation(
+            name="llvm-missing",
+            message="no usable llvm-symbolizer found; GNU addr2line "
+            f"{symbolizer.version} ({symbolizer.path}) stands in",
+            remedy=f"attribution works, without staleness fingerprints; "
+            f"install LLVM {RECOMMENDED_LLVM}+ for them and for loop analysis",
+        )
+        return CheckResult(
+            name="llvm",
+            status="warning",
+            detail=degradation.message,
+            remedy=degradation.remedy,
+            degradation=degradation,
+        )
     if symbolizer is not None:
         if symbolizer.major >= RECOMMENDED_LLVM:
             return CheckResult(
@@ -178,7 +194,7 @@ def _attribution_ceiling(
     if resolved is None or symbolizer is None:
         return None
     sections = inspection.inspect(
-        executor, inspection.readelf_path(symbolizer.path), str(resolved)
+        executor, symbolizer.readelf, str(resolved)
     )
     if sections is None:
         return CheckResult(
@@ -394,7 +410,9 @@ def light_checks(
     benchmark, a few tool invocations. `cpu` carries an already-selected
     (adapter, version) and `llvm` an already-located (symbolizer,), so no
     tool is probed twice."""
-    symbolizer = llvm[0] if llvm is not None else locate(executor, config)
+    from nunatak.attribution import locate_any
+
+    symbolizer = llvm[0] if llvm is not None else locate_any(executor, config)
     checks = _cpu_collector(executor, config, preselected=cpu)
     checks.append(_llvm(symbolizer))
     checks.append(_report_asset())

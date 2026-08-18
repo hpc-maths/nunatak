@@ -33,8 +33,18 @@ Every Hotspot declares how far its attribution could go - its
 failed attribution never degrades the measurement: that time really was
 spent at that address, and the Hotspot is displayed `module+0x3a1c`
 rather than being attached to the nearest symbol. Kernel and vdso
-samples stay unresolved by design, and without LLVM the run still
-measures - the names are simply missing, and the degradation says so.
+samples stay unresolved by design.
+
+Without a usable LLVM, **GNU addr2line** (binutils) stands in - executed
+on what the machine offers, never redistributed, and declared
+second-choice by `doctor`. The fallback keeps the extent rule that the
+tool itself does not: GNU addr2line names an address in the gap between
+two functions after the preceding symbol, so the symbol table is read
+first and only covered addresses resolve. What it cannot offer is
+declared too: no staleness fingerprints (extracts are accepted as if
+unfingerprinted, like gcc's) and no loop analysis. Without either tool
+the run still measures - the names are simply missing, and the
+degradation says so.
 
 `function` and `symbol` name the same situation - a name without a
 source position - but not the same remedy: `function` comes from the
@@ -153,6 +163,7 @@ runs_dir = "/scratch/me/runs"
 [tools]
 perf = "/opt/perf/bin/perf"
 llvm-symbolizer = "/usr/lib/llvm-19/bin/llvm-symbolizer"
+addr2line = "/usr/bin/addr2line"    # fallback when no LLVM answers
 
 [source_map]
 "/build/app" = "/home/me/app"    # where the build tree lives now
