@@ -3,7 +3,7 @@
     "perf",
     "buildid-list",
     "--input",
-    "run/collect/perf.data"
+    "run2/collect/perf.data"
   ],
   "exit_code": 0,
   "captured": true

@@ -1,11 +1,11 @@
 {
   "argv": [
-    "git",
-    "-C",
-    "/tmp/nunatak-capture-stacks",
-    "rev-parse",
-    "HEAD"
+    "/usr/lib/llvm-19/bin/llvm-symbolizer",
+    "--output-style=JSON",
+    "--obj=/usr/lib/x86_64-linux-gnu/libc.so.6",
+    "0x2a578",
+    "0x2a63b"
   ],
-  "exit_code": 128,
+  "exit_code": 0,
   "captured": true
 }

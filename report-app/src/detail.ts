@@ -39,6 +39,12 @@ function metrics(entry: HotspotEntry): string {
     ),
     metric("Imbalance", formatted(entry.imbalance, (value) => `x ${sig(value, 2)}`)),
     metric(
+      "Inclusive",
+      entry.inclusive !== null
+        ? percent(entry.inclusive)
+        : '<span class="muted">no recorded paths</span>'
+    ),
+    metric(
       "Relative error",
       entry.relative_error !== null
         ? `± ${percent(entry.relative_error)}`
@@ -99,6 +105,24 @@ function sourceLines(entry: HotspotEntry): string {
   return `<div class="small muted">No source to show: ${esc(reason)}.</div>`;
 }
 
+function callers(entry: HotspotEntry): string {
+  if (entry.callers.length === 0) return "";
+  const rows = entry.callers
+    .slice(0, 6)
+    .map(
+      (caller) => `<div class="iframe-row">
+        <span class="mono">${esc(caller.name)}</span>
+        <span class="bar"><i style="width:${Math.round(caller.share * 100)}%"></i></span>
+        <span class="num pc-right">${percent(caller.share)}</span>
+      </div>`
+    )
+    .join("");
+  return `<div><div class="eyebrow blockhead">Called from</div>
+    <div class="iframe-list">${rows}</div>
+    <div class="small muted blocknote">Immediate callers over the recorded paths - what attaches a library leaf to the code that called it. Callers never enter the Hotspot identity.</div>
+  </div>`;
+}
+
 function inlineFrames(entry: HotspotEntry): string {
   if (entry.inline_frames.length < 2) return "";
   const rows = entry.inline_frames
@@ -152,6 +176,7 @@ export function detail(payload: Payload, entry: HotspotEntry): string {
     </div>
     <div class="dcol">
       <div><div class="eyebrow blockhead">Source, samples per line</div>${sourceLines(entry)}</div>
+      ${callers(entry)}
       ${inlineFrames(entry)}
     </div>
   </div>`;

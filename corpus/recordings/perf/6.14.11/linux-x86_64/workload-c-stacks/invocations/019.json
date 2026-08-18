@@ -3,7 +3,7 @@
     "perf",
     "script",
     "--input",
-    "run/collect/perf.data",
+    "run2/collect/perf.data",
     "--fields",
     "comm,pid,tid,time,period,event,ip,sym,symoff,dso,dsoff"
   ],

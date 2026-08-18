@@ -245,16 +245,28 @@ class AddressDetail:
 @dataclass(frozen=True)
 class StackFrame:
     """One step of a recorded call path, normalized like the samples:
-    `(module, module-relative offset)`, no absolute address, no name.
+    `(module, module-relative offset)`.
 
-    Names are attribution's job, at analysis time; persisting the raw
-    position keeps stacks valid on a machine where the binary and the
-    symbolizer no longer exist. `offset` is None for pseudo modules
-    (`[vdso]`) whose inside cannot be located.
+    `function` is the physical function covering the address - the
+    extent rule applies to callers exactly as to leaves - filled by
+    attribution and persisted with the frame, so a Run stays readable
+    on a machine where the binary and the symbolizer no longer exist.
+    None when no symbol covers the address, and the display falls back
+    to `module+0x...`. `offset` is None for pseudo modules (`[vdso]`)
+    whose inside cannot be located.
     """
 
     module: str
     offset: int | None = None
+    function: str | None = None
+
+    @property
+    def display_name(self) -> str:
+        """The name shown for this frame, `module+0x...` when unnamed."""
+        if self.function is not None:
+            return self.function
+        module = self.module.rsplit("/", 1)[-1]
+        return module if self.offset is None else f"{module}+{self.offset:#x}"
 
 
 @dataclass(frozen=True)

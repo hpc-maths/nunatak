@@ -137,7 +137,7 @@ class TestFallbackInTheChain:
             .on("readelf", stdout=GNU_READELF_SYMBOLS_FP)
             .on("addr2line", stdout=ADDR2LINE_DEBUG)
         )
-        named, details, degradations = attribute(self._measurements(), TOOL, executor)
+        named, details, _, degradations = attribute(self._measurements(), TOOL, executor)
         assert degradations == []
         by_name = {m.hotspot.display_name: m for m in named}
         assert "main" in by_name

@@ -35,6 +35,8 @@ from nunatak.pivot import (
     Measurement,
     PhysicalIdentity,
     ResolutionLevel,
+    Stack,
+    StackFrame,
     hotspot_level,
     locus_level,
 )
@@ -159,26 +161,35 @@ def attribute(
     symbolizer: Symbolizer | None,
     executor: Executor,
     environment: dict[str, str] | None = None,
-) -> tuple[list[Measurement], list[AddressDetail], list[Degradation]]:
-    """Name the unresolved Hotspots of `measurements`.
+    stacks: list[Stack] | None = None,
+) -> tuple[list[Measurement], list[AddressDetail], list[Stack], list[Degradation]]:
+    """Name the unresolved Hotspots of `measurements` and the frames of
+    `stacks`.
 
     Returns the new Measurements, the internal detail of the named
     Hotspots - the inlining chain and the weight of each sampled address,
     what a report needs to ventilate a Hotspot by line on a machine where
-    the binary no longer exists - and the degradations met on the way.
+    the binary no longer exists - the stacks with their frames named, and
+    the degradations met on the way.
 
-    Symbolization runs once per module, on its distinct sampled offsets;
-    modules that only yield bare names are then inspected once to tell
-    `function` (a `.symtab` name) from `symbol` (a `.dynsym`-only module).
-    `symbolizer` is the located LLVM driver or the addr2line fallback -
-    same contract, so nothing here knows which one answered. Without any
-    symbolizer the Measurements come back untouched: doctor has already
-    announced the missing capability. A module the symbolizer
-    cannot read leaves its Hotspots unresolved and is declared, once, in a
-    degradation.
+    Symbolization runs once per module, on the union of its distinct
+    sampled offsets and its distinct stack-frame addresses: naming a
+    caller costs no extra invocation. A caller is named after the
+    physical function covering its address - the extent rule applies to
+    callers exactly as to leaves, so a return address in a gap stays
+    `module+0x...` rather than borrowing its neighbour's name. Modules
+    that only yield bare names are then inspected once to tell
+    `function` (a `.symtab` name) from `symbol` (a `.dynsym`-only
+    module). `symbolizer` is the located LLVM driver or the addr2line
+    fallback - same contract, so nothing here knows which one answered.
+    Without any symbolizer everything comes back untouched: doctor has
+    already announced the missing capability. A module the symbolizer
+    cannot read leaves its Hotspots unresolved and is declared, once, in
+    a degradation.
     """
+    stacks = stacks or []
     if symbolizer is None or not measurements:
-        return measurements, [], []
+        return measurements, [], stacks, []
 
     # The counting layer's Locus-level aggregates carry no Hotspot: there
     # is nothing to name, they ride through unchanged.
@@ -195,6 +206,10 @@ def attribute(
             and _symbolizable(module)
         ):
             offsets.setdefault(module, set()).add(hotspot.offset)
+    for stack in stacks:
+        for frame in stack.frames:
+            if frame.offset is not None and _symbolizable(frame.module):
+                offsets.setdefault(frame.module, set()).add(frame.offset)
 
     chains: dict[tuple[str, int], AttributionChain] = {}
     errors: list[tuple[str, str]] = []
@@ -279,6 +294,25 @@ def attribute(
         )
     )
 
+    named_stacks = [
+        dataclasses.replace(
+            stack,
+            frames=tuple(
+                dataclasses.replace(
+                    frame,
+                    function=(
+                        chain.physical.function
+                        if frame.offset is not None
+                        and (chain := chains.get((frame.module, frame.offset)))
+                        else None
+                    ),
+                )
+                for frame in stack.frames
+            ),
+        )
+        for stack in stacks
+    ]
+
     degradations = []
     if errors:
         module, error = errors[0]
@@ -291,4 +325,4 @@ def attribute(
                 "files must be readable at analysis time",
             )
         )
-    return _merged(renamed) + aggregates, details, degradations
+    return _merged(renamed) + aggregates, details, named_stacks, degradations

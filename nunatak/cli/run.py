@@ -375,9 +375,12 @@ def execute(args, command: list[str], console: Console) -> int:
         exit_code = executor.run(command, capture=False).exit_code
 
     if measured:
-        measurements, address_details, attribution_degradations = attribution.attribute(
-            measurements, symbolizer, executor,
-            environment=debuginfod.environment(config),
+        measurements, address_details, stacks_collected, attribution_degradations = (
+            attribution.attribute(
+                measurements, symbolizer, executor,
+                environment=debuginfod.environment(config),
+                stacks=stacks_collected,
+            )
         )
         if not args.no_source:
             # The fallback symbolizer reads no line-table fingerprints:

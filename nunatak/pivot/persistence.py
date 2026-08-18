@@ -142,6 +142,7 @@ _STACK_FRAMES = pa.schema(
         ("depth", pa.int32()),
         ("module", pa.string()),
         ("offset", pa.int64()),
+        ("function", pa.string()),
     ]
 )
 
@@ -309,6 +310,7 @@ def write_run(directory: Path, run: Run) -> Path:
             "depth": depth,
             "module": frame.module,
             "offset": frame.offset,
+            "function": frame.function,
         }
         for index, s in enumerate(run.stacks)
         for depth, frame in enumerate(s.frames)
@@ -569,7 +571,7 @@ def read_run(directory: Path) -> Run:
     stack_chains: dict[int, dict[int, StackFrame]] = {}
     for row in tables.get("stack_frames", []):
         stack_chains.setdefault(row["stack"], {})[row["depth"]] = StackFrame(
-            module=row["module"], offset=row["offset"]
+            module=row["module"], offset=row["offset"], function=row.get("function")
         )
     stacks = [
         Stack(
