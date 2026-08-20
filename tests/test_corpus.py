@@ -92,3 +92,26 @@ class TestEndToEnd:
         replayed = json.loads(capsys.readouterr().out)
         assert replayed["exit_code"] == recorded["exit_code"]
         assert read_meta(entry)["command"] == command
+
+
+def test_the_recorded_processor_replays_never_the_hosts(tmp_path):
+    # The call-stack ladder keys its lbr rung on the vendor: an entry
+    # recorded on AMD must not decide lbr when replayed on an Intel host.
+    entry = tmp_path / "entry"
+    RecordingExecutor(ScriptedExecutor(), entry)
+    write_meta(
+        entry, ["./solver"], [], cpu_model="AMD EPYC 7702 64-Core Processor"
+    )
+    assert (
+        ReplayExecutor(entry).cpu_model() == "AMD EPYC 7702 64-Core Processor"
+    )
+
+
+def test_an_entry_written_before_the_model_reads_back_unknown(tmp_path):
+    entry = tmp_path / "entry"
+    RecordingExecutor(ScriptedExecutor(), entry)
+    write_meta(entry, ["./solver"], [])
+    meta = read_meta(entry)
+    del meta["cpu_model"]
+    (entry / "meta.json").write_text(json.dumps(meta))
+    assert ReplayExecutor(entry).cpu_model() is None

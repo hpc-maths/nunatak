@@ -415,7 +415,7 @@ class TestRealStackLadder:
         # libc, GNU objdump - against prologues that exist right now.
         binary = self._compile(tmp_path, "-fno-omit-frame-pointer")
         executor = SubprocessExecutor()
-        model = machine.cpu_model(executor)
+        model = executor.cpu_model()
         assert model is not None and "Intel" not in model
         decision = stacks.decide(executor, Config(), str(binary), model)
         assert decision.mode == "fp", decision.detail
@@ -425,8 +425,49 @@ class TestRealStackLadder:
         binary = self._compile(tmp_path, "-fomit-frame-pointer")
         executor = SubprocessExecutor()
         decision = stacks.decide(
-            executor, Config(), str(binary), machine.cpu_model(executor)
+            executor, Config(), str(binary), executor.cpu_model()
         )
         assert decision.mode is None, decision.detail
         assert str(binary) in decision.detail
         assert "-fno-omit-frame-pointer" in decision.remedy
+
+
+class TestRealStackCollection:
+    def test_a_real_run_records_stacks_over_the_fp_rung(
+        self, tmp_path, monkeypatch, capsys
+    ):
+        # The whole chain on real hardware: prologues probed, fp settled,
+        # perf records with --call-graph fp, every sample carries its
+        # stack, and the parser sees no line it cannot read.
+        compiler = shutil.which("gcc") or shutil.which("cc")
+        if compiler is None:
+            pytest.fail("tier 2 needs a C compiler on the runner")
+        source = tmp_path / "workload.c"
+        source.write_text(WORKLOAD_C)
+        binary = tmp_path / "workload"
+        built = subprocess.run(
+            [compiler, "-O2", "-g", "-fno-omit-frame-pointer",
+             str(source), "-o", str(binary)],
+            capture_output=True,
+            text=True,
+        )
+        assert built.returncode == 0, built.stderr
+        monkeypatch.chdir(tmp_path)
+
+        assert principal(
+            ["run", "--json", "--no-calibrate", "--", str(binary)]
+        ) == 0
+        summary = json.loads(capsys.readouterr().out)
+        names = {d["name"] for d in summary["degradations"]}
+        assert "call-stacks-unavailable" not in names, summary["degradations"]
+        assert "call-stacks-rejected" not in names, summary["degradations"]
+        assert "perf-script-unparsed" not in names, summary["degradations"]
+
+        from nunatak.ingestion.perf_script import parse_samples
+
+        script_text = (
+            Path(summary["run"]) / "collect" / "perf-script.txt"
+        ).read_text()
+        samples, unparsed = parse_samples(script_text)
+        assert unparsed == []
+        assert samples and all(s.callers for s in samples)

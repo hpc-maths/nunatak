@@ -34,13 +34,26 @@ from nunatak.exit_codes import (
     FAILURE_BEFORE_LAUNCH,
     STRICT_VIOLATION,
 )
-from nunatak.collect import mpip
+from nunatak.collect import mpip, stacks
 from nunatak.ingestion import mpip_report, rank_counting
-from nunatak.pivot import Collector, Pass, ResolutionLevel, Run, hotspot_level, write_run
+from nunatak.pivot import (
+    Collector,
+    Degradation,
+    Pass,
+    ResolutionLevel,
+    Run,
+    hotspot_level,
+    write_run,
+)
 from nunatak.report import html
 from nunatak.launch import real_target
 
 COLLECT_DIR = "collect"
+
+# Copying stack memory at every sample costs orders of magnitude more
+# than walking frame pointers: the explicit dwarf opt-in lowers the
+# sampling frequency to keep the observer effect within budget.
+DWARF_FREQUENCY = 97
 
 
 def _now() -> str:
@@ -65,6 +78,8 @@ def collection_command(
     collect_dir: Path,
     config: Config,
     preload: str | None = None,
+    call_graph: str | None = None,
+    frequency: int | None = None,
 ) -> list[str]:
     """The launch the orchestrator actually runs for an MPI command.
 
@@ -72,17 +87,58 @@ def collection_command(
     layers: every rank counts, the sampling subset records itself, and
     each rank writes into the Run directory - which is the multi-node
     retrieval. `preload` rides along for the application's LD_PRELOAD
-    (mpiP). The launcher itself runs bare.
+    (mpiP); `call_graph` carries the stack mode the ladder settled on
+    the orchestrator - decided once, cold, never re-probed on every
+    compute node. The launcher itself runs bare.
     """
     shim = [
         sys.executable, "-m", "nunatak.rank",
         "--directory", str(collect_dir),
-        "--frequency", str(config.sampling_frequency),
+        "--frequency", str(frequency or config.sampling_frequency),
         "--rank-threshold", str(config.sampling_rank_threshold),
     ]
     if preload is not None:
         shim += ["--preload", preload]
+    if call_graph is not None:
+        shim += ["--call-graph", call_graph]
     return plan.wrap([*shim, "--"])
+
+
+def _settle_stacks(args, executor, config, command, sampling, console):
+    """The stack mode and frequency this run will sample with, plus the
+    degradation when the ladder settles on nothing.
+
+    `--call-graph dwarf` bypasses the ladder: the cost is announced and
+    the frequency lowered, that is the whole point of it being explicit.
+    Otherwise the ladder is settled cold - lbr from the recorded
+    processor, fp from real prologues - exactly as doctor announces it.
+    A target binary absent from this machine leaves nothing to probe:
+    replayed commands take that path, and live ones cannot, having
+    already passed the executable check by launch time.
+    """
+    frequency = config.sampling_frequency
+    if not sampling or executor.system != "Linux":
+        return None, frequency, None
+    if args.call_graph == "dwarf":
+        frequency = min(frequency, DWARF_FREQUENCY)
+        console.info(
+            "--call-graph dwarf: stack memory copied at every sample; "
+            f"frequency lowered to {frequency} Hz"
+        )
+        return "dwarf", frequency, None
+    target = real_target(command) or command[0]
+    resolved = shutil.which(target) if os.sep not in target else target
+    if resolved is None or not Path(resolved).is_file():
+        return None, frequency, None
+    decision = stacks.decide(executor, config, str(resolved), executor.cpu_model())
+    if decision.mode is not None:
+        console.info(f"call stacks: {decision.detail}")
+        return decision.mode, frequency, None
+    return None, frequency, Degradation(
+        name="call-stacks-unavailable",
+        message=decision.detail,
+        remedy=decision.remedy,
+    )
 
 
 def executable_status(program: str) -> tuple[int, str] | None:
@@ -234,6 +290,14 @@ def execute(args, command: list[str], console: Console) -> int:
     gathered = []
     mpi_stack = None
     measured = True
+    call_graph, frequency, ladder_degradation = _settle_stacks(
+        args, executor, config, command,
+        sampling=(plan.mpi and bool(plan.application)) or adapter is not None,
+        console=console,
+    )
+    if ladder_degradation is not None:
+        console.degradation(ladder_degradation)
+        degradations = degradations + [ladder_degradation]
     if plan.mpi and plan.application:
         # Both collection layers live inside the ranks: an outer record
         # would fight the ranks' events for the same physical counters
@@ -262,7 +326,8 @@ def execute(args, command: list[str], console: Console) -> int:
             gathered += network_degradations
         exit_code = executor.run(
             collection_command(
-                plan, directory / COLLECT_DIR, config, preload=mpip_library
+                plan, directory / COLLECT_DIR, config, preload=mpip_library,
+                call_graph=call_graph, frequency=frequency,
             ),
             capture=False,
         ).exit_code
@@ -293,8 +358,9 @@ def execute(args, command: list[str], console: Console) -> int:
             list(command),
             directory / COLLECT_DIR,
             executor,
-            config.sampling_frequency,
+            frequency,
             events=counter_events.sampling_events(snapshot),
+            call_graph=call_graph,
         )
         collectors = (Collector(tool=adapter.tool, version=version),)
         measurements, ingest_degradations = ingestion.ingest(
@@ -341,6 +407,7 @@ def execute(args, command: list[str], console: Console) -> int:
             list(command),
             [{"tool": c.tool, "version": c.version} for c in collectors],
             sampling_blocked=executor.sampling_blocked(),
+            cpu_model=executor.cpu_model(),
         )
 
     collected_provenance = provenance.collect(executor, cwd, effective)

@@ -20,7 +20,7 @@ from nunatak.collect.execution import Executor
 from nunatak.config import Config
 from nunatak.console import Console
 from nunatak.pivot import Degradation
-from nunatak import launch, machine, probe
+from nunatak import launch, probe
 from nunatak.collect import mpip, stacks
 from nunatak.launch import real_target
 
@@ -432,7 +432,7 @@ def execute(args, command: list[str], console: Console) -> int:
     checks.append(_network_probe(executor, config))
     checks.append(_mpip_build(executor, config))
     if command:
-        ladder = _call_stacks(executor, config, command, machine.cpu_model(executor))
+        ladder = _call_stacks(executor, config, command, executor.cpu_model())
         if ladder is not None:
             checks.append(ladder)
 

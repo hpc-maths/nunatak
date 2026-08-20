@@ -88,6 +88,7 @@ def execute(args, console: Console) -> int:
             ["calibrate"],
             [],
             sampling_blocked=executor.sampling_blocked(),
+            cpu_model=executor.cpu_model(),
         )
 
     if args.json:

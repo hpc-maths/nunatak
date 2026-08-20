@@ -1,0 +1,11 @@
+{
+  "argv": [
+    "objdump",
+    "--disassemble",
+    "--start-address=0x1654d0",
+    "--stop-address=0x1654f0",
+    "/lib/x86_64-linux-gnu/libc.so.6"
+  ],
+  "exit_code": 0,
+  "captured": true
+}

@@ -65,6 +65,13 @@ def build_parser() -> argparse.ArgumentParser:
         action="store_true",
         help="skip the first-run calibration (ceilings stay theoretical)",
     )
+    run.add_argument(
+        "--call-graph",
+        choices=["dwarf"],
+        help="record call stacks by copying stack memory at every sample: "
+        "works on any binary, costly, so explicit - the sampling frequency "
+        "is lowered and the cost announced",
+    )
     # Corpus surface, for test campaigns on real hardware: record every
     # invocation crossing the execution boundary, or replay a recorded entry
     # instead of running the tools.

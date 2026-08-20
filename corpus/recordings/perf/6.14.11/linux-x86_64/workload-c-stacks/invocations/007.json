@@ -1,0 +1,11 @@
+{
+  "argv": [
+    "objdump",
+    "--disassemble",
+    "--start-address=0x10c0",
+    "--stop-address=0x10e0",
+    "./workload"
+  ],
+  "exit_code": 0,
+  "captured": true
+}
