@@ -162,6 +162,16 @@ every sampled address): a per-context split of a Hotspot stays addable
 years later, on a machine where the binary no longer exists. Stacks
 never enter the Hotspot identity.
 
+The report consumes them twice. Each Hotspot's detail names its
+**immediate callers** with their shares - what attaches a hot `dgemm`
+inside OpenBLAS to the solver code that called it, instead of leaving a
+Hotspot without source. And the metrics gain an **inclusive** share:
+how much of the sampled time this function was anywhere on the path,
+callers included, a recursive function counting once per path. Callers
+are named by the same attribution pass as the leaves, extent rule
+included: a return address in a gap keeps its honest `module+0x...`.
+Without recorded paths both say so - unknown is not zero.
+
 ## Exit codes
 
 The application's code is propagated in the general case. Reserved codes,

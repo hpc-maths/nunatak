@@ -477,6 +477,15 @@ class TestRealStackCollection:
         clock = sum(s.value for s in run.stacks if s.counter == "task-clock")
         assert clock == sum(s.period for s in samples if s.counter == "task-clock")
 
+        # The paths were named by the same attribution pass as the
+        # leaves: the payload attaches main to its real caller.
+        from nunatak import analysis, report
+
+        payload = report.build(run, analysis.diagnose(run))
+        main = next(h for h in payload["hotspots"] if h["name"] == "main")
+        assert main["callers"], "no caller attached on real hardware"
+        assert main["inclusive"] is not None
+
 
 class TestRealFallbackSymbolizer:
     def test_addr2line_resolves_a_fresh_binary_with_the_extent_rule(

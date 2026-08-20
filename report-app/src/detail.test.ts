@@ -37,6 +37,8 @@ function entry(overrides: Partial<HotspotEntry>): HotspotEntry {
     source: null,
     lines: [],
     inline_frames: [],
+    callers: [],
+    inclusive: null,
     ...overrides,
   };
 }
@@ -138,4 +140,33 @@ test("embedded source is annotated with per-line shares, hot lines marked", () =
   expect(html).toContain('class="ln hot"');
   expect(html).toContain(">85%<");
   expect(html).toContain(">5%<");
+});
+
+test("a library leaf names its callers with their shares", () => {
+  const item = entry({
+    name: "dgemm_kernel",
+    module: "/usr/lib/libopenblas.so",
+    callers: [
+      { name: "assemble_matrix", share: 0.7 },
+      { name: "solve_pressure", share: 0.3 },
+    ],
+  });
+  const html = detail(payload(item), item);
+  expect(html).toContain("Called from");
+  expect(html).toContain("assemble_matrix");
+  expect(html).toContain("70%");
+});
+
+test("without recorded paths there is no callers block and inclusive says so", () => {
+  const item = entry({});
+  const html = detail(payload(item), item);
+  expect(html).not.toContain("Called from");
+  expect(html).toContain("no recorded paths");
+});
+
+test("the inclusive share joins the metrics when paths were recorded", () => {
+  const item = entry({ inclusive: 0.85, callers: [{ name: "main", share: 1 }] });
+  const html = detail(payload(item), item);
+  expect(html).toContain("Inclusive");
+  expect(html).toContain("85%");
 });

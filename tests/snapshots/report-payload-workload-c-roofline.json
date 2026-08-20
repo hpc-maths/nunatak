@@ -10,7 +10,7 @@
   "format": {
     "generated_by": "nunatak",
     "name": "nunatak-report",
-    "schema": 3
+    "schema": 4
   },
   "hotspots": [
     {
@@ -38,6 +38,7 @@
         "unit": "flop/s",
         "value": 125142016143.04893
       },
+      "callers": [],
       "classification": "latency-bound",
       "classification_reason": null,
       "dram_intensity": {
@@ -76,6 +77,7 @@
         "unit": "ratio",
         "value": 1.0
       },
+      "inclusive": null,
       "inline_frames": [
         {
           "file": "/tmp/nunatak-capture-roofline/workload.c",

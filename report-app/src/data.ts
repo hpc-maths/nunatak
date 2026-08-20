@@ -1,5 +1,5 @@
 /**
- * Payload schema 3: the contract with the Python core.
+ * Payload schema 4: the contract with the Python core.
  *
  * These types mirror `nunatak/report/payload.py` field for field. The
  * app renders the payload, it never computes it: every number arrives
@@ -63,6 +63,12 @@ export interface InlineFrameShare {
   share: number;
 }
 
+/** One immediate caller of a Hotspot, with its share of the recorded paths. */
+export interface CallerShare {
+  name: string;
+  share: number;
+}
+
 export interface HotspotEntry {
   name: string;
   module: string;
@@ -80,6 +86,8 @@ export interface HotspotEntry {
   source: SourceExtract | null;
   lines: LineShare[];
   inline_frames: InlineFrameShare[];
+  callers: CallerShare[];
+  inclusive: number | null;
 }
 
 export interface Degradation {

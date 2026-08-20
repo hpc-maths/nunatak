@@ -13,7 +13,7 @@ from contextlib import redirect_stdout
 from pathlib import Path
 
 from nunatak import analysis, report
-from nunatak.pivot import AddressDetail, InlineFrame, SourceExtract
+from nunatak.pivot import AddressDetail, InlineFrame, Locus, SourceExtract, Stack, StackFrame
 from tests.test_analysis import aggregate, balanced, hotspot, measurement, ranked, run_with
 
 SNAPSHOT = Path(__file__).parent / "snapshots" / "report-payload-workload-c-roofline.json"
@@ -403,3 +403,89 @@ class TestInlineView:
             ],
         )
         assert payload["inline_view"] is None
+
+
+class TestCallersAndInclusive:
+    """The recorded paths consumed: a library leaf names its callers,
+    and the inclusive share says how much of the time a function was
+    somewhere on the path."""
+
+    def _stack(self, frames, value, counter="task-clock"):
+        return Stack(
+            locus=Locus(node="n0", thread=1),
+            counter=counter,
+            frames=tuple(StackFrame(module=m, offset=o, function=f) for m, o, f in frames),
+            value=value,
+            unit="ns",
+            sample_count=int(value / 1e7),
+        )
+
+    def test_a_library_leaf_names_its_callers(self):
+        leaf = hotspot("dgemm_kernel")
+        payload = payload_of(
+            [measurement(leaf, "task-clock", 2e9, "ns")],
+            stacks=[
+                self._stack(
+                    [("/app/solver", 0x100, "dgemm_kernel"),
+                     ("/app/solver", 0x900, "assemble_matrix")],
+                    1.4e9,
+                ),
+                self._stack(
+                    [("/app/solver", 0x110, "dgemm_kernel"),
+                     ("/app/solver", 0xA00, "solve_pressure")],
+                    0.6e9,
+                ),
+            ],
+        )
+        entry = payload["hotspots"][0]
+        assert entry["callers"] == [
+            {"name": "assemble_matrix", "share": 0.7},
+            {"name": "solve_pressure", "share": 0.3},
+        ]
+
+    def test_an_unnamed_caller_keeps_its_honest_display(self):
+        leaf = hotspot()
+        payload = payload_of(
+            [measurement(leaf, "task-clock", 2e9, "ns")],
+            stacks=[
+                self._stack(
+                    [("/app/solver", 0x100, "main"),
+                     ("/usr/lib/libfoo.so", 0x3A1C, None)],
+                    1e9,
+                ),
+            ],
+        )
+        assert payload["hotspots"][0]["callers"] == [
+            {"name": "libfoo.so+0x3a1c", "share": 1.0}
+        ]
+
+    def test_inclusive_counts_a_function_anywhere_on_the_path_once(self):
+        # main executes 25% of the time but is on the path always -
+        # recursion through helper counts it once per path.
+        spot = hotspot()
+        helper = hotspot("helper")
+        payload = payload_of(
+            [
+                measurement(spot, "task-clock", 1e9, "ns"),
+                measurement(helper, "task-clock", 3e9, "ns", samples=300),
+            ],
+            stacks=[
+                self._stack([("/app/solver", 0x100, "main")], 1e9),
+                self._stack(
+                    [("/app/solver", 0x200, "helper"),
+                     ("/app/solver", 0x120, "main"),
+                     ("/app/solver", 0x110, "main")],
+                    3e9,
+                ),
+            ],
+        )
+        by_name = {h["name"]: h for h in payload["hotspots"]}
+        assert by_name["main"]["inclusive"] == 1.0
+        assert by_name["helper"]["inclusive"] == 0.75
+
+    def test_without_recorded_paths_the_answer_is_unknown_not_zero(self):
+        payload = payload_of([measurement(hotspot(), "task-clock", 2e9, "ns")])
+        entry = payload["hotspots"][0]
+        assert entry["callers"] == []
+        assert entry["inclusive"] is None
+

@@ -1,8 +1,17 @@
 {
   "argv": [
-    "/usr/lib/llvm-19/bin/llvm-dwarfdump",
-    "--debug-line",
-    "/tmp/nunatak-capture-stacks/workload"
+    "/usr/lib/llvm-19/bin/llvm-symbolizer",
+    "--output-style=JSON",
+    "--obj=/usr/lib/x86_64-linux-gnu/ld-linux-x86-64.so.2",
+    "0x24bc",
+    "0x397d",
+    "0x3dc7",
+    "0x9432",
+    "0x16ea2",
+    "0x210d6",
+    "0x21708",
+    "0x2292a",
+    "0x24659"
   ],
   "exit_code": 0,
   "captured": true

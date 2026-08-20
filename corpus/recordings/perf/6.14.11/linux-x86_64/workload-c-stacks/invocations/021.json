@@ -4,8 +4,10 @@
     "--output-style=JSON",
     "--obj=/tmp/nunatak-capture-stacks/workload",
     "0x1165",
+    "0x11a4",
     "0x11b4",
-    "0x11b8"
+    "0x11b8",
+    "0x1225"
   ],
   "exit_code": 0,
   "captured": true

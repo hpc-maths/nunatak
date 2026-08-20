@@ -24,8 +24,9 @@ from nunatak.pivot import AddressDetail, Hotspot, Run, hotspot_level, manifest
 # mini-app never renders a shape it does not understand. Schema 2 added
 # the `ranks` section - the run-level balance of an MPI run; schema 3
 # the `inline_view` section - time by inline frame, all Hotspots
-# combined.
-SCHEMA = 3
+# combined; schema 4 the `callers` and `inclusive` fields of each
+# Hotspot, consumed from the recorded call paths.
+SCHEMA = 4
 
 
 def _derived(quantity: Derived) -> dict:
@@ -171,6 +172,65 @@ def _inline_view(run: Run, time_base: str | None) -> list[dict] | None:
     ]
 
 
+def _hotspot_stacks(run: Run, hotspot: Hotspot, time_base: str | None) -> list:
+    """The recorded call paths whose executing leaf is this Hotspot,
+    matched by logical identity - the same join the display uses."""
+    if time_base is None or hotspot.logical_identity.name is None:
+        return []
+    return [
+        s
+        for s in run.stacks
+        if s.counter == time_base
+        and s.frames
+        and s.frames[0].module == hotspot.logical_identity.module
+        and s.frames[0].function == hotspot.logical_identity.name
+    ]
+
+
+def _callers(run: Run, hotspot: Hotspot, time_base: str | None) -> list[dict]:
+    """The ventilation of a Hotspot's stacked time by immediate caller.
+
+    This is what attaches a library leaf to user code: a hot `dgemm`
+    inside OpenBLAS names the solver functions that called it, with
+    their shares. Shares are over the paths that recorded a caller; an
+    unnamed caller keeps its honest `module+0x...` display.
+    """
+    stacked = [s for s in _hotspot_stacks(run, hotspot, time_base) if len(s.frames) >= 2]
+    total = sum(s.value for s in stacked)
+    if total <= 0:
+        return []
+    per_caller: dict[str, float] = {}
+    for stack in stacked:
+        caller = stack.frames[1].display_name
+        per_caller[caller] = per_caller.get(caller, 0.0) + stack.value
+    return [
+        {"name": name, "share": value / total}
+        for name, value in sorted(per_caller.items(), key=lambda item: -item[1])
+    ]
+
+
+def _inclusive(run: Run, hotspot: Hotspot, time_base: str | None) -> float | None:
+    """The share of the sampled time where this Hotspot's function
+    appears anywhere in the recorded path - executing, or somewhere up
+    the callers. A recursive function counts once per path. None when
+    the Run recorded no paths: unknown is not zero.
+    """
+    if time_base is None or hotspot.logical_identity.name is None:
+        return None
+    timed = [s for s in run.stacks if s.counter == time_base and s.frames]
+    total = sum(s.value for s in timed)
+    if total <= 0:
+        return None
+    module = hotspot.logical_identity.module
+    name = hotspot.logical_identity.name
+    covered = sum(
+        s.value
+        for s in timed
+        if any(f.module == module and f.function == name for f in s.frames)
+    )
+    return covered / total
+
+
 def _source(run: Run, hotspot: Hotspot) -> dict | None:
     """The embedded source extract of one Hotspot, reason included.
 
@@ -222,6 +282,8 @@ def _hotspot(run: Run, diagnostic: Diagnostic, time_base: str | None) -> dict:
         "source": _source(run, hotspot),
         "lines": _lines(details),
         "inline_frames": _inline_frames(details),
+        "callers": _callers(run, hotspot, time_base),
+        "inclusive": _inclusive(run, hotspot, time_base),
     }
 
 
