@@ -1,0 +1,22 @@
+{
+  "argv": [
+    "perf",
+    "record",
+    "--freq",
+    "997",
+    "-e",
+    "task-clock",
+    "-e",
+    "cycles/period=2000003/",
+    "-e",
+    "fp_ret_sse_avx_ops.all/period=4999999/",
+    "--call-graph",
+    "fp",
+    "--output",
+    "run/collect/pass-0/perf.data",
+    "--",
+    "./workload"
+  ],
+  "exit_code": 0,
+  "captured": false
+}

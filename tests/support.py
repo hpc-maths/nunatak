@@ -9,10 +9,11 @@ from nunatak.collect.execution import Executor, Invocation
 class ScriptedExecutor(Executor):
     """Deterministic stand-in for the subprocess executor."""
 
-    def __init__(self, system="Linux", blocked=None, cpu_model=None):
+    def __init__(self, system="Linux", blocked=None, cpu_model=None, cpuinfo=None):
         self._system = system
         self._blocked = blocked
         self._cpu_model = cpu_model
+        self._cpuinfo = cpuinfo
         self.calls = []
         self.environments = []
         self._responses = collections.defaultdict(collections.deque)
@@ -26,6 +27,9 @@ class ScriptedExecutor(Executor):
 
     def cpu_model(self):
         return self._cpu_model
+
+    def cpuinfo(self):
+        return self._cpuinfo
 
     def on(self, program, stdout="", stderr="", exit_code=0):
         """Queue a canned response for the next invocation of `program`."""

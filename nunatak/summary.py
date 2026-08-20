@@ -17,9 +17,10 @@ from nunatak.analysis import (
     Derived,
     Diagnostic,
     balance,
+    sampled_view,
     time_base,
 )
-from nunatak.pivot import Quality, ResolutionLevel, Run, hotspot_level
+from nunatak.pivot import Quality, ResolutionLevel, Run
 
 # Level 1 is "where to start", not the inventory: the terminal shows the
 # heaviest findings and states what it leaves out, the report's second
@@ -122,7 +123,7 @@ def _headline(
     base = time_base(run)
     if base is None:
         return head
-    clocked = [m for m in hotspot_level(run.measurements) if m.counter == base]
+    clocked = [m for m in sampled_view(run) if m.counter == base]
     samples = sum(m.sample_count or 0 for m in clocked)
     coverage = f"{samples} samples of {base}"
     if all(m.unit == "ns" for m in clocked):

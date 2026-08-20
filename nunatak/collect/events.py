@@ -165,6 +165,16 @@ def sampling_events(machine: Machine, cpuinfo=None) -> tuple[SampledEvent, ...]:
     return _SETS.get(microarchitecture.name, ())
 
 
+def groups_for(name: str) -> tuple[tuple[str, tuple[SampledEvent, ...]], ...]:
+    """The semantic groups of one microarchitecture, by table name."""
+    return _GROUPED.get(name, ())
+
+
+def witness_for(name: str) -> tuple[SampledEvent, ...]:
+    """The witness of one microarchitecture, by table name."""
+    return _WITNESS.get(name, ())
+
+
 def pass_groups(
     machine: Machine, cpuinfo=None
 ) -> tuple[tuple[str, tuple[SampledEvent, ...]], ...]:
@@ -180,7 +190,7 @@ def pass_groups(
     )
     if microarchitecture is None:
         return ()
-    return _GROUPED.get(microarchitecture.name, ())
+    return groups_for(microarchitecture.name)
 
 
 def witness(machine: Machine, cpuinfo=None) -> tuple[SampledEvent, ...]:
@@ -195,7 +205,7 @@ def witness(machine: Machine, cpuinfo=None) -> tuple[SampledEvent, ...]:
     )
     if microarchitecture is None:
         return ()
-    return _WITNESS.get(microarchitecture.name, ())
+    return witness_for(microarchitecture.name)
 
 
 def canonical(counter: str) -> SampledEvent | None:

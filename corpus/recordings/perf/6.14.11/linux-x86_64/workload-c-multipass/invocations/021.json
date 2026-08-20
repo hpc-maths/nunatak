@@ -1,0 +1,24 @@
+{
+  "argv": [
+    "perf",
+    "record",
+    "--freq",
+    "997",
+    "-e",
+    "task-clock",
+    "-e",
+    "cycles/period=2000003/",
+    "-e",
+    "ls_refills_from_sys.ls_mabresp_lcl_dram/period=100003/",
+    "-e",
+    "ls_refills_from_sys.ls_mabresp_rmt_dram/period=100003/",
+    "--call-graph",
+    "fp",
+    "--output",
+    "run/collect/pass-1/perf.data",
+    "--",
+    "./workload"
+  ],
+  "exit_code": 0,
+  "captured": false
+}

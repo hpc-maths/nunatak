@@ -66,6 +66,13 @@ def build_parser() -> argparse.ArgumentParser:
         help="skip the first-run calibration (ceilings stay theoretical)",
     )
     run.add_argument(
+        "--multi-pass",
+        action="store_true",
+        help="expert: rerun the application once per counter group, each "
+        "pass small enough that no counter is multiplexed; a witness "
+        "group replicated in every pass checks reproducibility",
+    )
+    run.add_argument(
         "--call-graph",
         choices=["dwarf"],
         help="record call stacks by copying stack memory at every sample: "

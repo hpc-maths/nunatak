@@ -36,7 +36,11 @@ _CLOCK_UNITS = {"cpu-clock": "ns", "task-clock": "ns"}
 
 
 def measurements_from_samples(
-    samples: list[Sample], module_ids: dict[str, str], node: str, rank: int | None = None
+    samples: list[Sample],
+    module_ids: dict[str, str],
+    node: str,
+    rank: int | None = None,
+    pass_index: int = 0,
 ) -> list[Measurement]:
     """Aggregate samples into per-(Hotspot, Locus) Measurements.
 
@@ -86,6 +90,7 @@ def measurements_from_samples(
                 quality=vendor.quality if vendor is not None else Quality.MEASURED,
                 reason=vendor.reason if vendor is not None else None,
                 sample_count=count,
+                pass_index=pass_index,
             )
         )
     measurements.sort(
@@ -95,7 +100,10 @@ def measurements_from_samples(
 
 
 def stacks_from_samples(
-    samples: list[Sample], node: str, rank: int | None = None
+    samples: list[Sample],
+    node: str,
+    rank: int | None = None,
+    pass_index: int = 0,
 ) -> list[Stack]:
     """Aggregate recorded call paths into per-(Locus, counter, path) Stacks.
 
@@ -130,6 +138,7 @@ def stacks_from_samples(
             if vendor is not None
             else _CLOCK_UNITS.get(counter, counter),
             sample_count=count,
+            pass_index=pass_index,
         )
         for (tid, counter, frames), (value, count, vendor) in groups.items()
     ]
@@ -144,7 +153,12 @@ def stacks_from_samples(
 
 
 def ingest(
-    tool: str, version: str, directory: Path, node: str, rank: int | None = None
+    tool: str,
+    version: str,
+    directory: Path,
+    node: str,
+    rank: int | None = None,
+    pass_index: int = 0,
 ) -> tuple[list[Measurement], list[Stack], list[Degradation]]:
     """Turn the raw artifacts of one collection into Measurements and
     the call paths recorded with them.
@@ -191,7 +205,7 @@ def ingest(
             )
         )
     return (
-        measurements_from_samples(samples, module_ids, node, rank),
-        stacks_from_samples(samples, node, rank),
+        measurements_from_samples(samples, module_ids, node, rank, pass_index),
+        stacks_from_samples(samples, node, rank, pass_index),
         degradations,
     )

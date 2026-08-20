@@ -1,0 +1,19 @@
+
+/lib/x86_64-linux-gnu/libc.so.6:     file format elf64-x86-64
+
+
+Disassembly of section .text:
+
+00000000000de1a0 <__wcsxfrm_l@@GLIBC_2.2.5>:
+   de1a0:	f3 0f 1e fa          	endbr64
+   de1a4:	55                   	push   %rbp
+   de1a5:	48 89 e5             	mov    %rsp,%rbp
+   de1a8:	41 57                	push   %r15
+   de1aa:	41 56                	push   %r14
+   de1ac:	41 55                	push   %r13
+   de1ae:	41 54                	push   %r12
+   de1b0:	49 89 f4             	mov    %rsi,%r12
+   de1b3:	53                   	push   %rbx
+   de1b4:	48 81 ec a8 00 00 00 	sub    $0xa8,%rsp
+   de1bb:	48 89 7d 88          	mov    %rdi,-0x78(%rbp)
+   de1bf:	48                   	rex.W

@@ -1,0 +1,17 @@
+
+./workload:     file format elf64-x86-64
+
+
+Disassembly of section .text:
+
+00000000000010c0 <main>:
+    10c0:	f3 0f 1e fa          	endbr64
+    10c4:	55                   	push   %rbp
+    10c5:	bf 00 00 80 00       	mov    $0x800000,%edi
+    10ca:	48 89 e5             	mov    %rsp,%rbp
+    10cd:	53                   	push   %rbx
+    10ce:	48 83 ec 08          	sub    $0x8,%rsp
+    10d2:	e8 a9 ff ff ff       	call   1080 <malloc@plt>
+    10d7:	f2 0f 10 1d 41 0f 00 	movsd  0xf41(%rip),%xmm3        # 2020 <_IO_stdin_used+0x20>
+    10de:	00 
+    10df:	be                   	.byte 0xbe

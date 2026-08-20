@@ -97,6 +97,22 @@ def _cpuinfo_field(text: str, field: str) -> str | None:
     return match.group(1).strip() if match else None
 
 
+def identify(text: str | None) -> MicroArchitecture | None:
+    """The table entry for an identification text, whatever machine is
+    asking: an x86 cpuinfo names a `vendor_id`, an aarch64 one a `CPU
+    implementer`, so the text dispatches itself. This is the entry point
+    for identifications that crossed the execution boundary - a replayed
+    Machine snapshot legitimately describes the replaying host, and only
+    the recorded text says what the tools actually ran on."""
+    if not text:
+        return None
+    if _cpuinfo_field(text, "vendor_id") is not None:
+        return x86_microarchitecture(text)
+    if _cpuinfo_field(text, "CPU implementer") is not None:
+        return arm_microarchitecture(text)
+    return None
+
+
 def x86_microarchitecture(text: str) -> MicroArchitecture | None:
     """The table entry for an x86 /proc/cpuinfo, None when not listed."""
     vendor = _cpuinfo_field(text, "vendor_id")

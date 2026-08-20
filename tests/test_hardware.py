@@ -556,3 +556,37 @@ class TestRealWitness:
         )
         assert sampled > 0
         assert abs(sampled - total) / total < 0.10, (sampled, total)
+
+
+class TestRealMultiPass:
+    def test_two_exact_passes_one_run(self, tmp_path, monkeypatch, capsys):
+        # The full multi-pass chain on real PMUs: two labeled passes,
+        # the witness in each, exclusive counters in their own pass,
+        # and the reference view keeping the seconds single.
+        source = tmp_path / "workload.c"
+        source.write_text(ROOFLINE_WORKLOAD_C)
+        binary = tmp_path / "workload"
+        compiler = shutil.which("gcc") or shutil.which("cc")
+        built = subprocess.run(
+            [compiler, "-O2", "-g", str(source), "-o", str(binary)],
+            capture_output=True, text=True,
+        )
+        assert built.returncode == 0, built.stderr
+        monkeypatch.chdir(tmp_path)
+
+        assert principal(
+            ["run", "--multi-pass", "--json", "--no-calibrate", "--", str(binary)]
+        ) == 0
+        summary = json.loads(capsys.readouterr().out)
+        names = {d["name"] for d in summary["degradations"]}
+        assert "multi-pass-unavailable" not in names, summary["degradations"]
+        assert "passes-skipped" not in names, summary["degradations"]
+
+        from nunatak import analysis
+
+        run = read_run(summary["run"])
+        assert [p.index for p in run.passes] == [0, 1]
+        assert {m.pass_index for m in run.measurements if m.counter == "cycles"} == {0, 1}
+        assert {m.pass_index for m in run.measurements if m.counter == "flops"} == {0}
+        view = analysis.sampled_view(run)
+        assert {m.pass_index for m in view if m.counter == "task-clock"} == {0}
