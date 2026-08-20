@@ -28,9 +28,11 @@ from nunatak.calibration import theory
 from nunatak.pivot import Machine, Quality
 
 # ~1 kHz of interrupts per core at realistic HPC rates: FLOP rates of a
-# few 1e9/s per core, demand-fill rates of a few 1e8/s.
+# few 1e9/s per core, demand-fill rates of a few 1e8/s, cycle rates of a
+# few 1e9/s.
 FLOP_PERIOD = 4_999_999
 FILL_PERIOD = 100_003
+CYCLE_PERIOD = 2_000_003
 CACHELINE_BYTES = 64
 
 DRAM_REASON = (
@@ -89,28 +91,65 @@ def _dram_fills(event: str) -> SampledEvent:
 # set is validated on real PMUs (the corpus machine), the Zen 3/4 names
 # are the kernel's for those parts and degrade cleanly if a kernel does
 # not know them.
-_ZEN2 = (
-    _flops("fp_ret_sse_avx_ops.all"),
-    _dram_fills("ls_refills_from_sys.ls_mabresp_lcl_dram"),
-    _dram_fills("ls_refills_from_sys.ls_mabresp_rmt_dram"),
+# Multi-pass runs split the set into semantic groups - one measurement
+# concern per Pass, each pass small enough that no counter is ever
+# multiplexed - so the split is by meaning, never by packing.
+_ZEN2_GROUPS = (
+    ("flops", (_flops("fp_ret_sse_avx_ops.all"),)),
+    (
+        "memory",
+        (
+            _dram_fills("ls_refills_from_sys.ls_mabresp_lcl_dram"),
+            _dram_fills("ls_refills_from_sys.ls_mabresp_rmt_dram"),
+        ),
+    ),
 )
-_ZEN34 = (
-    _flops("fp_ret_sse_avx_ops.all"),
-    _dram_fills("ls_dmnd_fills_from_sys.mem_io_local"),
-    _dram_fills("ls_dmnd_fills_from_sys.mem_io_remote"),
+_ZEN34_GROUPS = (
+    ("flops", (_flops("fp_ret_sse_avx_ops.all"),)),
+    (
+        "memory",
+        (
+            _dram_fills("ls_dmnd_fills_from_sys.mem_io_local"),
+            _dram_fills("ls_dmnd_fills_from_sys.mem_io_remote"),
+        ),
+    ),
 )
 
+_GROUPED = {
+    "zen2": _ZEN2_GROUPS,
+    "zen3": _ZEN34_GROUPS,
+    "zen4": _ZEN34_GROUPS,
+}
 _SETS = {
-    "zen2": _ZEN2,
-    "zen3": _ZEN34,
-    "zen4": _ZEN34,
+    name: tuple(entry for _, events in groups for entry in events)
+    for name, groups in _GROUPED.items()
+}
+
+# The witness: a stable global counter replicated in every Pass of a
+# multi-pass run and compared at the end - the reproducibility check
+# that makes cross-pass fusion honest. `instructions` is deliberately
+# absent: on the Zen 2 corpus machine the generic event is bistable -
+# 842e6 retired instructions read back as exactly 16x that (an IPC of
+# 21) whenever the kernel programs it on a general counter next to
+# cycles, and `ex_ret_instr` shows the same 16x - a witness that lies
+# about reproducibility would poison every fusion verdict it guards.
+_CYCLES = SampledEvent(
+    event=f"cycles/period={CYCLE_PERIOD}/",
+    canonical="cycles",
+    unit="cycles",
+    quality=Quality.MEASURED,
+)
+_WITNESS = {
+    "zen2": (_CYCLES,),
+    "zen3": (_CYCLES,),
+    "zen4": (_CYCLES,),
 }
 
 # Reverse map: base event name (no period term, no modifiers) to its
 # SampledEvent, for the ingestion side.
 _BY_EVENT = {
     entry.event.split("/")[0]: entry
-    for group in _SETS.values()
+    for group in [*_SETS.values(), *_WITNESS.values()]
     for entry in group
 }
 
@@ -124,6 +163,39 @@ def sampling_events(machine: Machine, cpuinfo=None) -> tuple[SampledEvent, ...]:
     if microarchitecture is None:
         return ()
     return _SETS.get(microarchitecture.name, ())
+
+
+def pass_groups(
+    machine: Machine, cpuinfo=None
+) -> tuple[tuple[str, tuple[SampledEvent, ...]], ...]:
+    """The semantic event groups of a multi-pass run, `(label, events)`
+    per Pass, empty when the microarchitecture has none.
+
+    One measurement concern per Pass: each group is small enough that no
+    counter is ever multiplexed, which is the exactness a user paying
+    for several executions asked for.
+    """
+    microarchitecture = (
+        theory.detect(machine) if cpuinfo is None else theory.detect(machine, cpuinfo)
+    )
+    if microarchitecture is None:
+        return ()
+    return _GROUPED.get(microarchitecture.name, ())
+
+
+def witness(machine: Machine, cpuinfo=None) -> tuple[SampledEvent, ...]:
+    """The witness counters replicated in every Pass of a multi-pass
+    run, empty when the microarchitecture has none validated.
+
+    The time base is always a witness on top of these: it rides every
+    Pass by construction.
+    """
+    microarchitecture = (
+        theory.detect(machine) if cpuinfo is None else theory.detect(machine, cpuinfo)
+    )
+    if microarchitecture is None:
+        return ()
+    return _WITNESS.get(microarchitecture.name, ())
 
 
 def canonical(counter: str) -> SampledEvent | None:

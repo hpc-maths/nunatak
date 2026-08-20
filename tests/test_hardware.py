@@ -516,3 +516,43 @@ class TestRealFallbackSymbolizer:
             # address is allowed to resolve.
             any(v <= gap < v + s for v, s in extents)
         )
+
+
+class TestRealWitness:
+    def test_sampled_cycle_periods_track_the_counted_total(self, tmp_path, workload):
+        # The witness must be trustworthy or every fusion verdict it
+        # guards is poison: the sum of sampled cycle periods has to track
+        # the counted total. (`instructions` failed exactly this bar on
+        # this machine - 1x or exactly 16x depending on counter
+        # placement - which is why it is not a witness.)
+        from nunatak import machine
+        from nunatak.collect import events
+        from nunatak.collect.perf import PerfAdapter
+        from nunatak.ingestion.perf_script import parse_samples
+
+        executor = SubprocessExecutor()
+        snapshot = machine.snapshot(executor)
+        witness = events.witness(snapshot)
+        assert witness, "tier 2 runs on a known microarchitecture"
+
+        counted = subprocess.run(
+            ["perf", "stat", "-x,", "-e", "cycles", "--", str(workload)],
+            capture_output=True,
+            text=True,
+        )
+        total = int(counted.stderr.split(",")[0])
+
+        PerfAdapter().collect(
+            [str(workload)], tmp_path / "collect", executor,
+            frequency=997, events=witness,
+        )
+        # A Sample carries the raw selector (`cycles/period=.../u`); the
+        # fold onto the canonical name is ingestion's, mirrored here.
+        samples, _ = parse_samples((tmp_path / "collect" / "perf-script.txt").read_text())
+        sampled = sum(
+            s.period
+            for s in samples
+            if (entry := events.canonical(s.counter)) and entry.canonical == "cycles"
+        )
+        assert sampled > 0
+        assert abs(sampled - total) / total < 0.10, (sampled, total)
