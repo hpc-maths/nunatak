@@ -20,8 +20,8 @@ from nunatak.collect.execution import Executor
 from nunatak.config import Config
 from nunatak.console import Console
 from nunatak.pivot import Degradation
-from nunatak import launch, probe
-from nunatak.collect import mpip
+from nunatak import launch, machine, probe
+from nunatak.collect import mpip, stacks
 from nunatak.launch import real_target
 
 
@@ -349,6 +349,39 @@ def _mpip_build(executor: Executor, config: Config) -> CheckResult:
     )
 
 
+def _call_stacks(
+    executor: Executor, config: Config, command: list[str], cpu_model: str | None
+) -> CheckResult | None:
+    """The call-stack ladder settled for this target: lbr, fp, or none.
+
+    None when there is no binary to probe, or outside Linux - macOS
+    stacks are free and reliable by ABI, the ladder has no meaning
+    there. Losing the ladder is a degradation, not an error: it removes
+    the attachment of library leaves to user code and the inclusive
+    time, never the roofline, which only depends on the leaf.
+    """
+    _, resolved = _resolved_target(command)
+    if resolved is None or executor.system != "Linux":
+        return None
+    decision = stacks.decide(executor, config, str(resolved), cpu_model)
+    if decision.mode is not None:
+        return CheckResult(
+            name="call-stacks", status="ok", detail=decision.detail
+        )
+    degradation = Degradation(
+        name="call-stacks-unavailable",
+        message=decision.detail,
+        remedy=decision.remedy,
+    )
+    return CheckResult(
+        name="call-stacks",
+        status="missing",
+        detail=degradation.message,
+        remedy=degradation.remedy,
+        degradation=degradation,
+    )
+
+
 def light_checks(
     executor: Executor,
     config: Config,
@@ -394,9 +427,14 @@ def execute(args, command: list[str], console: Console) -> int:
     # The probe and mpiP builds belong to the doctor verb, not to the
     # light checks a run opens with: doctor runs where the compilers
     # are, and the cached artifacts make the next MPI run's network
-    # analysis possible.
+    # analysis possible. The call-stack ladder sits here for the same
+    # reason of cost - probing prologues means a dozen tool invocations.
     checks.append(_network_probe(executor, config))
     checks.append(_mpip_build(executor, config))
+    if command:
+        ladder = _call_stacks(executor, config, command, machine.cpu_model(executor))
+        if ladder is not None:
+            checks.append(ladder)
 
     if args.json:
         report = {

@@ -37,6 +37,9 @@
 
 .. automodule:: nunatak.collect.mpip
    :members:
+
+.. automodule:: nunatak.collect.stacks
+   :members:
 ```
 
 ## Recording corpus

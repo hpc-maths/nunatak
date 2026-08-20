@@ -80,6 +80,39 @@ function level with a bare symbol table, symbol level on a stripped
 binary - **before** any compute time is spent, with the remedy when one
 exists (`-g`, or keeping the symbol table).
 
+### The call-stack ladder
+
+On Linux, `doctor -- <command>` also settles which call stacks a run of
+that binary can afford, in a fixed order:
+
+1. **`lbr`** when the processor offers hardware branch stacks - Intel in
+   practice: some thirty frames at near-zero cost, with no requirement
+   on how the application was compiled.
+2. **`fp`** when the binary and its shared libraries keep frame
+   pointers. No header declares that: the only witness is the machine
+   code, so doctor reads the prologues of a sample of functions - the
+   largest ones of each module, where samples will land - which yields a
+   **rate**, never a yes/no. Each module gets one vote, so a large libc
+   cannot outvote the one binary being profiled.
+3. **No stacks at all**, and that is the named degradation
+   `call-stacks-unavailable`: it loses the attachment of library leaves
+   to user code (a hot `dgemm` inside OpenBLAS stays a Hotspot without
+   caller) and the inclusive time - never the roofline, which only
+   depends on the leaf.
+
+The prologues are read by **GNU objdump** (binutils), invoked and never
+redistributed. llvm-objdump is deliberately refused for this: on
+distributions that ship separate debug files, it silently substitutes
+their empty section content for the library's and reads no code at all.
+
+The rate below which the `fp` rung is refused is configuration, recorded
+in the Run's provenance:
+
+```toml
+[stacks]
+fp_threshold = 0.75      # share of probed prologues keeping the frame pointer
+```
+
 ## Exit codes
 
 The application's code is propagated in the general case. Reserved codes,
