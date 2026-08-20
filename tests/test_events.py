@@ -79,7 +79,7 @@ class TestAdapter:
             .on("perf", stdout="lines\n")
             .on("perf", stdout="ids\n")
         )
-        group = (events._ZEN2[0],)
+        group = (events._SETS["zen2"][0],)
         PerfAdapter().collect(
             ["./solver"], tmp_path / "c", executor, frequency=997, events=group
         )
@@ -103,7 +103,7 @@ class TestAdapter:
             tmp_path / "c",
             executor,
             frequency=997,
-            events=(events._ZEN2[0],),
+            events=(events._SETS["zen2"][0],),
         )
         assert exit_code == 0
         assert degradation.name == "counter-events-rejected"
@@ -127,7 +127,7 @@ class TestAdapter:
             tmp_path / "c",
             executor,
             frequency=997,
-            events=(events._ZEN2[0],),
+            events=(events._SETS["zen2"][0],),
         )
         assert exit_code == 5
         assert degradations == []
@@ -186,3 +186,55 @@ class TestReplayedRoofline:
         assert diagnostic.attainable.value is not None
         assert diagnostic.envelope_fraction.value < 0.05
         assert diagnostic.classification == "latency-bound"
+
+
+class TestPassGroups:
+    """The multi-pass split: one measurement concern per Pass, a witness
+    replicated in each - and `instructions` deliberately kept out of it,
+    the generic event being bistable (1x or exactly 16x) on the Zen 2
+    corpus machine."""
+
+    def _cpuinfo(self, tmp_path):
+        cpuinfo = tmp_path / "cpuinfo"
+        cpuinfo.write_text(EPYC_7702)
+        return cpuinfo
+
+    def test_the_zen2_set_splits_by_meaning(self, tmp_path):
+        groups = events.pass_groups(zen2_machine(), self._cpuinfo(tmp_path))
+        assert [label for label, _ in groups] == ["flops", "memory"]
+        flops, memory = (entries for _, entries in groups)
+        assert [e.canonical for e in flops] == ["flops"]
+        assert sorted({e.canonical for e in memory}) == ["dram_bytes"]
+
+    def test_the_groups_and_the_flat_set_are_the_same_events(self, tmp_path):
+        cpuinfo = self._cpuinfo(tmp_path)
+        grouped = [
+            e.event
+            for _, entries in events.pass_groups(zen2_machine(), cpuinfo)
+            for e in entries
+        ]
+        assert grouped == [e.event for e in events.sampling_events(zen2_machine(), cpuinfo)]
+
+    def test_the_witness_is_cycles_with_a_fixed_period(self, tmp_path):
+        (cycles,) = events.witness(zen2_machine(), self._cpuinfo(tmp_path))
+        assert cycles.canonical == "cycles"
+        assert cycles.unit == "cycles"
+        assert f"period={events.CYCLE_PERIOD}" in cycles.selector
+
+    def test_the_witness_folds_back_through_ingestion(self):
+        entry = events.canonical(f"cycles/period={events.CYCLE_PERIOD}/u")
+        assert entry is not None and entry.canonical == "cycles"
+
+    def test_an_unknown_microarchitecture_gets_no_passes_and_no_witness(
+        self, tmp_path
+    ):
+        # The cpuinfo is injected: reading the host's would make this
+        # test's verdict depend on the machine running the suite.
+        cpuinfo = tmp_path / "cpuinfo"
+        cpuinfo.write_text("model name\t: Mystery CPU\n")
+        unknown = Machine(
+            system="Linux", kernel="6.14", architecture="x86_64",
+            cpu_model="Mystery CPU", logical_cores=4,
+        )
+        assert events.pass_groups(unknown, cpuinfo) == ()
+        assert events.witness(unknown, cpuinfo) == ()
