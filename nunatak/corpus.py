@@ -40,6 +40,7 @@ def write_meta(
     collectors: list[dict],
     sampling_blocked: str | None = None,
     cpu_model: str | None = None,
+    cpuinfo: str | None = None,
 ) -> None:
     """Describe a corpus entry: what ran, where, with which collectors.
 
@@ -61,6 +62,7 @@ def write_meta(
         },
         "sampling_blocked": sampling_blocked,
         "cpu_model": cpu_model,
+        "cpuinfo": cpuinfo,
         "collectors": collectors,
     }
     (entry / META).write_text(json.dumps(meta, indent=2) + "\n")
@@ -90,6 +92,10 @@ class RecordingExecutor(Executor):
     def cpu_model(self):
         """The recording machine's processor, preserved into the meta."""
         return self.inner.cpu_model()
+
+    def cpuinfo(self):
+        """The recording machine's identification block, for the meta."""
+        return self.inner.cpuinfo()
 
     def run(self, argv, capture=True, env=None, cwd=None):
         """Run through the wrapped executor and persist the invocation."""
@@ -158,6 +164,15 @@ class ReplayExecutor(Executor):
         unknown - the honest value for a recording that never said.
         """
         return self.meta.get("cpu_model")
+
+    def cpuinfo(self):
+        """The recorded identification block, never the replaying host's.
+
+        The pass structure of a multi-pass run derives from it: read
+        live, an entry recorded on Zen 2 would build different passes -
+        or none - on every other CI host. Older entries read back as
+        unknown."""
+        return self.meta.get("cpuinfo")
 
     def run(self, argv, capture=True, env=None, cwd=None):
         """Serve the next recording for this program instead of running it."""

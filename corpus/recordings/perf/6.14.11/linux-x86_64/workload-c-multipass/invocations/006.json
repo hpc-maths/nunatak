@@ -1,0 +1,9 @@
+{
+  "argv": [
+    "objdump",
+    "-t",
+    "./workload"
+  ],
+  "exit_code": 0,
+  "captured": true
+}

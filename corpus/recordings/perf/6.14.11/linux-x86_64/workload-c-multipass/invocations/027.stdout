@@ -1,0 +1,98 @@
+/tmp/nunatak-capture-mp/workload:	file format elf64-x86-64
+
+.debug_line contents:
+debug_line[0x00000000]
+Line table prologue:
+    total_length: 0x00000136
+          format: DWARF32
+         version: 5
+    address_size: 8
+ seg_select_size: 0
+ prologue_length: 0x00000041
+ min_inst_length: 1
+max_ops_per_inst: 1
+ default_is_stmt: 1
+       line_base: -5
+      line_range: 14
+     opcode_base: 13
+standard_opcode_lengths[DW_LNS_copy] = 0
+standard_opcode_lengths[DW_LNS_advance_pc] = 1
+standard_opcode_lengths[DW_LNS_advance_line] = 1
+standard_opcode_lengths[DW_LNS_set_file] = 1
+standard_opcode_lengths[DW_LNS_set_column] = 1
+standard_opcode_lengths[DW_LNS_negate_stmt] = 0
+standard_opcode_lengths[DW_LNS_set_basic_block] = 0
+standard_opcode_lengths[DW_LNS_const_add_pc] = 0
+standard_opcode_lengths[DW_LNS_fixed_advance_pc] = 1
+standard_opcode_lengths[DW_LNS_set_prologue_end] = 0
+standard_opcode_lengths[DW_LNS_set_epilogue_begin] = 0
+standard_opcode_lengths[DW_LNS_set_isa] = 1
+include_directories[  0] = "/tmp/nunatak-capture-mp"
+include_directories[  1] = "/usr/include/x86_64-linux-gnu/bits"
+include_directories[  2] = "/usr/include"
+file_names[  0]:
+           name: "workload.c"
+      dir_index: 0
+file_names[  1]:
+           name: "workload.c"
+      dir_index: 0
+file_names[  2]:
+           name: "stdio2.h"
+      dir_index: 1
+file_names[  3]:
+           name: "stdio2-decl.h"
+      dir_index: 1
+file_names[  4]:
+           name: "stdlib.h"
+      dir_index: 2
+
+Address            Line   Column File   ISA Discriminator OpIndex Flags
+------------------ ------ ------ ------ --- ------------- ------- -------------
+0x00000000000010c0     15     16      1   0             0       0  is_stmt
+0x00000000000010c4     16      5      1   0             0       0  is_stmt
+0x00000000000010c4     17      5      1   0             0       0  is_stmt
+0x00000000000010c4     15     16      1   0             0       0 
+0x00000000000010c5     17     17      1   0             0       0 
+0x00000000000010ca     15     16      1   0             0       0 
+0x00000000000010d2     17     17      1   0             0       0 
+0x00000000000010f3     18      5      1   0             0       0  is_stmt
+0x00000000000010f3     18     10      1   0             0       0  is_stmt
+0x00000000000010f3     18     23      1   0             1       0  is_stmt
+0x0000000000001103     18     23      1   0             1       0 
+0x000000000000114c     18     33      1   0             3       0  is_stmt
+0x000000000000114c     18     42      1   0             3       0 
+0x0000000000001161     18     38      1   0             3       0 
+0x0000000000001169     18     29      1   0             3       0  is_stmt
+0x0000000000001169     18     23      1   0             1       0  is_stmt
+0x0000000000001170     19     12      1   0             0       0 
+0x0000000000001180     10     23      1   0             1       0  is_stmt
+0x0000000000001180     17     17      1   0             0       0 
+0x0000000000001187     17     17      1   0             0       0 
+0x00000000000011a0     11      9      1   0             0       0  is_stmt
+0x00000000000011a0      4     22      1   0             0       0  is_stmt
+0x00000000000011a0      5      5      1   0             0       0  is_stmt
+0x00000000000011a0      5     14      1   0             0       0 
+0x00000000000011a4     10     23      1   0             1       0 
+0x00000000000011a8      5     14      1   0             0       0 
+0x00000000000011ac      5     14      1   0             0       0 
+0x00000000000011b0      5     18      1   0             0       0 
+0x00000000000011b4     11     11      1   0             1       0 
+0x00000000000011b8     10     29      1   0             3       0  is_stmt
+0x00000000000011b8     10     23      1   0             1       0  is_stmt
+0x00000000000011bd     12      5      1   0             0       0  is_stmt
+0x00000000000011bd     12      5      1   0             0       0 
+0x00000000000011c1     12      5      1   0             0       0 
+0x00000000000011c4     20     37      1   0             3       0 
+0x00000000000011cc     20     31      1   0             3       0  is_stmt
+0x00000000000011cc     20     23      1   0             2       0  is_stmt
+0x00000000000011d1     21      5      1   0             0       0  is_stmt
+0x00000000000011d1    116      1      2   0             0       0  is_stmt
+0x00000000000011d1    118      3      2   0             0       0  is_stmt
+0x00000000000011d1    118     10      2   0             0       0 
+0x00000000000011e7    118     10      2   0             0       0 
+0x00000000000011e7     22      5      1   0             0       0  is_stmt
+0x00000000000011ef     23      5      1   0             0       0  is_stmt
+0x00000000000011ef     24      1      1   0             0       0 
+0x00000000000011f6     24      1      1   0             0       0 
+0x00000000000011f8     24      1      1   0             0       0  end_sequence
+

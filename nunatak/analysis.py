@@ -150,10 +150,38 @@ def _first_counter(measured: dict | set, names: tuple[str, ...]) -> str | None:
     return None
 
 
+def sampled_view(run: Run) -> list[Measurement]:
+    """The sampling layer's Measurements, one Pass per counter.
+
+    A multi-pass run replicates its time base and its witness in every
+    Pass: summed across Passes they would double the seconds and halve
+    every rate. A counter sampled by several Passes therefore only
+    contributes its reference Pass - the first that sampled it - while
+    a counter exclusive to one Pass passes through, and a single-pass
+    Run comes back unchanged. Every Hotspot-grained reader goes through
+    this view; reading `hotspot_level` raw would reintroduce the double
+    count.
+    """
+    sampled = hotspot_level(run.measurements)
+    passes: dict[str, set[int]] = {}
+    for measurement in sampled:
+        passes.setdefault(measurement.counter, set()).add(measurement.pass_index)
+    reference = {
+        counter: min(indices)
+        for counter, indices in passes.items()
+        if len(indices) > 1
+    }
+    return [
+        m
+        for m in sampled
+        if m.counter not in reference or m.pass_index == reference[m.counter]
+    ]
+
+
 def time_base(run: Run) -> str | None:
     """The counter Hotspot shares of time are stated against: the first
     clock this Run measured, cycles as last resort."""
-    counters = {measurement.counter for measurement in hotspot_level(run.measurements)}
+    counters = {measurement.counter for measurement in sampled_view(run)}
     return _first_counter(counters, CLOCK_COUNTERS + ("cycles",))
 
 
@@ -275,9 +303,7 @@ def balance(run: Run) -> Balance | None:
     """
     aggregates = [m for m in run.measurements if m.hotspot is None]
     sampled_rows = [
-        m
-        for m in hotspot_level(run.measurements)
-        if m.locus.rank is not None
+        m for m in sampled_view(run) if m.locus.rank is not None
     ]
     counted: dict[int, float] = {}
     mpi_times: dict[int, float] = {}
@@ -389,8 +415,9 @@ def diagnose(
 
     # The counting layer's Locus-level aggregates are whole-process
     # counts: mixed into these totals they would drown the sampled sums
-    # and shrink every share.
-    sampled = hotspot_level(run.measurements)
+    # and shrink every share - and a replicated counter only counts its
+    # reference Pass.
+    sampled = sampled_view(run)
     by_hotspot: dict[Hotspot, list[Measurement]] = {}
     for measurement in sampled:
         by_hotspot.setdefault(measurement.hotspot, []).append(measurement)

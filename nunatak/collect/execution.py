@@ -56,6 +56,16 @@ class Executor:
         """
         return None
 
+    def cpuinfo(self) -> str | None:
+        """The processor identification block, None when unknown.
+
+        One /proc/cpuinfo record - the fields repeat per logical CPU -
+        crossing the boundary for the same reason as `cpu_model`: the
+        structure of a multi-pass run is keyed on the microarchitecture,
+        and a replay must build the same passes the recording ran.
+        """
+        return None
+
     def run(
         self,
         argv: list[str],
@@ -93,6 +103,14 @@ class SubprocessExecutor(Executor):
         if level >= 3:
             return f"kernel.perf_event_paranoid={level} forbids unprivileged profiling"
         return None
+
+    def cpuinfo(self):
+        """Read the first /proc/cpuinfo record, None off Linux."""
+        try:
+            text = Path("/proc/cpuinfo").read_text()
+        except OSError:
+            return None
+        return text.split("\n\n", 1)[0]
 
     def cpu_model(self):
         """Read the CPU's marketing name, best-effort per platform."""

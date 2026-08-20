@@ -268,6 +268,36 @@ not measured keeps its theoretical, `estimated` value. When nothing can
 be measured (no compiler on the machine), nothing is cached: the next
 run tries again.
 
+## Multi-pass runs
+
+`nunatak run` executes the application **once**; event groups that do
+not fit the PMU are multiplexed by the kernel. `--multi-pass` is the
+explicit expert opt-in that reruns the application once per counter
+group instead - relaunching an application inside an allocation the
+user pays for is never a decision the tool takes alone:
+
+```sh
+nunatak run --multi-pass -- ./solver
+```
+
+The groups are semantic - one measurement concern per pass (`flops`,
+`memory`) - and each is small enough that no counter is ever
+multiplexed: exact counts, which is what the extra executions buy. A
+**witness** (cycles, plus the time base that rides every pass by
+construction) is replicated in each pass; its comparison at the end is
+what will tell a reproducible application from one whose passes cannot
+honestly be fused. The whole invocation stays **one Run**: every
+Measurement keeps its pass of origin, each pass is its own entry in the
+manifest, and replicated counters only count their reference pass in
+every analysis - the seconds stay one execution's worth.
+
+If the application exits non-zero on the first pass, the remaining
+passes are skipped (`passes-skipped`): relaunching a failure spends the
+allocation on reproducing it. On an unknown microarchitecture there is
+nothing to split and a single time-only pass runs
+(`multi-pass-unavailable`); MPI runs are not covered yet and fall back
+the same way.
+
 ## Counter groups
 
 On a microarchitecture nunatak knows (AMD Zen 2/3/4 today), sampling

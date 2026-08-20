@@ -1,0 +1,8 @@
+{
+  "argv": [
+    "ldd",
+    "./workload"
+  ],
+  "exit_code": 0,
+  "captured": true
+}

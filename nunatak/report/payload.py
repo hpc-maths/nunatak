@@ -48,7 +48,7 @@ def _coverage(run: Run, time_base: str | None) -> dict:
     is not wall time - and stays null when the time base is not a clock
     in nanoseconds.
     """
-    sampled = hotspot_level(run.measurements)
+    sampled = analysis.sampled_view(run)
     clocked = [m for m in sampled if m.counter == time_base]
     seconds = None
     if clocked and all(m.unit == "ns" for m in clocked):
@@ -255,7 +255,7 @@ def _relative_error(run: Run, hotspot: Hotspot, time_base: str | None) -> float 
     """Sampling error on the Hotspot's share, decreasing in 1/sqrt(n)."""
     samples = sum(
         m.sample_count or 0
-        for m in run.measurements
+        for m in analysis.sampled_view(run)
         if m.hotspot == hotspot and m.counter == time_base
     )
     return 1.0 / math.sqrt(samples) if samples > 0 else None
@@ -295,7 +295,7 @@ def _others(run: Run, diagnostics: list[Diagnostic], time_base: str | None) -> d
     time base - unknown is not zero.
     """
     diagnosed = {diagnostic.hotspot for diagnostic in diagnostics}
-    skipped = {m.hotspot for m in hotspot_level(run.measurements)} - diagnosed
+    skipped = {m.hotspot for m in analysis.sampled_view(run)} - diagnosed
     if not skipped:
         return None
     share = None

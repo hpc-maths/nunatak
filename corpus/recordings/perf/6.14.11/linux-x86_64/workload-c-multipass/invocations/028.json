@@ -1,0 +1,11 @@
+{
+  "argv": [
+    "git",
+    "-C",
+    "/tmp/nunatak-capture-mp",
+    "rev-parse",
+    "HEAD"
+  ],
+  "exit_code": 128,
+  "captured": true
+}

@@ -141,6 +141,35 @@ def _settle_stacks(args, executor, config, command, sampling, console):
     )
 
 
+def _pass_plan(args, snapshot, executor, console):
+    """What the collection loop runs: labeled passes under --multi-pass,
+    one anonymous pass otherwise, None when multi-pass was asked but the
+    microarchitecture offers no groups to split.
+
+    The microarchitecture comes from the executor's identification, not
+    from the live host: the pass structure decides how many times the
+    application runs, and a replay must build the same passes the
+    recording ran. Each multi-pass Pass carries the witness on top of
+    its group: the replicated counter is what makes the final
+    reproducibility check - and any cross-pass fusion - honest.
+    """
+    if not getattr(args, "multi_pass", False):
+        return [(None, counter_events.sampling_events(snapshot))]
+    microarchitecture = theory.identify(executor.cpuinfo())
+    if microarchitecture is None:
+        return None
+    groups = counter_events.groups_for(microarchitecture.name)
+    if not groups:
+        return None
+    witness = counter_events.witness_for(microarchitecture.name)
+    console.info(
+        f"multi-pass: {len(groups)} passes "
+        f"({', '.join(label for label, _ in groups)}), "
+        "witness replicated in each"
+    )
+    return [(label, witness + events) for label, events in groups]
+
+
 def executable_status(program: str) -> tuple[int, str] | None:
     """None when `program` can launch, else (exit code, message): 127 not
     found, 126 found but not executable."""
@@ -283,6 +312,7 @@ def execute(args, command: list[str], console: Console) -> int:
 
     started = _now()
     collectors: tuple[Collector, ...] = ()
+    pass_records: list[Pass] = []
     measurements = []
     stacks_collected = []
     address_details = []
@@ -305,6 +335,15 @@ def execute(args, command: list[str], console: Console) -> int:
         # and corrupt them (measured on Zen 2, not feared). The launcher
         # runs bare here; each rank samples or counts itself and writes
         # home, and ingestion below reads what came back.
+        if args.multi_pass:
+            fallback = Degradation(
+                name="multi-pass-unavailable",
+                message="multi-pass does not cover MPI runs yet; "
+                "sampling a single pass",
+                remedy="run the per-rank binary under --multi-pass directly",
+            )
+            console.degradation(fallback)
+            degradations = degradations + [fallback]
         console.info(
             "launching ranks (each one counting; sampling narrows to rank 0 "
             f"plus one rank per node beyond {config.sampling_rank_threshold} "
@@ -355,20 +394,71 @@ def execute(args, command: list[str], console: Console) -> int:
         if mpip_version is not None:
             collectors += (Collector(tool="mpiP", version=mpip_version),)
     elif adapter is not None:
-        console.info(f"collecting with {adapter.tool} {version}: {' '.join(command)}")
-        exit_code, collect_degradations = adapter.collect(
-            list(command),
-            directory / COLLECT_DIR,
-            executor,
-            frequency,
-            events=counter_events.sampling_events(snapshot),
-            call_graph=call_graph,
-        )
         collectors = (Collector(tool=adapter.tool, version=version),)
-        measurements, stacks_collected, ingest_degradations = ingestion.ingest(
-            adapter.tool, version, directory / COLLECT_DIR, node=platform.node()
-        )
-        gathered = collect_degradations + ingest_degradations
+        passes = _pass_plan(args, snapshot, executor, console)
+        if passes is None:
+            gathered.append(
+                Degradation(
+                    name="multi-pass-unavailable",
+                    message="no counter groups for this microarchitecture: "
+                    "there is nothing to split into passes",
+                    remedy="a single time-only pass is being sampled instead",
+                )
+            )
+            passes = [(None, counter_events.sampling_events(snapshot))]
+        exit_code = 0
+        for index, (label, events) in enumerate(passes):
+            named = f" [pass {index}: {label}]" if label is not None else ""
+            console.info(
+                f"collecting with {adapter.tool} {version}{named}: "
+                f"{' '.join(command)}"
+            )
+            pass_dir = (
+                directory / COLLECT_DIR / f"pass-{index}"
+                if label is not None
+                else directory / COLLECT_DIR
+            )
+            pass_start = _now()
+            pass_exit, collect_degradations = adapter.collect(
+                list(command),
+                pass_dir,
+                executor,
+                frequency,
+                events=events,
+                call_graph=call_graph,
+            )
+            sampled, sampled_stacks, ingest_degradations = ingestion.ingest(
+                adapter.tool, version, pass_dir,
+                node=platform.node(), pass_index=index,
+            )
+            measurements += sampled
+            stacks_collected += sampled_stacks
+            gathered += collect_degradations + ingest_degradations
+            pass_records.append(
+                Pass(
+                    index=index,
+                    exit_code=pass_exit,
+                    collectors=collectors,
+                    start=pass_start,
+                    end=_now(),
+                )
+            )
+            if index == 0:
+                exit_code = pass_exit
+            if pass_exit != 0 and index + 1 < len(passes):
+                # Relaunching an application that just failed spends the
+                # user's allocation on reproducing a failure: the first
+                # pass's measurements are kept, the rest is declared.
+                gathered.append(
+                    Degradation(
+                        name="passes-skipped",
+                        message=f"the application exited with {pass_exit} on "
+                        f"pass {index}; the remaining "
+                        f"{len(passes) - index - 1} pass(es) were skipped",
+                        remedy="fix the failure, or run without --multi-pass",
+                    )
+                )
+                break
     else:
         measured = False
         console.info(f"launching: {' '.join(command)}")
@@ -416,6 +506,7 @@ def execute(args, command: list[str], console: Console) -> int:
             [{"tool": c.tool, "version": c.version} for c in collectors],
             sampling_blocked=executor.sampling_blocked(),
             cpu_model=executor.cpu_model(),
+            cpuinfo=executor.cpuinfo(),
         )
 
     collected_provenance = provenance.collect(executor, cwd, effective)
@@ -431,7 +522,8 @@ def execute(args, command: list[str], console: Console) -> int:
         exit_code=exit_code,
         machine=snapshot,
         provenance=collected_provenance,
-        passes=[
+        passes=pass_records
+        or [
             Pass(
                 index=0,
                 exit_code=exit_code,
