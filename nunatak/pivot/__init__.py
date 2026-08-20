@@ -25,6 +25,8 @@ from nunatak.pivot.model import (
     ResolutionLevel,
     Run,
     SourceExtract,
+    Stack,
+    StackFrame,
     hotspot_level,
     locus_level,
 )
@@ -50,6 +52,8 @@ __all__ = [
     "ResolutionLevel",
     "Run",
     "SourceExtract",
+    "Stack",
+    "StackFrame",
     "MANIFEST",
     "SCHEMA",
     "hotspot_level",

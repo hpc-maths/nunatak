@@ -424,7 +424,7 @@ class TestLauncherToPivotChain:
         assert metas[0][1]["role"] == "sampling"
         assert metas[1][1]["role"] == "counting"
         rank_dir, meta = metas[0]
-        sampled, sampled_degradations = ingest(
+        sampled, _, sampled_degradations = ingest(
             "perf", meta["perf"], rank_dir, node=meta["node"], rank=0
         )
         assert sampled_degradations == []

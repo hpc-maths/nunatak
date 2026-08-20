@@ -11,7 +11,7 @@ from pathlib import Path
 import pytest
 
 from nunatak.cli import principal
-from nunatak.ingestion import ingest, measurements_from_samples
+from nunatak.ingestion import ingest, measurements_from_samples, stacks_from_samples
 from nunatak.ingestion.perf_script import parse_buildid_list, parse_samples, supports
 from nunatak.pivot import Quality, ResolutionLevel, read_run
 
@@ -91,7 +91,7 @@ class TestAggregation:
         assert top.locus.thread == 4013
 
     def test_an_unsupported_version_is_a_named_degradation(self, tmp_path):
-        measurements, degradations = ingest("perf", "6.3", tmp_path, node="n0")
+        measurements, stacks, degradations = ingest("perf", "6.3", tmp_path, node="n0")
         assert measurements == []
         assert degradations[0].name == "ingestion-unsupported"
 
@@ -209,3 +209,33 @@ class TestReplayedStacks:
         assert summary["measurements"] > 0
         run = read_run(summary["run"])
         assert run.passes[0].collectors[0].version == "6.14.11"
+        # The recorded paths land in the pivot, and their weights answer
+        # to the same totals as the Measurements aggregated from the
+        # same samples.
+        assert run.stacks
+        clock_stacks = [s for s in run.stacks if s.counter == "task-clock"]
+        clock = [
+            m for m in run.measurements
+            if m.counter == "task-clock" and m.hotspot is not None
+        ]
+        assert sum(s.value for s in clock_stacks) == sum(m.value for m in clock)
+        assert all(s.frames[0].offset is not None for s in run.stacks)
+
+
+class TestStackAggregation:
+    def test_identical_paths_merge_and_weights_add_up(self):
+        from tests.support import PERF_SCRIPT_CALLCHAIN
+
+        samples, _ = parse_samples(PERF_SCRIPT_CALLCHAIN)
+        stacks = stacks_from_samples(samples, node="n0")
+        assert len(stacks) == 2
+        assert sum(s.sample_count for s in stacks) == len(samples)
+        assert sum(s.value for s in stacks) == sum(s.period for s in samples)
+        heaviest = stacks[0]
+        assert heaviest.sample_count == 3
+        assert heaviest.frames[0].module.endswith("/workload-fp")
+        assert heaviest.unit == "ns"
+
+    def test_a_flat_recording_yields_no_stack(self):
+        samples, _ = parse_samples(recorded_stdout("script"))
+        assert stacks_from_samples(samples, node="n0") == []

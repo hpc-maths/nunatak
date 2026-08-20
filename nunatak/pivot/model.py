@@ -243,6 +243,43 @@ class AddressDetail:
 
 
 @dataclass(frozen=True)
+class StackFrame:
+    """One step of a recorded call path, normalized like the samples:
+    `(module, module-relative offset)`, no absolute address, no name.
+
+    Names are attribution's job, at analysis time; persisting the raw
+    position keeps stacks valid on a machine where the binary and the
+    symbolizer no longer exist. `offset` is None for pseudo modules
+    (`[vdso]`) whose inside cannot be located.
+    """
+
+    module: str
+    offset: int | None = None
+
+
+@dataclass(frozen=True)
+class Stack:
+    """An aggregated call path of the sampling layer: what was executing,
+    called from where, and the weight the path carries.
+
+    Frames are innermost first: the first one is the sampled hit - the
+    same position a Measurement's Hotspot aggregates - and the rest are
+    its callers, outward. Stacks serve to attach library leaves to user
+    code, to give an inclusive time, and to rebuild mixed Python stacks;
+    they never enter the Hotspot identity, so a per-context split of a
+    Hotspot stays addable without touching the pivot.
+    """
+
+    locus: Locus
+    counter: str
+    frames: tuple[StackFrame, ...]
+    value: float
+    unit: str
+    sample_count: int
+    pass_index: int = 0
+
+
+@dataclass(frozen=True)
 class SourceExtract:
     """An embedded source extract for one named Hotspot - never a whole
     file: the body of the physical function and its hot inline frames,
@@ -416,3 +453,4 @@ class Run:
     events: list[Event] = field(default_factory=list)
     address_details: list[AddressDetail] = field(default_factory=list)
     source_extracts: list[SourceExtract] = field(default_factory=list)
+    stacks: list[Stack] = field(default_factory=list)

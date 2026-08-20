@@ -24,9 +24,11 @@ from nunatak.pivot import (
     PhysicalIdentity,
     Quality,
     ResolutionLevel,
+    Stack,
+    StackFrame,
 )
 
-__all__ = ["Sample", "ingest", "measurements_from_samples"]
+__all__ = ["Sample", "ingest", "measurements_from_samples", "stacks_from_samples"]
 
 # Sampling clocks report periods in nanoseconds; any other raw counter
 # counts its own unit (cycles, instructions...).
@@ -92,16 +94,67 @@ def measurements_from_samples(
     return measurements
 
 
+def stacks_from_samples(
+    samples: list[Sample], node: str, rank: int | None = None
+) -> list[Stack]:
+    """Aggregate recorded call paths into per-(Locus, counter, path) Stacks.
+
+    A sample without callers carries no path: a flat recording yields
+    nothing, never a one-frame stack that would restate its Measurement.
+    Counters fold onto their canonical name and unit exactly like the
+    Measurements they accompany, so a path's weight stays comparable to
+    the Hotspot's own value. Output is deterministic: sorted by
+    decreasing value.
+    """
+    groups: dict[tuple, list] = {}
+    for sample in samples:
+        if not sample.callers:
+            continue
+        vendor = counter_events.canonical(sample.counter)
+        counter = vendor.canonical if vendor is not None else sample.counter
+        frames = (
+            StackFrame(module=sample.module, offset=sample.offset),
+            *(StackFrame(module=m, offset=o) for m, o in sample.callers),
+        )
+        entry = groups.setdefault((sample.tid, counter, frames), [0, 0, vendor])
+        entry[0] += sample.period
+        entry[1] += 1
+
+    stacks = [
+        Stack(
+            locus=Locus(node=node, rank=rank, thread=tid),
+            counter=counter,
+            frames=frames,
+            value=float(value) * (vendor.scale if vendor is not None else 1.0),
+            unit=vendor.unit
+            if vendor is not None
+            else _CLOCK_UNITS.get(counter, counter),
+            sample_count=count,
+        )
+        for (tid, counter, frames), (value, count, vendor) in groups.items()
+    ]
+    stacks.sort(
+        key=lambda s: (
+            -s.value,
+            s.counter,
+            tuple((f.module, f.offset or 0) for f in s.frames),
+        )
+    )
+    return stacks
+
+
 def ingest(
     tool: str, version: str, directory: Path, node: str, rank: int | None = None
-) -> tuple[list[Measurement], list[Degradation]]:
-    """Turn the raw artifacts of one collection into Measurements.
+) -> tuple[list[Measurement], list[Stack], list[Degradation]]:
+    """Turn the raw artifacts of one collection into Measurements and
+    the call paths recorded with them.
 
-    Returns the Measurements and the named degradations met on the way;
-    an empty Measurement list with a degradation is a valid outcome.
+    Returns (measurements, stacks, degradations); an empty Measurement
+    list with a degradation is a valid outcome, and stacks are empty
+    whenever the recording carried none.
     """
     if tool != "perf" or not perf_script.supports(version):
-        return [], [
+        return [], [], [
             Degradation(
                 name="ingestion-unsupported",
                 message=f"no parser for {tool} {version}; raw outputs kept in the Run",
@@ -111,7 +164,7 @@ def ingest(
 
     script_path = directory / perf_adapter.SCRIPT_OUTPUT
     if not script_path.is_file():
-        return [], [
+        return [], [], [
             Degradation(
                 name="perf-script-missing",
                 message="perf script produced no output; no Measurement for this Run",
@@ -137,4 +190,8 @@ def ingest(
                 remedy="report this line format; the other samples are ingested",
             )
         )
-    return measurements_from_samples(samples, module_ids, node, rank), degradations
+    return (
+        measurements_from_samples(samples, module_ids, node, rank),
+        stacks_from_samples(samples, node, rank),
+        degradations,
+    )

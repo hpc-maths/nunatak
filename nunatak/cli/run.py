@@ -284,6 +284,7 @@ def execute(args, command: list[str], console: Console) -> int:
     started = _now()
     collectors: tuple[Collector, ...] = ()
     measurements = []
+    stacks_collected = []
     address_details = []
     source_extracts = []
     plan = launch.split(command)
@@ -337,10 +338,11 @@ def execute(args, command: list[str], console: Console) -> int:
                 versions.add(meta["perf"])
             if not meta.get("sampled"):
                 continue
-            sampled, sampled_degradations = ingestion.ingest(
+            sampled, sampled_stacks, sampled_degradations = ingestion.ingest(
                 "perf", meta["perf"], rank_dir, node=meta["node"], rank=meta["rank"]
             )
             measurements += sampled
+            stacks_collected += sampled_stacks
             gathered += sampled_degradations
         collectors = tuple(
             Collector(tool="perf", version=v) for v in sorted(versions)
@@ -363,7 +365,7 @@ def execute(args, command: list[str], console: Console) -> int:
             call_graph=call_graph,
         )
         collectors = (Collector(tool=adapter.tool, version=version),)
-        measurements, ingest_degradations = ingestion.ingest(
+        measurements, stacks_collected, ingest_degradations = ingestion.ingest(
             adapter.tool, version, directory / COLLECT_DIR, node=platform.node()
         )
         gathered = collect_degradations + ingest_degradations
@@ -438,6 +440,7 @@ def execute(args, command: list[str], console: Console) -> int:
         measurements=measurements,
         address_details=address_details,
         source_extracts=source_extracts,
+        stacks=stacks_collected,
     )
     write_run(directory, run)
 
