@@ -15,7 +15,7 @@ from nunatak.cli import principal
 from nunatak.cli.run import _pass_plan
 from nunatak.collect import events
 from nunatak.console import Console
-from nunatak.pivot import read_run
+from nunatak.pivot import Quality, read_run
 from tests.support import ScriptedExecutor
 from tests.test_events import zen2_machine
 from tests.test_theory import EPYC_7702
@@ -60,7 +60,10 @@ class TestPassPlan:
         )
         assert [label for label, _ in plan] == ["flops", "memory"]
         for _, entries in plan:
-            assert entries[0].canonical == "cycles"
+            assert entries[0].canonical == "flops"
+        # The witness IS the flops pass's own event: never asked twice.
+        flops_pass = plan[0][1]
+        assert len(flops_pass) == 1
 
     def test_an_unknown_identification_has_nothing_to_split(self):
         unknown = ScriptedExecutor(cpuinfo="model name\t: Mystery CPU\n")
@@ -135,18 +138,17 @@ class TestReplayedMultiPass:
 
     def test_the_witness_rides_every_pass(self, capsys):
         _, run = self._replayed(capsys)
-        cycle_passes = {
-            m.pass_index for m in run.measurements if m.counter == "cycles"
+        witness_passes = {
+            m.pass_index for m in run.measurements if m.counter == "flops"
         }
-        assert cycle_passes == {0, 1}
+        assert witness_passes == {0, 1}
 
     def test_exclusive_counters_live_in_their_own_pass(self, capsys):
         _, run = self._replayed(capsys)
         by_counter = {}
         for m in run.measurements:
-            if m.counter in ("flops", "dram_bytes"):
+            if m.counter == "dram_bytes":
                 by_counter.setdefault(m.counter, set()).add(m.pass_index)
-        assert by_counter["flops"] == {0}
         assert by_counter.get("dram_bytes", {1}) == {1}
 
     def test_the_view_keeps_seconds_single_and_rates_whole(self, capsys):
@@ -167,3 +169,115 @@ class TestReplayedMultiPass:
         assert "multi-pass-unavailable" not in names
         assert "passes-skipped" not in names
         assert "perf-script-unparsed" not in names
+
+
+class TestWitnessVerdict:
+    def _two_pass_run(self, cycles_by_pass, extra=None):
+        import dataclasses
+
+        from tests.test_analysis import hotspot, measurement, run_with
+
+        spot = hotspot()
+        base = measurement(spot, "task-clock", 2e9, "ns")
+        rows = [base, dataclasses.replace(base, pass_index=1)]
+        for index, value in enumerate(cycles_by_pass):
+            rows.append(
+                dataclasses.replace(
+                    base, counter="flops", unit="flop",
+                    value=value, pass_index=index,
+                )
+            )
+        rows += extra or []
+        return run_with(rows)
+
+    def test_agreeing_passes_are_consistent(self):
+        run = self._two_pass_run([1.00e9, 1.02e9])
+        verdict = analysis.witness_verdict(run)
+        assert verdict.consistent
+        assert verdict.counter == "flops"
+        assert verdict.spread == pytest.approx(0.0198, abs=1e-3)
+
+    def test_diverging_passes_are_named_with_their_numbers(self):
+        run = self._two_pass_run([1.0e9, 1.3e9])
+        verdict = analysis.witness_verdict(run)
+        assert not verdict.consistent
+        assert verdict.totals == ((0, 1.0e9), (1, 1.3e9))
+
+    def test_the_threshold_travels_with_the_run(self):
+        run = self._two_pass_run([1.0e9, 1.06e9])
+        assert not analysis.witness_verdict(run).consistent  # ~5.8% > 5%
+        run.provenance.effective_configuration["passes.witness"] = 0.10
+        assert analysis.witness_verdict(run).consistent
+
+    def test_a_single_pass_run_has_no_verdict(self):
+        from tests.test_analysis import hotspot, measurement, run_with
+
+        run = run_with([measurement(hotspot(), "flops", 1e9, "flop")])
+        assert analysis.witness_verdict(run) is None
+
+
+class TestFusionDowngrade:
+    def _run(self, cycles_pass_1):
+        import dataclasses
+
+        from tests.test_analysis import hotspot, machine, measurement, run_with
+
+        spot = hotspot()
+        clock = measurement(spot, "task-clock", 2e9, "ns")
+        rows = [
+            clock,
+            dataclasses.replace(clock, pass_index=1),
+            measurement(spot, "flops", 1.0e9, "flop"),
+            dataclasses.replace(
+                clock, counter="flops", unit="flop",
+                value=cycles_pass_1, pass_index=1,
+            ),
+            measurement(spot, "flops_dp", 3.2e9, "flop"),
+            dataclasses.replace(
+                clock, counter="dram_bytes", unit="byte",
+                value=1.6e9, pass_index=1,
+            ),
+        ]
+        return run_with(rows, machine())
+
+    def test_consistent_passes_fuse_exactly(self):
+        (diagnostic,) = analysis.diagnose(self._run(1.01e9))
+        assert diagnostic.dram_intensity.quality is Quality.MEASURED
+        assert diagnostic.dram_intensity.value == 2.0
+
+    def test_diverging_passes_estimate_the_fusion_with_the_reason(self):
+        (diagnostic,) = analysis.diagnose(self._run(1.4e9))
+        intensity = diagnostic.dram_intensity
+        assert intensity.quality is Quality.ESTIMATED
+        assert "witness" in intensity.reason and "33%" in intensity.reason
+        # achieved never left pass 0: it stays exact.
+        assert diagnostic.achieved.quality is Quality.MEASURED
+
+
+class TestRunDeclarations:
+    def test_a_recompiled_module_is_an_invalidity_not_an_uncertainty(self):
+        import dataclasses
+
+        from nunatak.cli.run import _pass_consistency
+        from tests.test_analysis import hotspot, measurement
+        from nunatak.pivot import PhysicalIdentity
+
+        spot = hotspot()
+        one = dataclasses.replace(
+            spot, physical_identity=PhysicalIdentity(module_id="aaaa", offset=0x10)
+        )
+        two = dataclasses.replace(
+            spot, physical_identity=PhysicalIdentity(module_id="bbbb", offset=0x10)
+        )
+        rows = [
+            measurement(one, "task-clock", 2e9, "ns"),
+            dataclasses.replace(
+                measurement(two, "task-clock", 2e9, "ns"), pass_index=1
+            ),
+        ]
+        declared = _pass_consistency(rows, threshold=0.05)
+        (recompiled,) = [
+            d for d in declared if d.name == "module-recompiled-between-passes"
+        ]
+        assert "/app/solver" in recompiled.message
+        assert "two Runs" in recompiled.remedy

@@ -15,6 +15,7 @@ approximate: unavailable is not zero.
 
 from __future__ import annotations
 
+import dataclasses
 from dataclasses import dataclass
 
 from nunatak.pivot import Ceiling, Hotspot, Measurement, Quality, Run, hotspot_level
@@ -176,6 +177,72 @@ def sampled_view(run: Run) -> list[Measurement]:
         for m in sampled
         if m.counter not in reference or m.pass_index == reference[m.counter]
     ]
+
+
+# Witness counters: work-proportional counts replicated in every Pass
+# of a multi-pass run. Neither the time base nor cycles qualifies,
+# measured on the corpus machine: the same work took 69% more
+# cpu-seconds on a first pass - the frequency governor ramping up - and
+# a memory-bound run costs 4.8e9 then 6.9e9 cycles back to back, stall
+# cycles scaling with frequency while DRAM latency does not. The
+# retired-FLOP count came back identical to the unit.
+WITNESS_COUNTERS = ("flops",)
+WITNESS_THRESHOLD = 0.05
+
+
+@dataclass(frozen=True)
+class WitnessVerdict:
+    """What the witness says about a multi-pass run's reproducibility.
+
+    `totals` is the witness counter summed per Pass; `spread` their
+    max-minus-min over their mean. Beyond `threshold`, the application
+    did different work in different Passes - convergence criterion,
+    dynamic scheduling - and cross-pass fusion is estimated, never
+    silently exact.
+    """
+
+    counter: str
+    totals: tuple[tuple[int, float], ...]
+    spread: float
+    threshold: float
+
+    @property
+    def consistent(self) -> bool:
+        """Whether the Passes agree within the threshold."""
+        return self.spread <= self.threshold
+
+
+def witness_check(
+    measurements: list[Measurement], threshold: float = WITNESS_THRESHOLD
+) -> WitnessVerdict | None:
+    """The witness verdict over raw Measurements, None when fewer than
+    two Passes sampled a witness counter - nothing to compare."""
+    for counter in WITNESS_COUNTERS:
+        totals: dict[int, float] = {}
+        for m in hotspot_level(measurements):
+            if m.counter == counter and m.value is not None:
+                totals[m.pass_index] = totals.get(m.pass_index, 0.0) + m.value
+        if len(totals) >= 2:
+            values = list(totals.values())
+            mean = sum(values) / len(values)
+            spread = (max(values) - min(values)) / mean if mean > 0 else 0.0
+            return WitnessVerdict(
+                counter=counter,
+                totals=tuple(sorted(totals.items())),
+                spread=spread,
+                threshold=threshold,
+            )
+    return None
+
+
+def witness_verdict(run: Run) -> WitnessVerdict | None:
+    """The witness verdict of a Run, its threshold taken from the Run's
+    own effective configuration: a threshold can be tuned, it cannot be
+    tuned silently - and the Run carries the tuning that judged it."""
+    threshold = run.provenance.effective_configuration.get(
+        "passes.witness", WITNESS_THRESHOLD
+    )
+    return witness_check(run.measurements, float(threshold))
 
 
 def time_base(run: Run) -> str | None:
@@ -412,6 +479,7 @@ def diagnose(
     most-loaded Locus - Loci run concurrently.
     """
     ceilings = {ceiling.name: ceiling for ceiling in run.machine.ceilings}
+    witness = witness_verdict(run)
 
     # The counting layer's Locus-level aggregates are whole-process
     # counts: mixed into these totals they would drown the sampled sums
@@ -446,6 +514,8 @@ def diagnose(
 
         intensity = _intensity(by_counter, flops, bytes_)
         achieved = _achieved(by_counter, flops)
+        intensity = _fused(intensity, by_counter, (flops, bytes_), witness)
+        achieved = _fused(achieved, by_counter, (flops, time_base), witness)
         attainable, fraction = _placement(intensity, achieved, ceilings)
         imbalance = (
             _imbalance(measurements, time_base)
@@ -492,6 +562,42 @@ def _share(by_counter: dict, time_base: str | None, totals: dict) -> Derived:
         lineage=(time_base,),
         formula=f"{time_base} of the Hotspot / {time_base} of the Run",
         reason=reason,
+    )
+
+
+def _fused(
+    quantity: Derived,
+    by_counter: dict,
+    counters: tuple[str | None, ...],
+    witness: WitnessVerdict | None,
+) -> Derived:
+    """A Derived downgraded when it fuses Passes that disagree.
+
+    Fusing values measured in different executions is only exact if the
+    executions did the same work; when the witness says they did not,
+    the quantity is estimated with the reason - silently exact would be
+    the worst possible outcome for a user who paid for several runs.
+    """
+    if quantity.value is None or witness is None or witness.consistent:
+        return quantity
+    passes = {
+        m.pass_index
+        for counter in counters
+        if counter is not None
+        for m in by_counter.get(counter, ())
+    }
+    if len(passes) < 2:
+        return quantity
+    reason = (
+        f"fused across passes that disagree: the witness "
+        f"({witness.counter}) moved by {witness.spread:.0%} between "
+        f"passes, beyond the {witness.threshold:.0%} threshold"
+    )
+    reasons = [r for r in (quantity.reason, reason) if r]
+    return dataclasses.replace(
+        quantity,
+        quality=Quality.worst(quantity.quality, Quality.ESTIMATED),
+        reason="; ".join(dict.fromkeys(reasons)),
     )
 
 

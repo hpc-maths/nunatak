@@ -28,11 +28,9 @@ from nunatak.calibration import theory
 from nunatak.pivot import Machine, Quality
 
 # ~1 kHz of interrupts per core at realistic HPC rates: FLOP rates of a
-# few 1e9/s per core, demand-fill rates of a few 1e8/s, cycle rates of a
-# few 1e9/s.
+# few 1e9/s per core, demand-fill rates of a few 1e8/s.
 FLOP_PERIOD = 4_999_999
 FILL_PERIOD = 100_003
-CYCLE_PERIOD = 2_000_003
 CACHELINE_BYTES = 64
 
 DRAM_REASON = (
@@ -125,24 +123,24 @@ _SETS = {
     for name, groups in _GROUPED.items()
 }
 
-# The witness: a stable global counter replicated in every Pass of a
-# multi-pass run and compared at the end - the reproducibility check
-# that makes cross-pass fusion honest. `instructions` is deliberately
-# absent: on the Zen 2 corpus machine the generic event is bistable -
+# The witness: a work-proportional counter replicated in every Pass of
+# a multi-pass run and compared at the end - the reproducibility check
+# that makes cross-pass fusion honest. It is the retired-FLOP event,
+# and the two intuitive candidates are out for measured reasons, never
+# feared ones. `instructions` is bistable on the Zen 2 corpus machine:
 # 842e6 retired instructions read back as exactly 16x that (an IPC of
 # 21) whenever the kernel programs it on a general counter next to
-# cycles, and `ex_ret_instr` shows the same 16x - a witness that lies
-# about reproducibility would poison every fusion verdict it guards.
-_CYCLES = SampledEvent(
-    event=f"cycles/period={CYCLE_PERIOD}/",
-    canonical="cycles",
-    unit="cycles",
-    quality=Quality.MEASURED,
-)
+# cycles. `cycles` counts time-at-frequency, not work: back to back on
+# the memory-bound triad, the same run costs 4.8e9 then 6.9e9 cycles -
+# stall cycles scale with the governor's ramp while DRAM latency does
+# not - where the FLOP count comes back identical to the unit. A
+# witness that lies about reproducibility would poison every fusion
+# verdict it guards; an application without floating point gets a
+# vacuous witness, which is the honest amount of evidence available.
 _WITNESS = {
-    "zen2": (_CYCLES,),
-    "zen3": (_CYCLES,),
-    "zen4": (_CYCLES,),
+    "zen2": (_flops("fp_ret_sse_avx_ops.all"),),
+    "zen3": (_flops("fp_ret_sse_avx_ops.all"),),
+    "zen4": (_flops("fp_ret_sse_avx_ops.all"),),
 }
 
 # Reverse map: base event name (no period term, no modifiers) to its

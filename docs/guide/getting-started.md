@@ -283,10 +283,36 @@ nunatak run --multi-pass -- ./solver
 The groups are semantic - one measurement concern per pass (`flops`,
 `memory`) - and each is small enough that no counter is ever
 multiplexed: exact counts, which is what the extra executions buy. A
-**witness** (cycles, plus the time base that rides every pass by
-construction) is replicated in each pass; its comparison at the end is
-what will tell a reproducible application from one whose passes cannot
-honestly be fused. The whole invocation stays **one Run**: every
+**witness** - the retired-FLOP count, work-proportional where cycles
+count time-at-frequency - is replicated in each pass and compared at
+the end: within the threshold, cross-pass quantities - the DRAM intensity
+fusing one pass's FLOPs with another's bytes - stay exactly what they
+claim; beyond it, the application did different work in different
+passes (a convergence criterion, dynamic scheduling, non-deterministic
+MPI) and every fused quantity is downgraded to **estimated** with the
+reason, while the run declares `passes-inconsistent`. Fusing silently
+would produce a wrong arithmetic intensity wearing the face of an
+exact measurement - the worst outcome for a user who paid for several
+executions. Neither the time base nor cycles qualifies as witness, measured on
+the corpus machine: the same work took 69% more cpu-seconds on a first
+pass - the frequency governor ramping up - and a memory-bound run cost
+4.8e9 then 6.9e9 cycles back to back, while the retired-FLOP count came
+back identical to the unit. An application without floating point gets
+a vacuous witness - the honest amount of evidence available.
+
+The threshold is configuration, recorded in the Run and used by every
+later analysis of it:
+
+```toml
+[passes]
+witness = 0.05    # witness spread beyond which fusion is estimated
+```
+
+A module whose build-id changed between passes was **recompiled
+mid-run**: an invalidity, not an uncertainty. Its Hotspots keep
+separate physical identities, are presented per pass, never fused,
+never placed (`module-recompiled-between-passes`) - and comparing two
+versions is two Runs, never two passes. The whole invocation stays **one Run**: every
 Measurement keeps its pass of origin, each pass is its own entry in the
 manifest, and replicated counters only count their reference pass in
 every analysis - the seconds stay one execution's worth.

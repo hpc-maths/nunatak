@@ -1,8 +1,10 @@
 {
   "argv": [
-    "/usr/lib/llvm-19/bin/llvm-readelf",
-    "-S",
-    "/tmp/nunatak-capture-mp/workload"
+    "/usr/lib/llvm-19/bin/llvm-symbolizer",
+    "--output-style=JSON",
+    "--obj=/usr/lib/x86_64-linux-gnu/libc.so.6",
+    "0x2a578",
+    "0x2a63b"
   ],
   "exit_code": 0,
   "captured": true

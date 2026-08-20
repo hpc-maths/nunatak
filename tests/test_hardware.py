@@ -519,12 +519,15 @@ class TestRealFallbackSymbolizer:
 
 
 class TestRealWitness:
-    def test_sampled_cycle_periods_track_the_counted_total(self, tmp_path, workload):
+    def test_sampled_witness_periods_track_the_counted_total(self, tmp_path, workload):
         # The witness must be trustworthy or every fusion verdict it
-        # guards is poison: the sum of sampled cycle periods has to track
-        # the counted total. (`instructions` failed exactly this bar on
-        # this machine - 1x or exactly 16x depending on counter
-        # placement - which is why it is not a witness.)
+        # guards is poison: the sum of its sampled periods has to track
+        # the counted total. (`instructions` failed this bar - 1x or
+        # exactly 16x depending on counter placement - and `cycles`
+        # failed reproducibility itself: 4.8e9 then 6.9e9 back to back
+        # on memory-bound work, stall cycles scaling with the governor's
+        # frequency ramp. The retired-FLOP witness came back identical
+        # to the unit.)
         from nunatak import machine
         from nunatak.collect import events
         from nunatak.collect.perf import PerfAdapter
@@ -534,9 +537,10 @@ class TestRealWitness:
         snapshot = machine.snapshot(executor)
         witness = events.witness(snapshot)
         assert witness, "tier 2 runs on a known microarchitecture"
+        base_event = witness[0].event.split("/")[0]
 
         counted = subprocess.run(
-            ["perf", "stat", "-x,", "-e", "cycles", "--", str(workload)],
+            ["perf", "stat", "-x,", "-e", base_event, "--", str(workload)],
             capture_output=True,
             text=True,
         )
@@ -546,13 +550,14 @@ class TestRealWitness:
             [str(workload)], tmp_path / "collect", executor,
             frequency=997, events=witness,
         )
-        # A Sample carries the raw selector (`cycles/period=.../u`); the
-        # fold onto the canonical name is ingestion's, mirrored here.
+        # A Sample carries the raw selector; the fold onto the canonical
+        # name is ingestion's, mirrored here.
         samples, _ = parse_samples((tmp_path / "collect" / "perf-script.txt").read_text())
         sampled = sum(
             s.period
             for s in samples
-            if (entry := events.canonical(s.counter)) and entry.canonical == "cycles"
+            if (entry := events.canonical(s.counter))
+            and entry.canonical == witness[0].canonical
         )
         assert sampled > 0
         assert abs(sampled - total) / total < 0.10, (sampled, total)
@@ -586,7 +591,39 @@ class TestRealMultiPass:
 
         run = read_run(summary["run"])
         assert [p.index for p in run.passes] == [0, 1]
-        assert {m.pass_index for m in run.measurements if m.counter == "cycles"} == {0, 1}
-        assert {m.pass_index for m in run.measurements if m.counter == "flops"} == {0}
+        assert {m.pass_index for m in run.measurements if m.counter == "flops"} == {0, 1}
+        assert {m.pass_index for m in run.measurements if m.counter == "dram_bytes"} == {1}
         view = analysis.sampled_view(run)
         assert {m.pass_index for m in view if m.counter == "task-clock"} == {0}
+        assert {m.pass_index for m in view if m.counter == "flops"} == {0}
+
+
+class TestRealWitnessVerdict:
+    def test_the_recorded_passes_agree_on_real_pmus(self, tmp_path, monkeypatch, capsys):
+        # The same deterministic workload twice on the same cores: the
+        # witness must call it reproducible - a false inconsistency here
+        # would poison every multi-pass run on this machine.
+        source = tmp_path / "workload.c"
+        source.write_text(ROOFLINE_WORKLOAD_C)
+        binary = tmp_path / "workload"
+        compiler = shutil.which("gcc") or shutil.which("cc")
+        built = subprocess.run(
+            [compiler, "-O2", "-g", str(source), "-o", str(binary)],
+            capture_output=True, text=True,
+        )
+        assert built.returncode == 0, built.stderr
+        monkeypatch.chdir(tmp_path)
+
+        assert principal(
+            ["run", "--multi-pass", "--json", "--no-calibrate", "--", str(binary)]
+        ) == 0
+        summary = json.loads(capsys.readouterr().out)
+        names = {d["name"] for d in summary["degradations"]}
+        assert "passes-inconsistent" not in names, summary["degradations"]
+        assert "module-recompiled-between-passes" not in names
+
+        from nunatak import analysis
+
+        run = read_run(summary["run"])
+        verdict = analysis.witness_verdict(run)
+        assert verdict is not None and verdict.consistent, verdict

@@ -2,7 +2,7 @@
   "argv": [
     "/usr/lib/llvm-19/bin/llvm-dwarfdump",
     "--debug-line",
-    "/tmp/nunatak-capture-mp/workload"
+    "/usr/lib/x86_64-linux-gnu/ld-linux-x86-64.so.2"
   ],
   "exit_code": 0,
   "captured": true
