@@ -17,6 +17,7 @@ from __future__ import annotations
 import dataclasses
 
 from nunatak.attribution import inspection
+from nunatak.attribution.addr2line import Addr2Line
 from nunatak.attribution.symbolizer import (
     AttributionChain,
     Frame,
@@ -39,13 +40,25 @@ from nunatak.pivot import (
 )
 
 __all__ = [
+    "Addr2Line",
     "AttributionChain",
     "Frame",
     "ModuleSymbolization",
     "Symbolizer",
     "attribute",
     "locate",
+    "locate_any",
 ]
+
+
+def locate_any(executor: Executor, config) -> Symbolizer | Addr2Line | None:
+    """The symbolizer this machine offers: the LLVM driver when one
+    answers, else GNU addr2line - same contract, declared second-choice
+    by doctor. The fallback is only probed when LLVM is absent, so a
+    machine with LLVM never spends the extra invocation."""
+    from nunatak.attribution import addr2line
+
+    return locate(executor, config) or addr2line.locate(executor, config)
 
 
 def _symbolizable(module: str) -> bool:
@@ -156,8 +169,10 @@ def attribute(
     Symbolization runs once per module, on its distinct sampled offsets;
     modules that only yield bare names are then inspected once to tell
     `function` (a `.symtab` name) from `symbol` (a `.dynsym`-only module).
-    Without a symbolizer the Measurements come back untouched: doctor has
-    already announced the missing capability. A module the symbolizer
+    `symbolizer` is the located LLVM driver or the addr2line fallback -
+    same contract, so nothing here knows which one answered. Without any
+    symbolizer the Measurements come back untouched: doctor has already
+    announced the missing capability. A module the symbolizer
     cannot read leaves its Hotspots unresolved and is declared, once, in a
     degradation.
     """
@@ -199,7 +214,7 @@ def attribute(
         if chain.resolution_level is ResolutionLevel.FUNCTION
     }
     symbol_only = set()
-    readelf = inspection.readelf_path(symbolizer.path)
+    readelf = symbolizer.readelf
     for module in sorted(needing_inspection):
         sections = inspection.inspect(executor, readelf, module)
         if sections is not None and sections.dynsym and not sections.symtab:

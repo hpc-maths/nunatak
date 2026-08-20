@@ -77,6 +77,9 @@
 .. automodule:: nunatak.attribution.symbolizer
    :members:
 
+.. automodule:: nunatak.attribution.addr2line
+   :members:
+
 .. automodule:: nunatak.attribution.inspection
    :members:
 
