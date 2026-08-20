@@ -22,8 +22,10 @@ from nunatak.pivot import AddressDetail, Hotspot, Run, hotspot_level, manifest
 
 # Version of the payload contract, bumped on any breaking change so a
 # mini-app never renders a shape it does not understand. Schema 2 added
-# the `ranks` section - the run-level balance of an MPI run.
-SCHEMA = 2
+# the `ranks` section - the run-level balance of an MPI run; schema 3
+# the `inline_view` section - time by inline frame, all Hotspots
+# combined.
+SCHEMA = 3
 
 
 def _derived(quantity: Derived) -> dict:
@@ -114,6 +116,58 @@ def _inline_frames(details: list[AddressDetail]) -> list[dict]:
         for (function, file, line), value in sorted(
             per_frame.items(), key=lambda item: -item[1]
         )
+    ]
+
+
+def _inline_view(run: Run, time_base: str | None) -> list[dict] | None:
+    """Time by innermost inline frame, all Hotspots combined.
+
+    This is the transverse view: it catches the header routine inlined
+    into twelve Hotspots - invisible in each of them, dominant across
+    them - and it is the only view stable across a recompilation, since
+    a frame is keyed by `(function, file)` and never by the compiler's
+    inlining choices. Each sampled address lands in exactly one
+    innermost frame, so the shares sum to one over the sampled total.
+
+    None when no chain goes deeper than the physical function itself -
+    the view would restate the Hotspot list - or without a time base:
+    a transverse sum across Hotspots needs one counter for its rows to
+    be comparable at all.
+    """
+    if time_base is None:
+        return None
+    details = [
+        d for d in run.address_details if d.counter == time_base and d.frames
+    ]
+    if not any(len(d.frames) >= 2 for d in details):
+        return None
+    total = sum(d.value for d in details)
+    if total <= 0:
+        return None
+    rows: dict[tuple, dict] = {}
+    for detail in details:
+        innermost = detail.frames[0]
+        entry = rows.setdefault(
+            (innermost.function, innermost.file),
+            {
+                "function": innermost.function,
+                "file": innermost.file,
+                "line": innermost.declaration_line,
+                "value": 0.0,
+                "hotspots": set(),
+            },
+        )
+        entry["value"] += detail.value
+        entry["hotspots"].add(detail.hotspot)
+    return [
+        {
+            "function": entry["function"],
+            "file": entry["file"],
+            "line": entry["line"],
+            "share": entry["value"] / total,
+            "sites": len(entry["hotspots"]),
+        }
+        for entry in sorted(rows.values(), key=lambda e: -e["value"])
     ]
 
 
@@ -248,6 +302,7 @@ def build(
         "hotspots": [_hotspot(run, d, time_base) for d in diagnostics],
         "others": _others(run, diagnostics, time_base),
         "ranks": _ranks(run),
+        "inline_view": _inline_view(run, time_base),
     }
 
 

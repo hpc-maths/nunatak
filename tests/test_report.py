@@ -353,3 +353,53 @@ class TestRanksSection:
             balanced(hotspot(), flops=1.6e10, bytes_=8.0e9, seconds=0.1)
         )
         assert built["ranks"] is None
+
+
+class TestInlineView:
+    """The transverse view: time by innermost inline frame, all Hotspots
+    combined - keyed by (function, file), stable across recompilation."""
+
+    def _frame(self, function, file="/src/kernels.h", declaration_line=3):
+        return InlineFrame(
+            function=function, file=file, declaration_line=declaration_line
+        )
+
+    def test_a_frame_inlined_in_two_hotspots_is_one_row(self):
+        a, b = hotspot(), hotspot("other")
+        payload = payload_of(
+            [
+                measurement(a, "task-clock", 3e9, "ns"),
+                measurement(b, "task-clock", 1e9, "ns", samples=200),
+            ],
+            address_details=[
+                detail(a, 0x10, 60.0, [self._frame("axpy_element"), frame("main")]),
+                detail(b, 0x20, 20.0, [self._frame("axpy_element"), frame("other")]),
+                detail(b, 0x28, 20.0, [frame("other")]),
+            ],
+        )
+        rows = payload["inline_view"]
+        assert [r["function"] for r in rows] == ["axpy_element", "other"]
+        assert rows[0]["share"] == 0.8
+        assert rows[0]["sites"] == 2
+        assert rows[0]["file"] == "/src/kernels.h"
+        assert rows[1]["sites"] == 1
+
+    def test_without_any_inlining_the_view_does_not_exist(self):
+        spot = hotspot()
+        payload = payload_of(
+            [measurement(spot, "task-clock", 2e9, "ns")],
+            address_details=[detail(spot, 0x10, 90.0, [frame("main", line=12)])],
+        )
+        assert payload["inline_view"] is None
+
+    def test_without_a_time_base_the_view_does_not_exist(self):
+        spot = hotspot()
+        payload = payload_of(
+            [measurement(spot, "flops_dp", 3e9, "flop")],
+            address_details=[
+                detail(spot, 0x10, 30.0,
+                       [self._frame("axpy_element"), frame("main")],
+                       counter="flops_dp"),
+            ],
+        )
+        assert payload["inline_view"] is None

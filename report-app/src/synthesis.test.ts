@@ -60,6 +60,7 @@ function payload(ranks: Payload["ranks"]): Payload {
     hotspots: [],
     others: null,
     ranks,
+    inline_view: null,
   };
 }
 

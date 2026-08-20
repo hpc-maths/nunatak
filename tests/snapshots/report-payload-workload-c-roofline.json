@@ -10,7 +10,7 @@
   "format": {
     "generated_by": "nunatak",
     "name": "nunatak-report",
-    "schema": 2
+    "schema": 3
   },
   "hotspots": [
     {
@@ -124,6 +124,22 @@
         "truncated": false
       },
       "source_file": "/tmp/nunatak-capture-roofline/workload.c"
+    }
+  ],
+  "inline_view": [
+    {
+      "file": "/tmp/nunatak-capture-roofline/workload.c",
+      "function": "axpy",
+      "line": 4,
+      "share": 0.9990248659190639,
+      "sites": 1
+    },
+    {
+      "file": "/tmp/nunatak-capture-roofline/workload.c",
+      "function": "main",
+      "line": 13,
+      "share": 0.0009751340809361287,
+      "sites": 1
     }
   ],
   "machine": {

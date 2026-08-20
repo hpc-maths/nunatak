@@ -379,6 +379,15 @@ level a neutral text label. An empty cell means the quantity is
 so under its last row, and the below-floor aggregate "others" closes
 the table as a row of its own.
 
+Under the inventory, the **transverse view** ventilates the sampled time
+by innermost inline frame, all Hotspots combined. It shows what no
+Hotspot shows alone: the header routine inlined into twelve of them -
+invisible in each, dominant across them - wears its count (`in 12
+hotspots`). Keyed by `(function, file)` rather than by the compiler's
+inlining choices, it is the only view stable across a recompilation. A
+run where nothing was inlined has nothing transverse to say: the block
+does not appear.
+
 Opening a Hotspot - from a finding or an inventory row - **substitutes**
 the inventory with its **detail**; the two never sit side by side, and
 the way back is the explicit button or `Escape`. The detail is where

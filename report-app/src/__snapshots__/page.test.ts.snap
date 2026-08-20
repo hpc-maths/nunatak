@@ -82,6 +82,23 @@ exports[`the page renders the milestone Run 1`] = `
     <div class="tabfoot small muted">
       <span>An empty cell means the quantity is unavailable for that Hotspot, not that it is zero.</span>
     </div>
+  </div><div class="shell trans">
+    <span class="eyebrow">By inline frame</span>
+    <div class="small muted">Innermost inline frame, all Hotspots combined -
+    the only view stable across a recompilation.</div>
+    <table class="tab">
+      <thead><tr><th>frame</th><th>declared at</th><th class="num">share of time</th></tr></thead>
+      <tbody><tr>
+        <td class="mono">axpy </td>
+        <td class="small muted">/tmp/nunatak-capture-roofline/workload.c:4</td>
+        <td class="num">100%</td>
+      </tr><tr>
+        <td class="mono">main </td>
+        <td class="small muted">/tmp/nunatak-capture-roofline/workload.c:13</td>
+        <td class="num">0.1%</td>
+      </tr></tbody>
+    </table>
+    
   </div>
   <div class="shell foot muted small">
     nunatak · self-contained report, no request leaves this page
