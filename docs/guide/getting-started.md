@@ -46,6 +46,24 @@ unfingerprinted, like gcc's) and no loop analysis. Without either tool
 the run still measures - the names are simply missing, and the
 degradation says so.
 
+When `DEBUGINFOD_URLS` is in the environment, both symbolization paths
+fetch distribution-library debug information on their own - that is
+where a stripped `libc` or `libmpi` gets its names, never the user's
+code. nunatak adds the controls the ADR promises: the lookup only ever
+runs at analysis time (symbolization happens after the application
+exited), the client's 90-second default timeout is shortened to 10
+seconds so an unreachable server degrades names instead of hanging the
+analysis, and the whole thing can be turned off:
+
+```toml
+[debuginfod]
+enabled = true    # false strips DEBUGINFOD_URLS from symbolizer invocations
+timeout = 10      # seconds; an explicit DEBUGINFOD_TIMEOUT env wins
+```
+
+`doctor` reports the configured servers when there are any; their
+absence is the normal case, not a finding.
+
 `function` and `symbol` name the same situation - a name without a
 source position - but not the same remedy: `function` comes from the
 symbol table of a binary built without `-g`, `symbol` from the dynamic

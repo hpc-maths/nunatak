@@ -14,6 +14,7 @@ class ScriptedExecutor(Executor):
         self._blocked = blocked
         self._cpu_model = cpu_model
         self.calls = []
+        self.environments = []
         self._responses = collections.defaultdict(collections.deque)
 
     @property
@@ -34,6 +35,7 @@ class ScriptedExecutor(Executor):
     def run(self, argv, capture=True, env=None, cwd=None):
         """Record the call and serve the next canned response."""
         self.calls.append(list(argv))
+        self.environments.append(env)
         queue = self._responses.get(os.path.basename(argv[0]))
         exit_code, stdout, stderr = queue.popleft() if queue else (0, "", "")
         return Invocation(

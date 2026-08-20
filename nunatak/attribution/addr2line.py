@@ -74,13 +74,19 @@ class Addr2Line:
         return None
 
     def symbolize(
-        self, executor: Executor, module: str, offsets: list[int]
+        self,
+        executor: Executor,
+        module: str,
+        offsets: list[int],
+        env: dict[str, str] | None = None,
     ) -> ModuleSymbolization:
         """Resolve `offsets` (module-relative virtual addresses) in `module`.
 
         The function extents are read first; without them the extent rule
         cannot be enforced and the module is declared unreadable rather
-        than symbolized on trust.
+        than symbolized on trust. `env` carries the debuginfod controls
+        (this is where addr2line may fetch a distribution library's
+        debug file); the extent rule stays local either way.
         """
         extents = _function_extents(executor, self.readelf, module)
         if extents is None:
@@ -91,7 +97,7 @@ class Addr2Line:
         wanted = sorted(set(offsets))
         argv = [self.path, "-e", module, "-a", "-f", "-C", "-i"]
         argv += [hex(offset) for offset in wanted]
-        invocation = executor.run(argv)
+        invocation = executor.run(argv, env=env)
         if invocation.exit_code != 0 or not invocation.stdout:
             reason = (invocation.stderr or "").strip()
             return ModuleSymbolization(

@@ -114,17 +114,22 @@ class Symbolizer:
         return staleness.dwarfdump_path(self.path)
 
     def symbolize(
-        self, executor: Executor, module: str, offsets: list[int]
+        self,
+        executor: Executor,
+        module: str,
+        offsets: list[int],
+        env: dict[str, str] | None = None,
     ) -> ModuleSymbolization:
         """Resolve `offsets` (module-relative virtual addresses) in `module`.
 
         One batched invocation: llvm-symbolizer takes every address on the
         command line and answers with one JSON entry per address, so the
-        chains come back keyed by the offset each entry names.
+        chains come back keyed by the offset each entry names. `env`
+        carries the debuginfod controls; None inherits the process's.
         """
         argv = [self.path, "--output-style=JSON", f"--obj={module}"]
         argv += [hex(offset) for offset in sorted(set(offsets))]
-        invocation = executor.run(argv)
+        invocation = executor.run(argv, env=env)
         if not invocation.stdout:
             reason = (invocation.stderr or "").strip()
             return ModuleSymbolization(
