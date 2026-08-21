@@ -25,8 +25,9 @@ from nunatak.pivot import AddressDetail, Hotspot, Run, hotspot_level, manifest
 # the `ranks` section - the run-level balance of an MPI run; schema 3
 # the `inline_view` section - time by inline frame, all Hotspots
 # combined; schema 4 the `callers` and `inclusive` fields of each
-# Hotspot, consumed from the recorded call paths.
-SCHEMA = 4
+# Hotspot, consumed from the recorded call paths; schema 5 the `loop`
+# field of each Hotspot - the static analysis of its hot inner loop.
+SCHEMA = 5
 
 
 def _derived(quantity: Derived) -> dict:
@@ -231,6 +232,62 @@ def _inclusive(run: Run, hotspot: Hotspot, time_base: str | None) -> float | Non
     return covered / total
 
 
+def _loop(run: Run, hotspot: Hotspot) -> dict | None:
+    """The static analysis of this Hotspot's hot inner loop, None when
+    the Run carries none - straight-line code, a foreign ISA, a binary
+    unreadable at run time.
+
+    Everything here is a fact of the machine code, blind to cache
+    reuse; the derived quantities wear `estimated` with that reason by
+    invariant I6 - a static analysis never produces `measured`. The
+    vectorization ratio is over the loop's floating-point instructions;
+    the L1 intensity is FLOPs per byte the instruction stream demands,
+    never interchangeable with the DRAM intensity next to it.
+    """
+    found = next(
+        (a for a in run.loop_analyses if a.hotspot == hotspot), None
+    )
+    if found is None:
+        return None
+    static = "static analysis of the instruction stream: insensitive to cache reuse"
+    fp = found.vector_fp + found.scalar_fp
+    moved = found.loaded_bytes + found.stored_bytes
+    intensity = None
+    if moved > 0:
+        intensity = {
+            "value": found.flops_per_iteration / moved,
+            "unit": "flop/byte",
+            "quality": "estimated",
+            "lineage": ["loop.flops", "loop.bytes"],
+            "formula": "FLOPs per iteration / bytes per iteration",
+            "reason": static,
+        }
+    bounds = None
+    if found.cycles_ports is not None:
+        bounds = {
+            "ports": found.cycles_ports,
+            "steady_state": found.cycles_effective,
+            "quality": "estimated",
+            "reason": f"scheduling model {found.scheduling_model}; {static}",
+        }
+    return {
+        "start_offset": found.start_offset,
+        "end_offset": found.end_offset,
+        "instructions": found.instructions,
+        "flops_per_iteration": found.flops_per_iteration,
+        "vector_fp": found.vector_fp,
+        "scalar_fp": found.scalar_fp,
+        "vector_ratio": found.vector_fp / fp if fp else None,
+        "vector_width_bits": found.vector_width_bits,
+        "loaded_bytes": found.loaded_bytes,
+        "stored_bytes": found.stored_bytes,
+        "gathers": found.gathers,
+        "l1_intensity": intensity,
+        "cycle_bounds": bounds,
+        "bounds_reason": found.bounds_reason,
+    }
+
+
 def _source(run: Run, hotspot: Hotspot) -> dict | None:
     """The embedded source extract of one Hotspot, reason included.
 
@@ -284,6 +341,7 @@ def _hotspot(run: Run, diagnostic: Diagnostic, time_base: str | None) -> dict:
         "inline_frames": _inline_frames(details),
         "callers": _callers(run, hotspot, time_base),
         "inclusive": _inclusive(run, hotspot, time_base),
+        "loop": _loop(run, hotspot),
     }
 
 

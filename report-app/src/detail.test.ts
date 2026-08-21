@@ -39,6 +39,7 @@ function entry(overrides: Partial<HotspotEntry>): HotspotEntry {
     inline_frames: [],
     callers: [],
     inclusive: null,
+    loop: null,
     ...overrides,
   };
 }
@@ -169,4 +170,65 @@ test("the inclusive share joins the metrics when paths were recorded", () => {
   const html = detail(payload(item), item);
   expect(html).toContain("Inclusive");
   expect(html).toContain("85%");
+});
+
+test("the hot loop states its facts and its bounds", () => {
+  const item = entry({
+    loop: {
+      start_offset: 0x1420,
+      end_offset: 0x1437,
+      instructions: 5,
+      flops_per_iteration: 8,
+      vector_fp: 1,
+      scalar_fp: 0,
+      vector_ratio: 1,
+      vector_width_bits: 256,
+      loaded_bytes: 64,
+      stored_bytes: 32,
+      gathers: 0,
+      l1_intensity: derived(8 / 96, "static analysis"),
+      cycle_bounds: {
+        ports: 1.3,
+        steady_state: 1.41,
+        quality: "estimated",
+        reason: "scheduling model znver2",
+      },
+      bounds_reason: null,
+    },
+  });
+  const html = detail(payload(item), item);
+  expect(html).toContain("Hot loop, from the machine code");
+  expect(html).toContain("100% at 256 bits");
+  expect(html).toContain("64 loaded, 32 stored");
+  expect(html).toContain("znver2");
+  expect(html).not.toContain("Indirect accesses");
+});
+
+test("absent bounds say why and a scalar loop wears its zero", () => {
+  const item = entry({
+    loop: {
+      start_offset: 0x1380,
+      end_offset: 0x139a,
+      instructions: 7,
+      flops_per_iteration: 2,
+      vector_fp: 0,
+      scalar_fp: 2,
+      vector_ratio: 0,
+      vector_width_bits: null,
+      loaded_bytes: 16,
+      stored_bytes: 8,
+      gathers: 0,
+      l1_intensity: null,
+      cycle_bounds: null,
+      bounds_reason: "LLVM 17 does not know znver4; install LLVM 19 or newer",
+    },
+  });
+  const html = detail(payload(item), item);
+  expect(html).toContain("0%");
+  expect(html).toContain("No cycle bounds: LLVM 17 does not know znver4");
+});
+
+test("no loop analysis, no block", () => {
+  const item = entry({});
+  expect(detail(payload(item), item)).not.toContain("Hot loop");
 });

@@ -10,7 +10,7 @@
   "format": {
     "generated_by": "nunatak",
     "name": "nunatak-report",
-    "schema": 4
+    "schema": 5
   },
   "hotspots": [
     {
@@ -102,6 +102,7 @@
           "share": 0.9990248659190639
         }
       ],
+      "loop": null,
       "module": "/tmp/nunatak-capture-roofline/workload",
       "name": "main",
       "relative_error": 0.022080920281275968,

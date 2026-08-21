@@ -1,5 +1,5 @@
 /**
- * Payload schema 4: the contract with the Python core.
+ * Payload schema 5: the contract with the Python core.
  *
  * These types mirror `nunatak/report/payload.py` field for field. The
  * app renders the payload, it never computes it: every number arrives
@@ -69,6 +69,34 @@ export interface CallerShare {
   share: number;
 }
 
+/**
+ * The static analysis of a Hotspot's hot inner loop: facts of the
+ * machine code, blind to cache reuse - estimated at best, never
+ * measured. Cycle bounds exist only where a scheduling model does;
+ * their absence carries its reason.
+ */
+export interface LoopFacts {
+  start_offset: number;
+  end_offset: number;
+  instructions: number;
+  flops_per_iteration: number;
+  vector_fp: number;
+  scalar_fp: number;
+  vector_ratio: number | null;
+  vector_width_bits: number | null;
+  loaded_bytes: number;
+  stored_bytes: number;
+  gathers: number;
+  l1_intensity: Derived | null;
+  cycle_bounds: {
+    ports: number;
+    steady_state: number;
+    quality: string;
+    reason: string;
+  } | null;
+  bounds_reason: string | null;
+}
+
 export interface HotspotEntry {
   name: string;
   module: string;
@@ -88,6 +116,7 @@ export interface HotspotEntry {
   inline_frames: InlineFrameShare[];
   callers: CallerShare[];
   inclusive: number | null;
+  loop: LoopFacts | null;
 }
 
 export interface Degradation {
