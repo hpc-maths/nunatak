@@ -7,7 +7,7 @@
     "-e",
     "task-clock",
     "-e",
-    "cycles/period=2000003/",
+    "fp_ret_sse_avx_ops.all/period=4999999/",
     "-e",
     "ls_refills_from_sys.ls_mabresp_lcl_dram/period=100003/",
     "-e",

@@ -37,6 +37,7 @@ class Config:
     stacks_fp_threshold: float = 0.75
     debuginfod_enabled: bool = True
     debuginfod_timeout: int = 10
+    passes_witness_threshold: float = 0.05
 
 
 def find_project_config(cwd: Path) -> Path | None:
@@ -95,6 +96,10 @@ def load(
         debuginfod = data.get("debuginfod", {})
         config.debuginfod_enabled = debuginfod.get("enabled", config.debuginfod_enabled)
         config.debuginfod_timeout = debuginfod.get("timeout", config.debuginfod_timeout)
+        passes = data.get("passes", {})
+        config.passes_witness_threshold = passes.get(
+            "witness", config.passes_witness_threshold
+        )
 
     if name is not None:
         config.project_name = name
@@ -107,6 +112,7 @@ def load(
         "stacks.fp_threshold": config.stacks_fp_threshold,
         "debuginfod.enabled": config.debuginfod_enabled,
         "debuginfod.timeout": config.debuginfod_timeout,
+        "passes.witness": config.passes_witness_threshold,
     }
     if config.project_name is not None:
         effective["name"] = config.project_name

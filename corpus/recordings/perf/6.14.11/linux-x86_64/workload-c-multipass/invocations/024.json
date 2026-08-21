@@ -3,10 +3,9 @@
     "/usr/lib/llvm-19/bin/llvm-symbolizer",
     "--output-style=JSON",
     "--obj=/tmp/nunatak-capture-mp/workload",
-    "0x1144",
-    "0x1165",
     "0x1169",
     "0x11a4",
+    "0x11b0",
     "0x11b4",
     "0x11b8",
     "0x1225"

@@ -2,9 +2,16 @@
   "argv": [
     "/usr/lib/llvm-19/bin/llvm-symbolizer",
     "--output-style=JSON",
-    "--obj=/usr/lib/x86_64-linux-gnu/libc.so.6",
-    "0x2a578",
-    "0x2a63b"
+    "--obj=/usr/lib/x86_64-linux-gnu/ld-linux-x86-64.so.2",
+    "0xf6a1",
+    "0x12cb1",
+    "0x18a2c",
+    "0x1b0c2",
+    "0x2108d",
+    "0x210d6",
+    "0x21708",
+    "0x2292a",
+    "0x24919"
   ],
   "exit_code": 0,
   "captured": true

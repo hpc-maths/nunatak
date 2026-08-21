@@ -215,15 +215,16 @@ class TestPassGroups:
         ]
         assert grouped == [e.event for e in events.sampling_events(zen2_machine(), cpuinfo)]
 
-    def test_the_witness_is_cycles_with_a_fixed_period(self, tmp_path):
-        (cycles,) = events.witness(zen2_machine(), self._cpuinfo(tmp_path))
-        assert cycles.canonical == "cycles"
-        assert cycles.unit == "cycles"
-        assert f"period={events.CYCLE_PERIOD}" in cycles.selector
+    def test_the_witness_is_the_retired_flop_event(self, tmp_path):
+        (witness,) = events.witness(zen2_machine(), self._cpuinfo(tmp_path))
+        assert witness.canonical == "flops"
+        assert f"period={events.FLOP_PERIOD}" in witness.selector
 
     def test_the_witness_folds_back_through_ingestion(self):
-        entry = events.canonical(f"cycles/period={events.CYCLE_PERIOD}/u")
-        assert entry is not None and entry.canonical == "cycles"
+        entry = events.canonical(
+            f"fp_ret_sse_avx_ops.all/period={events.FLOP_PERIOD}/u"
+        )
+        assert entry is not None and entry.canonical == "flops"
 
     def test_an_unknown_microarchitecture_gets_no_passes_and_no_witness(
         self, tmp_path

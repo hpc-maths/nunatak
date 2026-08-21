@@ -200,6 +200,7 @@
     "effective_configuration": {
       "debuginfod.enabled": true,
       "debuginfod.timeout": 10,
+      "passes.witness": 0.05,
       "runs_dir": ".nunatak",
       "sampling.frequency": 997,
       "sampling.rank_threshold": 64,

@@ -167,7 +167,67 @@ def _pass_plan(args, snapshot, executor, console):
         f"({', '.join(label for label, _ in groups)}), "
         "witness replicated in each"
     )
-    return [(label, witness + events) for label, events in groups]
+    # The witness may be one of a group's own events (the flops pass
+    # already counts FLOPs): asking perf for the same selector twice
+    # would burn a counter for nothing.
+    return [
+        (
+            label,
+            witness
+            + tuple(e for e in events if e.selector not in {w.selector for w in witness}),
+        )
+        for label, events in groups
+    ]
+
+
+def _pass_consistency(measurements, threshold) -> list[Degradation]:
+    """What a multi-pass run must declare before its passes are fused.
+
+    The witness verdict names a non-reproducible application; a module
+    whose build-id changed between passes was recompiled mid-run - an
+    invalidity, not an uncertainty: its Hotspots keep separate physical
+    identities and are presented per Pass, never fused, never placed.
+    """
+    declared = []
+    verdict = analysis.witness_check(measurements, threshold)
+    if verdict is not None and not verdict.consistent:
+        totals = ", ".join(
+            f"pass {index}: {total:.3e}" for index, total in verdict.totals
+        )
+        declared.append(
+            Degradation(
+                name="passes-inconsistent",
+                message=f"the witness ({verdict.counter}) moved by "
+                f"{verdict.spread:.0%} between passes ({totals}), beyond "
+                f"the {verdict.threshold:.0%} threshold: the application "
+                "is not reproducible and cross-pass fusion is estimated",
+                remedy="a convergence criterion, dynamic scheduling or "
+                "non-deterministic MPI can cause this; tune "
+                "[passes] witness in nunatak.toml if the spread is expected",
+            )
+        )
+    identities: dict[str, dict[str, set]] = {}
+    for measurement in measurements:
+        hotspot = measurement.hotspot
+        if hotspot is None or hotspot.physical_identity is None:
+            continue
+        module = identities.setdefault(hotspot.logical_identity.module, {})
+        module.setdefault(hotspot.physical_identity.module_id, set()).add(
+            measurement.pass_index
+        )
+    for module, ids in sorted(identities.items()):
+        if len(ids) > 1:
+            declared.append(
+                Degradation(
+                    name="module-recompiled-between-passes",
+                    message=f"{module} changed identity between passes "
+                    f"({len(ids)} build-ids): its Hotspots are presented "
+                    "per pass, never fused, never placed",
+                    remedy="do not rebuild while a multi-pass run is "
+                    "measuring; comparing two versions is two Runs",
+                )
+            )
+    return declared
 
 
 def executable_status(program: str) -> tuple[int, str] | None:
@@ -465,6 +525,9 @@ def execute(args, command: list[str], console: Console) -> int:
         exit_code = executor.run(command, capture=False).exit_code
 
     if measured:
+        gathered += _pass_consistency(
+            measurements, config.passes_witness_threshold
+        )
         measurements, address_details, stacks_collected, attribution_degradations = (
             attribution.attribute(
                 measurements, symbolizer, executor,

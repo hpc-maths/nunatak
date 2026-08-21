@@ -1,7 +1,7 @@
 {
   "argv": [
-    "/usr/lib/llvm-19/bin/llvm-dwarfdump",
-    "--debug-line",
+    "/usr/lib/llvm-19/bin/llvm-readelf",
+    "-S",
     "/tmp/nunatak-capture-mp/workload"
   ],
   "exit_code": 0,
