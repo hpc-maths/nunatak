@@ -163,6 +163,10 @@ _LOOPS = pa.schema(
         ("loaded_bytes", pa.int64()),
         ("stored_bytes", pa.int64()),
         ("gathers", pa.int32()),
+        ("cycles_ports", pa.float64()),
+        ("cycles_effective", pa.float64()),
+        ("scheduling_model", pa.string()),
+        ("bounds_reason", pa.string()),
     ]
 )
 
@@ -354,6 +358,10 @@ def write_run(directory: Path, run: Run) -> Path:
             "loaded_bytes": a.loaded_bytes,
             "stored_bytes": a.stored_bytes,
             "gathers": a.gathers,
+            "cycles_ports": a.cycles_ports,
+            "cycles_effective": a.cycles_effective,
+            "scheduling_model": a.scheduling_model,
+            "bounds_reason": a.bounds_reason,
         }
         for a in run.loop_analyses
     ]
@@ -644,6 +652,14 @@ def read_run(directory: Path) -> Run:
             loaded_bytes=row["loaded_bytes"],
             stored_bytes=row["stored_bytes"],
             gathers=row["gathers"],
+            cycles_ports=row.get("cycles_ports"),
+            cycles_effective=row.get("cycles_effective"),
+            scheduling_model=row.get("scheduling_model"),
+            bounds_reason=row.get("bounds_reason") or (
+                "written before cycle bounds existed"
+                if row.get("cycles_ports") is None
+                else None
+            ),
         )
         for row in tables.get("loops", [])
     ]

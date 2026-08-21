@@ -403,6 +403,9 @@ def test_round_trip_preserves_the_loop_analysis(tmp_path):
             loaded_bytes=64,
             stored_bytes=32,
             gathers=0,
+            cycles_ports=1.3,
+            cycles_effective=1.41,
+            scheduling_model="znver2",
         )
     ]
     run = read_run(write_run(tmp_path / "run", original))

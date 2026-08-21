@@ -666,3 +666,34 @@ class TestRealLoopAnalysis:
         assert hot.vector_width_bits in (128, 256)
         assert hot.flops_per_iteration > 0
         assert hot.loaded_bytes > 0 and hot.stored_bytes > 0
+
+
+class TestRealCycleBounds:
+    def test_the_bounds_come_from_the_real_scheduler_model(
+        self, tmp_path, monkeypatch, capsys
+    ):
+        # Real llvm-mca against the loop the run just found: the model
+        # is this machine's own, the listing is persisted next to the
+        # raw artifacts, and the bounds are estimated - never measured.
+        source = tmp_path / "workload.c"
+        source.write_text(ROOFLINE_WORKLOAD_C)
+        binary = tmp_path / "workload"
+        compiler = shutil.which("gcc") or shutil.which("cc")
+        built = subprocess.run(
+            [compiler, "-O3", "-march=native", "-g", str(source), "-o", str(binary)],
+            capture_output=True, text=True,
+        )
+        assert built.returncode == 0, built.stderr
+        monkeypatch.chdir(tmp_path)
+
+        assert principal(
+            ["run", "--json", "--no-calibrate", "--", str(binary)]
+        ) == 0
+        summary = json.loads(capsys.readouterr().out)
+        run = read_run(summary["run"])
+        assert run.loop_analyses
+        hot = max(run.loop_analyses, key=lambda a: a.flops_per_iteration)
+        assert hot.scheduling_model == "znver2", hot.bounds_reason
+        assert hot.cycles_ports and hot.cycles_ports > 0
+        assert hot.cycles_effective and hot.cycles_effective >= hot.cycles_ports
+        assert list((Path(summary["run"]) / "collect" / "loops").glob("*.s"))
