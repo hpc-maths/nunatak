@@ -551,9 +551,13 @@ def execute(args, command: list[str], console: Console) -> int:
             source_extracts = source.extract(
                 address_details, mapping, root or cwd, checksums
             )
+        identified = theory.identify(executor.cpuinfo())
         loop_analyses, loop_degradations = loop_analysis.analyze(
             executor, config, address_details,
             floor_samples=analysis.STATISTICAL_FLOOR_SAMPLES,
+            symbolizer=symbolizer,
+            microarchitecture=identified.name if identified else None,
+            directory=directory / COLLECT_DIR,
         )
         gathered += loop_degradations
         counting, counting_degradations = rank_counting.ingest_counting(

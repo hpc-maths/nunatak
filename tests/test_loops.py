@@ -156,3 +156,94 @@ class TestAnalyze:
         )
         assert analyses == []
         assert degradation.name == "loop-analysis-unavailable"
+
+
+class TestCycleBounds:
+    """llvm-mca's two verdicts against real reports from the EPYC: what
+    the ports allow, and what the simulated steady state reaches - the
+    gather loop's gap between the two is the dependency chain speaking."""
+
+    def test_the_port_and_steady_state_bounds_are_read(self):
+        from tests.support import MCA_AVX2
+
+        ports, effective = loops.parse_mca(MCA_AVX2)
+        assert ports == 1.3
+        assert effective == pytest.approx(1.41)
+
+    def test_the_gather_loop_is_dependency_bound(self):
+        from tests.support import MCA_GATHER
+
+        ports, effective = loops.parse_mca(MCA_GATHER)
+        assert ports == 1.8
+        assert effective == pytest.approx(103.12)
+
+    def test_a_report_without_the_numbers_is_none(self):
+        assert loops.parse_mca("no report here") is None
+
+    def test_known_cpus_come_from_the_tools_own_list(self):
+        from tests.support import MCA_MCPU_HELP
+
+        executor = ScriptedExecutor().on("llvm-mca", stdout=MCA_MCPU_HELP)
+        cpus = loops._known_cpus(executor, "/usr/lib/llvm-19/bin/llvm-mca")
+        assert "znver2" in cpus and "skylake" in cpus
+        assert "made-up-cpu" not in cpus
+
+    def test_the_fallback_symbolizer_offers_no_model(self):
+        from nunatak.attribution.addr2line import Addr2Line
+
+        assert loops._mca_path(Addr2Line(path="/usr/bin/addr2line", version="2.44")) is None
+        assert loops._mca_path(None) is None
+
+    def test_an_unknown_mcpu_is_the_upgrade_reason(self, tmp_path):
+        from nunatak.attribution.symbolizer import Symbolizer
+        from tests.support import MCA_MCPU_HELP
+
+        module = tmp_path / "workload"
+        module.write_bytes(b"\x7fELF")
+        spot = _hotspot(str(module))
+        executor = (
+            ScriptedExecutor()
+            .on("objdump", stdout=OBJDUMP_VERSION)
+            .on("llvm-mca", stdout=MCA_MCPU_HELP)
+            .on("readelf", stdout=GNU_READELF_WORKLOAD_VEC)
+            .on("objdump", stdout=DIS_AXPY_SCALAR)
+        )
+        (analysis,) = loops.analyze(
+            executor, Config(), [_detail(spot, 0x1385, 90.0)],
+            floor_samples=100,
+            symbolizer=Symbolizer(path="/usr/lib/llvm-19/bin/llvm-symbolizer", major=19),
+            microarchitecture="zen5-imaginary",
+            directory=tmp_path,
+        )[0]
+        assert analysis.cycles_ports is None
+        assert "no scheduling model to pick" in analysis.bounds_reason
+
+    def test_the_full_chain_writes_the_listing_and_reads_the_bounds(self, tmp_path):
+        from nunatak.attribution.symbolizer import Symbolizer
+        from tests.support import MCA_MCPU_HELP, MCA_SCALAR
+
+        module = tmp_path / "workload"
+        module.write_bytes(b"\x7fELF")
+        spot = _hotspot(str(module))
+        executor = (
+            ScriptedExecutor()
+            .on("objdump", stdout=OBJDUMP_VERSION)
+            .on("llvm-mca", stdout=MCA_MCPU_HELP)
+            .on("readelf", stdout=GNU_READELF_WORKLOAD_VEC)
+            .on("objdump", stdout=DIS_AXPY_SCALAR)
+            .on("llvm-mca", stdout=MCA_SCALAR)
+        )
+        (analysis,) = loops.analyze(
+            executor, Config(), [_detail(spot, 0x1385, 90.0)],
+            floor_samples=100,
+            symbolizer=Symbolizer(path="/usr/lib/llvm-19/bin/llvm-symbolizer", major=19),
+            microarchitecture="zen2",
+            directory=tmp_path,
+        )[0]
+        assert analysis.scheduling_model == "znver2"
+        assert analysis.cycles_ports == 1.5
+        assert analysis.cycles_effective == pytest.approx(1.71)
+        listing = tmp_path / "loops" / "0.s"
+        assert listing.is_file()
+        assert "mulsd %xmm1,%xmm0" in listing.read_text()
+        assert "jne" not in listing.read_text()

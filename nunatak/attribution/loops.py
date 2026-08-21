@@ -33,6 +33,33 @@ from nunatak.collect.execution import Executor
 from nunatak.config import Config
 from nunatak.pivot import Degradation, LoopAnalysis
 
+# LLVM's -mcpu name for each table microarchitecture: the scheduling
+# model the cycle bounds are computed against. The availability rule is
+# mechanical because llvm-mca can list what it knows: an installed LLVM
+# that does not know the name yields `unavailable` with the upgrade as
+# the remedy, never a bound computed against a neighbouring model.
+_MCPU = {
+    "zen": "znver1",
+    "zen2": "znver2",
+    "zen3": "znver3",
+    "zen4": "znver4",
+    "zen5": "znver5",
+    "skylake": "skylake",
+    "skylake-sp": "skylake-avx512",
+    "icelake-sp": "icelake-server",
+    "sapphire-rapids": "sapphirerapids",
+    "emerald-rapids": "emeraldrapids",
+    "granite-rapids": "graniterapids",
+    "haswell/broadwell": "haswell",
+}
+
+# llvm-mca's two verdicts on one loop body: what the ports allow, and
+# what the simulated steady state actually reaches - the dependency
+# chains are the gap between the two.
+_MCA_CYCLES = re.compile(r"^Total Cycles:\s+(\d+)", re.M)
+_MCA_ITERATIONS = re.compile(r"^Iterations:\s+(\d+)", re.M)
+_MCA_RTHROUGHPUT = re.compile(r"^Block RThroughput:\s+([\d.]+)", re.M)
+
 # One objdump row: address, encoded bytes, mnemonic, operands, and an
 # optional `# comment` annotation. Continuation rows (bytes only) and
 # bare labels do not match, which is exactly right.
@@ -296,11 +323,96 @@ def _weights_by_hotspot(details: list) -> dict:
     return weights
 
 
+def _mca_path(symbolizer) -> str | None:
+    """The llvm-mca sibling of the located LLVM symbolizer, None when
+    the symbolizer is the addr2line fallback - binutils has no
+    scheduling model to offer."""
+    if symbolizer is None or "llvm-symbolizer" not in os.path.basename(
+        getattr(symbolizer, "path", "")
+    ):
+        return None
+    directory, base = os.path.split(symbolizer.path)
+    return os.path.join(directory, base.replace("llvm-symbolizer", "llvm-mca"))
+
+
+def _known_cpus(executor: Executor, mca: str) -> set[str]:
+    """The scheduling models this llvm-mca can be asked for."""
+    invocation = executor.run([mca, "--mcpu=help"])
+    text = f"{invocation.stdout or ''}\n{invocation.stderr or ''}"
+    names = set()
+    for line in text.splitlines():
+        match = re.match(r"^\s+(\S+)\s+- Select the", line)
+        if match is not None:
+            names.add(match.group(1))
+    return names
+
+
+def parse_mca(text: str) -> tuple[float, float] | None:
+    """(port-bound, steady-state) cycles per iteration from one llvm-mca
+    report, None when the report does not carry them."""
+    cycles = _MCA_CYCLES.search(text)
+    iterations = _MCA_ITERATIONS.search(text)
+    ports = _MCA_RTHROUGHPUT.search(text)
+    if cycles is None or iterations is None or ports is None:
+        return None
+    return float(ports.group(1)), int(cycles.group(1)) / int(iterations.group(1))
+
+
+def _bounds(
+    executor: Executor,
+    mca: str | None,
+    known: set[str] | None,
+    mcpu: str | None,
+    llvm_major: int | None,
+    body: list[Instruction],
+    listing: Path,
+) -> dict:
+    """The cycle bounds of one loop body, or the reason there are none.
+
+    The listing fed to llvm-mca is written next to the Run's raw
+    artifacts: the exact input of an estimate is part of explaining it.
+    """
+    if mca is None:
+        return {"bounds_reason": "no usable LLVM: the scheduling model "
+                "needs llvm-mca; install LLVM 19 or newer"}
+    if mcpu is None:
+        return {"bounds_reason": "unknown microarchitecture: no "
+                "scheduling model to pick"}
+    if known is not None and mcpu not in known:
+        return {"bounds_reason": f"LLVM {llvm_major} does not know "
+                f"{mcpu}; install LLVM 19 or newer"}
+    lines = [
+        f"{i.mnemonic} {i.operands}".strip()
+        for i in body
+        if not i.mnemonic.startswith("j") and i.mnemonic not in _PADDING
+    ]
+    listing.parent.mkdir(parents=True, exist_ok=True)
+    listing.write_text("\n".join(lines) + "\n")
+    invocation = executor.run([mca, f"--mcpu={mcpu}", str(listing)])
+    parsed = (
+        parse_mca(invocation.stdout)
+        if invocation.exit_code == 0 and invocation.stdout
+        else None
+    )
+    if parsed is None:
+        return {"bounds_reason": f"llvm-mca could not model this loop "
+                f"({(invocation.stderr or '').strip()[:80] or 'no report'})"}
+    ports, effective = parsed
+    return {
+        "cycles_ports": ports,
+        "cycles_effective": effective,
+        "scheduling_model": mcpu,
+    }
+
+
 def analyze(
     executor: Executor,
     config: Config,
     details: list,
     floor_samples: int,
+    symbolizer=None,
+    microarchitecture: str | None = None,
+    directory: Path | None = None,
 ) -> tuple[list[LoopAnalysis], list[Degradation]]:
     """The hot-loop analysis of every Hotspot worth it, plus what had
     to be declared.
@@ -345,6 +457,10 @@ def analyze(
         ]
     readelf = os.path.join(os.path.dirname(objdump), "readelf") if os.path.dirname(objdump) else "readelf"
 
+    mca = _mca_path(symbolizer)
+    known = _known_cpus(executor, mca) if mca is not None else None
+    mcpu = _MCPU.get(microarchitecture) if microarchitecture else None
+
     weights = _weights_by_hotspot(details)
     analyses = []
     extents_by_module: dict = {}
@@ -373,15 +489,19 @@ def analyze(
         if outcome is None:
             continue
         loop, counts = outcome
+        body = [i for i in parse(invocation.stdout) if loop.covers(i.offset)]
+        listing = (directory or Path(".")) / "loops" / f"{len(analyses)}.s"
+        bounds = _bounds(
+            executor, mca, known, mcpu,
+            getattr(symbolizer, "major", None), body, listing,
+        )
         analyses.append(
             LoopAnalysis(
                 hotspot=hotspot,
                 start_offset=loop.start,
                 end_offset=loop.end,
                 instructions=sum(
-                    1
-                    for i in parse(invocation.stdout)
-                    if loop.covers(i.offset) and i.mnemonic not in _PADDING
+                    1 for i in body if i.mnemonic not in _PADDING
                 ),
                 flops_per_iteration=counts["flops"],
                 vector_fp=counts["vector_fp"],
@@ -390,6 +510,7 @@ def analyze(
                 loaded_bytes=counts["loaded_bytes"],
                 stored_bytes=counts["stored_bytes"],
                 gathers=counts["gathers"],
+                **bounds,
             )
         )
     return analyses, []

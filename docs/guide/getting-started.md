@@ -444,8 +444,20 @@ replayed elsewhere simply carries none. A function whose samples fall
 outside every loop has nothing to analyze, and another ISA than the
 classifier's yields no counts rather than guesses - the fact is
 unavailable and not transmitted. Only a missing GNU objdump is declared
-(`loop-analysis-unavailable`). Cycle bounds from a scheduling model
-arrive separately, with their own availability rule.
+(`loop-analysis-unavailable`).
+
+On top of the counts, **cycle bounds** come from llvm-mca's scheduling
+model: what the execution ports allow per iteration, and what the
+simulated steady state reaches - dependency chains are the gap between
+the two (a gather loop shows 1.8 cycles on the ports and 103 in steady
+state: the latency chain speaking). Their availability rule is
+mechanical, because LLVM can list the `-mcpu` models it knows: a
+microarchitecture absent from the installed LLVM's list leaves the
+bounds `unavailable` with « install LLVM 19 or newer » as the reason -
+the counts survive - and a present one yields bounds `estimated`,
+naming the model used. The exact listing fed to llvm-mca is persisted
+next to the Run's raw artifacts: the input of an estimate is part of
+explaining it.
 
 ## What the analysis says
 

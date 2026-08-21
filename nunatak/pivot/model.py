@@ -301,6 +301,13 @@ class LoopAnalysis:
     like the source extracts and for the same reason: the binary dies,
     the Run must stay readable. Offsets are module-relative, the same
     space as every sampled address.
+
+    The cycle bounds are the model-dependent half (spec 08): what the
+    execution ports allow per iteration, and what the simulated steady
+    state reaches - dependency chains are the gap between the two. They
+    exist only where a scheduling model does: `scheduling_model` names
+    the one used, or `bounds_reason` says why there is none - the
+    counts above survive either way.
     """
 
     hotspot: Hotspot
@@ -314,6 +321,16 @@ class LoopAnalysis:
     loaded_bytes: int
     stored_bytes: int
     gathers: int
+    cycles_ports: float | None = None
+    cycles_effective: float | None = None
+    scheduling_model: str | None = None
+    bounds_reason: str | None = None
+
+    def __post_init__(self) -> None:
+        if self.cycles_ports is not None and self.scheduling_model is None:
+            raise ValueError("a cycle bound always names its scheduling model")
+        if self.cycles_ports is None and self.bounds_reason is None:
+            raise ValueError("absent cycle bounds always carry their reason")
 
 
 @dataclass(frozen=True)
