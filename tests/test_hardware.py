@@ -697,3 +697,12 @@ class TestRealCycleBounds:
         assert hot.cycles_ports and hot.cycles_ports > 0
         assert hot.cycles_effective and hot.cycles_effective >= hot.cycles_ports
         assert list((Path(summary["run"]) / "collect" / "loops").glob("*.s"))
+
+        from nunatak import analysis, report
+
+        payload = report.build(run, analysis.diagnose(run))
+        stated = next(
+            h["loop"] for h in payload["hotspots"] if h["loop"] is not None
+        )
+        assert stated["cycle_bounds"] is not None
+        assert stated["l1_intensity"]["quality"] == "estimated"

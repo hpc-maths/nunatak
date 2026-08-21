@@ -10,7 +10,7 @@
  * where the chart was expected, never a blank.
  */
 
-import type { Derived, HotspotEntry, Payload } from "./data";
+import type { Derived, HotspotEntry, LoopFacts, Payload } from "./data";
 import { downgrades, esc, flops, percent, qualityBadge, resolutionBadge, sig } from "./format";
 import { rowQuality } from "./inventory";
 import { roofline } from "./roofline";
@@ -105,6 +105,56 @@ function sourceLines(entry: HotspotEntry): string {
   return `<div class="small muted">No source to show: ${esc(reason)}.</div>`;
 }
 
+function loopFact(label: string, value: string): string {
+  return `<div class="iframe-row"><span>${label}</span><span></span><span class="num pc-right">${value}</span></div>`;
+}
+
+function loop(entry: HotspotEntry): string {
+  const facts: LoopFacts | null = entry.loop;
+  if (facts === null) return "";
+  const rows: string[] = [];
+  if (facts.vector_ratio !== null) {
+    const width =
+      facts.vector_width_bits !== null ? ` at ${facts.vector_width_bits} bits` : "";
+    rows.push(
+      loopFact(
+        "Vectorized FP instructions",
+        `${percent(facts.vector_ratio)}${width}`
+      )
+    );
+  }
+  rows.push(
+    loopFact("FLOPs per iteration", sig(facts.flops_per_iteration)),
+    loopFact(
+      "Bytes per iteration",
+      `${facts.loaded_bytes} loaded, ${facts.stored_bytes} stored`
+    )
+  );
+  if (facts.gathers > 0) {
+    rows.push(loopFact("Indirect accesses (gather)", String(facts.gathers)));
+  }
+  if (facts.l1_intensity !== null && facts.l1_intensity.value !== null) {
+    rows.push(
+      loopFact("L1 intensity", `${sig(facts.l1_intensity.value)} flop/byte`)
+    );
+  }
+  const bounds =
+    facts.cycle_bounds !== null
+      ? `<div class="small">Cycle bounds per iteration: ${sig(facts.cycle_bounds.ports)} on the ports, ${sig(
+          facts.cycle_bounds.steady_state
+        )} in steady state - the gap is the dependency chains. <span class="muted">${esc(
+          facts.cycle_bounds.reason
+        )}.</span></div>`
+      : facts.bounds_reason !== null
+        ? `<div class="small muted">No cycle bounds: ${esc(facts.bounds_reason)}.</div>`
+        : "";
+  return `<div><div class="eyebrow blockhead">Hot loop, from the machine code</div>
+    <div class="iframe-list">${rows.join("")}</div>
+    ${bounds}
+    <div class="small muted blocknote">Static analysis of the instruction stream: insensitive to cache reuse, estimated at best - never measured. The L1 intensity is what the code demands; the DRAM intensity beside it is what memory actually served.</div>
+  </div>`;
+}
+
 function callers(entry: HotspotEntry): string {
   if (entry.callers.length === 0) return "";
   const rows = entry.callers
@@ -176,6 +226,7 @@ export function detail(payload: Payload, entry: HotspotEntry): string {
     </div>
     <div class="dcol">
       <div><div class="eyebrow blockhead">Source, samples per line</div>${sourceLines(entry)}</div>
+      ${loop(entry)}
       ${callers(entry)}
       ${inlineFrames(entry)}
     </div>

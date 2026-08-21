@@ -459,6 +459,13 @@ naming the model used. The exact listing fed to llvm-mca is persisted
 next to the Run's raw artifacts: the input of an estimate is part of
 explaining it.
 
+The report's Hotspot detail states these facts in a « Hot loop » block:
+the vectorization ratio and width, the bytes each iteration moves, the
+gathers, the L1 intensity and the cycle bounds - every derived quantity
+`estimated` with its reason, absent bounds saying why. The L1 intensity
+is what the code demands; the DRAM intensity beside it is what memory
+actually served - the gap between the two is cache reuse speaking.
+
 ## What the analysis says
 
 The analysis engine is a **pure function of (pivot, Machine)**: nothing

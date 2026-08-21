@@ -489,3 +489,49 @@ class TestCallersAndInclusive:
         assert entry["callers"] == []
         assert entry["inclusive"] is None
 
+
+
+class TestLoopFacts:
+    """The hot loop's facts in the payload: static, estimated, honest
+    about absent bounds."""
+
+    def _run_with_loop(self, **bounds):
+        from nunatak.pivot import LoopAnalysis
+
+        spot = hotspot()
+        run = run_with([measurement(spot, "task-clock", 2e9, "ns")])
+        run.loop_analyses = [
+            LoopAnalysis(
+                hotspot=spot, start_offset=0x1420, end_offset=0x1437,
+                instructions=5, flops_per_iteration=8.0, vector_fp=1,
+                scalar_fp=0, vector_width_bits=256, loaded_bytes=64,
+                stored_bytes=32, gathers=0, **bounds,
+            )
+        ]
+        return run
+
+    def test_the_facts_are_estimated_with_the_static_reason(self):
+        run = self._run_with_loop(
+            cycles_ports=1.3, cycles_effective=1.41, scheduling_model="znver2"
+        )
+        payload = report.build(run, analysis.diagnose(run))
+        loop = payload["hotspots"][0]["loop"]
+        assert loop["vector_ratio"] == 1.0
+        assert abs(loop["l1_intensity"]["value"] - 8 / 96) < 1e-12
+        assert loop["l1_intensity"]["quality"] == "estimated"
+        assert "cache reuse" in loop["l1_intensity"]["reason"]
+        assert loop["cycle_bounds"]["ports"] == 1.3
+        assert "znver2" in loop["cycle_bounds"]["reason"]
+
+    def test_absent_bounds_carry_their_reason(self):
+        run = self._run_with_loop(
+            bounds_reason="LLVM 17 does not know znver4; install LLVM 19 or newer"
+        )
+        payload = report.build(run, analysis.diagnose(run))
+        loop = payload["hotspots"][0]["loop"]
+        assert loop["cycle_bounds"] is None
+        assert "install LLVM 19" in loop["bounds_reason"]
+
+    def test_without_an_analysis_the_field_is_null(self):
+        payload = payload_of([measurement(hotspot(), "task-clock", 2e9, "ns")])
+        assert payload["hotspots"][0]["loop"] is None
