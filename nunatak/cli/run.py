@@ -20,7 +20,7 @@ import sys
 from pathlib import Path
 
 from nunatak import analysis, attribution, corpus, ingestion, launch, machine, probe, provenance, summary
-from nunatak.attribution import debuginfod, source, staleness
+from nunatak.attribution import debuginfod, loops as loop_analysis, source, staleness
 from nunatak.collect import events as counter_events
 from nunatak.calibration import theory
 from nunatak.cli import calibrate, doctor
@@ -373,6 +373,7 @@ def execute(args, command: list[str], console: Console) -> int:
     started = _now()
     collectors: tuple[Collector, ...] = ()
     pass_records: list[Pass] = []
+    loop_analyses = []
     measurements = []
     stacks_collected = []
     address_details = []
@@ -550,6 +551,11 @@ def execute(args, command: list[str], console: Console) -> int:
             source_extracts = source.extract(
                 address_details, mapping, root or cwd, checksums
             )
+        loop_analyses, loop_degradations = loop_analysis.analyze(
+            executor, config, address_details,
+            floor_samples=analysis.STATISTICAL_FLOOR_SAMPLES,
+        )
+        gathered += loop_degradations
         counting, counting_degradations = rank_counting.ingest_counting(
             directory / COLLECT_DIR
         )
@@ -600,6 +606,7 @@ def execute(args, command: list[str], console: Console) -> int:
         address_details=address_details,
         source_extracts=source_extracts,
         stacks=stacks_collected,
+        loop_analyses=loop_analyses,
     )
     write_run(directory, run)
 

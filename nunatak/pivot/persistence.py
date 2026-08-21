@@ -25,6 +25,7 @@ from nunatak.pivot.model import (
     InlineFrame,
     LogicalIdentity,
     Locus,
+    LoopAnalysis,
     Machine,
     Measurement,
     Pass,
@@ -146,6 +147,25 @@ _STACK_FRAMES = pa.schema(
     ]
 )
 
+# The hot inner loop of each analyzed Hotspot: per-iteration counts of
+# its instruction stream, module-relative offsets like every sampled
+# address.
+_LOOPS = pa.schema(
+    [
+        ("hotspot", pa.int32()),
+        ("start_offset", pa.int64()),
+        ("end_offset", pa.int64()),
+        ("instructions", pa.int32()),
+        ("flops_per_iteration", pa.float64()),
+        ("vector_fp", pa.int32()),
+        ("scalar_fp", pa.int32()),
+        ("vector_width_bits", pa.int32()),
+        ("loaded_bytes", pa.int64()),
+        ("stored_bytes", pa.int64()),
+        ("gathers", pa.int32()),
+    ]
+)
+
 # Source extracts are the one non-measured content of the pivot: they are
 # raw material for the report and the Explanation, embedded so the Run
 # stays self-sufficient, never a conclusion.
@@ -172,6 +192,7 @@ _FILES = {
     "extracts": f"{PIVOT_DIR}/extracts.parquet",
     "stacks": f"{PIVOT_DIR}/stacks.parquet",
     "stack_frames": f"{PIVOT_DIR}/stack-frames.parquet",
+    "loops": f"{PIVOT_DIR}/loops.parquet",
 }
 
 
@@ -203,6 +224,10 @@ def write_run(directory: Path, run: Run) -> Path:
         hotspots.setdefault(_hotspot_key(detail.hotspot), (len(hotspots), detail.hotspot))
     for extract in run.source_extracts:
         hotspots.setdefault(_hotspot_key(extract.hotspot), (len(hotspots), extract.hotspot))
+    for analysis in run.loop_analyses:
+        hotspots.setdefault(
+            _hotspot_key(analysis.hotspot), (len(hotspots), analysis.hotspot)
+        )
     for event in run.events:
         loci.setdefault(event.locus, len(loci))
     for stack in run.stacks:
@@ -316,6 +341,23 @@ def write_run(directory: Path, run: Run) -> Path:
         for depth, frame in enumerate(s.frames)
     ]
 
+    loop_rows = [
+        {
+            "hotspot": hotspots[_hotspot_key(a.hotspot)][0],
+            "start_offset": a.start_offset,
+            "end_offset": a.end_offset,
+            "instructions": a.instructions,
+            "flops_per_iteration": a.flops_per_iteration,
+            "vector_fp": a.vector_fp,
+            "scalar_fp": a.scalar_fp,
+            "vector_width_bits": a.vector_width_bits,
+            "loaded_bytes": a.loaded_bytes,
+            "stored_bytes": a.stored_bytes,
+            "gathers": a.gathers,
+        }
+        for a in run.loop_analyses
+    ]
+
     extract_rows = [
         {
             "hotspot": hotspots[_hotspot_key(e.hotspot)][0],
@@ -340,6 +382,7 @@ def write_run(directory: Path, run: Run) -> Path:
         ("extracts", _EXTRACTS, extract_rows),
         ("stacks", _STACKS, stack_rows),
         ("stack_frames", _STACK_FRAMES, stack_frame_rows),
+        ("loops", _LOOPS, loop_rows),
     ):
         pq.write_table(pa.Table.from_pylist(rows, schema=schema), directory / _FILES[name])
 
@@ -588,6 +631,23 @@ def read_run(directory: Path) -> Run:
         for row in tables.get("stacks", [])
     ]
 
+    loop_analyses = [
+        LoopAnalysis(
+            hotspot=hotspots[row["hotspot"]],
+            start_offset=row["start_offset"],
+            end_offset=row["end_offset"],
+            instructions=row["instructions"],
+            flops_per_iteration=row["flops_per_iteration"],
+            vector_fp=row["vector_fp"],
+            scalar_fp=row["scalar_fp"],
+            vector_width_bits=row["vector_width_bits"],
+            loaded_bytes=row["loaded_bytes"],
+            stored_bytes=row["stored_bytes"],
+            gathers=row["gathers"],
+        )
+        for row in tables.get("loops", [])
+    ]
+
     machine = machine_from_dict(manifest["machine"])
     provenance_data = manifest["provenance"]
     provenance = Provenance(
@@ -624,6 +684,7 @@ def read_run(directory: Path) -> Run:
         events=events,
         address_details=address_details,
         stacks=stacks,
+        loop_analyses=loop_analyses,
         source_extracts=[
             SourceExtract(
                 hotspot=hotspots[row["hotspot"]],

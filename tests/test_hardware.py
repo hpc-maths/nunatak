@@ -627,3 +627,42 @@ class TestRealWitnessVerdict:
         run = read_run(summary["run"])
         verdict = analysis.witness_verdict(run)
         assert verdict is not None and verdict.consistent, verdict
+
+
+class TestRealLoopAnalysis:
+    def test_the_hot_loop_is_found_and_counted_on_a_real_run(
+        self, tmp_path, monkeypatch, capsys
+    ):
+        # The whole chain against a binary compiled minutes ago: the
+        # samples name axpy, its machine code is disassembled, the hot
+        # inner loop found and its per-iteration counts persisted with
+        # the Run - exact facts of real vectorized code.
+        source = tmp_path / "workload.c"
+        source.write_text(ROOFLINE_WORKLOAD_C)
+        binary = tmp_path / "workload"
+        compiler = shutil.which("gcc") or shutil.which("cc")
+        built = subprocess.run(
+            [compiler, "-O3", "-march=native", "-g", str(source), "-o", str(binary)],
+            capture_output=True, text=True,
+        )
+        assert built.returncode == 0, built.stderr
+        monkeypatch.chdir(tmp_path)
+
+        assert principal(
+            ["run", "--json", "--no-calibrate", "--", str(binary)]
+        ) == 0
+        summary = json.loads(capsys.readouterr().out)
+        names = {d["name"] for d in summary["degradations"]}
+        assert "loop-analysis-unavailable" not in names, summary["degradations"]
+
+        run = read_run(summary["run"])
+        assert run.loop_analyses, "no hot loop found on a loop-shaped workload"
+        # -O3 -march=native inlines axpy into main on this machine, and
+        # the compiler fuses the reduction into the vectorized loop: the
+        # hot loop is packed AVX with scalar FP alongside - the counts
+        # state the real code, not our idea of it.
+        hot = max(run.loop_analyses, key=lambda a: a.flops_per_iteration)
+        assert hot.vector_fp > 0, hot
+        assert hot.vector_width_bits in (128, 256)
+        assert hot.flops_per_iteration > 0
+        assert hot.loaded_bytes > 0 and hot.stored_bytes > 0

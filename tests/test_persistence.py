@@ -155,6 +155,7 @@ def test_a_run_is_a_single_directory(tmp_path):
         directory / "pivot" / "extracts.parquet",
         directory / "pivot" / "stacks.parquet",
         directory / "pivot" / "stack-frames.parquet",
+        directory / "pivot" / "loops.parquet",
     }
 
 
@@ -382,3 +383,35 @@ def test_a_run_written_before_the_stack_tables_reads_back(tmp_path):
     run = read_run(directory)
     assert run.stacks == []
     assert run.measurements == sample_run().measurements
+
+
+def test_round_trip_preserves_the_loop_analysis(tmp_path):
+    from nunatak.pivot import LoopAnalysis
+
+    original = sample_run()
+    spot = original.measurements[0].hotspot
+    original.loop_analyses = [
+        LoopAnalysis(
+            hotspot=spot,
+            start_offset=0x1420,
+            end_offset=0x1437,
+            instructions=5,
+            flops_per_iteration=8.0,
+            vector_fp=1,
+            scalar_fp=0,
+            vector_width_bits=256,
+            loaded_bytes=64,
+            stored_bytes=32,
+            gathers=0,
+        )
+    ]
+    run = read_run(write_run(tmp_path / "run", original))
+    assert run.loop_analyses == original.loop_analyses
+
+
+def test_a_run_written_before_the_loop_table_reads_back(tmp_path):
+    directory = write_run(tmp_path / "run", sample_run())
+    manifest = json.loads((directory / "manifest.json").read_text())
+    (directory / manifest["files"].pop("loops")).unlink()
+    (directory / "manifest.json").write_text(json.dumps(manifest))
+    assert read_run(directory).loop_analyses == []
