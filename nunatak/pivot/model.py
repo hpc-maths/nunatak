@@ -292,6 +292,31 @@ class Stack:
 
 
 @dataclass(frozen=True)
+class LoopAnalysis:
+    """The hot inner loop of one named Hotspot, as its machine code
+    states it: per-iteration counts of the instruction stream.
+
+    Facts of the code, blind to cache reuse and to the execution - by
+    invariant I6 nothing derived from them is ever `measured`. Persisted
+    like the source extracts and for the same reason: the binary dies,
+    the Run must stay readable. Offsets are module-relative, the same
+    space as every sampled address.
+    """
+
+    hotspot: Hotspot
+    start_offset: int
+    end_offset: int
+    instructions: int
+    flops_per_iteration: float
+    vector_fp: int
+    scalar_fp: int
+    vector_width_bits: int | None
+    loaded_bytes: int
+    stored_bytes: int
+    gathers: int
+
+
+@dataclass(frozen=True)
 class SourceExtract:
     """An embedded source extract for one named Hotspot - never a whole
     file: the body of the physical function and its hot inline frames,
@@ -466,3 +491,4 @@ class Run:
     address_details: list[AddressDetail] = field(default_factory=list)
     source_extracts: list[SourceExtract] = field(default_factory=list)
     stacks: list[Stack] = field(default_factory=list)
+    loop_analyses: list[LoopAnalysis] = field(default_factory=list)

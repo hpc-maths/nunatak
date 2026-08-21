@@ -83,6 +83,9 @@
 .. automodule:: nunatak.attribution.debuginfod
    :members:
 
+.. automodule:: nunatak.attribution.loops
+   :members:
+
 .. automodule:: nunatak.attribution.inspection
    :members:
 

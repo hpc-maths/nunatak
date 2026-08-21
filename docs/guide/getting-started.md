@@ -426,6 +426,27 @@ the modules/spack remedy - and the run always proceeds. An application
 that never reaches `MPI_Finalize` leaves no report, and the Run says
 that too (`mpi-report-missing`).
 
+## Static loop analysis
+
+Every measuring run also reads the machine code of its Hotspots: the
+sampled address distribution names the **innermost hot loop**, GNU
+objdump disassembles the physical function (the same tool, and the same
+measured reason, as the frame-pointer probing), and the instruction
+stream is counted per iteration - vector versus scalar floating point,
+the width used, the bytes each iteration loads and stores, the gathers.
+These counts cover the CQA/MAQAO use cases without MAQAO, survive
+everywhere a disassembler can read, and are **facts of the code, blind
+to cache reuse**: nothing derived from them is ever `measured` - a
+static analysis cannot be (invariant I6).
+
+The analysis needs the binary readable where the run executes; a Run
+replayed elsewhere simply carries none. A function whose samples fall
+outside every loop has nothing to analyze, and another ISA than the
+classifier's yields no counts rather than guesses - the fact is
+unavailable and not transmitted. Only a missing GNU objdump is declared
+(`loop-analysis-unavailable`). Cycle bounds from a scheduling model
+arrive separately, with their own availability rule.
+
 ## What the analysis says
 
 The analysis engine is a **pure function of (pivot, Machine)**: nothing
