@@ -290,13 +290,15 @@ nunatak run --multi-pass -- ./solver
 ```
 
 The groups are semantic - one measurement concern per pass (`flops`
-and `memory` on Zen; `flops_dp`, `flops_sp` and `memory` on Intel) -
+and `memory` on Zen and Neoverse; `flops_dp`, `flops_sp` and `memory`
+on Intel) -
 and each is small enough that no counter is ever multiplexed: exact
 counts, which is what the extra executions buy. A **witness** -
 work-proportional where cycles count time-at-frequency: the
-retired-FLOP count on Zen, retired instructions on their dedicated
-fixed counter on Intel - is replicated in each pass and compared at
-the end: within the threshold, cross-pass quantities - the DRAM intensity
+retired-FLOP count on Zen, retired instructions on Intel (on their
+dedicated fixed counter) and on Neoverse (the one architectural,
+non-speculative count those cores offer) - is replicated in each pass
+and compared at the end: within the threshold, cross-pass quantities - the DRAM intensity
 fusing one pass's FLOPs with another's bytes - stay exactly what they
 claim; beyond it, the application did different work in different
 passes (a convergence criterion, dynamic scheduling, non-deterministic
@@ -310,7 +312,7 @@ pass - the frequency governor ramping up - and a memory-bound run cost
 4.8e9 then 6.9e9 cycles back to back, while the retired-FLOP count came
 back identical to the unit. On Zen, an application without floating
 point gets a vacuous witness - the honest amount of evidence available;
-the Intel witness counts every instruction and has no vacuous case.
+the instruction witnesses of Intel and Neoverse have no vacuous case.
 
 The threshold is configuration, recorded in the Run and used by every
 later analysis of it:
@@ -351,8 +353,19 @@ bounded by construction.
   events, folded onto precision-split counters (`flops_dp`, `flops_sp` -
   the hardware already counts an FMA twice), and retired loads that
   missed L3 as the DRAM proxy - the uncore memory controllers count per
-  socket and cannot be attributed to a Hotspot. These names come from
-  the kernel's tables and are not yet validated on real PMUs.
+  socket and cannot be attributed to a Hotspot.
+- **Arm Neoverse V1/N2/V2** (Graviton 3/4, NVIDIA Grace, Azure Cobalt
+  100): the SVE/fixed FLOP pair - SVE element operations are counted
+  per 128 bits of vector, so the SVE event is scaled by the core's
+  hardware vector length (256-bit on V1) - and last-level read misses
+  as the DRAM proxy, write traffic existing only on the interconnect's
+  per-socket PMU. These events are speculative, not retired: the FLOP
+  Measurements are `estimated` with that reason, and no precision
+  split exists.
+
+The Intel and Neoverse names come from the kernel's tables and are not
+yet validated on real PMUs; a kernel that does not know them degrades
+to time-only.
 
 The single execution's set is bounded by the general counters one SMT
 thread actually gets, because an event the kernel rotates off its
@@ -363,17 +376,18 @@ the missing groups are not truncated but **absent, and arrive with
 Skylake-SP.
 
 Absences are choices, not oversights: Haswell/Broadwell retired their
-FLOP counters, so those cores attribute memory traffic only; hybrid
-client parts (Alder/Raptor Lake) get no set at all, their E-cores
-exposing no FLOP event - a set counting on half the cores would
-undercount under `measured`.
+FLOP counters and Neoverse N1 (Graviton 2) never had any, so those
+cores attribute memory traffic only; hybrid client parts (Alder/Raptor
+Lake) get no set at all, their E-cores exposing no FLOP event - a set
+counting on half the cores would undercount under `measured`.
 
 Honesty travels with the numbers: DRAM bytes come from demand fills
-(Zen) or retired L3-miss loads (Intel) - hardware prefetchers bypass
-both, and sampling prefetch events inflates what they measure, an
-observer effect - so those Measurements are `estimated` with their
-reason; Zen does not split FLOPs by precision, so a placement against
-the double-precision peak says so too. An unknown microarchitecture
+(Zen), retired L3-miss loads (Intel) or last-level read misses
+(Neoverse) - hardware prefetchers bypass the first two, and sampling
+prefetch events inflates what they measure, an observer effect - so
+those Measurements are `estimated` with their reason; Zen and Neoverse
+do not split FLOPs by precision, so a placement against the
+double-precision peak says so too. An unknown microarchitecture
 samples time alone, and a kernel that rejects the event names degrades
 to time-only without ever running the application twice.
 

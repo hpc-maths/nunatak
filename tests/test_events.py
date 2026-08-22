@@ -373,3 +373,89 @@ class TestIntelPasses:
             f"instructions/period={events.INSTRUCTION_PERIOD}/u"
         )
         assert entry is not None and entry.canonical == "instructions"
+
+
+def neoverse_machine(name: str) -> Machine:
+    return Machine(
+        system="Linux",
+        kernel="6.14.0",
+        architecture="aarch64",
+        cpu_model=name,
+        logical_cores=64,
+        allocation=Allocation(visible_cores=64),
+    )
+
+
+def neoverse_cpuinfo(tmp_path, part: int):
+    cpuinfo = tmp_path / "cpuinfo"
+    cpuinfo.write_text(
+        "processor\t: 0\n"
+        "BogoMIPS\t: 243.75\n"
+        "CPU implementer\t: 0x41\n"
+        "CPU architecture: 8\n"
+        f"CPU part\t: {part:#x}\n"
+    )
+    return cpuinfo
+
+
+class TestNeoverseRegistry:
+    """The Neoverse tables: the speculative SVE/fixed FLOP pair scaled
+    by the core's hardware vector length, last-level read misses as the
+    DRAM proxy, and six programmable counters - both groups always fit
+    the single execution."""
+
+    def test_v1_scales_sve_operations_by_its_256_bit_vectors(self, tmp_path):
+        group = events.sampling_events(
+            neoverse_machine("Graviton 3"), neoverse_cpuinfo(tmp_path, 0xD40)
+        )
+        assert [e.canonical for e in group] == ["flops", "flops", "dram_bytes"]
+        by_event = {e.event.split("/")[0]: e for e in group}
+        assert by_event["fp_scale_ops_spec"].scale == 2.0
+        assert by_event["fp_fixed_ops_spec"].scale == 1.0
+
+    def test_v2_and_n2_vectors_are_128_bit_and_scale_to_one(self, tmp_path):
+        for part in (0xD4F, 0xD49):
+            group = events.sampling_events(
+                neoverse_machine("Neoverse"), neoverse_cpuinfo(tmp_path, part)
+            )
+            by_event = {e.event.split("/")[0]: e for e in group}
+            assert by_event["fp_scale_ops_spec"].scale == 1.0
+
+    def test_the_flop_counts_are_speculative_hence_estimated(self, tmp_path):
+        group = events.sampling_events(
+            neoverse_machine("Graviton 3"), neoverse_cpuinfo(tmp_path, 0xD40)
+        )
+        flops = [e for e in group if e.canonical == "flops"]
+        assert all(e.quality is Quality.ESTIMATED for e in flops)
+        assert all("speculatively" in e.reason for e in flops)
+
+    def test_n1_exposes_no_flop_event_and_attributes_memory_only(self, tmp_path):
+        group = events.sampling_events(
+            neoverse_machine("Graviton 2"), neoverse_cpuinfo(tmp_path, 0xD0C)
+        )
+        assert [e.canonical for e in group] == ["dram_bytes"]
+        assert "ll_cache_miss_rd" in group[0].event
+
+    def test_the_dram_proxy_counts_reads_only_and_says_so(self):
+        proxy = events.canonical(
+            f"ll_cache_miss_rd/period={events.FILL_PERIOD}/u"
+        )
+        assert proxy.canonical == "dram_bytes"
+        assert proxy.scale == events.CACHELINE_BYTES
+        assert proxy.quality is Quality.ESTIMATED
+        assert "writes" in proxy.reason
+
+    def test_the_witness_is_retired_instructions(self, tmp_path):
+        (witness,) = events.witness(
+            neoverse_machine("Graviton 3"), neoverse_cpuinfo(tmp_path, 0xD40)
+        )
+        assert witness.canonical == "instructions"
+
+    def test_the_sve_pair_folds_back_through_ingestion(self):
+        scale = events.canonical(
+            f"fp_scale_ops_spec/period={events.FLOP_PERIOD}/u"
+        )
+        fixed = events.canonical(
+            f"fp_fixed_ops_spec/period={events.FLOP_PERIOD}/"
+        )
+        assert scale.canonical == fixed.canonical == "flops"
