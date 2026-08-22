@@ -110,6 +110,43 @@ class TestDoctor:
         assert target and target[0]["status"] == "ok"
 
 
+class TestLlvmWindow:
+    """The validated LLVM window is declared, never enforced: below the
+    minimum degrades, above the tested bound only warns."""
+
+    @staticmethod
+    def verdict(major):
+        from nunatak.cli.doctor import _llvm
+        from nunatak.attribution.symbolizer import Symbolizer
+
+        return _llvm(Symbolizer(path="/usr/bin/llvm-symbolizer", major=major))
+
+    def test_inside_the_window_is_plainly_ok(self):
+        from nunatak.attribution.symbolizer import RECOMMENDED_LLVM, TESTED_LLVM
+
+        for major in (RECOMMENDED_LLVM, TESTED_LLVM):
+            check = self.verdict(major)
+            assert check.status == "ok"
+            assert check.degradation is None
+
+    def test_above_the_window_warns_without_refusing_or_degrading(self):
+        from nunatak.attribution.symbolizer import TESTED_LLVM
+
+        check = self.verdict(TESTED_LLVM + 4)
+        assert check.status == "warning"
+        assert "not yet validated" in check.detail
+        assert str(TESTED_LLVM) in check.remedy
+        assert check.degradation is None
+
+    def test_below_the_minimum_still_degrades(self):
+        from nunatak.attribution.symbolizer import MINIMUM_LLVM
+
+        check = self.verdict(MINIMUM_LLVM - 1)
+        assert check.status == "warning"
+        assert check.degradation is not None
+        assert check.degradation.name == "llvm-too-old"
+
+
 class TestAttributionCeiling:
     """doctor announces how far attribution will go, before the run,
     against genuine llvm-readelf section inventories."""

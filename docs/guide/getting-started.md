@@ -46,6 +46,15 @@ unfingerprinted, like gcc's) and no loop analysis. Without either tool
 the run still measures - the names are simply missing, and the
 degradation says so.
 
+The LLVM window has **no upper bound**. The versions our test suites
+actually exercised are declared (17 to 20 today), and a newer major -
+LLVM publishes one every six months - earns a `doctor` warning, never a
+refusal: "not yet validated with this version of nunatak" means exactly
+that, and everything runs. Refusing would strand a user whose
+distribution moved before our release did, for a risk that is usually
+nonexistent - a parser that a new LLVM really breaks fails loudly, not
+silently.
+
 When `DEBUGINFOD_URLS` is in the environment, both symbolization paths
 fetch distribution-library debug information on their own - that is
 where a stripped `libc` or `libmpi` gets its names, never the user's

@@ -27,6 +27,12 @@ from nunatak.pivot import ResolutionLevel
 
 MINIMUM_LLVM = 17
 RECOMMENDED_LLVM = 19
+# Upper bound of the window our test suites actually exercised. The bound
+# is declared, never enforced: a newer major earns a doctor warning and
+# nothing else, because refusing it would strand users whose distribution
+# moved before our release did, for a risk that is usually nonexistent -
+# a parser that a new LLVM really breaks fails loudly, not silently.
+TESTED_LLVM = 20
 
 
 @dataclass(frozen=True)
