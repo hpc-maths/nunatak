@@ -16,7 +16,11 @@ from pathlib import Path
 
 from nunatak.attribution import debuginfod, inspection
 from nunatak.attribution.addr2line import Addr2Line
-from nunatak.attribution.symbolizer import MINIMUM_LLVM, RECOMMENDED_LLVM
+from nunatak.attribution.symbolizer import (
+    MINIMUM_LLVM,
+    RECOMMENDED_LLVM,
+    TESTED_LLVM,
+)
 from nunatak.collect.execution import Executor
 from nunatak.config import Config
 from nunatak.console import Console
@@ -99,7 +103,10 @@ def _cpu_collector(
 
 def _llvm(symbolizer) -> CheckResult:
     """Verdict on the located symbolizer; old LLVM versions restrict loop
-    analysis, and the addr2line fallback is declared second-choice."""
+    analysis, the addr2line fallback is declared second-choice, and a
+    major newer than the validated window earns a warning and nothing
+    else - too-new is not a capability loss, so it carries no
+    degradation."""
     if isinstance(symbolizer, Addr2Line):
         degradation = Degradation(
             name="llvm-missing",
@@ -116,6 +123,16 @@ def _llvm(symbolizer) -> CheckResult:
             degradation=degradation,
         )
     if symbolizer is not None:
+        if symbolizer.major > TESTED_LLVM:
+            return CheckResult(
+                name="llvm",
+                status="warning",
+                detail=f"LLVM {symbolizer.major} ({symbolizer.path}): not yet "
+                "validated with this version of nunatak",
+                remedy=f"the validated window ends at LLVM {TESTED_LLVM}; "
+                "everything runs, and a parser this version breaks fails "
+                "loudly, not silently",
+            )
         if symbolizer.major >= RECOMMENDED_LLVM:
             return CheckResult(
                 name="llvm",
