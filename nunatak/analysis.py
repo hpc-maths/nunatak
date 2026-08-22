@@ -180,13 +180,17 @@ def sampled_view(run: Run) -> list[Measurement]:
 
 
 # Witness counters: work-proportional counts replicated in every Pass
-# of a multi-pass run. Neither the time base nor cycles qualifies,
-# measured on the corpus machine: the same work took 69% more
-# cpu-seconds on a first pass - the frequency governor ramping up - and
-# a memory-bound run costs 4.8e9 then 6.9e9 cycles back to back, stall
-# cycles scaling with frequency while DRAM latency does not. The
-# retired-FLOP count came back identical to the unit.
-WITNESS_COUNTERS = ("flops",)
+# of a multi-pass run, in preference order. Neither the time base nor
+# cycles qualifies, measured on the corpus machine: the same work took
+# 69% more cpu-seconds on a first pass - the frequency governor ramping
+# up - and a memory-bound run costs 4.8e9 then 6.9e9 cycles back to
+# back, stall cycles scaling with frequency while DRAM latency does
+# not. The retired-FLOP count came back identical to the unit; it is
+# the witness wherever the vendor offers one event for it (Zen), and
+# retired instructions - on their dedicated fixed counter, away from
+# the general counters where Zen showed them bistable - stand witness
+# elsewhere (Intel).
+WITNESS_COUNTERS = ("flops", "instructions")
 WITNESS_THRESHOLD = 0.05
 
 
