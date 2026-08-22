@@ -347,6 +347,18 @@ def _known_cpus(executor: Executor, mca: str) -> set[str]:
     return names
 
 
+def listing_lines(body: list[Instruction]) -> list[str]:
+    """The llvm-mca input lines for one loop body: our parsed
+    `mnemonic operands` form, branches and padding stripped. The frozen
+    listings of corpus/listings/ are written by this same function - the
+    corpus tests exactly what production feeds the tool."""
+    return [
+        f"{i.mnemonic} {i.operands}".strip()
+        for i in body
+        if not i.mnemonic.startswith("j") and i.mnemonic not in _PADDING
+    ]
+
+
 def parse_mca(text: str) -> tuple[float, float] | None:
     """(port-bound, steady-state) cycles per iteration from one llvm-mca
     report, None when the report does not carry them."""
@@ -381,11 +393,7 @@ def _bounds(
     if known is not None and mcpu not in known:
         return {"bounds_reason": f"LLVM {llvm_major} does not know "
                 f"{mcpu}; install LLVM 19 or newer"}
-    lines = [
-        f"{i.mnemonic} {i.operands}".strip()
-        for i in body
-        if not i.mnemonic.startswith("j") and i.mnemonic not in _PADDING
-    ]
+    lines = listing_lines(body)
     listing.parent.mkdir(parents=True, exist_ok=True)
     listing.write_text("\n".join(lines) + "\n")
     invocation = executor.run([mca, f"--mcpu={mcpu}", str(listing)])

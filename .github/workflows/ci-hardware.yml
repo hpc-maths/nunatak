@@ -40,3 +40,7 @@ jobs:
         run: .venv/bin/python -m pytest -q
       - name: what only hardware can verify
         run: .venv/bin/python -m pytest -q -m hardware
+      # The station's LLVM keeps the frozen-binaries lane alive between
+      # the version watch's twice-a-year runs.
+      - name: real LLVM against the frozen-binaries corpus
+        run: .venv/bin/python -m pytest -q -m llvm
