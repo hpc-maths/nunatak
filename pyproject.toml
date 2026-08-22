@@ -38,8 +38,11 @@ path = "hatch_build.py"
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 # Tier 1 is hermetic and blocking; the hardware tests belong to tier 2
-# and opt in with `-m hardware` on a machine with real PMUs.
-addopts = "-m 'not hardware'"
+# and opt in with `-m hardware` on a machine with real PMUs. The llvm
+# lane runs the real LLVM tools against the frozen-binaries corpus:
+# nightly on tier 2, and with candidate versions by the version watch.
+addopts = "-m 'not hardware and not llvm'"
 markers = [
     "hardware: needs real PMUs and a compiler; run with -m hardware (tier 2)",
+    "llvm: needs a real LLVM install; run with -m llvm (nightly and version watch)",
 ]

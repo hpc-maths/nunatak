@@ -1,9 +1,12 @@
 # Recording corpus
 
 Real collector outputs, captured once on real hardware and replayed
-forever without it. Together with the frozen-binaries corpus (to come with
-the attribution chain), this is one of the two durable assets of the
-project.
+forever without it. Together with the frozen-binaries corpus
+([`binaries/`](binaries/README.md), with its derived llvm-mca listings
+in `listings/`), this is one of the two durable assets of the project:
+recordings freeze the tools' outputs so the parsers replay without the
+tools, binaries freeze the tools' *inputs* so the real tools of a new
+version can be run against known ground.
 
 **Entries are captured, never written by hand.** A hand-written entry only
 tests our idea of a tool's output. Every entry here was produced by
