@@ -79,7 +79,7 @@ class TestAdapter:
             .on("perf", stdout="lines\n")
             .on("perf", stdout="ids\n")
         )
-        group = (events._SETS["zen2"][0],)
+        group = (events._TABLE["zen2"].sampling_set[0],)
         PerfAdapter().collect(
             ["./solver"], tmp_path / "c", executor, frequency=997, events=group
         )
@@ -103,7 +103,7 @@ class TestAdapter:
             tmp_path / "c",
             executor,
             frequency=997,
-            events=(events._SETS["zen2"][0],),
+            events=(events._TABLE["zen2"].sampling_set[0],),
         )
         assert exit_code == 0
         assert degradation.name == "counter-events-rejected"
@@ -127,7 +127,7 @@ class TestAdapter:
             tmp_path / "c",
             executor,
             frequency=997,
-            events=(events._SETS["zen2"][0],),
+            events=(events._TABLE["zen2"].sampling_set[0],),
         )
         assert exit_code == 5
         assert degradations == []
@@ -190,9 +190,10 @@ class TestReplayedRoofline:
 
 class TestPassGroups:
     """The multi-pass split: one measurement concern per Pass, a witness
-    replicated in each - and `instructions` deliberately kept out of it,
-    the generic event being bistable (1x or exactly 16x) on the Zen 2
-    corpus machine."""
+    replicated in each - and `instructions` deliberately kept out of the
+    Zen witness, the generic event being bistable (1x or exactly 16x) on
+    the Zen 2 corpus machine's general counters. Intel's fixed counter
+    is a different animal, and its own table says so."""
 
     def _cpuinfo(self, tmp_path):
         cpuinfo = tmp_path / "cpuinfo"
@@ -239,3 +240,136 @@ class TestPassGroups:
         )
         assert events.pass_groups(unknown, cpuinfo) == ()
         assert events.witness(unknown, cpuinfo) == ()
+
+
+def intel_machine(model: int, name: str) -> Machine:
+    return Machine(
+        system="Linux",
+        kernel="6.14.0",
+        architecture="x86_64",
+        cpu_model=name,
+        logical_cores=32,
+        allocation=Allocation(visible_cores=32),
+    )
+
+
+def intel_cpuinfo(tmp_path, model: int):
+    cpuinfo = tmp_path / "cpuinfo"
+    cpuinfo.write_text(
+        "processor\t: 0\n"
+        "vendor_id\t: GenuineIntel\n"
+        "cpu family\t: 6\n"
+        f"model\t\t: {model}\n"
+        "model name\t: Intel(R) Xeon(R)\n"
+    )
+    return cpuinfo
+
+
+class TestIntelRegistry:
+    """The Intel tables: split precisions, the L3-miss DRAM proxy, and
+    single-execution sets bounded by what one SMT thread's four or eight
+    general counters can hold without multiplexing."""
+
+    def test_skylake_sp_single_execution_holds_the_complete_dp_group_only(
+        self, tmp_path
+    ):
+        group = events.sampling_events(
+            intel_machine(0x55, "Xeon Gold"), intel_cpuinfo(tmp_path, 0x55)
+        )
+        assert [e.canonical for e in group] == ["flops_dp"] * 4
+        assert [e.scale for e in group] == [1, 2, 4, 8]
+
+    def test_icelake_and_later_fit_memory_alongside(self, tmp_path):
+        for model in (0x6A, 0x8F, 0xCF, 0xAD):
+            group = events.sampling_events(
+                intel_machine(model, "Xeon"), intel_cpuinfo(tmp_path, model)
+            )
+            assert [e.canonical for e in group] == ["flops_dp"] * 4 + ["dram_bytes"]
+
+    def test_skylake_client_has_no_512_bit_and_fits_both_groups(self, tmp_path):
+        group = events.sampling_events(
+            intel_machine(0x5E, "Core i7"), intel_cpuinfo(tmp_path, 0x5E)
+        )
+        assert [e.canonical for e in group] == ["flops_dp"] * 3 + ["dram_bytes"]
+        assert not any("512b" in e.event for e in group)
+
+    def test_haswell_retired_its_flop_counters_and_attributes_memory_only(
+        self, tmp_path
+    ):
+        group = events.sampling_events(
+            intel_machine(0x3F, "Xeon E5 v3"), intel_cpuinfo(tmp_path, 0x3F)
+        )
+        assert [e.canonical for e in group] == ["dram_bytes"]
+        assert "mem_load_uops_retired" in group[0].event
+
+    def test_hybrid_client_parts_get_no_set_at_all(self, tmp_path):
+        # Alder/Raptor Lake E-cores expose no FLOP event: a set counting
+        # on half the cores would undercount silently under `measured`.
+        assert (
+            events.sampling_events(
+                intel_machine(0x97, "Core i9"), intel_cpuinfo(tmp_path, 0x97)
+            )
+            == ()
+        )
+
+    def test_the_lane_scales_make_the_event_counts_flops(self):
+        scalar = events.canonical(
+            f"fp_arith_inst_retired.scalar_double/period={events.FLOP_PERIOD}/u"
+        )
+        wide_dp = events.canonical(
+            f"fp_arith_inst_retired.512b_packed_double/period={events.FLOP_PERIOD}/"
+        )
+        wide_sp = events.canonical(
+            f"fp_arith_inst_retired.512b_packed_single/period={events.FLOP_PERIOD}/"
+        )
+        assert (scalar.canonical, scalar.scale) == ("flops_dp", 1)
+        assert (wide_dp.canonical, wide_dp.scale) == ("flops_dp", 8)
+        assert (wide_sp.canonical, wide_sp.scale) == ("flops_sp", 16)
+        assert all(
+            e.quality is Quality.MEASURED for e in (scalar, wide_dp, wide_sp)
+        )
+
+    def test_the_dram_proxy_is_estimated_and_says_what_it_misses(self):
+        proxy = events.canonical(
+            f"mem_load_retired.l3_miss/period={events.FILL_PERIOD}/u"
+        )
+        assert proxy.canonical == "dram_bytes"
+        assert proxy.scale == events.CACHELINE_BYTES
+        assert proxy.quality is Quality.ESTIMATED
+        assert "prefetched" in proxy.reason and "stores" in proxy.reason
+
+
+class TestIntelPasses:
+    def test_the_passes_split_by_meaning_with_single_precision_arriving(
+        self, tmp_path
+    ):
+        groups = events.pass_groups(
+            intel_machine(0x55, "Xeon Gold"), intel_cpuinfo(tmp_path, 0x55)
+        )
+        assert [label for label, _ in groups] == ["flops_dp", "flops_sp", "memory"]
+        by_label = dict(groups)
+        assert [e.scale for e in by_label["flops_sp"]] == [1, 4, 8, 16]
+
+    def test_the_single_execution_set_is_whole_groups_of_the_pass_split(
+        self, tmp_path
+    ):
+        cpuinfo = intel_cpuinfo(tmp_path, 0x6A)
+        machine = intel_machine(0x6A, "Xeon")
+        by_label = dict(events.pass_groups(machine, cpuinfo))
+        single = events.sampling_events(machine, cpuinfo)
+        assert list(single) == [*by_label["flops_dp"], *by_label["memory"]]
+
+    def test_the_witness_is_retired_instructions_on_the_fixed_counter(
+        self, tmp_path
+    ):
+        (witness,) = events.witness(
+            intel_machine(0x55, "Xeon Gold"), intel_cpuinfo(tmp_path, 0x55)
+        )
+        assert witness.canonical == "instructions"
+        assert f"instructions/period={events.INSTRUCTION_PERIOD}" in witness.selector
+
+    def test_the_witness_folds_back_through_ingestion(self):
+        entry = events.canonical(
+            f"instructions/period={events.INSTRUCTION_PERIOD}/u"
+        )
+        assert entry is not None and entry.canonical == "instructions"
