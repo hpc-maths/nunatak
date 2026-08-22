@@ -56,6 +56,14 @@ PRECISION_REASON = (
     "FLOPs not split by precision on this microarchitecture; "
     "compared against the double-precision peak"
 )
+SPECULATIVE_REASON = (
+    "speculatively executed operations, not retired: "
+    "mispredicted work is counted"
+)
+LL_MISS_REASON = (
+    "last-level cache read misses, one cacheline each: writes and "
+    "writebacks are not counted"
+)
 
 
 @dataclass(frozen=True)
@@ -164,6 +172,56 @@ def _intel_flops(precision: str, widths: tuple[int, ...]) -> tuple[SampledEvent,
     return tuple(events)
 
 
+def _neoverse_flops(vector_length: int) -> tuple[SampledEvent, ...]:
+    """The Neoverse FLOP pair: SVE element operations counted per 128
+    bits of vector - hence scaled by the core's hardware vector length -
+    plus scalar and NEON element operations counted as they are. The
+    hardware counts an FMA twice per lane, so the scales carry no FMA
+    factor of ours.
+
+    Both events are speculative - these cores retire no FLOP count -
+    so the Measurements are estimated with that reason. No precision
+    split exists either: the counts fold onto the all-precision
+    canonical counter, and placements against the double-precision peak
+    say so. An operating system may cap the vector length below the
+    hardware's (prctl): the scale would then overcount SVE operations
+    by the cap ratio - rare enough to accept, impossible to observe
+    from a table.
+    """
+    return (
+        SampledEvent(
+            event=f"fp_scale_ops_spec/period={FLOP_PERIOD}/",
+            canonical="flops",
+            unit="flop",
+            scale=vector_length / 128,
+            quality=Quality.ESTIMATED,
+            reason=SPECULATIVE_REASON,
+        ),
+        SampledEvent(
+            event=f"fp_fixed_ops_spec/period={FLOP_PERIOD}/",
+            canonical="flops",
+            unit="flop",
+            quality=Quality.ESTIMATED,
+            reason=SPECULATIVE_REASON,
+        ),
+    )
+
+
+def _ll_miss_reads() -> SampledEvent:
+    """Last-level read misses, scaled to bytes: the per-core DRAM proxy
+    Neoverse offers - write traffic only exists on the interconnect's
+    own PMU, which counts per socket and cannot be attributed to a
+    Hotspot."""
+    return SampledEvent(
+        event=f"ll_cache_miss_rd/period={FILL_PERIOD}/",
+        canonical="dram_bytes",
+        unit="byte",
+        scale=CACHELINE_BYTES,
+        quality=Quality.ESTIMATED,
+        reason=LL_MISS_REASON,
+    )
+
+
 @dataclass(frozen=True)
 class EventTable:
     """The counter architecture of one microarchitecture.
@@ -238,9 +296,9 @@ def _intel(widths: tuple[int, ...], memory: str, single: tuple[str, ...]) -> Eve
 
 
 # Event names follow the kernel's per-microarchitecture tables. The
-# Zen 2 set is validated on real PMUs (the corpus machine); the Zen 3/4
-# and Intel names are the kernel's for those parts, unvalidated on real
-# PMUs yet, and degrade cleanly if a kernel does not know them.
+# Zen 2 set is validated on real PMUs (the corpus machine); the Zen 3/4,
+# Intel and Neoverse names are the kernel's for those parts, unvalidated
+# on real PMUs yet, and degrade cleanly if a kernel does not know them.
 #
 # Intel absences are choices, not oversights. Haswell/Broadwell retired
 # their FLOP counters (they returned with Skylake): memory traffic is
@@ -288,6 +346,36 @@ _TABLE = {
     "haswell/broadwell": EventTable(
         groups=(("memory", (_l3_miss_loads("mem_load_uops_retired.l3_miss"),)),),
         single=("memory",),
+        witness=(_instructions(),),
+    ),
+    # Neoverse: six programmable counters per core, so both groups ride
+    # the single execution everywhere. V1's SVE vectors are 256-bit
+    # (Graviton 3), N2's and V2's 128-bit (Cobalt 100, Graviton 4,
+    # Grace); the vector length is a property of the core, which is why
+    # it can live in this table at all. The witness is retired
+    # instructions - the one architectural, non-speculative count these
+    # cores offer. N1 exposes no FLOP event of any kind: like Haswell,
+    # it attributes memory traffic only, and pretending otherwise from
+    # NEON instruction counts would need lane guesses the hardware
+    # cannot supply.
+    "neoverse-n1": EventTable(
+        groups=(("memory", (_ll_miss_reads(),)),),
+        single=("memory",),
+        witness=(_instructions(),),
+    ),
+    "neoverse-v1": EventTable(
+        groups=(("flops", _neoverse_flops(256)), ("memory", (_ll_miss_reads(),))),
+        single=("flops", "memory"),
+        witness=(_instructions(),),
+    ),
+    "neoverse-n2": EventTable(
+        groups=(("flops", _neoverse_flops(128)), ("memory", (_ll_miss_reads(),))),
+        single=("flops", "memory"),
+        witness=(_instructions(),),
+    ),
+    "neoverse-v2": EventTable(
+        groups=(("flops", _neoverse_flops(128)), ("memory", (_ll_miss_reads(),))),
+        single=("flops", "memory"),
         witness=(_instructions(),),
     ),
 }
