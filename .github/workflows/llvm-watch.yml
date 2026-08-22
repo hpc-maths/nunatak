@@ -1,0 +1,150 @@
+# The LLVM version watch (spec ch. 12): tooled, not declarative. LLVM
+# publishes a major every six months at a predictable date; this job
+# discovers each rc and release newer than the tested window, installs
+# it, diffs its -mcpu inventory against the last validated baseline -
+# opening a ticket that lists the microarchitectures the new LLVM
+# learned - and replays the frozen-binaries corpus with its real tools.
+#
+# A green run with nothing to qualify is the normal case. A red run is
+# the watch working: either apt.llvm.org does not serve the candidate
+# yet, or a parser really broke - loudly, which is the promise doctor's
+# warn-without-refuse posture rests on.
+name: llvm-watch
+
+on:
+  schedule:
+    - cron: "43 5 * * 1"
+  workflow_dispatch:
+    inputs:
+      major:
+        description: "LLVM major to qualify (default: newest release or rc above the tested window)"
+        required: false
+
+permissions:
+  contents: read
+  issues: write
+
+concurrency:
+  group: llvm-watch
+  cancel-in-progress: false
+
+jobs:
+  qualify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.14"
+      - run: python -m pip install --upgrade pip
+      - run: pip install --group dev -e .
+
+      - name: pick the candidate major
+        id: candidate
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REQUESTED: ${{ inputs.major }}
+        run: |
+          if [ -n "$REQUESTED" ]; then
+            case "$REQUESTED" in
+              *[!0-9]*|"") echo "major must be a bare number: $REQUESTED"; exit 1 ;;
+            esac
+            major="$REQUESTED"
+          else
+            # Releases include the rcs (prereleases), which is the point:
+            # the watch runs on each rc, not only on release day.
+            major=$(gh api repos/llvm/llvm-project/releases --paginate \
+              --jq '.[].tag_name' \
+              | sed -n 's/^llvmorg-\([0-9]*\)\..*$/\1/p' | sort -n | tail -1)
+          fi
+          tested=$(python -c 'from nunatak.attribution.symbolizer import TESTED_LLVM; print(TESTED_LLVM)')
+          echo "major=$major" >> "$GITHUB_OUTPUT"
+          echo "tested=$tested" >> "$GITHUB_OUTPUT"
+          if [ "$major" -gt "$tested" ]; then
+            echo "proceed=true" >> "$GITHUB_OUTPUT"
+            echo "qualifying LLVM $major against the tested window (<= $tested)"
+          else
+            echo "proceed=false" >> "$GITHUB_OUTPUT"
+            echo "LLVM $major is inside the tested window (<= $tested): nothing to qualify"
+          fi
+
+      - name: install the candidate from apt.llvm.org
+        if: steps.candidate.outputs.proceed == 'true'
+        env:
+          MAJOR: ${{ steps.candidate.outputs.major }}
+        run: |
+          wget -q https://apt.llvm.org/llvm.sh
+          chmod +x llvm.sh
+          sudo ./llvm.sh "$MAJOR"
+          sudo apt-get install -y "llvm-$MAJOR"
+          test -x "/usr/lib/llvm-$MAJOR/bin/llvm-symbolizer"
+          test -x "/usr/lib/llvm-$MAJOR/bin/llvm-mca"
+
+      - name: diff the -mcpu inventory against the validated baseline
+        if: steps.candidate.outputs.proceed == 'true'
+        id: diff
+        env:
+          MAJOR: ${{ steps.candidate.outputs.major }}
+          TESTED: ${{ steps.candidate.outputs.tested }}
+        run: |
+          NUNATAK_LLVM="/usr/lib/llvm-$MAJOR/bin" \
+            python corpus/mcpu/dump.py | sort > /tmp/candidate.txt
+          sort "corpus/mcpu/llvm-$TESTED.txt" > /tmp/baseline.txt
+          comm -13 /tmp/baseline.txt /tmp/candidate.txt > /tmp/new-models.txt
+          echo "count=$(grep -c . /tmp/new-models.txt || true)" >> "$GITHUB_OUTPUT"
+          cat /tmp/new-models.txt
+
+      - name: open the ticket listing the new microarchitectures
+        if: steps.candidate.outputs.proceed == 'true' && steps.diff.outputs.count != '0'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          MAJOR: ${{ steps.candidate.outputs.major }}
+          TESTED: ${{ steps.candidate.outputs.tested }}
+        run: |
+          title="LLVM $MAJOR knows new microarchitectures"
+          if [ "$(gh issue list --state all --search "in:title \"$title\"" \
+              --json number --jq length)" != "0" ]; then
+            echo "ticket already open for LLVM $MAJOR"
+            exit 0
+          fi
+          {
+            echo "The version watch inventoried \`llvm-mca --mcpu=help\` of LLVM $MAJOR"
+            echo "and found scheduling models absent from the LLVM $TESTED baseline:"
+            echo
+            sed 's/^/- \`/; s/$/\`/' /tmp/new-models.txt
+            echo
+            echo "For each model that names a microarchitecture we may meet:"
+            echo "consider the theory table and the counter event sets, and the"
+            echo "hardware test bench. Validating LLVM $MAJOR then means bumping"
+            echo "\`TESTED_LLVM\` and committing \`corpus/mcpu/llvm-$MAJOR.txt\`"
+            echo "(\`corpus/mcpu/README.md\` has the procedure)."
+          } > /tmp/ticket.md
+          gh issue create --title "$title" --body-file /tmp/ticket.md
+
+      - name: replay the frozen-binaries corpus with the candidate's tools
+        if: steps.candidate.outputs.proceed == 'true'
+        env:
+          MAJOR: ${{ steps.candidate.outputs.major }}
+        run: NUNATAK_LLVM="/usr/lib/llvm-$MAJOR/bin" python -m pytest -q -m llvm
+
+      - name: open the ticket for a broken lane
+        if: failure() && steps.candidate.outputs.proceed == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          MAJOR: ${{ steps.candidate.outputs.major }}
+        run: |
+          title="LLVM $MAJOR breaks the frozen-binaries lane"
+          if [ "$(gh issue list --state all --search "in:title \"$title\"" \
+              --json number --jq length)" != "0" ]; then
+            echo "ticket already open for LLVM $MAJOR"
+            exit 0
+          fi
+          {
+            echo "The version watch failed while qualifying LLVM $MAJOR: either"
+            echo "apt.llvm.org does not serve it for this runner yet, or a real"
+            echo "tool of that version broke a parser against the frozen corpus."
+            echo "The failed run's log says which:"
+            echo "${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+          } > /tmp/breakage.md
+          gh issue create --title "$title" --body-file /tmp/breakage.md
