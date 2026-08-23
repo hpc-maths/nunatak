@@ -561,7 +561,7 @@ def execute(args, command: list[str], console: Console) -> int:
         )
         gathered += loop_degradations
         counting, counting_degradations = rank_counting.ingest_counting(
-            directory / COLLECT_DIR
+            directory / COLLECT_DIR, config.coverage_threshold
         )
         measurements = measurements + counting
         after_launch = _deduplicated(
