@@ -58,10 +58,12 @@ class XctraceAdapter:
         events: tuple = (),
         env: dict | None = None,
         call_graph: str | None = None,
+        wrap=None,
     ) -> tuple[int, list[Degradation]]:
         """Run `command` under the Time Profiler, then export what
         nunatak consumes.
 
+        `wrap` lets a rider envelop the recording invocation itself.
         `events` and `call_graph` are accepted for the adapter contract
         and ignored: macOS offers no counter events, and the Time
         Profiler records backtraces unconditionally; its interval is the
@@ -72,14 +74,16 @@ class XctraceAdapter:
         """
         directory.mkdir(parents=True, exist_ok=True)
         trace = directory / TRACE_BUNDLE
+        # A rider (powermetrics) wraps the whole recording, never the
+        # command: xctrace only traces the process it launches, and a
+        # shell forking the application would hide it from the profiler.
+        argv = [
+            self.path, "record", "--template", "Time Profiler",
+            "--output", str(trace), "--target-stdout", "-",
+            "--launch", "--", *command,
+        ]
         record = executor.run(
-            [
-                self.path, "record", "--template", "Time Profiler",
-                "--output", str(trace), "--target-stdout", "-",
-                "--launch", "--", *command,
-            ],
-            capture=False,
-            env=env,
+            wrap(argv) if wrap is not None else argv, capture=False, env=env
         )
         profile = executor.run(
             [self.path, "export", "--input", str(trace), "--xpath", _TABLE_XPATH]

@@ -1,0 +1,8 @@
+{
+  "argv": [
+    "sw_vers",
+    "-productVersion"
+  ],
+  "exit_code": 0,
+  "captured": true
+}

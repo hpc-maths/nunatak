@@ -1,0 +1,7 @@
+                 U _free
+                 U _malloc
+                 U _memset_pattern16
+                 U _printf
+0000000100000000 T __mh_execute_header
+00000001000004b0 T _axpy
+0000000100000558 T _main

@@ -34,7 +34,8 @@ from nunatak.exit_codes import (
     FAILURE_BEFORE_LAUNCH,
     STRICT_VIOLATION,
 )
-from nunatak.collect import mpip, stacks
+from nunatak.collect import mpip, powermetrics, stacks
+from nunatak.ingestion import powermetrics_plist
 from nunatak.ingestion import mpip_report, rank_counting
 from nunatak.pivot import (
     Collector,
@@ -468,6 +469,11 @@ def execute(args, command: list[str], console: Console) -> int:
             )
             passes = [(None, counter_events.sampling_events(snapshot))]
         exit_code = 0
+        # On macOS, powermetrics rides the launch as a wrapper when the
+        # site's sudoers policy allows it: per-process energy aggregates
+        # for the price of one shell. Its absence is a named degradation
+        # like every optional prerequisite, announced before the run.
+        rider = executor.system == "Darwin" and powermetrics.allowed(executor)
         for index, (label, events) in enumerate(passes):
             named = f" [pass {index}: {label}]" if label is not None else ""
             console.info(
@@ -479,6 +485,18 @@ def execute(args, command: list[str], console: Console) -> int:
                 if label is not None
                 else directory / COLLECT_DIR
             )
+            rider_output = pass_dir / powermetrics.OUTPUT
+            extras = (
+                {
+                    "wrap": lambda argv, _o=rider_output: powermetrics.wrapped(
+                        argv, _o, os.path.basename(real_target(command) or command[0])
+                    )
+                }
+                if rider
+                else {}
+            )
+            if rider:
+                pass_dir.mkdir(parents=True, exist_ok=True)
             pass_start = _now()
             pass_exit, collect_degradations = adapter.collect(
                 list(command),
@@ -487,7 +505,37 @@ def execute(args, command: list[str], console: Console) -> int:
                 frequency,
                 events=events,
                 call_graph=call_graph,
+                **extras,
             )
+            if rider:
+                stream = powermetrics.read_back(executor, pass_dir)
+                if stream is None:
+                    gathered.append(
+                        Degradation(
+                            name="power-aggregates-empty",
+                            message="powermetrics completed no sample: the "
+                            "application ended before the first interval",
+                            remedy=f"aggregates need runs longer than "
+                            f"{powermetrics.INTERVAL_MS} ms",
+                        )
+                    )
+                else:
+                    rows, _, rider_unparsed = powermetrics_plist.measurements(
+                        stream,
+                        os.path.basename(real_target(command) or command[0]),
+                        platform.node(),
+                    )
+                    measurements += rows
+                    if rider_unparsed:
+                        gathered.append(
+                            Degradation(
+                                name="power-aggregates-unparsed",
+                                message=f"{len(rider_unparsed)} powermetrics "
+                                "sample(s) not recognized",
+                                remedy="report this format; the other samples "
+                                "are summed",
+                            )
+                        )
             sampled, sampled_stacks, ingest_degradations = ingestion.ingest(
                 adapter.tool, version, pass_dir,
                 node=platform.node(), pass_index=index,

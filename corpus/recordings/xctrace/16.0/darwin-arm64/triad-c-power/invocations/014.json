@@ -1,0 +1,9 @@
+{
+  "argv": [
+    "nm",
+    "-n",
+    "/usr/lib/system/libsystem_platform.dylib"
+  ],
+  "exit_code": 0,
+  "captured": true
+}

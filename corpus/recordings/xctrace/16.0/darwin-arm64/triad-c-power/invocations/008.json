@@ -1,0 +1,21 @@
+{
+  "argv": [
+    "/bin/sh",
+    "-c",
+    "sudo -n /usr/bin/powermetrics --samplers cpu_power,tasks --show-process-energy --format plist -b 0 -i 1000 -n -1 2>/dev/null | /Users/loic.gouarin/Work/worktree/darwin-powermetrics/.venv/bin/python3 -m nunatak.powerfilter triad-mid > /private/tmp/nunatak-capture-darwin/.nunatak/triad-mid-20260823-142509/collect/powermetrics.plist & RIDER=$!; \"$@\"; STATUS=$?; kill $RIDER 2>/dev/null; exit $STATUS",
+    "--",
+    "xctrace",
+    "record",
+    "--template",
+    "Time Profiler",
+    "--output",
+    "/private/tmp/nunatak-capture-darwin/.nunatak/triad-mid-20260823-142509/collect/xctrace.trace",
+    "--target-stdout",
+    "-",
+    "--launch",
+    "--",
+    "./triad-mid"
+  ],
+  "exit_code": 0,
+  "captured": false
+}

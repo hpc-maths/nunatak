@@ -1,0 +1,9 @@
+{
+  "argv": [
+    "nm",
+    "-n",
+    "/private/tmp/nunatak-capture-darwin/triad-mid"
+  ],
+  "exit_code": 0,
+  "captured": true
+}

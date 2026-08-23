@@ -1,0 +1,10 @@
+{
+  "argv": [
+    "sudo",
+    "-n",
+    "-l",
+    "/usr/bin/powermetrics"
+  ],
+  "exit_code": 0,
+  "captured": true
+}

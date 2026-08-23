@@ -113,6 +113,35 @@ def _cpu_collector(
                 "loop analysis where LLVM can disassemble",
             )
         )
+    if executor.system == "Darwin":
+        from nunatak.collect import powermetrics
+
+        if powermetrics.allowed(executor):
+            checks.append(
+                CheckResult(
+                    name="power-aggregates",
+                    status="ok",
+                    detail=f"powermetrics allowed by the sudoers policy "
+                    f"({powermetrics.TOOL})",
+                )
+            )
+        else:
+            degradation = Degradation(
+                name="power-aggregates-unavailable",
+                message="powermetrics needs root and the sudoers policy "
+                "does not allow it: no energy aggregates",
+                remedy="optional; allow it with a sudoers rule: "
+                f"NOPASSWD: {powermetrics.TOOL}",
+            )
+            checks.append(
+                CheckResult(
+                    name="power-aggregates",
+                    status="warning",
+                    detail=degradation.message,
+                    remedy=degradation.remedy,
+                    degradation=degradation,
+                )
+            )
     paranoid_file = Path("/proc/sys/kernel/perf_event_paranoid")
     if paranoid_file.is_file():
         checks.append(

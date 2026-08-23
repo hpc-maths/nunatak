@@ -1,0 +1,12 @@
+{
+  "argv": [
+    "/usr/bin/atos",
+    "-o",
+    "/usr/lib/system/libsystem_platform.dylib",
+    "-i",
+    "-offset",
+    "0x1174"
+  ],
+  "exit_code": 0,
+  "captured": true
+}
