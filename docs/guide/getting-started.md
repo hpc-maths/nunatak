@@ -409,6 +409,14 @@ which is what a wall-time profile means. On both rungs the call
 stacks come with every hit, and the Mach-O UUIDs stand where ELF
 build-ids do.
 
+Calibration runs the same embedded kernel through Apple's clang - NEON
+FMA chains, the triad sized from RAM - and it matters more here than
+anywhere: Apple Silicon exposes no rated frequency, so the theoretical
+table yields nothing and the measured Ceilings are the only ones the
+roofline will ever have. One honest absence rides along: macOS has no
+`/proc/loadavg`, so the concurrent-load pollution signal does not
+exist there - the dispersion signal still does.
+
 The platform's limits are stated, never smoothed over: no per-Hotspot
 counter events exist, so the roofline placement needs `estimated`
 ceilings and the L1 arithmetic intensity comes from the static loop
