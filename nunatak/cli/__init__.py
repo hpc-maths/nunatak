@@ -65,6 +65,11 @@ def build_parser() -> argparse.ArgumentParser:
         help="skip the first-run calibration (ceilings stay theoretical)",
     )
     run.add_argument(
+        "--no-explain",
+        action="store_true",
+        help="do not call the model at the end of the run",
+    )
+    run.add_argument(
         "--multi-pass",
         action="store_true",
         help="expert: rerun the application once per counter group, each "

@@ -95,12 +95,11 @@ def obtain(
     who = recipient(identity, model_flag)
     if granted(project, who):
         return True, None
-    remedy = (
-        "no consent recorded for this project: run `nunatak explain` "
-        "from a terminal on a login node to grant or refuse it"
-    )
     if not console.is_terminal:
-        return False, remedy
+        return False, (
+            "no consent recorded for this project and no terminal "
+            "to ask on: no source was sent"
+        )
     what = f"{who}" + (f" (model {identity.model})" if identity.model else "")
     console.info(
         f"Explanations send source code of this project to {what}, "
