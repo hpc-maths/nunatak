@@ -182,6 +182,24 @@ are named by the same attribution pass as the leaves, extent rule
 included: a return address in a gap keeps its honest `module+0x...`.
 Without recorded paths both say so - unknown is not zero.
 
+### The explanation layer
+
+LLM explanations reach the model through **pi** ([pi.dev](https://pi.dev)),
+an external tool orchestrated like perf or nsys - "exec + parse" extended
+to the language model. **pi's configuration is the single source of
+providers and models**: nunatak reads which provider and model would
+serve, and never duplicates or overrides that choice - there is no model
+setting in `nunatak.toml`, only a `tools.pi` path override like for any
+other tool.
+
+`doctor` shows the layer on its `explanation` row: pi's version, the
+default provider and model, whether the provider's endpoint is **local**
+(provably on this machine - the case where source code never leaves it)
+or **remote**, and what pi says about the credentials. An absent or
+broken pi is the named degradation `explanation-unavailable`: the
+deterministic analysis never depends on the model, so the run loses the
+explanations and nothing else.
+
 ## Exit codes
 
 The application's code is propagated in the general case. Reserved codes,
