@@ -437,3 +437,63 @@ class TestFirstRunCalibration:
         assert all(
             c.quality is not Quality.MEASURED for c in run.machine.ceilings
         )
+
+
+DARWIN_ENTRY = (
+    Path(__file__).resolve().parent.parent
+    / "corpus"
+    / "recordings"
+    / "calibration"
+    / "v0"
+    / "darwin-arm64"
+    / "apple-m5-max"
+)
+
+
+def laptop_machine() -> Machine:
+    return Machine(
+        system="Darwin",
+        kernel="25.5.0",
+        architecture="arm64",
+        cpu_model="Apple M5 Max",
+        logical_cores=18,
+        allocation=Allocation(visible_cores=18),
+    )
+
+
+class TestReplayedDarwinCalibration:
+    """The recorded Apple M5 Max entry end to end: the same driver, the
+    same kernel source, Apple clang and NEON - the microbenchmark path
+    the spec promises on every platform.
+
+    Two facts of the platform travel with the recording: Xcode 16's
+    clang accepts `-march=native` (one build attempt, not two), and
+    /proc/loadavg does not exist, so the load pollution signal is
+    honestly absent rather than guessed."""
+
+    def test_the_recorded_calibration_replays_into_measured_ceilings(
+        self, tmp_path
+    ):
+        executor = corpus.ReplayExecutor(DARWIN_ENTRY)
+        ceilings = kernel.calibrate(
+            executor, laptop_machine(), Config(), directory=tmp_path
+        )
+        assert [c.name for c in ceilings] == [
+            "dram_bandwidth",
+            "flops_dp",
+            "flops_sp",
+        ]
+        assert all(c.quality is Quality.MEASURED for c in ceilings)
+        dram, dp, sp = ceilings
+        assert dram.value == 3.665209e11
+        assert dp.value == 6.422745e11
+        assert sp.value == 1.277932e12
+
+    def test_the_kernel_self_reports_a_neon_build_without_a_load(self):
+        for record in sorted((DARWIN_ENTRY / "invocations").glob("*.json")):
+            argv = json.loads(record.read_text())["argv"]
+            if "kernel-v0" in argv[0]:
+                run = kernel.parse(record.with_suffix(".stdout").read_text())
+                assert run.isa == "neon"
+                assert run.threads == 18
+                assert run.load is None

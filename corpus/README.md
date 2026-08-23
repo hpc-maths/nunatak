@@ -32,5 +32,6 @@ the refresh of this corpus.
 |---|---|---|
 | `perf/6.12.101/linux-aarch64/workload-c` | Debian trixie (Docker VM), 2026-08-09 | task-clock fallback (no PMU in the VM), C workload built with `-O2 -g` |
 | `perf/6.14.11/linux-x86_64/workload-c` | Ubuntu 25.04, AMD EPYC 7702 (self-hosted runner), 2026-08-10 | real PMU cycles, `perf_event_paranoid` lowered to 2 for the capture, same C workload |
+| `calibration/v0/darwin-arm64/apple-m5-max` | macOS 26.5.2, Apple M5 Max (18 cores), 2026-08-23 | Apple clang (`-march=native` accepted since Xcode 16), NEON kernel, cold cache so the build is recorded; no load average on macOS |
 | `xctrace/16.0/darwin-arm64/triad-c` | macOS 26.5.2, Apple M5 Max, Xcode 16, 2026-08-23 | nominal temporal mode: Time Profiler export with per-address weights, atos + nm symbolization, exit status from the trace TOC |
 | `sample/26.5.2/darwin-arm64/triad-c` | macOS 26.5.2, Apple M5 Max, 2026-08-23 | temporal mode via /usr/bin/sample, triad built `cc -O2 -g`, warmed binary (a first launch loses the image list), no LLVM on the machine: atos + nm recorded as the symbolization path |
