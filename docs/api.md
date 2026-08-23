@@ -141,6 +141,15 @@
 
 .. automodule:: nunatak.explain.prompt
    :members:
+
+.. automodule:: nunatak.explain.generate
+   :members:
+
+.. automodule:: nunatak.explain.consent
+   :members:
+
+.. automodule:: nunatak.explain.store
+   :members:
 ```
 
 ## Summary

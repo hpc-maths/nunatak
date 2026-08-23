@@ -215,6 +215,40 @@ the report shows its full Diagnostic with the withholding reason -
 `--no-source` active, source not found, refused as stale, Hotspot
 unresolved.
 
+Generate the advice with the `explain` verb:
+
+```sh
+nunatak explain                   # the most recent Run
+nunatak explain .nunatak/solver-20260823-181200
+nunatak explain --model provider/some-model   # passed to pi verbatim
+```
+
+It is **separated from `run` by necessity**: measurement executes in a
+job, on compute nodes that generally have no network egress - `explain`
+is what runs from a login node afterwards. Calls go out **in parallel**
+(the observed latency is tens of seconds per Hotspot) with one progress
+line per answer, and provider errors - authentication, quota, network -
+are surfaced verbatim, never mistaken for an empty answer: pi exits 0
+even when every attempt failed, so nunatak reads the event stream, the
+only honest witness.
+
+The advice lands in `explanations.json` at the Run's root, **apart from
+the pivot** and labeled as advice: it is not reproducible, so unlike
+the Diagnostic it is persisted, and regenerating it - after a declined
+first attempt, a model change, an upgrade - replaces it wholesale
+without reprofiling.
+
+**Consent**: explanations send source code to the configured provider.
+When that provider is remote, nunatak asks once - bluntly, on a
+terminal - and memorizes the agreement per project and provider in the
+global cache; switching providers asks again. A provider whose endpoint
+is provably local (loopback in pi's `models.json`) asks nothing: that
+is the clean exit for a site that can let nothing out. A batch job with
+no memorized agreement withholds the explanations and says how to grant
+consent from a login node - there is no silent default in either
+direction. This is a different switch from `--no-source`, which keeps
+text out of the report: two risks, two controls.
+
 ## Exit codes
 
 The application's code is propagated in the general case. Reserved codes,

@@ -1,0 +1,19 @@
+{
+  "argv": [
+    "pi",
+    "-p",
+    "--no-session",
+    "--mode",
+    "json",
+    "--no-tools",
+    "--no-extensions",
+    "--no-skills",
+    "--no-context-files",
+    "--no-prompt-templates",
+    "--system-prompt",
+    "You are the explanation layer of an HPC profiler. You receive facts a\ndeterministic analysis already established - a roofline placement and\nquantities each labeled with its quality (measured, or estimated with\nthe reason) - and the source code of one hot function. Your role:\n1. Explain in plain language why this function performs the way the\n   facts say, for a reader without performance expertise.\n2. Suggest 2 to 4 concrete optimizations, ordered by expected gain,\n   each with a rough estimate of that gain and a short code sketch.\n3. Never contradict the facts. When a fact limits an optimization, say\n   so. Treat the reason of an estimated quantity as a caveat on any\n   conclusion you draw from it.\nYou explain and suggest from these facts only: you never diagnose,\nmeasure or classify. Answer in compact markdown, no top-level heading,\nat most about 400 words.\n",
+    "## Machine\n- Apple M5 Max, 18 of 18 logical cores allocated\n- ceiling dram_bandwidth: 365 Gbyte/s\n- ceiling flops_dp: 643 GFLOP/s\n- ceiling flops_sp: 1.26 TFLOP/s\n\n## Diagnostic for `axpy` (line level)\n- share of the sampled time: 100%\n- no roofline placement: no flops_dp raw counter in this Run\n\n## Hot inner loop (static analysis of the instruction stream, insensitive to cache reuse)\n- 12 instructions per iteration, 16 FLOPs\n- vectorized: 100% of the FP instructions, 128-bit\n- 128 bytes loaded, 64 stored per iteration; 0 gathers\n\n## Samples by source line\n- line 5: 100%\n\n## Source (`triad-mid.c`, lines 2-8)\n```\n#include <stdlib.h>\n__attribute__((noinline)) void axpy(double a, const double *x, double *y, int n)\n{\n    for (int i = 0; i < n; i++) y[i] = a * x[i] + y[i];\n}\nint main(void)\n{\n```\n\nExplain this behavior and suggest optimizations."
+  ],
+  "exit_code": 0,
+  "captured": true
+}

@@ -1,0 +1,94 @@
+{
+    "providers": {
+        "ilaas": {
+            "baseUrl": "https://llm.ilaas.fr/v1",
+            "api": "openai-completions",
+            "apiKey": "REDACTED",
+            "models": [
+                {
+                    "id": "gemma-4-31b",
+                    "contextWindow": 256000,
+                    "reasoning": true,
+                },
+                {
+                    "id": "qwen-3.6-35b-instruct",
+                    "contextWindow": 256000
+                },
+            ]
+        },
+        "local": {
+            "baseUrl": "http://127.0.0.1:1234/v1",
+            "api": "openai-completions",
+            "apiKey": "REDACTED",
+            "models": [
+                {
+                    "id": "qwen/qwen3-coder-next",
+                    "contextWindow": 256000
+                    // "reasoning": true
+                },
+                {
+                    "id": "google/gemma-4-31b",
+                    "contextWindow": 128000,
+                    "reasoning": true
+                }
+            ],
+        },
+        "dev-ilaas": {
+            "baseUrl": "https://devllm.ilaas.fr/v1",
+            "api": "openai-completions",
+            "apiKey": "REDACTED",
+            "models": [
+                {
+                    "id": "scaleway/glm-5.2",
+                    "reasoning": true
+                }
+            ]
+        },
+        "test-ilaas": {
+            "baseUrl": "https://ragarenn.eskemm-numerique.fr/gateway/v1",
+            "api": "openai-completions",
+            "apiKey": "REDACTED",
+            "models": [
+                {
+                    "id": "gemma-4-31b",
+                    "contextWindow": 256000,
+                    "reasoning": true,
+                    // vLLM derriere LiteLLM : thinking on/off uniquement
+                    "thinkingLevelMap": {
+                        "minimal": null,
+                        "low": null,
+                        "medium": null,
+                        "high": "high"
+                    },
+                    "compat": {
+                        "supportsReasoningEffort": false,
+                        "thinkingFormat": "chat-template",
+                        "chatTemplateKwargs": {
+                            "enable_thinking": {
+                                "$var": "thinking.enabled"
+                            }
+                        }
+                    }
+                }
+            ]
+        },
+        "albert": {
+            "baseUrl": "https://albert.api.etalab.gouv.fr/v1",
+            "api": "openai-completions",
+            "apiKey": "REDACTED",
+            "models": [
+                {
+                    "id": "deepseek-ai/DeepSeek-V4-Flash",
+                    "name": "deepseek-v4-flash",
+                    "contextWindow": 256000,
+                    "reasoning": true,
+                    "compat": {
+                        "thinkingFormat": "deepseek",
+                        "supportsReasoningEffort": false,
+                        "requiresReasoningContentOnAssistantMessages": true
+                    }
+                }
+            ]
+        }
+    }
+}

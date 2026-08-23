@@ -1,0 +1,21 @@
+{
+  "theme": "dark",
+  "defaultProvider": "opencode-go",
+  "defaultModel": "deepseek-v4-flash",
+  "defaultThinkingLevel": "high",
+  "packages": [
+    "npm:pi-safe-search"
+  ],
+  "memory": {
+    "memoryMode": "policy-only",
+    "memoryPolicyStyle": "full",
+    "memoryOverflowStrategy": "auto-consolidate",
+    "consolidationTimeoutMs": 60000
+  },
+  "compaction": {
+    "enabled": true,
+    "reserveTokens": 40000,
+    "keepRecentTokens": 20000
+  },
+  "lastChangelogVersion": "0.84.1"
+}

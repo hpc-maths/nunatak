@@ -1,0 +1,8 @@
+{
+  "argv": [
+    "/bin/cat",
+    "/Users/loic.gouarin/.pi/agent/models.json"
+  ],
+  "exit_code": 0,
+  "captured": true
+}

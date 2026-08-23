@@ -1,0 +1,27 @@
+{"type":"session","version":3,"id":"01a02f66-9c65-7574-a75c-6ed62c3e9628","timestamp":"2026-08-23T16:14:08.997Z","cwd":"/private/tmp/claude-502/-Users-loic-gouarin-Work-nunatak/a7fb5035-126e-4df4-abd4-e9aa7f70f5db/scratchpad"}
+{"type":"agent_start"}
+{"type":"turn_start"}
+{"type":"message_start","message":{"role":"user","content":[{"type":"text","text":"Say hello."}],"timestamp":1787501649021}}
+{"type":"message_end","message":{"role":"user","content":[{"type":"text","text":"Say hello."}],"timestamp":1787501649021}}
+{"type":"message_start","message":{"role":"assistant","content":[],"api":"openai-completions","provider":"opencode-go","model":"deepseek-v4-flash","usage":{"input":0,"output":0,"cacheRead":0,"cacheWrite":0,"totalTokens":0,"cost":{"input":0,"output":0,"cacheRead":0,"cacheWrite":0,"total":0}},"stopReason":"pending","timestamp":1787501649062}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_start","contentIndex":0}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":"The"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" user just wants me"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" to say hello. The"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" instruction says \"Answer"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" in exactly one short sentence.\""}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" So I should respond"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" with a"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" short sentence like \"Hello!\""}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" or \"Hello there"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":"!\" That fits"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" the requirement"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":"."}}
+{"type":"message_update","assistantMessageEvent":{"type":"text_start","contentIndex":1}}
+{"type":"message_update","assistantMessageEvent":{"type":"text_delta","contentIndex":1,"delta":"Hello!"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_end","contentIndex":0,"content":"The user just wants me to say hello. The instruction says \"Answer in exactly one short sentence.\" So I should respond with a short sentence like \"Hello!\" or \"Hello there!\" That fits the requirement."}}
+{"type":"message_update","assistantMessageEvent":{"type":"text_end","contentIndex":1,"content":"Hello!"}}
+{"type":"message_end","message":{"role":"assistant","content":[{"type":"thinking","thinking":"The user just wants me to say hello. The instruction says \"Answer in exactly one short sentence.\" So I should respond with a short sentence like \"Hello!\" or \"Hello there!\" That fits the requirement.","thinkingSignature":"reasoning_content"},{"type":"text","text":"Hello!"}],"api":"openai-completions","provider":"opencode-go","model":"deepseek-v4-flash","usage":{"input":146,"output":46,"cacheRead":0,"cacheWrite":0,"reasoning":0,"totalTokens":192,"cost":{"input":0.00002044,"output":0.00001288,"cacheRead":0,"cacheWrite":0,"total":0.00003332}},"stopReason":"stop","timestamp":1787501649062,"responseId":"router-eb6509c58d85bbc193329071c8abf9a4","rawStopReason":"stop"}}
+{"type":"turn_end","message":{"role":"assistant","content":[{"type":"thinking","thinking":"The user just wants me to say hello. The instruction says \"Answer in exactly one short sentence.\" So I should respond with a short sentence like \"Hello!\" or \"Hello there!\" That fits the requirement.","thinkingSignature":"reasoning_content"},{"type":"text","text":"Hello!"}],"api":"openai-completions","provider":"opencode-go","model":"deepseek-v4-flash","usage":{"input":146,"output":46,"cacheRead":0,"cacheWrite":0,"reasoning":0,"totalTokens":192,"cost":{"input":0.00002044,"output":0.00001288,"cacheRead":0,"cacheWrite":0,"total":0.00003332}},"stopReason":"stop","timestamp":1787501649062,"responseId":"router-eb6509c58d85bbc193329071c8abf9a4","rawStopReason":"stop"},"toolResults":[]}
+{"type":"agent_end","messages":[{"role":"user","content":[{"type":"text","text":"Say hello."}],"timestamp":1787501649021},{"role":"assistant","content":[{"type":"thinking","thinking":"The user just wants me to say hello. The instruction says \"Answer in exactly one short sentence.\" So I should respond with a short sentence like \"Hello!\" or \"Hello there!\" That fits the requirement.","thinkingSignature":"reasoning_content"},{"type":"text","text":"Hello!"}],"api":"openai-completions","provider":"opencode-go","model":"deepseek-v4-flash","usage":{"input":146,"output":46,"cacheRead":0,"cacheWrite":0,"reasoning":0,"totalTokens":192,"cost":{"input":0.00002044,"output":0.00001288,"cacheRead":0,"cacheWrite":0,"total":0.00003332}},"stopReason":"stop","timestamp":1787501649062,"responseId":"router-eb6509c58d85bbc193329071c8abf9a4","rawStopReason":"stop"}],"willRetry":false}
+{"type":"agent_settled"}
