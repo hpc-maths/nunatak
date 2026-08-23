@@ -10,19 +10,24 @@ from __future__ import annotations
 
 from nunatak.collect.execution import Executor
 from nunatak.collect.perf import PerfAdapter
+from nunatak.collect.sample import SampleAdapter
 from nunatak.config import Config
 
 
 def cpu_collector(
     executor: Executor, config: Config
-) -> tuple[PerfAdapter | None, str | None]:
+) -> tuple[PerfAdapter | SampleAdapter | None, str | None]:
     """The CPU collector usable in this environment: (adapter, version).
 
     (None, None) when the tool is absent; (None, version) when the tool is
     present but the environment forbids sampling - a capability lost to
     permissions is a degradation, never a failed launch. The platform is
     the executor's: a replayed Linux entry stays a Linux collection
-    wherever it is replayed."""
+    wherever it is replayed, and a replayed macOS entry a temporal one."""
+    if executor.system == "Darwin":
+        adapter = SampleAdapter(config.tools.get("sample", "/usr/bin/sample"))
+        version = adapter.detect(executor)
+        return (adapter, version) if version is not None else (None, None)
     if executor.system != "Linux":
         return None, None
     adapter = PerfAdapter(config.tools.get("perf", "perf"))

@@ -43,10 +43,12 @@ class TestExitCodes:
         assert principal(["frobnicate"]) == 125
 
     def test_strict_turns_degradations_into_error_121(self, tmp_path, monkeypatch):
-        # Force a degradation on every platform: an unusable perf path on
-        # Linux, and macOS has no CPU collector in the first place.
+        # Force a degradation on every platform: an unusable collector
+        # path for Linux's perf and macOS's sample alike.
         site = tmp_path / "site.toml"
-        site.write_text('[tools]\nperf = "/nonexistent/perf"\n')
+        site.write_text(
+            '[tools]\nperf = "/nonexistent/perf"\nsample = "/nonexistent/sample"\n'
+        )
         monkeypatch.setenv("NUNATAK_SITE_CONFIG", str(site))
         assert principal(["run", "--strict", "--", *OK]) == 121
 
