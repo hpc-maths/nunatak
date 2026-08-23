@@ -289,11 +289,13 @@ user pays for is never a decision the tool takes alone:
 nunatak run --multi-pass -- ./solver
 ```
 
-The groups are semantic - one measurement concern per pass (`flops`,
-`memory`) - and each is small enough that no counter is ever
-multiplexed: exact counts, which is what the extra executions buy. A
-**witness** - the retired-FLOP count, work-proportional where cycles
-count time-at-frequency - is replicated in each pass and compared at
+The groups are semantic - one measurement concern per pass (`flops`
+and `memory` on Zen; `flops_dp`, `flops_sp` and `memory` on Intel) -
+and each is small enough that no counter is ever multiplexed: exact
+counts, which is what the extra executions buy. A **witness** -
+work-proportional where cycles count time-at-frequency: the
+retired-FLOP count on Zen, retired instructions on their dedicated
+fixed counter on Intel - is replicated in each pass and compared at
 the end: within the threshold, cross-pass quantities - the DRAM intensity
 fusing one pass's FLOPs with another's bytes - stay exactly what they
 claim; beyond it, the application did different work in different
@@ -306,8 +308,9 @@ executions. Neither the time base nor cycles qualifies as witness, measured on
 the corpus machine: the same work took 69% more cpu-seconds on a first
 pass - the frequency governor ramping up - and a memory-bound run cost
 4.8e9 then 6.9e9 cycles back to back, while the retired-FLOP count came
-back identical to the unit. An application without floating point gets
-a vacuous witness - the honest amount of evidence available.
+back identical to the unit. On Zen, an application without floating
+point gets a vacuous witness - the honest amount of evidence available;
+the Intel witness counts every instruction and has no vacuous case.
 
 The threshold is configuration, recorded in the Run and used by every
 later analysis of it:
@@ -335,21 +338,44 @@ the same way.
 
 ## Counter groups
 
-On a microarchitecture nunatak knows (AMD Zen 2/3/4 today), sampling
-attributes more than time: a **FLOP counter** and the **DRAM demand
-fills**, scaled to bytes, ride along with `task-clock`. Each auxiliary
-event uses a fixed period - every sample is worth exactly its period,
-so the totals match `perf stat` within a fraction of a percent, and the
-interrupt rate stays bounded by construction.
+On a microarchitecture nunatak knows, sampling attributes more than
+time: **FLOP counters** and a **DRAM traffic** event, scaled to bytes,
+ride along with `task-clock`. Each auxiliary event uses a fixed period
+- every sample is worth exactly its period, so the totals match `perf
+stat` within a fraction of a percent, and the interrupt rate stays
+bounded by construction.
+
+- **AMD Zen 2/3/4**: one all-precision retired-FLOP event and the
+  demand DRAM fills. The Zen 2 set is validated on real PMUs.
+- **Intel Skylake through Granite Rapids**: the per-width retired-FLOP
+  events, folded onto precision-split counters (`flops_dp`, `flops_sp` -
+  the hardware already counts an FMA twice), and retired loads that
+  missed L3 as the DRAM proxy - the uncore memory controllers count per
+  socket and cannot be attributed to a Hotspot. These names come from
+  the kernel's tables and are not yet validated on real PMUs.
+
+The single execution's set is bounded by the general counters one SMT
+thread actually gets, because an event the kernel rotates off its
+counter undercounts silently. Where the budget cannot hold everything -
+Skylake-SP offers four counters, exactly the double-precision group -
+the missing groups are not truncated but **absent, and arrive with
+`--multi-pass`**: single precision everywhere on Intel, memory too on
+Skylake-SP.
+
+Absences are choices, not oversights: Haswell/Broadwell retired their
+FLOP counters, so those cores attribute memory traffic only; hybrid
+client parts (Alder/Raptor Lake) get no set at all, their E-cores
+exposing no FLOP event - a set counting on half the cores would
+undercount under `measured`.
 
 Honesty travels with the numbers: DRAM bytes come from demand fills
-only (hardware prefetchers bypass them, and sampling prefetch events
-inflates what they measure - an observer effect), so those Measurements
-are `estimated` with that reason; Zen does not split FLOPs by
-precision, so a placement against the double-precision peak says so
-too. An unknown microarchitecture samples time alone, and a kernel that
-rejects the event names degrades to time-only without ever running the
-application twice.
+(Zen) or retired L3-miss loads (Intel) - hardware prefetchers bypass
+both, and sampling prefetch events inflates what they measure, an
+observer effect - so those Measurements are `estimated` with their
+reason; Zen does not split FLOPs by precision, so a placement against
+the double-precision peak says so too. An unknown microarchitecture
+samples time alone, and a kernel that rejects the event names degrades
+to time-only without ever running the application twice.
 
 ## MPI runs
 

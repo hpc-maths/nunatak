@@ -203,6 +203,39 @@ class TestWitnessVerdict:
         assert not verdict.consistent
         assert verdict.totals == ((0, 1.0e9), (1, 1.3e9))
 
+    def test_retired_instructions_stand_witness_where_no_flop_event_does(self):
+        # The Intel witness: canonical `instructions` replicated per
+        # pass, judged exactly like the retired-FLOP count on Zen.
+        import dataclasses
+
+        from tests.test_analysis import hotspot, measurement, run_with
+
+        base = measurement(hotspot(), "instructions", 5.0e9, "instruction")
+        run = run_with(
+            [base, dataclasses.replace(base, pass_index=1, value=5.04e9)]
+        )
+        verdict = analysis.witness_verdict(run)
+        assert verdict.counter == "instructions"
+        assert verdict.consistent
+
+    def test_the_flop_witness_is_preferred_when_both_are_present(self):
+        import dataclasses
+
+        from tests.test_analysis import hotspot, measurement, run_with
+
+        spot = hotspot()
+        instructions = measurement(spot, "instructions", 5.0e9, "instruction")
+        flops = measurement(spot, "flops", 1.0e9, "flop")
+        run = run_with(
+            [
+                instructions,
+                dataclasses.replace(instructions, pass_index=1),
+                flops,
+                dataclasses.replace(flops, pass_index=1),
+            ]
+        )
+        assert analysis.witness_verdict(run).counter == "flops"
+
     def test_the_threshold_travels_with_the_run(self):
         run = self._two_pass_run([1.0e9, 1.06e9])
         assert not analysis.witness_verdict(run).consistent  # ~5.8% > 5%
