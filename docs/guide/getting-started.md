@@ -409,6 +409,17 @@ which is what a wall-time profile means. On both rungs the call
 stacks come with every hit, and the Mach-O UUIDs stand where ELF
 build-ids do.
 
+The static loop analysis works here too: Xcode's llvm-objdump reads
+the Mach-O - the measured reason for refusing llvm-objdump on Linux
+(it silently substitutes a separate debug file's empty sections) is an
+ELF mechanism with no Mach-O counterpart - the function extents come
+from `nm`'s symbol starts, and an aarch64 classifier counts the NEON
+loop bodies: `fmla.2d` is two lanes times two FLOPs, exactly as an
+x86 FMA counts. That is where the L1 arithmetic intensity of a macOS
+roofline comes from, no counter needed. Cycle bounds still ask for
+llvm-mca and a scheduling model, and Apple cores have no entry in the
+model table yet: the bound stays absent with that reason.
+
 When the site's sudoers policy allows it
 (`NOPASSWD: /usr/bin/powermetrics` - a root tool is a site decision,
 exactly like perf's paranoid level), **powermetrics rides the run** and
@@ -548,15 +559,20 @@ that too (`mpi-report-missing`).
 ## Static loop analysis
 
 Every measuring run also reads the machine code of its Hotspots: the
-sampled address distribution names the **innermost hot loop**, GNU
-objdump disassembles the physical function (the same tool, and the same
-measured reason, as the frame-pointer probing), and the instruction
-stream is counted per iteration - vector versus scalar floating point,
-the width used, the bytes each iteration loads and stores, the gathers.
-These counts cover the CQA/MAQAO use cases without MAQAO, survive
-everywhere a disassembler can read, and are **facts of the code, blind
-to cache reuse**: nothing derived from them is ever `measured` - a
-static analysis cannot be (invariant I6).
+sampled address distribution names the **innermost hot loop**, a
+disassembler reads the physical function, and the instruction stream
+is counted per iteration - vector versus scalar floating point, the
+width used, the bytes each iteration loads and stores, the gathers.
+Two flavors exist. On Linux the disassembler is GNU objdump over
+x86-64 AT&T (the same tool, and the same measured reason, as the
+frame-pointer probing). On macOS it is Xcode's llvm-objdump over
+Mach-O aarch64 - the Linux refusal of llvm-objdump names an ELF
+mechanism with no Mach-O counterpart - with function extents from
+`nm`'s symbol starts and a NEON classifier (no gathers to count: NEON
+has none). These counts cover the CQA/MAQAO use cases without MAQAO,
+survive everywhere a disassembler can read, and are **facts of the
+code, blind to cache reuse**: nothing derived from them is ever
+`measured` - a static analysis cannot be (invariant I6).
 
 The analysis needs the binary readable where the run executes; a Run
 replayed elsewhere simply carries none. A function whose samples fall

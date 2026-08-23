@@ -10,6 +10,8 @@ from pathlib import Path
 import pytest
 
 from nunatak.attribution import loops
+
+FIXTURES = Path(__file__).resolve().parent / "fixtures"
 from nunatak.config import Config
 from nunatak.pivot import (
     AddressDetail,
@@ -247,3 +249,84 @@ class TestCycleBounds:
         assert listing.is_file()
         assert "mulsd %xmm1,%xmm0" in listing.read_text()
         assert "jne" not in listing.read_text()
+
+
+class TestMachoArm64Flavor:
+    """The Darwin flavor against verbatim Xcode llvm-objdump output from
+    an Apple M5 Max: the NEON triad loop (`fmla.2d`, Apple's
+    mnemonic-suffix dialect) and its scalar sibling built with
+    vectorization off (`fmadd d`)."""
+
+    NEON = (FIXTURES / "objdump-macho-axpy-neon.txt").read_text()
+    SCALAR = (FIXTURES / "objdump-macho-axpy-scalar.txt").read_text()
+    BASE = 0x100000000
+
+    def test_rows_are_rebased_and_stripped_of_annotations(self):
+        rows = loops.parse_arm64(self.NEON, self.BASE)
+        assert rows[0].offset == 0x4B0
+        branch = next(r for r in rows if r.mnemonic.startswith("b."))
+        assert "<" not in branch.operands
+
+    def test_the_backward_branch_draws_the_loop(self):
+        rows = loops.parse_arm64(self.NEON, self.BASE)
+        found = loops.loops_arm64(rows, self.BASE)
+        assert any(loop.start == 0x4EC and loop.end == 0x518 for loop in found)
+        # The forward b.lt at the top draws nothing.
+        assert all(loop.end > loop.start for loop in found)
+
+    def test_the_neon_fmla_loop_counts_exactly(self):
+        rows = loops.parse_arm64(self.NEON, self.BASE)
+        outcome = loops.analyze_function_arm64(
+            self.NEON, {0x4FC: 100.0}, self.BASE
+        )
+        assert outcome is not None
+        loop, counts = outcome
+        assert (loop.start, loop.end) == (0x4EC, 0x518)
+        # Four fmla.2d: 2 lanes x 2 (an FMA counts two) each; four
+        # ldp q (32 B) in, two stp q out.
+        assert counts["flops"] == 16.0
+        assert counts["vector_fp"] == 4 and counts["scalar_fp"] == 0
+        assert counts["vector_width_bits"] == 128
+        assert counts["loaded_bytes"] == 128
+        assert counts["stored_bytes"] == 64
+        assert counts["gathers"] == 0
+
+    def test_the_scalar_fmadd_loop_counts_exactly(self):
+        outcome = loops.analyze_function_arm64(
+            self.SCALAR, {0x4C4: 10.0}, self.BASE
+        )
+        loop, counts = outcome
+        assert (loop.start, loop.end) == (0x4BC, 0x4D0)
+        assert counts["flops"] == 2.0
+        assert counts["vector_fp"] == 0 and counts["scalar_fp"] == 1
+        assert counts["vector_width_bits"] is None
+        assert counts["loaded_bytes"] == 16
+        assert counts["stored_bytes"] == 8
+
+    def test_weights_outside_every_loop_yield_nothing(self):
+        assert (
+            loops.analyze_function_arm64(self.NEON, {0x4B0: 5.0}, self.BASE)
+            is None
+        )
+
+    def test_calls_never_draw_loops(self):
+        text = (
+            "0000000100000400 <_f>:\n"
+            "100000400: 94000000\tbl\t0x100000300 <_g>\n"
+            "100000404: d65f03c0\tret\n"
+        )
+        rows = loops.parse_arm64(text, self.BASE)
+        assert loops.loops_arm64(rows, self.BASE) == []
+
+    def test_the_darwin_objdump_gate_needs_the_llvm_banner(self):
+        from tests.support import ScriptedExecutor
+        from nunatak.config import Config
+
+        apple = ScriptedExecutor(system="Darwin").on(
+            "objdump", stdout="Apple LLVM version 21.0.0\n  Optimized build.\n"
+        )
+        assert loops._darwin_objdump(apple, Config())[1] == "21.0.0"
+        gnu = ScriptedExecutor(system="Darwin").on(
+            "objdump", stdout="GNU objdump (GNU Binutils) 2.44\n"
+        )
+        assert loops._darwin_objdump(gnu, Config())[1] is None

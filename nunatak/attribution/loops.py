@@ -17,9 +17,13 @@ counts describe the machine code - exact facts about instructions, never
 about the execution: everything derived from them is `estimated` at
 best, by invariant I6 a static analysis never produces `measured`.
 
-The classifier reads x86-64 AT&T syntax, the corpus machine's. Another
-ISA disassembles fine but yields no counts: the analysis is skipped
-with its reason, never guessed.
+Two flavors live here, dispatched by the executor's platform. Linux is
+GNU objdump over ELF, x86-64 AT&T syntax. macOS is Xcode's llvm-objdump
+over Mach-O, aarch64: the measured reason for refusing llvm-objdump on
+Linux - it silently disassembles a separate debug file's empty NOBITS
+sections - is an ELF mechanism with no Mach-O counterpart, so the
+refusal does not travel. An ISA with no classifier of its own still
+yields no counts: skipped with its reason, never guessed.
 """
 
 from __future__ import annotations
@@ -149,12 +153,17 @@ def loops(instructions: list[Instruction]) -> list[Loop]:
 
 
 def hot_loop(
-    instructions: list[Instruction], weights: dict[int, float]
+    instructions: list[Instruction],
+    weights: dict[int, float],
+    candidates: list[Loop] | None = None,
 ) -> Loop | None:
     """The innermost loop carrying the sampled weight, None when the
     samples fall outside every loop - straight-line code has no loop to
-    analyze, and pretending otherwise would analyze the wrong thing."""
-    candidates = loops(instructions)
+    analyze, and pretending otherwise would analyze the wrong thing.
+    `candidates` lets another flavor's branch reader supply the loops;
+    by default the x86 one does."""
+    if candidates is None:
+        candidates = loops(instructions)
     weighted = [
         (
             sum(value for offset, value in weights.items() if loop.covers(offset)),
@@ -347,6 +356,176 @@ def _known_cpus(executor: Executor, mca: str) -> set[str]:
     return names
 
 
+# One llvm-objdump Mach-O arm64 row: `1000004b4: 5400050b\tb.lt
+# 0x100000554 <_axpy+0xa4>` - file virtual addresses (the caller rebases
+# them), one fixed-width encoding word, immediates spelled `#0x1`, and a
+# trailing symbol annotation the operands drop.
+_ROW_ARM = re.compile(
+    r"^(?P<offset>[0-9a-f]+):\s+[0-9a-f]{8}\s+"
+    r"(?P<mnemonic>\S+)(?:\s+(?P<operands>.*?))?\s*$"
+)
+
+# aarch64 branches that draw loops. `b` and the conditions loop; `bl`
+# and `blr` call, `br` dispatches, `ret` returns - none of them draws.
+_ARM_BRANCH = re.compile(r"^(?:b(?:\.\w+)?|cbz|cbnz|tbz|tbnz)$")
+_ARM_TARGET = re.compile(r"0x(?P<target>[0-9a-f]+)")
+
+# aarch64 floating-point arithmetic: `f` then the operation; the
+# multiply-accumulate family counts two per lane, like x86's FMAs.
+# Apple's llvm-objdump prints the arrangement as a mnemonic suffix
+# (`fmla.2d v5, v1, v0[0]`); the standard syntax carries it on the
+# registers (`fmla v5.2d, ...`) - both are read.
+_FP_ARM = re.compile(
+    r"^f(?P<op>add|sub|mul|div|sqrt|min|max|nmul|abd|"
+    r"mla|mls|madd|msub|nmadd|nmsub)"
+    r"(?:\.(?P<lanes>\d+)(?P<element>[bhsd]))?$"
+)
+_ARM_FMA = {"mla", "mls", "madd", "msub", "nmadd", "nmsub"}
+
+# A NEON arrangement (`v0.2d`) or a scalar FP register, and the memory
+# register widths: q loads a full 128-bit vector, x and d eight bytes,
+# w and s four.
+_ARM_ARRANGEMENT = re.compile(r"\bv\d+\.(?P<lanes>\d+)(?P<element>[bhsd])\b")
+_ARM_SCALAR_FP = re.compile(r"^[hsd]\d+$")
+_ARM_ELEMENT_BYTES = {"b": 1, "h": 2, "s": 4, "d": 8}
+_ARM_REGISTER_BYTES = {"q": 16, "v": 16, "x": 8, "d": 8, "w": 4, "s": 4}
+
+_ARM_PADDING = {"nop"}
+
+
+def parse_arm64(text: str, base: int) -> list[Instruction]:
+    """The instruction rows of one llvm-objdump Mach-O disassembly,
+    offsets rebased from file virtual addresses to module-relative ones
+    so the sampled weights speak the same units."""
+    rows = []
+    for line in text.splitlines():
+        match = _ROW_ARM.match(line.strip())
+        if match is None:
+            continue
+        operands = (match.group("operands") or "").split("<")[0].strip()
+        rows.append(
+            Instruction(
+                offset=int(match.group("offset"), 16) - base,
+                mnemonic=match.group("mnemonic"),
+                operands=operands,
+            )
+        )
+    return rows
+
+
+def loops_arm64(instructions: list[Instruction], base: int) -> list[Loop]:
+    """Every loop the aarch64 branches draw: a branch landing at or
+    before itself. The target is the operand's hex address - last for
+    the compare-and-branch forms, whose first operand is the register."""
+    offsets = {i.offset for i in instructions}
+    found = []
+    for instruction in instructions:
+        if _ARM_BRANCH.match(instruction.mnemonic) is None:
+            continue
+        targets = _ARM_TARGET.findall(instruction.operands)
+        if not targets:
+            continue
+        landing = int(targets[-1], 16) - base
+        if landing <= instruction.offset and landing in offsets:
+            found.append(Loop(start=landing, end=instruction.offset))
+    return found
+
+
+def _arm_flops(instruction: Instruction) -> tuple[float, bool, int | None] | None:
+    """(FLOPs per execution, vector?, lanes) for one aarch64
+    instruction, None when it is not floating-point arithmetic."""
+    match = _FP_ARM.match(instruction.mnemonic)
+    if match is None:
+        return None
+    each = 2 if match.group("op") in _ARM_FMA else 1
+    if match.group("lanes") is not None:
+        lanes = int(match.group("lanes"))
+        return lanes * each, True, lanes
+    arrangement = _ARM_ARRANGEMENT.search(instruction.operands)
+    if arrangement is not None:
+        lanes = int(arrangement.group("lanes"))
+        return lanes * each, True, lanes
+    first = instruction.operands.split(",")[0].strip()
+    if _ARM_SCALAR_FP.match(first):
+        return each, False, None
+    return None
+
+
+def _arm_memory_bytes(instruction: Instruction) -> int:
+    """How many bytes one execution of this load or store moves: the
+    sum of its register operands' widths, before the address bracket."""
+    registers = instruction.operands.split("[")[0]
+    moved = 0
+    for token in re.findall(r"\b([qvxdws])\d+(?:\.\d*[bhsd])?\b", registers):
+        moved += _ARM_REGISTER_BYTES[token]
+    return moved
+
+
+def classify_arm64(body: list[Instruction]) -> dict | None:
+    """The counts of one aarch64 loop body, per iteration of the
+    instruction stream - the same facts as x86's, NEON's fixed 128-bit
+    vectors instead of register widths, and no gathers: NEON has none
+    to count.
+
+    None when no instruction is recognizably aarch64: another ISA
+    deserves its own classifier, not this one's guesses.
+    """
+    if not any(
+        i.mnemonic.startswith(("ld", "st", "add", "mov")) or _FP_ARM.match(i.mnemonic)
+        for i in body
+    ):
+        return None
+    flops = 0.0
+    vector_fp = 0
+    scalar_fp = 0
+    width = None
+    loaded = 0
+    stored = 0
+    for instruction in body:
+        if instruction.mnemonic in _ARM_PADDING:
+            continue
+        counted = _arm_flops(instruction)
+        if counted is not None:
+            each, vector, _ = counted
+            flops += each
+            if vector:
+                vector_fp += 1
+                width = 128
+            else:
+                scalar_fp += 1
+        if instruction.mnemonic.startswith(("ld", "st")):
+            moved = _arm_memory_bytes(instruction)
+            if instruction.mnemonic.startswith("st"):
+                stored += moved
+            else:
+                loaded += moved
+    return {
+        "flops": flops,
+        "vector_fp": vector_fp,
+        "scalar_fp": scalar_fp,
+        "vector_width_bits": width,
+        "loaded_bytes": loaded,
+        "stored_bytes": stored,
+        "gathers": 0,
+    }
+
+
+def analyze_function_arm64(
+    disassembly: str, weights: dict[int, float], base: int
+) -> tuple[Loop, dict] | None:
+    """The hot loop of one Mach-O disassembled function and its counts,
+    None when there is no weighted loop."""
+    instructions = parse_arm64(disassembly, base)
+    loop = hot_loop(instructions, weights, loops_arm64(instructions, base))
+    if loop is None:
+        return None
+    body = [i for i in instructions if loop.covers(i.offset)]
+    counts = classify_arm64(body)
+    if counts is None:
+        return None
+    return loop, counts
+
+
 def listing_lines(body: list[Instruction]) -> list[str]:
     """The llvm-mca input lines for one loop body: our parsed
     `mnemonic operands` form, branches and padding stripped. The frozen
@@ -453,6 +632,11 @@ def analyze(
     if not eligible:
         return [], []
 
+    if executor.system == "Darwin":
+        return _analyze_darwin(
+            executor, config, eligible, details, symbolizer,
+            microarchitecture, directory,
+        )
     objdump, version = prologue.objdump_version(executor, config)
     if version is None:
         return [], [
@@ -510,6 +694,122 @@ def analyze(
                 end_offset=loop.end,
                 instructions=sum(
                     1 for i in body if i.mnemonic not in _PADDING
+                ),
+                flops_per_iteration=counts["flops"],
+                vector_fp=counts["vector_fp"],
+                scalar_fp=counts["scalar_fp"],
+                vector_width_bits=counts["vector_width_bits"],
+                loaded_bytes=counts["loaded_bytes"],
+                stored_bytes=counts["stored_bytes"],
+                gathers=counts["gathers"],
+                **bounds,
+            )
+        )
+    return analyses, []
+
+
+def _darwin_objdump(executor: Executor, config: Config) -> tuple[str, str | None]:
+    """Xcode's llvm-objdump, when it answers.
+
+    The Linux refusal of llvm-objdump does not travel here: silently
+    substituting a separate debug file's NOBITS sections is an ELF
+    mechanism, and Mach-O has neither the sections nor the substitution.
+    """
+    path = config.tools.get("objdump", "objdump")
+    invocation = executor.run([path, "--version"])
+    output = f"{invocation.stdout or ''}{invocation.stderr or ''}"
+    match = re.search(r"LLVM version (\S+)", output)
+    return path, match.group(1) if match else None
+
+
+def _analyze_darwin(
+    executor: Executor,
+    config: Config,
+    eligible: list,
+    details: list,
+    symbolizer,
+    microarchitecture: str | None,
+    directory: Path | None,
+) -> tuple[list[LoopAnalysis], list[Degradation]]:
+    """The Darwin flavor of the hot-loop analysis: llvm-objdump over
+    Mach-O, extents from nm's symbol starts - the format carries no
+    sizes, a function runs to the next symbol - and the aarch64
+    classifier.
+    """
+    from nunatak.attribution import atos
+
+    objdump, version = _darwin_objdump(executor, config)
+    if version is None:
+        return [], [
+            Degradation(
+                name="loop-analysis-unavailable",
+                message=f"no usable objdump at '{objdump}': the hot loops "
+                "cannot be disassembled",
+                remedy="install Xcode or its command line tools, or set "
+                "tools.objdump in nunatak.toml",
+            )
+        ]
+
+    mca = _mca_path(symbolizer)
+    known = _known_cpus(executor, mca) if mca is not None else None
+    mcpu = _MCPU.get(microarchitecture) if microarchitecture else None
+
+    weights = _weights_by_hotspot(details)
+    analyses: list[LoopAnalysis] = []
+    tables: dict = {}
+    for hotspot in eligible:
+        module = hotspot.logical_identity.module
+        if module not in tables:
+            tables[module] = atos.symbol_table(executor, module)
+        if tables[module] is None:
+            continue
+        base, starts = tables[module]
+        start = hotspot.physical_identity.offset
+        if start not in starts:
+            continue
+        following = [value for value in starts if value > start]
+        stop = following[0] if following else start + (1 << 20)
+        invocation = executor.run(
+            [
+                objdump, "--disassemble",
+                f"--start-address={base + start:#x}",
+                f"--stop-address={base + stop:#x}",
+                module,
+            ]
+        )
+        if invocation.exit_code != 0 or not invocation.stdout:
+            continue
+        outcome = analyze_function_arm64(
+            invocation.stdout, weights.get(hotspot, {}), base
+        )
+        if outcome is None:
+            continue
+        loop, counts = outcome
+        body = [
+            i
+            for i in parse_arm64(invocation.stdout, base)
+            if loop.covers(i.offset)
+        ]
+        # The listing feeds llvm-mca: branches and padding out, exactly
+        # like the x86 flavor's - except the branch spelling is arm's.
+        listing_body = [
+            i
+            for i in body
+            if _ARM_BRANCH.match(i.mnemonic) is None
+            and i.mnemonic not in _ARM_PADDING
+        ]
+        listing = (directory or Path(".")) / "loops" / f"{len(analyses)}.s"
+        bounds = _bounds(
+            executor, mca, known, mcpu,
+            getattr(symbolizer, "major", None), listing_body, listing,
+        )
+        analyses.append(
+            LoopAnalysis(
+                hotspot=hotspot,
+                start_offset=loop.start,
+                end_offset=loop.end,
+                instructions=sum(
+                    1 for i in body if i.mnemonic not in _ARM_PADDING
                 ),
                 flops_per_iteration=counts["flops"],
                 vector_fp=counts["vector_fp"],
