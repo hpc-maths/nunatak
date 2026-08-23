@@ -1,0 +1,17 @@
+{
+  "argv": [
+    "xctrace",
+    "record",
+    "--template",
+    "Time Profiler",
+    "--output",
+    "/private/tmp/nunatak-capture-darwin/.nunatak/triad-20260823-103016/collect/xctrace.trace",
+    "--target-stdout",
+    "-",
+    "--launch",
+    "--",
+    "./triad"
+  ],
+  "exit_code": 0,
+  "captured": false
+}

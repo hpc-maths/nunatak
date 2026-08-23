@@ -171,6 +171,8 @@ def ingest(
     """
     if tool == "sample":
         return _ingest_sample(directory, node, rank, pass_index)
+    if tool == "xctrace":
+        return _ingest_xctrace(directory, node, rank, pass_index)
     if tool != "perf" or not perf_script.supports(version):
         return [], [], [
             Degradation(
@@ -277,6 +279,46 @@ def _ingest_sample(
                 message=f"{len(unparsed)} report line(s) not recognized "
                 f"(first: {unparsed[0][:80]!r})",
                 remedy="report this line format; the other samples are ingested",
+            )
+        )
+    return (
+        measurements_from_samples(samples, identities, node, rank, pass_index),
+        stacks_from_samples(samples, node, rank, pass_index),
+        degradations,
+    )
+
+
+def _ingest_xctrace(
+    directory: Path, node: str, rank: int | None, pass_index: int
+) -> tuple[list[Measurement], list[Stack], list[Degradation]]:
+    """Ingestion of xctrace's exported time-profile table.
+
+    Per-address weights and exact leaf PCs: the macOS nominal grain,
+    through the same pipeline as everything else."""
+    from nunatak.collect import xctrace as xctrace_adapter
+    from nunatak.ingestion import xctrace_profile
+
+    profile_path = directory / xctrace_adapter.PROFILE_OUTPUT
+    if not profile_path.is_file():
+        return [], [], [
+            Degradation(
+                name="xctrace-export-missing",
+                message="xctrace exported no time-profile table; "
+                "no Measurement for this Run",
+                remedy="check the messages above; the .trace bundle is "
+                "kept in the Run",
+            )
+        ]
+    samples, identities, unparsed = xctrace_profile.parse(profile_path.read_text())
+    degradations = []
+    if unparsed:
+        degradations.append(
+            Degradation(
+                name="xctrace-export-unparsed",
+                message=f"{len(unparsed)} export row(s) not recognized "
+                f"(first: {unparsed[0][:80]!r})",
+                remedy="report this export format; the other samples "
+                "are ingested",
             )
         )
     return (

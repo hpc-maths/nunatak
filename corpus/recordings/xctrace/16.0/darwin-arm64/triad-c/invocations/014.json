@@ -1,0 +1,11 @@
+{
+  "argv": [
+    "git",
+    "-C",
+    "/private/tmp/nunatak-capture-darwin",
+    "rev-parse",
+    "HEAD"
+  ],
+  "exit_code": 128,
+  "captured": true
+}

@@ -1,0 +1,9 @@
+[invalid usage]: no processes or executables specified
+
+Usage: atos [-p pid] [-o executable/dSYM] [-f file-of-input-addresses] [-s slide | -l loadAddress | -textExecAddress addr | -offset] [-arch architecture] [-printHeader] [-fullPath] [-inlineFrames] [-dedup] [-d delimiter] [address ...]
+
+        -d/--delimiter     delimiter when outputting inline frames. Defaults to newline.
+        --fullPath         show full path to source file
+        -i/--inlineFrames  display inlined functions
+        --offset           treat all following addresses as offsets into the binary
+        --dedup            show all variants for <deduplicated_symbol> at address
