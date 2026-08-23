@@ -116,13 +116,15 @@ class Atos:
         return ModuleSymbolization(chains=chains)
 
 
-def _symbol_starts(executor: Executor, module: str) -> list[int] | None:
-    """The module-relative starts of `module`'s text symbols, sorted;
-    None when nm cannot read the module.
+def symbol_table(executor: Executor, module: str) -> tuple[int, list[int]] | None:
+    """`module`'s Mach-O base and the module-relative starts of its text
+    symbols, sorted; None when nm cannot read the module.
 
     nm prints file virtual addresses: the Mach-O header symbol names the
     module's base, subtracted so executables (based at 4 GiB) and
-    dylibs (based at zero) anchor alike.
+    dylibs (based at zero) anchor alike. The base itself rides along for
+    the readers that must speak to tools in file addresses - the
+    disassembler's ranges, for one.
     """
     invocation = executor.run(["nm", "-n", module])
     if invocation.exit_code != 0 or not invocation.stdout:
@@ -138,7 +140,15 @@ def _symbol_starts(executor: Executor, module: str) -> list[int] | None:
             base = value
             continue
         values.append(value)
-    return sorted(value - base for value in values) if values else None
+    if not values:
+        return None
+    return base, sorted(value - base for value in values)
+
+
+def _symbol_starts(executor: Executor, module: str) -> list[int] | None:
+    """The module-relative text-symbol starts alone, for the anchor."""
+    table = symbol_table(executor, module)
+    return table[1] if table is not None else None
 
 
 def _preceding(starts: list[int], offset: int) -> int | None:

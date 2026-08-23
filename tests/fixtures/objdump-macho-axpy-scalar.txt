@@ -1,0 +1,16 @@
+
+triad-scalar:	file format mach-o arm64
+
+Disassembly of section __TEXT,__text:
+
+00000001000004b0 <_axpy>:
+1000004b0: 7100045f    	cmp	w2, #0x1
+1000004b4: 5400010b    	b.lt	0x1000004d4 <_axpy+0x24>
+1000004b8: 2a0203e8    	mov	w8, w2
+1000004bc: fc408401    	ldr	d1, [x0], #0x8
+1000004c0: fd400022    	ldr	d2, [x1]
+1000004c4: 1f410801    	fmadd	d1, d0, d1, d2
+1000004c8: fc008421    	str	d1, [x1], #0x8
+1000004cc: f1000508    	subs	x8, x8, #0x1
+1000004d0: 54ffff61    	b.ne	0x1000004bc <_axpy+0xc>
+1000004d4: d65f03c0    	ret
