@@ -347,8 +347,9 @@ ride along with `task-clock`. Each auxiliary event uses a fixed period
 stat` within a fraction of a percent, and the interrupt rate stays
 bounded by construction.
 
-- **AMD Zen 2/3/4**: one all-precision retired-FLOP event and the
-  demand DRAM fills. The Zen 2 set is validated on real PMUs.
+- **AMD Zen 1 through Zen 5**: one all-precision retired-FLOP event
+  and the demand DRAM fills. The Zen 2 set is validated on real PMUs;
+  Zen 1 exposes no fill-source breakdown at all and counts FLOPs only.
 - **Intel Skylake through Granite Rapids**: the per-width retired-FLOP
   events, folded onto precision-split counters (`flops_dp`, `flops_sp` -
   the hardware already counts an FMA twice), and retired loads that
