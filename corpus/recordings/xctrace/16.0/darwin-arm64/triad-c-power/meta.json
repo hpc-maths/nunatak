@@ -1,0 +1,21 @@
+{
+  "created": "2026-08-23T14:25:16+02:00",
+  "command": [
+    "./triad-mid"
+  ],
+  "nunatak_version": "0.1.0.dev0",
+  "platform": {
+    "system": "Darwin",
+    "kernel": "25.5.0",
+    "architecture": "arm64"
+  },
+  "sampling_blocked": null,
+  "cpu_model": "Apple M5 Max",
+  "cpuinfo": null,
+  "collectors": [
+    {
+      "tool": "xctrace",
+      "version": "16.0"
+    }
+  ]
+}

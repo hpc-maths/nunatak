@@ -1,0 +1,8 @@
+{
+  "argv": [
+    "objdump",
+    "--version"
+  ],
+  "exit_code": 0,
+  "captured": true
+}

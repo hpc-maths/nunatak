@@ -67,6 +67,7 @@ class SampleAdapter:
         events: tuple = (),
         env: dict | None = None,
         call_graph: str | None = None,
+        wrap=None,
     ) -> tuple[int, list[Degradation]]:
         """Run `command` with sample attached, then read the report back.
 
@@ -86,8 +87,9 @@ class SampleAdapter:
             f'-file "{report}" >/dev/null 2>&1; '
             "wait $APP"
         )
+        argv = ["/bin/sh", "-c", wrapper, "--", *command]
         run = executor.run(
-            ["/bin/sh", "-c", wrapper, "--", *command], capture=False, env=env
+            wrap(argv) if wrap is not None else argv, capture=False, env=env
         )
         text = executor.run(["/bin/cat", str(report)])
         if text.exit_code == 0 and text.stdout is not None:

@@ -409,6 +409,21 @@ which is what a wall-time profile means. On both rungs the call
 stacks come with every hit, and the Mach-O UUIDs stand where ELF
 build-ids do.
 
+When the site's sudoers policy allows it
+(`NOPASSWD: /usr/bin/powermetrics` - a root tool is a site decision,
+exactly like perf's paranoid level), **powermetrics rides the run** and
+leaves three Locus-level aggregates, each `estimated` with its reason:
+the profiled process's `energy_impact` (Apple's abstract number,
+explicitly not joules, matched by process name), and the package-wide
+`cpu_energy` and `gpu_energy` in millijoules over the sampling window.
+The raw stream is filtered on the fly (`python -m nunatak.powerfilter`)
+down to what those aggregates need - a full sample enumerates every
+process on the machine, two megabytes per second under a profiler,
+measured. Without the rule, the run declares
+`power-aggregates-unavailable`, optional and remedied; an application
+shorter than the one-second interval leaves no sample and declares
+that too.
+
 Calibration runs the same embedded kernel through Apple's clang - NEON
 FMA chains, the triad sized from RAM - and it matters more here than
 anywhere: Apple Silicon exposes no rated frequency, so the theoretical
