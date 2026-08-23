@@ -55,12 +55,18 @@ __all__ = [
 
 def locate_any(executor: Executor, config) -> Symbolizer | Addr2Line | None:
     """The symbolizer this machine offers: the LLVM driver when one
-    answers, else GNU addr2line - same contract, declared second-choice
-    by doctor. The fallback is only probed when LLVM is absent, so a
-    machine with LLVM never spends the extra invocation."""
-    from nunatak.attribution import addr2line
+    answers, else the platform's fallback - GNU addr2line on Linux,
+    atos on macOS - same contract, declared second-choice by doctor.
+    The fallback is only probed when LLVM is absent, so a machine with
+    LLVM never spends the extra invocation."""
+    from nunatak.attribution import addr2line, atos
 
-    return locate(executor, config) or addr2line.locate(executor, config)
+    located = locate(executor, config)
+    if located is not None:
+        return located
+    if executor.system == "Darwin":
+        return atos.locate(executor, config)
+    return addr2line.locate(executor, config)
 
 
 def _symbolizable(module: str) -> bool:
@@ -69,7 +75,13 @@ def _symbolizable(module: str) -> bool:
     Pseudo entries - `[vdso]`, `[kernel.kallsyms]`, `/proc/kcore` - name
     kernel or synthetic mappings with no object file behind them: their
     Hotspots stay unresolved by design, displayed `module+0x...`.
+    macOS's `/usr/lib/dyld` is the same kind of entry wearing a real
+    path: the on-disk file is a shared-cache stub whose symbols no tool
+    loads, and declaring it unsymbolizable on every run would bury the
+    degradations that matter.
     """
+    if module == "/usr/lib/dyld":
+        return False
     return module.startswith("/") and not module.startswith("/proc/")
 
 
@@ -233,7 +245,10 @@ def attribute(
     }
     symbol_only = set()
     readelf = symbolizer.readelf
-    for module in sorted(needing_inspection):
+    # atos rides with no section reader (Mach-O is not ELF): FUNCTION
+    # keeps the level its output already justified, never demoted on a
+    # guess - the same posture as an unreadable inventory.
+    for module in sorted(needing_inspection) if readelf is not None else []:
         sections = inspection.inspect(executor, readelf, module)
         if sections is not None and sections.dynsym and not sections.symtab:
             symbol_only.add(module)

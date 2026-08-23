@@ -1,11 +1,7 @@
 {
   "argv": [
-    "git",
-    "-C",
-    "/private/tmp/nunatak-capture-darwin",
-    "rev-parse",
-    "--show-toplevel"
+    "/usr/bin/atos"
   ],
-  "exit_code": 128,
+  "exit_code": 1,
   "captured": true
 }

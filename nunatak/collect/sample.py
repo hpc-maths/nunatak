@@ -16,6 +16,7 @@ substitutes the recorded text without needing the file on disk.
 from __future__ import annotations
 
 import json
+import os
 import shutil
 from pathlib import Path
 
@@ -92,9 +93,11 @@ class SampleAdapter:
         if text.exit_code == 0 and text.stdout is not None:
             report.write_text(text.stdout)
 
+        # Absolute, because attribution only opens absolute paths - a
+        # relative launch (./solver) must not hide the binary from it.
         target = real_target(command) or command[0]
         resolved = shutil.which(target) if "/" not in target else target
         (directory / TARGET_META).write_text(
-            json.dumps({"target": resolved or target})
+            json.dumps({"target": os.path.abspath(resolved or target)})
         )
         return run.exit_code, []

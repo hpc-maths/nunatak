@@ -1,7 +1,7 @@
 {
   "argv": [
-    "sw_vers",
-    "-productVersion"
+    "objdump",
+    "--version"
   ],
   "exit_code": 0,
   "captured": true
