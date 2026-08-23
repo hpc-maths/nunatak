@@ -138,6 +138,9 @@
 
 .. automodule:: nunatak.explain.pi
    :members:
+
+.. automodule:: nunatak.explain.prompt
+   :members:
 ```
 
 ## Summary

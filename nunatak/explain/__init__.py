@@ -9,5 +9,16 @@ duplicates it, never overrides it.
 """
 
 from nunatak.explain.pi import Identity, Pi, identity, locate, readiness
+from nunatak.explain.prompt import SYSTEM_PROMPT, Request, Withheld, requests
 
-__all__ = ["Identity", "Pi", "identity", "locate", "readiness"]
+__all__ = [
+    "SYSTEM_PROMPT",
+    "Identity",
+    "Pi",
+    "Request",
+    "Withheld",
+    "identity",
+    "locate",
+    "readiness",
+    "requests",
+]
