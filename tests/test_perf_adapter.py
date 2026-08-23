@@ -40,8 +40,19 @@ def test_collect_records_then_extracts_what_nunatak_consumes(tmp_path):
     assert (tmp_path / "collect" / "perf-buildid-list.txt").read_text() == "deadbeef /opt/solver\n"
 
 
-def test_the_cpu_collector_is_linux_only():
-    executor = ScriptedExecutor(system="Darwin")
+def test_darwin_gets_the_temporal_collector():
+    executor = (
+        ScriptedExecutor(system="Darwin")
+        .on("sample", stderr="Usage: sample <pid | partial-process-name>")
+        .on("sw_vers", stdout="26.5.2\n")
+    )
+    adapter, version = cpu_collector(executor, Config())
+    assert adapter is not None and adapter.tool == "sample"
+    assert version == "macOS 26.5.2"
+
+
+def test_an_unknown_system_gets_no_collector():
+    executor = ScriptedExecutor(system="SunOS")
     assert cpu_collector(executor, Config()) == (None, None)
     assert executor.calls == []  # not even probed
 

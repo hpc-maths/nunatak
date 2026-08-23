@@ -35,7 +35,9 @@ IMBALANCE_RATIO = 2.0
 # but only as an estimate against the double-precision peak.
 FLOP_COUNTERS = ("flops_dp", "flops")
 BYTE_COUNTERS = ("dram_bytes",)
-CLOCK_COUNTERS = ("task-clock", "cpu-clock")
+# wall-clock is the temporal mode's clock (macOS sample): every
+# thread looked at on an interval, blocked or running.
+CLOCK_COUNTERS = ("task-clock", "cpu-clock", "wall-clock")
 
 PRECISION_REASON = (
     "FLOPs not split by precision on this microarchitecture; "

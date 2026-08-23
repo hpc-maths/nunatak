@@ -31,8 +31,10 @@ from nunatak.pivot import (
 __all__ = ["Sample", "ingest", "measurements_from_samples", "stacks_from_samples"]
 
 # Sampling clocks report periods in nanoseconds; any other raw counter
-# counts its own unit (cycles, instructions...).
-_CLOCK_UNITS = {"cpu-clock": "ns", "task-clock": "ns"}
+# counts its own unit (cycles, instructions...). `wall-clock` is the
+# temporal mode's clock: sample looks at every thread on an interval,
+# blocked or running, so its periods are wall time, not cpu time.
+_CLOCK_UNITS = {"cpu-clock": "ns", "task-clock": "ns", "wall-clock": "ns"}
 
 
 def measurements_from_samples(
@@ -167,6 +169,8 @@ def ingest(
     list with a degradation is a valid outcome, and stacks are empty
     whenever the recording carried none.
     """
+    if tool == "sample":
+        return _ingest_sample(directory, node, rank, pass_index)
     if tool != "perf" or not perf_script.supports(version):
         return [], [], [
             Degradation(
@@ -206,6 +210,77 @@ def ingest(
         )
     return (
         measurements_from_samples(samples, module_ids, node, rank, pass_index),
+        stacks_from_samples(samples, node, rank, pass_index),
+        degradations,
+    )
+
+
+def _ingest_sample(
+    directory: Path, node: str, rank: int | None, pass_index: int
+) -> tuple[list[Measurement], list[Stack], list[Degradation]]:
+    """Ingestion of /usr/bin/sample's report - the macOS temporal mode.
+
+    The report self-symbolicates, but the pivot still receives
+    `(module, offset)` hits like perf's: attribution stays one pipeline,
+    and the Mach-O UUIDs stand where ELF build-ids do.
+    """
+    import json
+
+    from nunatak.collect import sample as sample_adapter
+    from nunatak.ingestion import sample_report
+
+    report_path = directory / sample_adapter.REPORT_OUTPUT
+    if not report_path.is_file():
+        return [], [], [
+            Degradation(
+                name="sample-report-missing",
+                message="sample produced no report; no Measurement for this Run",
+                remedy="check the messages above; sampling another user's "
+                "process needs elevated rights",
+            )
+        ]
+    target = None
+    meta_path = directory / sample_adapter.TARGET_META
+    if meta_path.is_file():
+        target = json.loads(meta_path.read_text()).get("target")
+    samples, identities, version, unparsed = sample_report.parse(
+        report_path.read_text(), target
+    )
+    if version is not None and version not in sample_report.REPORT_VERSIONS:
+        return [], [], [
+            Degradation(
+                name="ingestion-unsupported",
+                message=f"no parser for sample report version {version}; "
+                "the raw report is kept in the Run",
+                remedy="upgrade nunatak",
+            )
+        ]
+    degradations = []
+    if samples and not identities:
+        # Measured on the corpus machine: the very first launch of a
+        # freshly built binary can leave sample unable to enumerate the
+        # binary images (first-run code-signing and dyld closure work).
+        # The hits then keep their module names but lose their offsets.
+        degradations.append(
+            Degradation(
+                name="sample-images-unavailable",
+                message="sample could not enumerate the binary images: "
+                "hits are attributed to whole modules, not addresses",
+                remedy="run again - a binary's very first launch is the "
+                "typical cause",
+            )
+        )
+    if unparsed:
+        degradations.append(
+            Degradation(
+                name="sample-report-unparsed",
+                message=f"{len(unparsed)} report line(s) not recognized "
+                f"(first: {unparsed[0][:80]!r})",
+                remedy="report this line format; the other samples are ingested",
+            )
+        )
+    return (
+        measurements_from_samples(samples, identities, node, rank, pass_index),
         stacks_from_samples(samples, node, rank, pass_index),
         degradations,
     )

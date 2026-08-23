@@ -1,0 +1,11 @@
+{
+  "argv": [
+    "/bin/sh",
+    "-c",
+    "\"$@\" & APP=$!; /usr/bin/sample $APP 3600 1 -mayDie -file \"/private/tmp/nunatak-capture-darwin/.nunatak/triad-20260823-091454/collect/sample-report.txt\" >/dev/null 2>&1; wait $APP",
+    "--",
+    "./triad"
+  ],
+  "exit_code": 0,
+  "captured": false
+}

@@ -53,11 +53,19 @@ def _cpu_collector(
         preselected if preselected is not None else cpu_collector(executor, config)
     )
     if adapter is None:
-        if executor.system != "Linux":
+        if executor.system == "Darwin":
+            path = config.tools.get("sample", "/usr/bin/sample")
+            degradation = Degradation(
+                name="cpu-collection-unavailable",
+                message=f"sample not usable at '{path}'",
+                remedy="set tools.sample in nunatak.toml; the tool ships "
+                "with macOS",
+            )
+        elif executor.system != "Linux":
             degradation = Degradation(
                 name="cpu-collection-unavailable",
                 message=f"no CPU collector implemented for {executor.system} yet",
-                remedy="hardware-counter profiling requires Linux perf for now",
+                remedy="profiling requires Linux perf or macOS sample for now",
             )
         elif version is not None:
             # The tool is there; the environment forbids sampling.
@@ -86,9 +94,24 @@ def _cpu_collector(
 
     checks = [
         CheckResult(
-            name="cpu-collector", status="ok", detail=f"perf {version} ({adapter.path})"
+            name="cpu-collector",
+            status="ok",
+            detail=f"{adapter.tool} {version} ({adapter.path})",
         )
     ]
+    if adapter.tool == "sample":
+        # The platform's degraded mode, announced where the user checks:
+        # not a capability this machine lost, the shape of macOS itself.
+        checks.append(
+            CheckResult(
+                name="hotspot-counters",
+                status="warning",
+                detail="macOS exposes no per-Hotspot counter events: "
+                "temporal sampling, roofline from estimated ceilings",
+                remedy="the L1 arithmetic intensity comes from the static "
+                "loop analysis where LLVM can disassemble",
+            )
+        )
     paranoid_file = Path("/proc/sys/kernel/perf_event_paranoid")
     if paranoid_file.is_file():
         checks.append(

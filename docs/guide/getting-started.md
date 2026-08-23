@@ -392,6 +392,26 @@ double-precision peak says so too. An unknown microarchitecture
 samples time alone, and a kernel that rejects the event names degrades
 to time-only without ever running the application twice.
 
+## macOS: the temporal mode
+
+macOS exposes no event-triggered sampling: `nunatak run` there drives
+`/usr/bin/sample` - present on every Mac - in **temporal** mode, the
+call stacks of every thread looked at on a fixed interval. The time
+counter is `wall-clock`: blocked threads are sampled too, which is what
+a wall-time profile means. Call stacks come with every hit, and the
+Mach-O UUIDs stand where ELF build-ids do.
+
+The platform's limits are stated, never smoothed over: no per-Hotspot
+counter events exist, so the roofline placement needs `estimated`
+ceilings and the L1 arithmetic intensity comes from the static loop
+analysis; `doctor` announces both. The report `sample` writes resolves
+at function grain - a leaf aggregates its addresses - and its very
+first look at a freshly built binary can fail to enumerate the loaded
+images (first-launch code-signing work, measured on the corpus
+machine): the hits then keep their module names without offsets, and
+the run declares `sample-images-unavailable` with "run again" as the
+remedy.
+
 ## MPI runs
 
 `nunatak run -- mpirun -n 8 ./solver` starts one launcher here and
