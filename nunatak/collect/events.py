@@ -248,8 +248,9 @@ class EventTable:
         )
 
 
-def _zen(fills: tuple[SampledEvent, ...]) -> EventTable:
-    """A Zen table: one all-precision FLOP event, demand DRAM fills, and
+def _zen(fills: tuple[SampledEvent, ...] = ()) -> EventTable:
+    """A Zen table: one all-precision FLOP event, demand DRAM fills
+    where the part offers a fill-source breakdown (Zen 1 does not), and
     the FLOP event doubling as witness.
 
     The witness is the retired-FLOP event because the two intuitive
@@ -267,9 +268,12 @@ def _zen(fills: tuple[SampledEvent, ...]) -> EventTable:
     available.
     """
     flops = _flops("fp_ret_sse_avx_ops.all")
+    groups = (("flops", (flops,)),)
+    if fills:
+        groups += (("memory", fills),)
     return EventTable(
-        groups=(("flops", (flops,)), ("memory", fills)),
-        single=("flops", "memory"),
+        groups=groups,
+        single=tuple(label for label, _ in groups),
         witness=(flops,),
     )
 
@@ -296,9 +300,10 @@ def _intel(widths: tuple[int, ...], memory: str, single: tuple[str, ...]) -> Eve
 
 
 # Event names follow the kernel's per-microarchitecture tables. The
-# Zen 2 set is validated on real PMUs (the corpus machine); the Zen 3/4,
-# Intel and Neoverse names are the kernel's for those parts, unvalidated
-# on real PMUs yet, and degrade cleanly if a kernel does not know them.
+# Zen 2 set is validated on real PMUs (the corpus machine); the other
+# Zen generations', Intel and Neoverse names are the kernel's for those
+# parts, unvalidated on real PMUs yet, and degrade cleanly if a kernel
+# does not know them.
 #
 # Intel absences are choices, not oversights. Haswell/Broadwell retired
 # their FLOP counters (they returned with Skylake): memory traffic is
@@ -317,6 +322,13 @@ _ZEN34_FILLS = (
     _dram_fills("ls_dmnd_fills_from_sys.mem_io_remote"),
 )
 _TABLE = {
+    # Zen 1 counts FLOPs with the same family-17h large-increment event
+    # the kernel pairs counters for - the mechanism our Zen 2 validation
+    # exercised on the same family - but its kernel table offers no
+    # fill-source breakdown at all: no per-core DRAM traffic exists to
+    # attribute, so the table is FLOPs-only, Haswell's situation
+    # mirrored.
+    "zen": _zen(),
     "zen2": _zen(
         (
             _dram_fills("ls_refills_from_sys.ls_mabresp_lcl_dram"),
@@ -325,6 +337,18 @@ _TABLE = {
     ),
     "zen3": _zen(_ZEN34_FILLS),
     "zen4": _zen(_ZEN34_FILLS),
+    # Zen 5 renamed the demand-fill sources; its floating-point table
+    # also offers precision selectors (scalar/packed x single/double),
+    # but their umasks are encoded selectors rather than combinable
+    # bits (packed_double 0xa0 overlaps bfloat16's 0x20) - without a
+    # machine to settle what summing two of them counts, the validated
+    # all-precision shape stays the honest choice.
+    "zen5": _zen(
+        (
+            _dram_fills("ls_dmnd_fills_from_sys.dram_io_near"),
+            _dram_fills("ls_dmnd_fills_from_sys.dram_io_far"),
+        )
+    ),
     "skylake": _intel(
         (128, 256), "mem_load_retired.l3_miss", ("flops_dp", "memory")
     ),

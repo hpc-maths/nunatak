@@ -57,6 +57,30 @@ class TestRegistry:
         cpuinfo.write_text(EPYC_7702.replace("AuthenticAMD", "CentaurHauls"))
         assert events.sampling_events(zen2_machine(), cpuinfo) == ()
 
+    def test_zen1_counts_flops_but_has_no_fill_sources_to_attribute(
+        self, tmp_path
+    ):
+        cpuinfo = tmp_path / "cpuinfo"
+        cpuinfo.write_text(EPYC_7702.replace("model\t\t: 49", "model\t\t: 1"))
+        group = events.sampling_events(zen2_machine(), cpuinfo)
+        assert [e.canonical for e in group] == ["flops"]
+        (witness,) = events.witness(zen2_machine(), cpuinfo)
+        assert witness.canonical == "flops"
+
+    def test_zen5_keeps_the_zen_shape_with_its_renamed_fills(self, tmp_path):
+        cpuinfo = tmp_path / "cpuinfo"
+        cpuinfo.write_text(EPYC_7702.replace("cpu family\t: 23", "cpu family\t: 26"))
+        group = events.sampling_events(zen2_machine(), cpuinfo)
+        assert [e.canonical for e in group] == ["flops", "dram_bytes", "dram_bytes"]
+        assert {e.event.split("/")[0] for e in group if e.canonical == "dram_bytes"} == {
+            "ls_dmnd_fills_from_sys.dram_io_near",
+            "ls_dmnd_fills_from_sys.dram_io_far",
+        }
+        fills = events.canonical(
+            f"ls_dmnd_fills_from_sys.dram_io_far/period={events.FILL_PERIOD}/u"
+        )
+        assert fills.canonical == "dram_bytes" and fills.scale == 64
+
     def test_canonical_strips_period_terms_and_modifiers(self):
         entry = events.canonical(
             "ls_refills_from_sys.ls_mabresp_lcl_dram/period=100003/u"
