@@ -100,7 +100,7 @@ def _cpu_collector(
             detail=f"{adapter.tool} {version} ({adapter.path})",
         )
     ]
-    if adapter.tool == "sample":
+    if adapter.tool in ("sample", "xctrace"):
         # The platform's degraded mode, announced where the user checks:
         # not a capability this machine lost, the shape of macOS itself.
         checks.append(

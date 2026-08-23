@@ -395,12 +395,19 @@ to time-only without ever running the application twice.
 
 ## macOS: the temporal mode
 
-macOS exposes no event-triggered sampling: `nunatak run` there drives
-`/usr/bin/sample` - present on every Mac - in **temporal** mode, the
-call stacks of every thread looked at on a fixed interval. The time
-counter is `wall-clock`: blocked threads are sampled too, which is what
-a wall-time profile means. Call stacks come with every hit, and the
-Mach-O UUIDs stand where ELF build-ids do.
+macOS exposes no event-triggered sampling: `nunatak run` samples
+**temporally**, down a two-rung ladder. With Xcode present, the
+nominal collector is **xctrace**'s Time Profiler: per-address weights
+(each sample keeps its exact leaf PC), only Running threads - so the
+counter is `cpu-clock` - callers with their binaries, and the
+application's true exit status read from the trace's table of
+contents, which xctrace itself does not propagate. The `.trace` bundle
+stays in the Run as the raw artifact. Without Xcode,
+`/usr/bin/sample` - present on every Mac - stands in at function
+grain, its counter `wall-clock`: blocked threads are sampled too,
+which is what a wall-time profile means. On both rungs the call
+stacks come with every hit, and the Mach-O UUIDs stand where ELF
+build-ids do.
 
 The platform's limits are stated, never smoothed over: no per-Hotspot
 counter events exist, so the roofline placement needs `estimated`

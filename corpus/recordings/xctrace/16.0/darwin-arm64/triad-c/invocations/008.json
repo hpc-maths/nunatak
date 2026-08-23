@@ -1,0 +1,11 @@
+{
+  "argv": [
+    "xctrace",
+    "export",
+    "--input",
+    "/private/tmp/nunatak-capture-darwin/.nunatak/triad-20260823-103016/collect/xctrace.trace",
+    "--toc"
+  ],
+  "exit_code": 0,
+  "captured": true
+}

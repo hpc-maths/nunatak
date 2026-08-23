@@ -1,0 +1,20 @@
+{
+  "argv": [
+    "/usr/bin/atos",
+    "-o",
+    "/private/tmp/nunatak-capture-darwin/triad",
+    "-i",
+    "-offset",
+    "0x4f4",
+    "0x4fc",
+    "0x504",
+    "0x508",
+    "0x50c",
+    "0x510",
+    "0x514",
+    "0x5f8",
+    "0x638"
+  ],
+  "exit_code": 0,
+  "captured": true
+}

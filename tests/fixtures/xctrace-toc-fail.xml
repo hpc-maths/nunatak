@@ -1,0 +1,12 @@
+<?xml version="1.0"?>
+
+<trace-toc>
+    <run number="1">
+        <info>
+            <target>
+                <device platform="macOS" model="MacBook Pro" name="202609Mac" os-version="26.5.2 (25F84)" uuid="9B72E613-3642-5349-903F-EF94EA60BB58"/>
+                <process type="launched" return-exit-status="7" name="fail" pid="88818" termination-reason="exit(7)"/>
+            </target>
+            <summary>
+                <start-date>2026-08-23T10:26:23.188+02:00</start-date>
+                <end-date>2026-08-23T10:26:23.807+02:00</end-date>

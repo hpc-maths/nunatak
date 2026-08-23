@@ -1,0 +1,12 @@
+{
+  "argv": [
+    "xctrace",
+    "export",
+    "--input",
+    "/private/tmp/nunatak-capture-darwin/.nunatak/triad-20260823-103016/collect/xctrace.trace",
+    "--xpath",
+    "/trace-toc/run[@number=\"1\"]/data/table[@schema=\"time-profile\"]"
+  ],
+  "exit_code": 0,
+  "captured": true
+}
