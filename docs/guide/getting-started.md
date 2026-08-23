@@ -410,6 +410,18 @@ They carry no Hotspot, and Hotspot-level Measurements on unsampled
 ranks are `unavailable`, **never extrapolated** from the sampled
 neighbours.
 
+When more events are counted than the PMU has counters, the kernel
+rotates them and reports each counter's **coverage**
+(`time_running / time_enabled`). A multiplexed value stays `measured`
+while its coverage clears `thresholds.coverage` (80% by default) - the
+kernel's extrapolation over most of the run is still the quantity -
+and is downgraded to `estimated` below it, with the numbers in the
+reason: "counters multiplexed: coverage 63% below the 80% threshold".
+Downgrading everything multiplexed would paint the report uniformly
+grey and strip the label of its discriminating power. The coverage
+itself rides every Measurement into the Run, whichever side of the
+threshold it falls on.
+
 The summary of an MPI run opens its topology right after the headline:
 `ranks: 128 (3 sampled); busiest rank 17 at 1.42x the mean; MPI holds
 23% of the time`. The imbalance factor is the busiest rank over the

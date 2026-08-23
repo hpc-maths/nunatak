@@ -33,8 +33,19 @@ def rank_metas(directory: Path) -> list[tuple[Path, dict]]:
     return metas
 
 
-def _measurements_of(meta: dict, csv_text: str) -> tuple[list[Measurement], list[str]]:
-    """The Locus-level Measurements of one counted rank."""
+def _measurements_of(
+    meta: dict, csv_text: str, coverage_threshold: float
+) -> tuple[list[Measurement], list[str]]:
+    """The Locus-level Measurements of one counted rank.
+
+    A multiplexed counter stays `measured` while its coverage
+    (time_running / time_enabled, perf's own column) clears the
+    threshold: the kernel's extrapolation over a large fraction of the
+    run is still the quantity. Below it, the value is downgraded to
+    `estimated` with the coverage in the reason - downgrading
+    everything multiplexed would paint the report uniformly grey and
+    strip the label of its discriminating power.
+    """
     locus = Locus(node=meta["node"], rank=meta["rank"])
     counts, unparsed = perf_stat.parse(csv_text)
     measurements = []
@@ -51,23 +62,37 @@ def _measurements_of(meta: dict, csv_text: str) -> tuple[list[Measurement], list
                     reason="counter not supported on this node",
                 )
             )
-        else:
-            measurements.append(
-                Measurement(
-                    hotspot=None,
-                    locus=locus,
-                    counter=count.counter,
-                    value=count.value,
-                    unit=count.unit,
-                    quality=Quality.MEASURED,
-                    coverage=count.coverage,
-                )
+            continue
+        quality, reason = Quality.MEASURED, None
+        if count.coverage is not None and count.coverage < coverage_threshold:
+            quality = Quality.ESTIMATED
+            reason = (
+                f"counters multiplexed: coverage {count.coverage:.0%} "
+                f"below the {coverage_threshold:.0%} threshold"
             )
+        measurements.append(
+            Measurement(
+                hotspot=None,
+                locus=locus,
+                counter=count.counter,
+                value=count.value,
+                unit=count.unit,
+                quality=quality,
+                reason=reason,
+                coverage=count.coverage,
+            )
+        )
     return measurements, unparsed
 
 
-def ingest_counting(directory: Path) -> tuple[list[Measurement], list[Degradation]]:
+def ingest_counting(
+    directory: Path, coverage_threshold: float
+) -> tuple[list[Measurement], list[Degradation]]:
     """Turn the rank directories under `directory` into Measurements.
+
+    `coverage_threshold` is `thresholds.coverage` from the effective
+    configuration: the coverage below which a multiplexed counter's
+    value is downgraded to estimated.
 
     Returns an empty list for a Run without ranks - a single-process Run
     has no counting layer, which is not a degradation. Uncounted ranks
@@ -101,7 +126,9 @@ def ingest_counting(directory: Path) -> tuple[list[Measurement], list[Degradatio
             if meta.get("role", "counting") != "sampling":
                 uncounted.append(meta["rank"])
             continue
-        counted, unparsed = _measurements_of(meta, csv_path.read_text())
+        counted, unparsed = _measurements_of(
+            meta, csv_path.read_text(), coverage_threshold
+        )
         measurements.extend(counted)
         unparsed_total += len(unparsed)
     degradations.extend(recorded.values())

@@ -45,6 +45,11 @@ def parse(text: str) -> tuple[list[Count], list[str]]:
         if not line.strip() or line.startswith("#"):
             continue
         fields = line.split(",")
+        if len(fields) >= 7 and not fields[0].strip() and not fields[2]:
+            # A derived-metric continuation row (`,,,,,0.08,stalled
+            # cycles per insn`): no event, no count - display sugar for
+            # a pair of events, not a measurement lost.
+            continue
         if len(fields) < 5 or not fields[2]:
             unparsed.append(line)
             continue

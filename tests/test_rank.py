@@ -31,6 +31,17 @@ CSV = """\
 
 UNSUPPORTED = "<not supported>,,stalled-cycles-backend:u,0,100.00,,\n"
 
+# Verbatim perf 6.14.11 on the EPYC asked for nine events over six
+# counters: the kernel rotates them and the coverage column says so.
+# The bare row is a derived-metric continuation - no event, no count.
+MULTIPLEXED = """\
+8148092781,,cycles:u,2896410491,85.00,,
+19480092744,,instructions:u,2896298471,85.00,2.39,insn per cycle
+,,,,,0.08,stalled cycles per insn
+1540099307,,stalled-cycles-frontend:u,2896704184,85.00,18.90,frontend cycles idle
+<not supported>,,ref-cycles:u,0,100.00,,
+"""
+
 FILE_HEADER = "# started on Wed Aug 12 04:34:50 2026\n\n"
 
 # The two sample lines are verbatim perf 6.14.11 output (corpus entry
@@ -178,6 +189,15 @@ class TestPerfStatParser:
         assert by_name["cycles"].value == 617886.0
         assert by_name["cycles"].coverage == 1.0
 
+    def test_multiplexed_counters_carry_their_coverage(self):
+        counts, unparsed = perf_stat.parse(MULTIPLEXED)
+        assert unparsed == []
+        by_name = {count.counter: count for count in counts}
+        assert by_name["cycles"].coverage == 0.85
+        assert by_name["instructions"].value == 19480092744
+        # The derived continuation row is display sugar, not a count.
+        assert len(counts) == 4
+
     def test_the_output_file_header_is_skipped(self):
         counts, unparsed = perf_stat.parse(FILE_HEADER + CSV)
         assert len(counts) == 3
@@ -313,10 +333,33 @@ def rank_dir(collect, entry, csv=CSV):
 
 
 class TestIngestCounting:
+    def test_coverage_above_the_threshold_stays_measured(self, tmp_path):
+        rank_dir(tmp_path, meta(0), csv=MULTIPLEXED)
+        measurements, _ = rank_counting.ingest_counting(tmp_path, 0.8)
+        cycles = next(m for m in measurements if m.counter == "cycles")
+        assert cycles.quality is Quality.MEASURED
+        assert cycles.coverage == 0.85
+        assert cycles.reason is None
+
+    def test_coverage_below_the_threshold_downgrades_with_the_numbers(
+        self, tmp_path
+    ):
+        # Same recorded run, stricter threshold: the rule reads the
+        # effective configuration, never a constant of its own.
+        rank_dir(tmp_path, meta(0), csv=MULTIPLEXED)
+        measurements, _ = rank_counting.ingest_counting(tmp_path, 0.9)
+        cycles = next(m for m in measurements if m.counter == "cycles")
+        assert cycles.quality is Quality.ESTIMATED
+        assert "coverage 85% below the 90% threshold" in cycles.reason
+        # The unsupported counter keeps its own verdict: absence beats
+        # any coverage arithmetic.
+        absent = next(m for m in measurements if m.counter == "ref-cycles")
+        assert absent.quality is Quality.UNAVAILABLE
+
     def test_counted_ranks_become_locus_level_measurements(self, tmp_path):
         rank_dir(tmp_path, meta(0, node="n0"))
         rank_dir(tmp_path, meta(1, node="n1"))
-        measurements, degradations = rank_counting.ingest_counting(tmp_path)
+        measurements, degradations = rank_counting.ingest_counting(tmp_path, 0.8)
         assert degradations == []
         assert len(measurements) == 6
         assert all(m.hotspot is None for m in measurements)
@@ -333,7 +376,7 @@ class TestIngestCounting:
 
     def test_an_unsupported_counter_ingests_as_unavailable(self, tmp_path):
         rank_dir(tmp_path, meta(0), csv=CSV + UNSUPPORTED)
-        measurements, _ = rank_counting.ingest_counting(tmp_path)
+        measurements, _ = rank_counting.ingest_counting(tmp_path, 0.8)
         absent = next(m for m in measurements if m.counter == "stalled-cycles-backend")
         assert absent.quality is Quality.UNAVAILABLE
         assert absent.value is None
@@ -341,7 +384,7 @@ class TestIngestCounting:
     def test_an_uncounted_rank_is_declared_by_number(self, tmp_path):
         rank_dir(tmp_path, meta(0))
         rank_dir(tmp_path, meta(1, counted=False, perf=None))
-        measurements, degradations = rank_counting.ingest_counting(tmp_path)
+        measurements, degradations = rank_counting.ingest_counting(tmp_path, 0.8)
         assert len(measurements) == 3
         (degradation,) = degradations
         assert degradation.name == "counting-unavailable"
@@ -350,14 +393,14 @@ class TestIngestCounting:
     def test_missing_ranks_are_declared_against_the_world_size(self, tmp_path):
         rank_dir(tmp_path, meta(0, world=4))
         rank_dir(tmp_path, meta(2, world=4))
-        _, degradations = rank_counting.ingest_counting(tmp_path)
+        _, degradations = rank_counting.ingest_counting(tmp_path, 0.8)
         (degradation,) = degradations
         assert degradation.name == "counting-incomplete"
         assert "2 of 4" in degradation.message
         assert "1, 3" in degradation.message
 
     def test_a_run_without_ranks_has_no_counting_layer(self, tmp_path):
-        assert rank_counting.ingest_counting(tmp_path) == ([], [])
+        assert rank_counting.ingest_counting(tmp_path, 0.8) == ([], [])
 
 
 class TestCollectionCommand:
@@ -412,7 +455,7 @@ class TestLauncherToPivotChain:
         )
         assert outcome.returncode == 0, outcome.stderr
 
-        counting, degradations = rank_counting.ingest_counting(collect)
+        counting, degradations = rank_counting.ingest_counting(collect, 0.8)
         assert degradations == []
         assert {m.locus.rank for m in counting} == {1}
         assert len(counting) == 3
