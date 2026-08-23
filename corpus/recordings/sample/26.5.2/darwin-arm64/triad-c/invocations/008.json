@@ -1,0 +1,8 @@
+{
+  "argv": [
+    "/bin/cat",
+    "/private/tmp/nunatak-capture-darwin/.nunatak/triad-20260823-095314/collect/sample-report.txt"
+  ],
+  "exit_code": 0,
+  "captured": true
+}

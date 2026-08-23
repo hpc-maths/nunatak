@@ -16,6 +16,7 @@ from pathlib import Path
 
 from nunatak.attribution import debuginfod, inspection
 from nunatak.attribution.addr2line import Addr2Line
+from nunatak.attribution.atos import Atos
 from nunatak.attribution.symbolizer import (
     MINIMUM_LLVM,
     RECOMMENDED_LLVM,
@@ -130,10 +131,11 @@ def _llvm(symbolizer) -> CheckResult:
     major newer than the validated window earns a warning and nothing
     else - too-new is not a capability loss, so it carries no
     degradation."""
-    if isinstance(symbolizer, Addr2Line):
+    if isinstance(symbolizer, (Addr2Line, Atos)):
+        tool = "GNU addr2line" if isinstance(symbolizer, Addr2Line) else "atos"
         degradation = Degradation(
             name="llvm-missing",
-            message="no usable llvm-symbolizer found; GNU addr2line "
+            message=f"no usable llvm-symbolizer found; {tool} "
             f"{symbolizer.version} ({symbolizer.path}) stands in",
             remedy=f"attribution works, without staleness fingerprints; "
             f"install LLVM {RECOMMENDED_LLVM}+ for them and for loop analysis",
@@ -231,7 +233,9 @@ def _attribution_ceiling(
     inspect it with - the other checks already said so.
     """
     _, resolved = _resolved_target(command)
-    if resolved is None or symbolizer is None:
+    if resolved is None or symbolizer is None or symbolizer.readelf is None:
+        # atos rides with no section reader: Mach-O is not ELF, and a
+        # ceiling claimed without an inventory would be a guess.
         return None
     sections = inspection.inspect(
         executor, symbolizer.readelf, str(resolved)

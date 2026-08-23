@@ -4,7 +4,7 @@
     "-C",
     "/private/tmp/nunatak-capture-darwin",
     "rev-parse",
-    "--show-toplevel"
+    "HEAD"
   ],
   "exit_code": 128,
   "captured": true

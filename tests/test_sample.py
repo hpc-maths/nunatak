@@ -15,6 +15,7 @@ import pytest
 
 from nunatak.collect.sample import DURATION_CAP, SampleAdapter
 from nunatak.ingestion import ingest, sample_report
+from nunatak.pivot import ResolutionLevel
 from tests.support import ScriptedExecutor
 
 FIXTURES = Path(__file__).resolve().parent / "fixtures"
@@ -195,15 +196,21 @@ class TestReplayedTemporalRun:
         summary = json.loads(capsys.readouterr().out)
         run = read_run(summary["run"])
         assert summary["hotspots"] == 1
+        assert summary["resolved_hotspots"] == 1
         assert {m.counter for m in run.measurements} == {"wall-clock"}
         assert all(m.unit == "ns" for m in run.measurements)
         top = max(run.measurements, key=lambda m: m.value or 0)
-        # axpy's body: unresolved without a symbolizer, anchored anyway.
-        assert top.hotspot.display_name == "triad+0x514"
+        # Named by the recorded atos, at line level, anchored on nm's
+        # symbol start.
+        assert top.hotspot.display_name == "axpy"
+        assert top.hotspot.resolution_level is ResolutionLevel.LINE
         assert top.hotspot.physical_identity is not None
-        # sample's tree records the callers with every hit.
+        # sample's tree records the callers with every hit; the frames
+        # of the launch target are named too.
         assert run.stacks
         deepest = max(run.stacks, key=lambda s: len(s.frames))
         assert len(deepest.frames) >= 3
+        named = {f.function for s in run.stacks for f in s.frames if f.function}
+        assert {"axpy", "main"} <= named
         names = {d["name"] for d in summary["degradations"]}
         assert "llvm-missing" in names

@@ -35,7 +35,8 @@ spent at that address, and the Hotspot is displayed `module+0x3a1c`
 rather than being attached to the nearest symbol. Kernel and vdso
 samples stay unresolved by design.
 
-Without a usable LLVM, **GNU addr2line** (binutils) stands in - executed
+Without a usable LLVM, the platform's own fallback stands in -
+**GNU addr2line** (binutils) on Linux, **atos** on macOS - executed
 on what the machine offers, never redistributed, and declared
 second-choice by `doctor`. The fallback keeps the extent rule that the
 tool itself does not: GNU addr2line names an address in the gap between
@@ -404,7 +405,13 @@ Mach-O UUIDs stand where ELF build-ids do.
 The platform's limits are stated, never smoothed over: no per-Hotspot
 counter events exist, so the roofline placement needs `estimated`
 ceilings and the L1 arithmetic intensity comes from the static loop
-analysis; `doctor` announces both. The report `sample` writes resolves
+analysis; `doctor` announces both. Hotspots are named by
+llvm-symbolizer when one is installed and by **atos** otherwise -
+Xcode ships no llvm-symbolizer, so atos is the platform's nominal
+symbolizer: inline chains with `-i`, the function anchor from `nm`'s
+symbol starts (Mach-O carries no sizes: a function's extent runs to
+the next symbol), and an address outside every symbol comes back as
+bare hex, never named after a neighbour. The report `sample` writes resolves
 at function grain - a leaf aggregates its addresses - and its very
 first look at a freshly built binary can fail to enumerate the loaded
 images (first-launch code-signing work, measured on the corpus
