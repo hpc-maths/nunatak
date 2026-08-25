@@ -18,6 +18,7 @@ import math
 
 from nunatak import analysis
 from nunatak.analysis import Derived, Diagnostic
+from nunatak.explain import prompt
 from nunatak.pivot import AddressDetail, Hotspot, Run, hotspot_level, manifest
 
 # Version of the payload contract, bumped on any breaking change so a
@@ -26,8 +27,11 @@ from nunatak.pivot import AddressDetail, Hotspot, Run, hotspot_level, manifest
 # the `inline_view` section - time by inline frame, all Hotspots
 # combined; schema 4 the `callers` and `inclusive` fields of each
 # Hotspot, consumed from the recorded call paths; schema 5 the `loop`
-# field of each Hotspot - the static analysis of its hot inner loop.
-SCHEMA = 5
+# field of each Hotspot - the static analysis of its hot inner loop;
+# schema 6 the `advice` field of each Hotspot and the `explanations`
+# stamp - the model's advice, labeled as such, never mixed with the
+# facts, and the withholding reason where advice cannot exist.
+SCHEMA = 6
 
 
 def _derived(quantity: Derived) -> dict:
@@ -292,10 +296,40 @@ def _relative_error(run: Run, hotspot: Hotspot, time_base: str | None) -> float 
     return 1.0 / math.sqrt(samples) if samples > 0 else None
 
 
-def _hotspot(run: Run, diagnostic: Diagnostic, time_base: str | None) -> dict:
+def _advice(
+    hotspot: Hotspot, stored: dict | None, withheld: str | None
+) -> dict | None:
+    """The advice cell of one Hotspot: text with its author, or the
+    withholding reason, or null for an eligible Hotspot whose advice
+    was simply never generated.
+
+    Advice never mixes with the facts: it arrives in its own field,
+    named for what it is, carrying the model that wrote it - advice
+    without its author could not be weighed by the reader.
+    """
+    if stored is not None:
+        return {
+            "text": stored.get("advice"),
+            "model": stored.get("model"),
+            "provider": stored.get("provider"),
+            "withheld": None,
+        }
+    if withheld is not None:
+        return {"text": None, "model": None, "provider": None, "withheld": withheld}
+    return None
+
+
+def _hotspot(
+    run: Run,
+    diagnostic: Diagnostic,
+    time_base: str | None,
+    stored_advice: dict,
+    withheld: dict,
+) -> dict:
     """One Hotspot as the report sees it: identity, Diagnostic, detail."""
     hotspot = diagnostic.hotspot
     details = analysis.details_of(run, hotspot, time_base)
+    identity = (hotspot.logical_identity.module, hotspot.logical_identity.name)
     return {
         "name": hotspot.display_name,
         "module": hotspot.logical_identity.module,
@@ -316,6 +350,9 @@ def _hotspot(run: Run, diagnostic: Diagnostic, time_base: str | None) -> dict:
         "callers": _callers(run, hotspot, time_base),
         "inclusive": _inclusive(run, hotspot, time_base),
         "loop": _loop(run, hotspot),
+        "advice": _advice(
+            hotspot, stored_advice.get(identity), withheld.get(hotspot)
+        ),
     }
 
 
@@ -369,17 +406,30 @@ def build(
     run: Run,
     diagnostics: list[Diagnostic],
     floor_samples: int = analysis.STATISTICAL_FLOOR_SAMPLES,
+    explanations: dict | None = None,
 ) -> dict:
     """The complete report payload for one Run.
 
     `diagnostics` is the output of `analysis.diagnose(run)`, already
     ordered by decreasing share; `floor_samples` must be the floor that
     produced it, so the report names the threshold actually applied.
+    `explanations` is the Run's advice file as `explain.store.read`
+    returns it, None when the Run carries none: advice is persisted, so
+    it must be handed in - while the withholding reasons are a pure
+    function of the pivot, recomputed here like the Diagnostic.
     Returns a JSON-serializable dict; its trunk is the Run manifest, so
     the report and the Run directory never drift apart.
     """
     trunk = manifest(run)
     time_base = analysis.time_base(run)
+    _, withheld_entries = prompt.requests(run, diagnostics)
+    withheld = {entry.hotspot: entry.reason for entry in withheld_entries}
+    stored_advice = {}
+    if explanations is not None:
+        stored_advice = {
+            (entry["hotspot"]["module"], entry["hotspot"]["name"]): entry
+            for entry in explanations.get("explanations", [])
+        }
     return {
         "format": {
             "name": "nunatak-report",
@@ -393,14 +443,23 @@ def build(
         "degradations": trunk["degradations"],
         "coverage": _coverage(run, time_base),
         "floor_samples": floor_samples,
-        "hotspots": [_hotspot(run, d, time_base) for d in diagnostics],
+        "hotspots": [
+            _hotspot(run, d, time_base, stored_advice, withheld)
+            for d in diagnostics
+        ],
         "others": _others(run, diagnostics, time_base),
         "ranks": _ranks(run),
         "inline_view": _inline_view(run, time_base),
+        "explanations": (
+            {"generated": explanations.get("generated")}
+            if explanations is not None
+            else None
+        ),
     }
 
 
 WITHHELD = "source text withheld by --no-source"
+ADVICE_WITHHELD = "advice withheld by --no-source: it may quote the source"
 
 
 def without_source(payload: dict) -> dict:
@@ -410,7 +469,9 @@ def without_source(payload: dict) -> dict:
     A page-side toggle would be a trap: the text would remain embedded in
     the file it claims to hide. The variant is produced here, before the
     page exists, so what leaves the machine never contained a line of
-    code. Returns a new payload; the input is not modified.
+    code. The advice goes with the text: the model saw the source and
+    routinely quotes it back. Returns a new payload; the input is not
+    modified.
     """
     stripped = json.loads(json.dumps(payload))
     for entry in stripped["hotspots"]:
@@ -418,4 +479,11 @@ def without_source(payload: dict) -> dict:
             entry["source"]["text"] = None
             entry["source"]["truncated"] = False
             entry["source"]["reason"] = WITHHELD
+        if entry["advice"] is not None and entry["advice"]["text"] is not None:
+            entry["advice"] = {
+                "text": None,
+                "model": None,
+                "provider": None,
+                "withheld": ADVICE_WITHHELD,
+            }
     return stripped

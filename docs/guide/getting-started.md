@@ -248,6 +248,14 @@ the Diagnostic it is persisted, and regenerating it - after a declined
 first attempt, a model change, an upgrade - replaces it wholesale
 without reprofiling.
 
+The report shows the advice at the Hotspot's detail level, **labeled
+and visually apart from the facts** - an accent block naming the model
+that wrote it, never a plain cell a measurement could sit in. Where
+advice cannot exist, the same block carries the withholding reason; a
+Run whose advice was never generated nudges toward the verb. The
+`--no-source` variant withholds the advice along with the text: the
+model saw the source and routinely quotes it back.
+
 **Consent**: explanations send source code to the configured provider.
 When that provider is remote, nunatak asks once - bluntly, on a
 terminal - and memorizes the agreement per project and provider in the

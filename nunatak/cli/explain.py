@@ -170,4 +170,7 @@ def execute(args, console: Console) -> int:
         return FAILURE_BEFORE_LAUNCH
     path = store.write(directory, explanations)
     console.info(f"Explanations: {path}")
+    console.info(
+        f"regenerate the report to include them: nunatak report {directory}"
+    )
     return 0

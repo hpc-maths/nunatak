@@ -1,5 +1,5 @@
 /**
- * Payload schema 5: the contract with the Python core.
+ * Payload schema 6: the contract with the Python core.
  *
  * These types mirror `nunatak/report/payload.py` field for field. The
  * app renders the payload, it never computes it: every number arrives
@@ -97,6 +97,19 @@ export interface LoopFacts {
   bounds_reason: string | null;
 }
 
+/**
+ * The model's advice for one Hotspot - advice, never a measurement.
+ * Either `text` with the model that wrote it, or `withheld` with the
+ * reason no advice can exist for this Hotspot. A null Advice on the
+ * entry means eligible but never generated.
+ */
+export interface Advice {
+  text: string | null;
+  model: string | null;
+  provider: string | null;
+  withheld: string | null;
+}
+
 export interface HotspotEntry {
   name: string;
   module: string;
@@ -117,6 +130,7 @@ export interface HotspotEntry {
   callers: CallerShare[];
   inclusive: number | null;
   loop: LoopFacts | null;
+  advice: Advice | null;
 }
 
 export interface Degradation {
@@ -169,6 +183,7 @@ export interface Payload {
   others: { count: number; share: number | null } | null;
   ranks: RanksSection | null;
   inline_view: InlineViewRow[] | null;
+  explanations: { generated: string | null } | null;
 }
 
 /**

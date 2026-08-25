@@ -6,11 +6,12 @@
     "time_base": "task-clock"
   },
   "degradations": [],
+  "explanations": null,
   "floor_samples": 30,
   "format": {
     "generated_by": "nunatak",
     "name": "nunatak-report",
-    "schema": 5
+    "schema": 6
   },
   "hotspots": [
     {
@@ -25,6 +26,7 @@
         "unit": "flop/s",
         "value": 1222552201.955277
       },
+      "advice": null,
       "attainable": {
         "formula": "min(flops_dp, dram_bandwidth x dram_intensity)",
         "lineage": [

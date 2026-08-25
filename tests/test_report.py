@@ -272,6 +272,82 @@ class TestReplayedSnapshot:
         assert rendered == SNAPSHOT.read_text(encoding="utf-8")
 
 
+class TestAdvice:
+    """Schema 6: the model's advice in its own field, never among the
+    facts; the withholding reason where advice cannot exist."""
+
+    def test_stored_advice_joins_by_logical_identity(self):
+        spot = hotspot()
+        run = run_with([measurement(spot, "task-clock", 2e9, "ns")])
+        run.source_extracts = [
+            SourceExtract(hotspot=spot, file="/src/app.c", text="x = 1;")
+        ]
+        explanations = {
+            "generated": "2026-08-25T10:00:00+02:00",
+            "explanations": [
+                {
+                    "hotspot": {
+                        "module": "/app/solver",
+                        "name": "main",
+                        "source_file": None,
+                    },
+                    "advice": "Fuse the loops.",
+                    "model": "some-model",
+                    "provider": "somewhere",
+                }
+            ],
+        }
+        payload = report.build(run, analysis.diagnose(run), explanations=explanations)
+        assert payload["hotspots"][0]["advice"] == {
+            "text": "Fuse the loops.",
+            "model": "some-model",
+            "provider": "somewhere",
+            "withheld": None,
+        }
+        assert payload["explanations"] == {"generated": "2026-08-25T10:00:00+02:00"}
+
+    def test_a_sourceless_hotspot_carries_its_withholding_reason(self):
+        payload = payload_of([measurement(hotspot(), "task-clock", 2e9, "ns")])
+        advice = payload["hotspots"][0]["advice"]
+        assert advice["text"] is None
+        assert "no source available" in advice["withheld"]
+
+    def test_eligible_but_never_generated_is_null(self):
+        spot = hotspot()
+        payload = payload_of(
+            [measurement(spot, "task-clock", 2e9, "ns")],
+            source_extracts=[
+                SourceExtract(hotspot=spot, file="/src/app.c", text="x = 1;")
+            ],
+        )
+        assert payload["hotspots"][0]["advice"] is None
+        assert payload["explanations"] is None
+
+    def test_the_report_reads_the_advice_beside_the_pivot(self, tmp_path):
+        from nunatak.explain import Explanation
+        from nunatak.explain import store as advice_store
+        from nunatak.report import html
+
+        spot = hotspot()
+        run = run_with([measurement(spot, "task-clock", 2e9, "ns")])
+        run.source_extracts = [
+            SourceExtract(hotspot=spot, file="/src/app.c", text="x = 1;")
+        ]
+        advice_store.write(
+            tmp_path,
+            [
+                Explanation(
+                    hotspot=spot,
+                    advice="Fuse the loops.",
+                    model="some-model",
+                    provider="somewhere",
+                )
+            ],
+        )
+        path = html.write_report(tmp_path, run, analysis.diagnose(run))
+        assert "Fuse the loops." in path.read_text(encoding="utf-8")
+
+
 class TestWithoutSource:
     def test_the_variant_withholds_text_and_keeps_the_distribution(self):
         spot = hotspot()
@@ -306,6 +382,38 @@ class TestWithoutSource:
         )
         report.payload.without_source(original)
         assert original["hotspots"][0]["source"]["text"] == "code();"
+
+    def test_the_advice_goes_with_the_text(self):
+        # The model saw the source and routinely quotes it back: the
+        # shareable variant withholds the advice with its reason.
+        spot = hotspot()
+        run = run_with([measurement(spot, "task-clock", 2e9, "ns")])
+        run.source_extracts = [
+            SourceExtract(hotspot=spot, file="/src/app.c", text="secret();")
+        ]
+        explanations = {
+            "generated": "T",
+            "explanations": [
+                {
+                    "hotspot": {
+                        "module": "/app/solver",
+                        "name": "main",
+                        "source_file": None,
+                    },
+                    "advice": "Inline `secret();` here.",
+                    "model": "m",
+                    "provider": "p",
+                }
+            ],
+        }
+        original = report.build(
+            run, analysis.diagnose(run), explanations=explanations
+        )
+        stripped = report.payload.without_source(original)
+        advice = stripped["hotspots"][0]["advice"]
+        assert advice["text"] is None
+        assert advice["withheld"] == report.payload.ADVICE_WITHHELD
+        assert "secret" not in json.dumps(stripped)
 
 
 class TestCountingLayer:
