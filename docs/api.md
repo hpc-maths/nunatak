@@ -152,6 +152,13 @@
    :members:
 ```
 
+## Comparison
+
+```{eval-rst}
+.. automodule:: nunatak.compare
+   :members:
+```
+
 ## Summary
 
 ```{eval-rst}
