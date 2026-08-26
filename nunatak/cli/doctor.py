@@ -449,6 +449,55 @@ def _mpip_build(executor: Executor, config: Config) -> CheckResult:
     )
 
 
+def _explanation(executor: Executor, config: Config) -> CheckResult:
+    """Presence and configuration of the LLM explanation layer.
+
+    pi's configuration is the single source of providers and models, so
+    the check reads it back rather than judging it: which provider and
+    model would serve, whether the endpoint is provably local - the fact
+    the consent decision hangs on - and what pi says about the
+    credentials. Absence loses the explanations and nothing else: the
+    deterministic Diagnostic never depends on the model.
+    """
+    from nunatak.explain import pi as pi_tool
+
+    located = pi_tool.locate(executor, config)
+    if located is None:
+        path = config.tools.get("pi", "pi")
+        degradation = Degradation(
+            name="explanation-unavailable",
+            message=f"Node.js or pi not usable at '{path}': no LLM explanations",
+            remedy="install Node.js and pi (npm install -g "
+            "@earendil-works/pi-coding-agent), or set tools.pi in nunatak.toml",
+        )
+        return CheckResult(
+            name="explanation",
+            status="missing",
+            detail=degradation.message,
+            remedy=degradation.remedy,
+            degradation=degradation,
+        )
+    who = pi_tool.identity(executor)
+    if who.provider is None:
+        # pi falls back to its own built-in default, a hosted service:
+        # explanations work, and consent will be asked as for any
+        # remote provider.
+        return CheckResult(
+            name="explanation",
+            status="ok",
+            detail=f"pi {located.version}: pi's built-in default provider "
+            "(treated as remote)",
+        )
+    locality = "local" if not who.remote else "remote"
+    detail = f"pi {located.version}: provider {who.provider} ({locality})"
+    if who.model is not None:
+        detail += f", model {who.model}"
+    credentials = pi_tool.readiness(executor, located, who.provider)
+    if credentials is not None:
+        detail += f", {credentials}"
+    return CheckResult(name="explanation", status="ok", detail=detail)
+
+
 def _call_stacks(
     executor: Executor, config: Config, command: list[str], cpu_model: str | None
 ) -> CheckResult | None:
@@ -533,9 +582,12 @@ def execute(args, command: list[str], console: Console) -> int:
     # light checks a run opens with: doctor runs where the compilers
     # are, and the cached artifacts make the next MPI run's network
     # analysis possible. The call-stack ladder sits here for the same
-    # reason of cost - probing prologues means a dozen tool invocations.
+    # reason of cost - probing prologues means a dozen tool invocations -
+    # and so does the explanation layer: each pi answer pays a Node.js
+    # start-up, an order of magnitude over the light budget.
     checks.append(_network_probe(executor, config))
     checks.append(_mpip_build(executor, config))
+    checks.append(_explanation(executor, config))
     if command:
         ladder = _call_stacks(executor, config, command, executor.cpu_model())
         if ladder is not None:

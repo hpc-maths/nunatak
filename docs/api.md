@@ -130,6 +130,16 @@
    :members:
 ```
 
+## Explanation
+
+```{eval-rst}
+.. automodule:: nunatak.explain
+   :members:
+
+.. automodule:: nunatak.explain.pi
+   :members:
+```
+
 ## Summary
 
 ```{eval-rst}
