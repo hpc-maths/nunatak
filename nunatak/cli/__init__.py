@@ -1,8 +1,8 @@
 """Command-line interface.
 
 The surface has six verbs - run, doctor, explain, report, compare and
-calibrate; `compare` arrives with its feature. Usage errors exit with
-125, the code reserved for a nunatak failure before launch.
+calibrate. Usage errors exit with 125, the code reserved for a nunatak
+failure before launch.
 """
 
 from __future__ import annotations
@@ -131,6 +131,19 @@ def build_parser() -> argparse.ArgumentParser:
         "--json", action="store_true", help="machine-readable paths on stdout"
     )
 
+    comparison = verbs.add_parser(
+        "compare",
+        usage="nunatak compare [options] <before> <after>",
+        help="diff two Runs by logical function, inlining included",
+    )
+    comparison.add_argument("before", help="Run directory of the reference")
+    comparison.add_argument("after", help="Run directory compared against it")
+    comparison.add_argument(
+        "--json",
+        action="store_true",
+        help="machine-readable diff on stdout, significance verdicts included",
+    )
+
     calibrate = verbs.add_parser(
         "calibrate",
         usage="nunatak calibrate [options]",
@@ -178,6 +191,10 @@ def principal(argv: list[str] | None = None) -> int:
         from nunatak.cli import report
 
         return report.execute(args, console)
+    if args.verb == "compare":
+        from nunatak.cli import compare
+
+        return compare.execute(args, console)
     if args.verb == "calibrate":
         from nunatak.cli import calibrate
 

@@ -731,6 +731,34 @@ the time attributed to no name, the envelope ceilings that are only
 estimated - instead of being scattered across footnotes or, worse,
 omitted.
 
+## Comparing two Runs
+
+```sh
+nunatak compare .nunatak/solver-before .nunatak/solver-after
+nunatak compare before after --json     # what a performance CI consumes
+```
+
+The unit of comparison is the **logical function, inlining included** -
+(function, source file) - never the physical symbol: when the
+recompiled build inlines the function you just optimized, its symbol
+vanishes and its time melts into the caller, while the inline frames
+carry it through. Entities below 1% of both Runs are folded away:
+inlining makes symbols come and go, and a diff drowned in churn hides
+the regression it exists to show.
+
+**Every displayed delta carries its own statistical uncertainty**: each
+side's time comes from a finite number of samples, and a difference
+smaller than the combined sampling error of its two sides is written
+`not a difference` - a 3% gain between two Hotspots at 10% relative
+error is not a gain. The `--json` output carries the same verdict with
+every number, so a CI never reinvents the statistics.
+
+**What is not comparable is declared, never masked**: different
+Machines, commands, rank topologies or time bases ride above the diff
+as named warnings; the diff still happens. The exit code stays 0: a
+comparison informs, deciding what a regression means belongs to
+whoever reads it.
+
 ## The HTML report
 
 Every measuring run also writes `report.html` into the Run directory: a
