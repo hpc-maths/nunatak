@@ -42,7 +42,12 @@ def render(payload: dict, assets_dir: Path | None = None) -> str:
     """
     assets_dir = ASSETS if assets_dir is None else assets_dir
     data = json.dumps(payload, ensure_ascii=False).replace("</", "<\\/")
-    title = escape(f"nunatak - {payload['run']['name']}")
+    if "run" in payload:
+        name = payload["run"]["name"]
+    else:
+        # A comparison payload names its two Runs instead of one.
+        name = f"{payload['before']['name']} vs {payload['after']['name']}"
+    title = escape(f"nunatak - {name}")
     return (
         "<!doctype html>\n"
         '<html lang="en">\n'
@@ -59,6 +64,22 @@ def render(payload: dict, assets_dir: Path | None = None) -> str:
         "</body>\n"
         "</html>\n"
     )
+
+
+COMPARISON_REPORT = "compare.html"
+
+
+def write_comparison(directory: Path, payload: dict, assets_dir: Path | None = None) -> Path:
+    """Render a comparison page into `directory` and return its path.
+
+    The embedded island is exactly the JSON the verb prints for a CI -
+    one payload, two consumers, no drift - and the mini-app dispatches
+    on its format name. The page lands in the second Run's directory:
+    the diff reads as "this Run, against that reference".
+    """
+    path = Path(directory) / COMPARISON_REPORT
+    path.write_text(render(payload, assets_dir), encoding="utf-8")
+    return path
 
 
 def write_report(

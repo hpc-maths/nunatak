@@ -7,6 +7,7 @@
  */
 
 import "./style.css";
+import { mountComparison } from "./compare";
 import { readPayload } from "./data";
 import { detail } from "./detail";
 import { esc } from "./format";
@@ -170,8 +171,19 @@ function render(payload: Payload): void {
   bind(payload);
 }
 
-/** Read the payload and take over the page. Exported for the DOM tests. */
+/** Read the payload and take over the page. Exported for the DOM tests.
+ *  The island carries either a Run's report or a comparison; the format
+ *  name decides which view owns the page. */
 export function mount(): void {
+  const node = document.getElementById("nunatak-payload");
+  if (!node || !node.textContent) {
+    throw new Error("nunatak-payload element missing from the page");
+  }
+  const embedded = JSON.parse(node.textContent) as { format?: { name?: string } };
+  if (embedded.format?.name === "nunatak-compare") {
+    mountComparison(embedded as never);
+    return;
+  }
   const payload = readPayload();
   addEventListener("keydown", (event) => {
     if (event.key === "Escape" && view !== null) back(payload);

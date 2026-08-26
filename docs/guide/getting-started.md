@@ -759,6 +759,15 @@ as named warnings; the diff still happens. The exit code stays 0: a
 comparison informs, deciding what a regression means belongs to
 whoever reads it.
 
+The **HTML diff** lands in the second Run's directory as
+`compare.html` - this Run, against that reference - and embeds exactly
+the JSON the CI consumes: one payload, two consumers, no drift. It
+follows the report's three levels: a synthesis of the deltas with the
+declared non-comparabilities, the inventory of compared entities, and
+the detail of one delta spelling out the arithmetic of its verdict.
+Direction is color only when significant: a delta within its sampling
+error stays muted whatever its sign.
+
 ## The HTML report
 
 Every measuring run also writes `report.html` into the Run directory: a
