@@ -223,9 +223,19 @@ nunatak explain .nunatak/solver-20260823-181200
 nunatak explain --model provider/some-model   # passed to pi verbatim
 ```
 
-It is **separated from `run` by necessity**: measurement executes in a
-job, on compute nodes that generally have no network egress - `explain`
-is what runs from a login node afterwards. Calls go out **in parallel**
+`run` itself **tries the Explanation and never depends on it**: when pi
+is present, consent is memorized (or granted on the terminal) and the
+provider answers, the advice is generated at the end of the run without
+a second command. Anything short of that is a named degradation riding
+in the Run - `explanation-unavailable`, or `explanation-withheld` when
+consent is missing - whose remedy is the exact `nunatak explain <run>`
+command to replay from a login node. A Run with no eligible Hotspot
+loses nothing: no tool is probed, nothing is declared. `--no-explain`
+skips the attempt entirely.
+
+The verb is **separated from `run` by necessity**: measurement executes
+in a job, on compute nodes that generally have no network egress -
+`explain` is what runs from a login node afterwards. Calls go out **in parallel**
 (the observed latency is tens of seconds per Hotspot) with one progress
 line per answer, and provider errors - authentication, quota, network -
 are surfaced verbatim, never mistaken for an empty answer: pi exits 0

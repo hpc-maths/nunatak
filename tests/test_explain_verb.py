@@ -133,7 +133,7 @@ class TestConsent:
         console = Console(stream=io.StringIO())
         allowed, why = consent.obtain(self.REMOTE, "proj", console)
         assert allowed is False
-        assert "login node" in why
+        assert "no terminal" in why
 
     def test_a_yes_is_memorized_for_the_project_and_recipient(self, monkeypatch):
         console, _ = terminal_console(monkeypatch)
@@ -229,6 +229,114 @@ class TestVerb:
         monkeypatch.chdir(tmp_path)
         assert principal(["explain"]) == 125
         assert "no Run" in capsys.readouterr().err
+
+
+class TestRunAttempt:
+    """run tries the Explanation and never depends on it."""
+
+    @staticmethod
+    def eligible_run(tmp_path):
+        from nunatak.pivot import SourceExtract
+        from tests.test_analysis import measurement, run_with
+
+        spot = hotspot("axpy")
+        run = run_with([measurement(spot, "task-clock", 2e9, "ns")])
+        run.source_extracts = [
+            SourceExtract(hotspot=spot, file="/src/app.c", text="y[i] = a * x[i];")
+        ]
+        return run
+
+    @staticmethod
+    def attempt(run, executor, tmp_path):
+        from nunatak import analysis
+        from nunatak.cli.explain import attempt
+        from nunatak.config import Config
+
+        return attempt(
+            run,
+            analysis.diagnose(run),
+            tmp_path,
+            executor,
+            Config(),
+            Console(stream=io.StringIO()),
+            tmp_path,
+        )
+
+    def test_nothing_eligible_probes_nothing_and_declares_nothing(self, tmp_path):
+        from tests.test_analysis import measurement, run_with
+
+        run = run_with([measurement(hotspot(), "task-clock", 2e9, "ns")])
+        executor = ScriptedExecutor()
+        assert self.attempt(run, executor, tmp_path) is None
+        assert executor.calls == []
+
+    def test_an_absent_pi_degrades_with_the_replay_command(self, tmp_path):
+        executor = ScriptedExecutor().on("pi", exit_code=127)
+        blocked = self.attempt(self.eligible_run(tmp_path), executor, tmp_path)
+        assert blocked.name == "explanation-unavailable"
+        assert f"nunatak explain {tmp_path}" in blocked.remedy
+
+    def test_no_consent_in_a_job_withholds_with_the_way_forward(self, tmp_path):
+        from tests.test_explain import MODELS, SETTINGS
+
+        executor = ScriptedExecutor().on("pi", stdout="0.84.1\n")
+        executor.on("cat", stdout=SETTINGS).on("cat", stdout=MODELS)
+        blocked = self.attempt(self.eligible_run(tmp_path), executor, tmp_path)
+        assert blocked.name == "explanation-withheld"
+        assert "terminal" in blocked.remedy
+
+    def test_a_memorized_consent_lets_the_advice_land(self, tmp_path):
+        from tests.test_explain import MODELS, SETTINGS
+
+        consent.record("solver", "team-cluster")
+        executor = ScriptedExecutor().on("pi", stdout="0.84.1\n")
+        executor.on("cat", stdout=SETTINGS).on("cat", stdout=MODELS)
+        executor.on("pi", stdout=ANSWER)
+        assert self.attempt(self.eligible_run(tmp_path), executor, tmp_path) is None
+        advice = store.read(tmp_path)["explanations"][0]
+        assert advice["advice"] == "Hello!"
+
+    def test_a_dead_provider_degrades_with_its_error(self, tmp_path):
+        from tests.test_explain import MODELS, SETTINGS
+
+        consent.record("solver", "team-cluster")
+        executor = ScriptedExecutor().on("pi", stdout="0.84.1\n")
+        executor.on("cat", stdout=SETTINGS).on("cat", stdout=MODELS)
+        executor.on("pi", stdout=PROVIDER_ERROR)
+        blocked = self.attempt(self.eligible_run(tmp_path), executor, tmp_path)
+        assert blocked.name == "explanation-unavailable"
+        assert "Connection error." in blocked.message
+        assert store.read(tmp_path) is None
+
+
+class TestRunTriesExplanation:
+    """`run` tries the Explanation - except on replay, where it attempts
+    nothing: a replayed run reproduces the recorded reality, and whether
+    the replaying host happens to have pi, or to resolve the workload's
+    source, must not change what the entry replays into."""
+
+    def test_a_replayed_run_attempts_nothing(self, tmp_path, monkeypatch):
+        from contextlib import redirect_stdout
+
+        from nunatak.cli import principal
+        from tests.support import ROOFLINE_WORKLOAD_C
+        from tests.test_report import ENTRY as ROOFLINE
+
+        # The source resolves, so the Hotspot is eligible - exactly the
+        # configuration that would probe pi on a live run.
+        (tmp_path / "workload.c").write_text(ROOFLINE_WORKLOAD_C)
+        monkeypatch.chdir(tmp_path)
+        out = io.StringIO()
+        with redirect_stdout(out):
+            assert (
+                principal(
+                    ["run", "--replay", str(ROOFLINE), "--json", "--", "./workload"]
+                )
+                == 0
+            )
+        summary = json.loads(out.getvalue())
+        names = {d["name"] for d in summary["degradations"]}
+        assert not any(name.startswith("explanation-") for name in names)
 
 
 class TestReplayedExplain:

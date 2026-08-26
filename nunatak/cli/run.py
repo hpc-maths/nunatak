@@ -660,6 +660,23 @@ def execute(args, command: list[str], console: Console) -> int:
         stacks=stacks_collected,
         loop_analyses=loop_analyses,
     )
+    diagnostics = analysis.diagnose(run) if measurements else []
+    if measurements and not args.no_explain and not replaying:
+        # run tries the Explanation and never depends on it: a failed or
+        # withheld attempt is a named degradation carrying the exact
+        # command to replay from a login node, and rides in the Run. A
+        # replayed run attempts nothing: it reproduces the recorded
+        # reality, and whether the replaying host happens to have pi -
+        # or to resolve the workload's source - must not change it.
+        from nunatak.cli import explain
+
+        blocked = explain.attempt(
+            run, diagnostics, directory, executor, config, console, cwd
+        )
+        if blocked is not None:
+            console.degradation(blocked)
+            run.degradations.append(blocked)
+            degradations = degradations + [blocked]
     write_run(directory, run)
 
     hotspots = {m.hotspot for m in hotspot_level(measurements)}
@@ -672,7 +689,6 @@ def execute(args, command: list[str], console: Console) -> int:
             f"{len(measurements)} measurements across {len(hotspots)} hotspots "
             f"({resolved} resolved)"
         )
-        diagnostics = analysis.diagnose(run)
         # A missing compiled app was already announced by the light
         # doctor as `report-unavailable`: the run silently keeps going.
         if html.assets_available():

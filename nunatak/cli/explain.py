@@ -24,7 +24,62 @@ from nunatak.exit_codes import FAILURE_BEFORE_LAUNCH
 from nunatak.explain import consent, prompt, store
 from nunatak.explain import pi as pi_tool
 from nunatak.explain.generate import Failure, generate
-from nunatak.pivot import read_run
+from nunatak.pivot import Degradation, read_run
+
+
+def attempt(run, diagnostics, directory, executor, config, console, cwd):
+    """`run` tries the Explanation and never depends on it.
+
+    Returns the named degradation when the attempt could not deliver,
+    None otherwise - including when there is nothing to explain: a Run
+    without an eligible Hotspot loses nothing, so no tool is probed and
+    nothing is declared. Every degradation names the exact command to
+    replay from a login node, because the usual reason to be here is a
+    compute node with no network egress.
+    """
+    asked, _ = prompt.requests(run, diagnostics)
+    if not asked:
+        return None
+    replay = f"nunatak explain {directory}"
+    located = pi_tool.locate(executor, config)
+    if located is None:
+        return Degradation(
+            name="explanation-unavailable",
+            message="Node.js or pi not usable: no LLM explanations for this Run",
+            remedy=f"run `{replay}` from a login node where pi is installed",
+        )
+    who = pi_tool.identity(executor)
+    project = project_name(config, run.command, repository_root(executor, cwd))
+    allowed, why = consent.obtain(who, project, console)
+    if not allowed:
+        return Degradation(
+            name="explanation-withheld",
+            message=why,
+            remedy=f"run `{replay}` from a terminal to grant consent",
+        )
+    recipient = consent.recipient(who)
+    console.info(
+        f"asking {recipient} for {len(asked)} explanation(s), in parallel; "
+        "tens of seconds per Hotspot"
+    )
+
+    def progress(outcome):
+        """One line per completed call, as it completes."""
+        if isinstance(outcome, Failure):
+            console.error(f"{outcome.hotspot.display_name}: {outcome.error}")
+        else:
+            console.info(f"{outcome.hotspot.display_name}: advice received")
+
+    explanations, failures = generate(executor, located, asked, on_done=progress)
+    if not explanations:
+        first = failures[0].error if failures else "no answer"
+        return Degradation(
+            name="explanation-unavailable",
+            message=f"the model could not be reached: {first}",
+            remedy=f"run `{replay}` from a login node",
+        )
+    console.info(f"Explanations: {store.write(directory, explanations)}")
+    return None
 
 
 def execute(args, console: Console) -> int:
