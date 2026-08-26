@@ -40,6 +40,7 @@ function entry(overrides: Partial<HotspotEntry>): HotspotEntry {
     callers: [],
     inclusive: null,
     loop: null,
+    advice: null,
     ...overrides,
   };
 }
@@ -76,6 +77,7 @@ function payload(hotspot: HotspotEntry): Payload {
     others: null,
     ranks: null,
     inline_view: null,
+    explanations: null,
   };
 }
 
@@ -231,4 +233,39 @@ test("absent bounds say why and a scalar loop wears its zero", () => {
 test("no loop analysis, no block", () => {
   const item = entry({});
   expect(detail(payload(item), item)).not.toContain("Hot loop");
+});
+
+test("advice arrives labeled, with the model that wrote it", () => {
+  const item = entry({
+    advice: {
+      text: "Fuse the loops; expect roughly 2x.",
+      model: "some-model",
+      provider: "somewhere",
+      withheld: null,
+    },
+  });
+  const html = detail(payload(item), item);
+  expect(html).toContain("Advice - some-model via somewhere");
+  expect(html).toContain("Fuse the loops");
+  expect(html).toContain("never a measurement");
+});
+
+test("withheld advice shows its reason where the advice was expected", () => {
+  const item = entry({
+    advice: {
+      text: null,
+      model: null,
+      provider: null,
+      withheld: "no source available for this Hotspot in the Run",
+    },
+  });
+  const html = detail(payload(item), item);
+  expect(html).toContain("No advice: no source available");
+  expect(html).not.toContain("advice-text");
+});
+
+test("advice never generated nudges toward the verb", () => {
+  const item = entry({});
+  const html = detail(payload(item), item);
+  expect(html).toContain("nunatak explain");
 });

@@ -155,6 +155,30 @@ function loop(entry: HotspotEntry): string {
   </div>`;
 }
 
+function advice(entry: HotspotEntry): string {
+  const item = entry.advice;
+  if (item === null) {
+    // Eligible, never generated: the nudge names the verb, because the
+    // Run may have been measured on a node with no network egress.
+    return `<div class="advice"><div class="eyebrow blockhead">Advice</div>
+      <div class="small muted">No advice generated for this Run. Generate it with <span class="mono">nunatak explain</span> from a machine with network access, then regenerate this report.</div>
+    </div>`;
+  }
+  if (item.withheld !== null) {
+    return `<div class="advice"><div class="eyebrow blockhead">Advice</div>
+      <div class="small muted">No advice: ${esc(item.withheld)}.</div>
+    </div>`;
+  }
+  const author =
+    item.model !== null
+      ? ` - ${esc(item.model)}${item.provider !== null ? ` via ${esc(item.provider)}` : ""}`
+      : "";
+  return `<div class="advice"><div class="eyebrow blockhead">Advice${author}</div>
+    <pre class="advice-text">${esc(item.text ?? "")}</pre>
+    <div class="small muted blocknote">Written by a language model from the facts above and the source extract: advice to weigh, never a measurement - it lives beside the pivot and is not reproducible.</div>
+  </div>`;
+}
+
 function callers(entry: HotspotEntry): string {
   if (entry.callers.length === 0) return "";
   const rows = entry.callers
@@ -229,6 +253,7 @@ export function detail(payload: Payload, entry: HotspotEntry): string {
       ${loop(entry)}
       ${callers(entry)}
       ${inlineFrames(entry)}
+      ${advice(entry)}
     </div>
   </div>`;
 }

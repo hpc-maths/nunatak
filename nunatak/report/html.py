@@ -15,6 +15,7 @@ from html import escape
 from pathlib import Path
 
 from nunatak.analysis import Diagnostic
+from nunatak.explain import store
 from nunatak.pivot import Run
 from nunatak.report import payload as report_payload
 
@@ -71,12 +72,16 @@ def write_report(
 
     The report is a product of the Run, regenerable at will: writing it
     next to the pivot keeps the directory self-sufficient without ever
-    making the pivot depend on it. `no_source` produces the shareable
-    variant under its own name - it never replaces the full report - and
-    the payload is stripped before the page exists, so that file never
-    contained a line of code.
+    making the pivot depend on it. The Run's advice file, when present,
+    rides into the payload here - regenerating the report after an
+    `explain` is exactly what makes the verb's advice visible.
+    `no_source` produces the shareable variant under its own name - it
+    never replaces the full report - and the payload is stripped before
+    the page exists, so that file never contained a line of code.
     """
-    payload = report_payload.build(run, diagnostics)
+    payload = report_payload.build(
+        run, diagnostics, explanations=store.read(Path(directory))
+    )
     if no_source:
         payload = report_payload.without_source(payload)
     path = Path(directory) / (NO_SOURCE_REPORT if no_source else REPORT)

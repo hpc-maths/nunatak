@@ -587,6 +587,26 @@ table.tab tr.row:hover td {
   text-align: right;
 }
 
+/* The model's advice: visibly apart from the facts - an accent border,
+   a tinted ground, never the plain surface a measurement sits on. */
+.advice {
+  border-left: 3px solid var(--melt);
+  background: var(--surface-2);
+  padding: 12px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+
+.advice-text {
+  margin: 0;
+  font-family: var(--sans);
+  font-size: 13px;
+  line-height: 1.5;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
 .foot {
   padding-top: 8px;
   padding-bottom: 28px;

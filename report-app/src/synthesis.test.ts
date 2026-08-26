@@ -61,6 +61,7 @@ function payload(ranks: Payload["ranks"]): Payload {
     others: null,
     ranks,
     inline_view: null,
+    explanations: null,
   };
 }
 
