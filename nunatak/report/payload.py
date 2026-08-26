@@ -62,38 +62,12 @@ def _coverage(run: Run, time_base: str | None) -> dict:
     }
 
 
-def _details_of(run: Run, hotspot: Hotspot, time_base: str | None) -> list[AddressDetail]:
-    """The address details of one Hotspot, on a single counter.
-
-    The time base is the counter of record for a distribution of time;
-    when the details never sampled it, the first counter they did sample
-    keeps the view alive rather than empty.
-    """
-    details = [d for d in run.address_details if d.hotspot == hotspot and d.frames]
-    counters = [d.counter for d in details]
-    counter = time_base if time_base in counters else next(iter(counters), None)
-    return [d for d in details if d.counter == counter]
-
-
 def _lines(details: list[AddressDetail]) -> list[dict]:
-    """The distribution of samples over the physical function's lines.
-
-    This is what survives `--no-source`: where the time goes, line by
-    line, without a line of code. Addresses whose line the debug
-    information does not give are left out - absent is not line zero.
-    """
-    per_line: dict[int, float] = {}
-    total = 0.0
-    for detail in details:
-        total += detail.value
-        line = detail.frames[-1].line
-        if line is not None:
-            per_line[line] = per_line.get(line, 0.0) + detail.value
-    if total <= 0:
-        return []
+    """The per-line distribution in payload form; the fold itself lives
+    in the analysis, shared with the explanation prompt."""
     return [
-        {"line": line, "share": value / total}
-        for line, value in sorted(per_line.items())
+        {"line": line, "share": share}
+        for line, share in analysis.line_shares(details)
     ]
 
 
@@ -321,7 +295,7 @@ def _relative_error(run: Run, hotspot: Hotspot, time_base: str | None) -> float 
 def _hotspot(run: Run, diagnostic: Diagnostic, time_base: str | None) -> dict:
     """One Hotspot as the report sees it: identity, Diagnostic, detail."""
     hotspot = diagnostic.hotspot
-    details = _details_of(run, hotspot, time_base)
+    details = analysis.details_of(run, hotspot, time_base)
     return {
         "name": hotspot.display_name,
         "module": hotspot.logical_identity.module,

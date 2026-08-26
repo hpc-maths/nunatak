@@ -18,7 +18,15 @@ from __future__ import annotations
 import dataclasses
 from dataclasses import dataclass
 
-from nunatak.pivot import Ceiling, Hotspot, Measurement, Quality, Run, hotspot_level
+from nunatak.pivot import (
+    AddressDetail,
+    Ceiling,
+    Hotspot,
+    Measurement,
+    Quality,
+    Run,
+    hotspot_level,
+)
 
 # A Hotspot below the statistical floor is noise wearing the look of a
 # diagnosis: its Measurements stay in the pivot, the Diagnostic skips it.
@@ -179,6 +187,60 @@ def sampled_view(run: Run) -> list[Measurement]:
         for m in sampled
         if m.counter not in reference or m.pass_index == reference[m.counter]
     ]
+
+
+def details_of(
+    run: Run, hotspot: Hotspot, time_base: str | None
+) -> list[AddressDetail]:
+    """The address details of one Hotspot, on a single counter.
+
+    The time base is the counter of record for a distribution of time;
+    when the details never sampled it, the first counter they did sample
+    keeps the view alive rather than empty. Both readers of a Hotspot's
+    inner distribution - the report and the explanation prompt - go
+    through here, so they cannot drift apart.
+    """
+    details = [d for d in run.address_details if d.hotspot == hotspot and d.frames]
+    counters = [d.counter for d in details]
+    counter = time_base if time_base in counters else next(iter(counters), None)
+    return [d for d in details if d.counter == counter]
+
+
+def line_shares(details: list[AddressDetail]) -> list[tuple[int, float]]:
+    """The distribution of samples over the physical function's lines,
+    as (line, share) pairs in line order.
+
+    This is what survives `--no-source`: where the time goes, line by
+    line, without a line of code. Addresses whose line the debug
+    information does not give are left out - absent is not line zero.
+    """
+    per_line: dict[int, float] = {}
+    total = 0.0
+    for detail in details:
+        total += detail.value
+        line = detail.frames[-1].line
+        if line is not None:
+            per_line[line] = per_line.get(line, 0.0) + detail.value
+    if total <= 0:
+        return []
+    return [(line, value / total) for line, value in sorted(per_line.items())]
+
+
+def downgrade_reasons(*derived: Derived) -> list[str]:
+    """The distinct downgrade reasons among derived quantities.
+
+    Derived metrics join the reasons of their inputs with `;`, and two
+    metrics often share an input: deduplication works on the individual
+    reasons, never on the joined strings. Every renderer of a fact line
+    - the terminal summary, the explanation prompt - names downgrades
+    through here.
+    """
+    reasons: dict[str, None] = {}
+    for quantity in derived:
+        if quantity.quality is Quality.ESTIMATED and quantity.reason:
+            for reason in quantity.reason.split("; "):
+                reasons[reason] = None
+    return list(reasons)
 
 
 # Witness counters: work-proportional counts replicated in every Pass

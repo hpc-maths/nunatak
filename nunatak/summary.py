@@ -14,9 +14,9 @@ from __future__ import annotations
 
 from nunatak.analysis import (
     STATISTICAL_FLOOR_SAMPLES,
-    Derived,
     Diagnostic,
     balance,
+    downgrade_reasons,
     sampled_view,
     time_base,
 )
@@ -52,21 +52,6 @@ def _plural(count: int, noun: str) -> str:
     return f"{count} {noun}{'' if count == 1 else 's'}"
 
 
-def _downgrades(*derived: Derived) -> list[str]:
-    """The distinct downgrade reasons among the quantities a finding shows.
-
-    Derived metrics join the reasons of their inputs with `;`, and two
-    metrics often share an input: deduplication works on the individual
-    reasons, not on the joined strings.
-    """
-    reasons: dict[str, None] = {}
-    for quantity in derived:
-        if quantity.quality is Quality.ESTIMATED and quantity.reason:
-            for reason in quantity.reason.split("; "):
-                reasons[reason] = None
-    return list(reasons)
-
-
 def _finding(diagnostic: Diagnostic) -> list[str]:
     """One finding: identity and regime, then its quantified evidence."""
     hotspot = diagnostic.hotspot
@@ -97,7 +82,7 @@ def _finding(diagnostic: Diagnostic) -> list[str]:
             " the least-loaded"
         )
 
-    reasons = _downgrades(
+    reasons = downgrade_reasons(
         diagnostic.share,
         intensity,
         achieved,

@@ -200,6 +200,21 @@ broken pi is the named degradation `explanation-unavailable`: the
 deterministic analysis never depends on the model, so the run loses the
 explanations and nothing else.
 
+The model **explains and suggests from facts already established**; it
+never diagnoses, measures or classifies. What it receives per Hotspot is
+a pure function of the measured pivot, held under snapshot test so any
+change to it is a diff read in review: the Diagnostic with each
+quantity's Quality and downgrade reason, the Machine's Ceilings, the
+static loop facts, the distribution of samples by source line, and the
+embedded source extract. What it never receives: raw assembler (the
+static loop analysis stands in for it - counts a reader can check, not
+a stream nobody re-reads), a Hotspot below the statistical floor, a
+quantity the analysis declared unavailable, or source the Run does not
+carry. **No source, no Explanation**: such a Hotspot is withheld and
+the report shows its full Diagnostic with the withholding reason -
+`--no-source` active, source not found, refused as stale, Hotspot
+unresolved.
+
 ## Exit codes
 
 The application's code is propagated in the general case. Reserved codes,
