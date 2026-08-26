@@ -1,9 +1,8 @@
 """Command-line interface.
 
 The surface has six verbs - run, doctor, explain, report, compare and
-calibrate; `explain` and `compare` arrive with their features. Usage
-errors exit with 125, the code reserved for a nunatak failure before
-launch.
+calibrate; `compare` arrives with its feature. Usage errors exit with
+125, the code reserved for a nunatak failure before launch.
 """
 
 from __future__ import annotations
@@ -92,6 +91,23 @@ def build_parser() -> argparse.ArgumentParser:
     )
     doctor.add_argument("--json", action="store_true", help="machine-readable report on stdout")
 
+    explain = verbs.add_parser(
+        "explain",
+        usage="nunatak explain [options] [<run>]",
+        help="generate or regenerate the LLM explanations of a Run "
+        "(the most recent by default)",
+    )
+    explain.add_argument(
+        "run", nargs="?", help="Run directory; defaults to the most recent in runs_dir"
+    )
+    explain.add_argument(
+        "--model",
+        help="ask pi for this model (a pattern, or provider/id); "
+        "pi's configured default otherwise",
+    )
+    explain.add_argument("--record", metavar="ENTRY", help=argparse.SUPPRESS)
+    explain.add_argument("--replay", metavar="ENTRY", help=argparse.SUPPRESS)
+
     report = verbs.add_parser(
         "report",
         usage="nunatak report [options] [<run>]",
@@ -149,6 +165,10 @@ def principal(argv: list[str] | None = None) -> int:
         from nunatak.cli import run
 
         return run.execute(args, command, console)
+    if args.verb == "explain":
+        from nunatak.cli import explain
+
+        return explain.execute(args, console)
     if args.verb == "report":
         from nunatak.cli import report
 

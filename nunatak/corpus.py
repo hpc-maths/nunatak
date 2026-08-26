@@ -24,6 +24,7 @@ import datetime
 import json
 import os
 import platform
+import threading
 from pathlib import Path
 
 import nunatak
@@ -84,6 +85,9 @@ class RecordingExecutor(Executor):
         if any(directory.iterdir()):
             raise ValueError(f"corpus entry {self.entry} already contains invocations")
         self._counter = 0
+        # Explanations cross the boundary in parallel: the numbering must
+        # stay one-invocation-one-slot under concurrent calls.
+        self._lock = threading.Lock()
 
     def sampling_blocked(self):
         """The recording machine's verdict: sampling happens on real hardware."""
@@ -100,8 +104,9 @@ class RecordingExecutor(Executor):
     def run(self, argv, capture=True, env=None, cwd=None):
         """Run through the wrapped executor and persist the invocation."""
         invocation = self.inner.run(argv, capture=capture, env=env, cwd=cwd)
-        stem = self.entry / INVOCATIONS / f"{self._counter:03d}"
-        self._counter += 1
+        with self._lock:
+            stem = self.entry / INVOCATIONS / f"{self._counter:03d}"
+            self._counter += 1
         stem.with_suffix(".json").write_text(
             json.dumps(
                 {
@@ -138,6 +143,9 @@ class ReplayExecutor(Executor):
             self._queues[os.path.basename(json.loads(record.read_text())["argv"][0])].append(
                 record
             )
+        # Same concurrency as the recording side: parallel explanation
+        # calls must each pop exactly one recording.
+        self._lock = threading.Lock()
 
     @property
     def system(self) -> str:
@@ -176,14 +184,15 @@ class ReplayExecutor(Executor):
 
     def run(self, argv, capture=True, env=None, cwd=None):
         """Serve the next recording for this program instead of running it."""
-        queue = self._queues.get(os.path.basename(argv[0]))
-        if not queue:
-            return Invocation(
-                argv=tuple(argv),
-                exit_code=COMMAND_NOT_FOUND,
-                stderr=f"{argv[0]}: not recorded in corpus entry {self.entry}",
-            )
-        record_path = queue.popleft()
+        with self._lock:
+            queue = self._queues.get(os.path.basename(argv[0]))
+            if not queue:
+                return Invocation(
+                    argv=tuple(argv),
+                    exit_code=COMMAND_NOT_FOUND,
+                    stderr=f"{argv[0]}: not recorded in corpus entry {self.entry}",
+                )
+            record_path = queue.popleft()
         record = json.loads(record_path.read_text())
         stdout = stderr = None
         if capture and record["captured"]:

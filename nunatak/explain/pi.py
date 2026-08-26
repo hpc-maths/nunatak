@@ -78,13 +78,29 @@ def locate(executor: Executor, config: Config) -> Pi | None:
     return Pi(path=path, version=banner[0].strip())
 
 
-def identity(executor: Executor) -> Identity:
+def identity(executor: Executor, model_flag: str | None = None) -> Identity:
     """The provider and model pi would serve an explanation with.
 
     An empty or unreadable `settings.json` leaves both None: pi then
     falls back to its own built-in default, which is a hosted service -
     the Identity stays remote, and the consent path stays on.
+
+    `model_flag` is pi's `--model` value, passed to pi verbatim. It only
+    proves a provider when it reads `provider/id` with a provider the
+    user declared in `models.json` - model ids carry slashes too, and
+    pi's fuzzy matching across providers is pi's own: what nunatak
+    cannot resolve stays an unknown, remote recipient.
     """
+    if model_flag is not None:
+        providers = _read_json(executor, MODELS).get("providers", {})
+        head, slash, rest = model_flag.partition("/")
+        if slash and isinstance(providers, dict) and head in providers:
+            declared = providers[head]
+            local = isinstance(declared, dict) and _loopback(
+                declared.get("baseUrl", "")
+            )
+            return Identity(provider=head, model=rest, remote=not local)
+        return Identity(provider=None, model=model_flag, remote=True)
     settings = _read_json(executor, SETTINGS)
     provider = settings.get("defaultProvider")
     model = settings.get("defaultModel")

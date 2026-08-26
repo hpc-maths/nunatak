@@ -1,0 +1,21 @@
+{
+  "created": "2026-08-23T18:26:48+02:00",
+  "command": [
+    "explain"
+  ],
+  "nunatak_version": "0.1.0.dev0",
+  "platform": {
+    "system": "Darwin",
+    "kernel": "25.5.0",
+    "architecture": "arm64"
+  },
+  "sampling_blocked": null,
+  "cpu_model": null,
+  "cpuinfo": null,
+  "collectors": [
+    {
+      "tool": "pi",
+      "version": "0.84.1"
+    }
+  ]
+}
