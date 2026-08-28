@@ -130,6 +130,7 @@ class PerfAdapter:
                 ],
                 capture=False,
                 env=env,
+                inherit_descriptors=True,
             )
             script = executor.run(
                 [self.path, "script", "--input", str(data), "--fields", SCRIPT_FIELDS]

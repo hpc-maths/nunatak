@@ -101,10 +101,18 @@ class RecordingExecutor(Executor):
         """The recording machine's identification block, for the meta."""
         return self.inner.cpuinfo()
 
-    def run(self, argv, capture=True, env=None, cwd=None, on_line=None):
+    def run(
+        self, argv, capture=True, env=None, cwd=None, on_line=None,
+        inherit_descriptors=False,
+    ):
         """Run through the wrapped executor and persist the invocation."""
         invocation = self.inner.run(
-            argv, capture=capture, env=env, cwd=cwd, on_line=on_line
+            argv,
+            capture=capture,
+            env=env,
+            cwd=cwd,
+            on_line=on_line,
+            inherit_descriptors=inherit_descriptors,
         )
         with self._lock:
             stem = self.entry / INVOCATIONS / f"{self._counter:03d}"
@@ -184,7 +192,10 @@ class ReplayExecutor(Executor):
         unknown."""
         return self.meta.get("cpuinfo")
 
-    def run(self, argv, capture=True, env=None, cwd=None, on_line=None):
+    def run(
+        self, argv, capture=True, env=None, cwd=None, on_line=None,
+        inherit_descriptors=False,
+    ):
         """Serve the next recording for this program instead of running it.
 
         A streaming caller gets the recorded lines through its callback:

@@ -643,6 +643,10 @@ about a missing rank would read as "nothing ran there".
 The shim propagates the application's exit code and never touches its
 stdout or stderr, and a launcher that fails to resolve its application
 is left alone: nunatak wraps a launch it understands, it never guesses.
+It hands the application every descriptor the launcher opened, too:
+MPICH and Intel MPI pass each rank its PMI channel as an inherited
+descriptor, and a shim that closed it would fail `MPI_Init` before the
+application had started.
 
 Nothing samples around the launcher: hardware events run on the ranks'
 own physical counters - an outer sampler holding the same PMCs

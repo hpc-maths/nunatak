@@ -300,6 +300,31 @@ class TestShim:
         assert meta["counted"] is False
         assert not (collect / "rank-3" / "perf-stat.csv").exists()
 
+    def test_the_launcher_channel_reaches_the_application(self, tmp_path):
+        # MPICH hands each rank its PMI channel as an inherited
+        # descriptor; a shim that closes it fails MPI_Init before the
+        # application has started.
+        collect = tmp_path / "collect"
+        environment = shim_environment(tmp_path, perf_text=None)
+        read_end, write_end = os.pipe()
+        try:
+            outcome = subprocess.run(
+                [
+                    sys.executable, "-m", "nunatak.rank",
+                    "--directory", str(collect), "--",
+                    sys.executable, "-c", f"import os; os.write({write_end}, b'pmi')",
+                ],
+                env=environment,
+                capture_output=True,
+                text=True,
+                pass_fds=(write_end,),
+            )
+            assert outcome.returncode == 0, outcome.stderr
+            assert os.read(read_end, 3) == b"pmi"
+        finally:
+            os.close(read_end)
+            os.close(write_end)
+
     def test_outside_any_rank_nothing_is_written(self, tmp_path):
         collect = tmp_path / "collect"
         environment = shim_environment(tmp_path, STUB_PERF, rank=None)

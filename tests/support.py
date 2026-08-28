@@ -16,6 +16,7 @@ class ScriptedExecutor(Executor):
         self._cpuinfo = cpuinfo
         self.calls = []
         self.environments = []
+        self.inheritances = []
         self._responses = collections.defaultdict(collections.deque)
 
     @property
@@ -36,10 +37,14 @@ class ScriptedExecutor(Executor):
         self._responses[program].append((exit_code, stdout, stderr))
         return self
 
-    def run(self, argv, capture=True, env=None, cwd=None, on_line=None):
+    def run(
+        self, argv, capture=True, env=None, cwd=None, on_line=None,
+        inherit_descriptors=False,
+    ):
         """Record the call and serve the next canned response."""
         self.calls.append(list(argv))
         self.environments.append(env)
+        self.inheritances.append(inherit_descriptors)
         queue = self._responses.get(os.path.basename(argv[0]))
         exit_code, stdout, stderr = queue.popleft() if queue else (0, "", "")
         if on_line is not None and capture and stdout:
