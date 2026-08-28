@@ -1,0 +1,44 @@
+There are 35 section headers, starting at offset 0x681980:
+
+Section Headers:
+  [Nr] Name              Type            Address          Off    Size   ES Flg Lk Inf Al
+  [ 0]                   NULL            0000000000000000 000000 000000 00      0   0  0
+  [ 1] .note.gnu.property NOTE           0000000000400388 000388 000020 00   A  0   0  8
+  [ 2] .note.gnu.build-id NOTE           00000000004003a8 0003a8 000024 00   A  0   0  4
+  [ 3] .interp           PROGBITS        00000000004003cc 0003cc 00001c 00   A  0   0  1
+  [ 4] .gnu.hash         GNU_HASH        00000000004003e8 0003e8 003360 00   A  5   0  8
+  [ 5] .dynsym           DYNSYM          0000000000403748 003748 00d320 18   A  6   1  8
+  [ 6] .dynstr           STRTAB          0000000000410a68 010a68 00a1c1 00   A  0   0  1
+  [ 7] .gnu.version      VERSYM          000000000041ac2a 01ac2a 001198 02   A  5   0  2
+  [ 8] .gnu.version_r    VERNEED         000000000041bdc8 01bdc8 0001f0 00   A  6   3  8
+  [ 9] .rela.dyn         RELA            000000000041bfb8 01bfb8 000228 18   A  5   0  8
+  [10] .rela.plt         RELA            000000000041c1e0 01c1e0 002fe8 18  AI  5  27  8
+  [11] .init             PROGBITS        0000000000420000 020000 00001b 00  AX  0   0  4
+  [12] .plt              PROGBITS        0000000000420020 020020 002000 10  AX  0   0 16
+  [13] .text             PROGBITS        0000000000422040 022040 32e2b2 00  AX  0   0 64
+  [14] .fini             PROGBITS        00000000007502f4 3502f4 00000d 00  AX  0   0  4
+  [15] .rodata           PROGBITS        0000000000751000 351000 226440 00   A  0   0 64
+  [16] .stapsdt.base     PROGBITS        0000000000977440 577440 000001 00   A  0   0  1
+  [17] .eh_frame_hdr     PROGBITS        0000000000977444 577444 016b5c 00   A  0   0  4
+  [18] .eh_frame         PROGBITS        000000000098dfa0 58dfa0 062648 00   A  0   0  8
+  [19] .note.ABI-tag     NOTE            00000000009f05e8 5f05e8 000020 00   A  0   0  4
+  [20] .note.package     NOTE            00000000009f0608 5f0608 0000e8 00   A  0   0  4
+  [21] .tdata            PROGBITS        00000000009f1db8 5f0db8 000008 00 WAT  0   0  8
+  [22] .tbss             NOBITS          00000000009f1dc0 5f0dc0 000011 00 WAT  0   0  8
+  [23] .init_array       INIT_ARRAY      00000000009f1dc0 5f0dc0 000010 08  WA  0   0  8
+  [24] .fini_array       FINI_ARRAY      00000000009f1dd0 5f0dd0 000008 08  WA  0   0  8
+  [25] .dynamic          DYNAMIC         00000000009f1dd8 5f0dd8 000200 10  WA  6   0  8
+  [26] .got              PROGBITS        00000000009f1fd8 5f0fd8 000010 08  WA  0   0  8
+  [27] .got.plt          PROGBITS        00000000009f1fe8 5f0fe8 001010 08  WA  0   0  8
+  [28] .data             PROGBITS        00000000009f3000 5f2000 04a348 00  WA  0   0 32
+  [29] .PyRuntime        PROGBITS        0000000000a3d360 63c360 0452f0 00  WA  0   0 32
+  [30] .probes           PROGBITS        0000000000a82650 681650 000018 00  WA  0   0  2
+  [31] .bss              NOBITS          0000000000a82680 681668 074608 00  WA  0   0 64
+  [32] .note.stapsdt     NOTE            0000000000000000 681668 00018c 00      0   0  4
+  [33] .gnu_debuglink    PROGBITS        0000000000000000 6817f4 000034 00      0   0  4
+  [34] .shstrtab         STRTAB          0000000000000000 681828 000156 00      0   0  1
+Key to Flags:
+  W (write), A (alloc), X (execute), M (merge), S (strings), I (info),
+  L (link order), O (extra OS processing required), G (group), T (TLS),
+  C (compressed), x (unknown), o (OS specific), E (exclude),
+  R (retain), l (large), p (processor specific)

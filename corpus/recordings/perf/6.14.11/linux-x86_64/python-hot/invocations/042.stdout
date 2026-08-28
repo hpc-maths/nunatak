@@ -1,0 +1,21 @@
+
+/lib/x86_64-linux-gnu/libexpat.so.1:     file format elf64-x86-64
+
+
+Disassembly of section .text:
+
+00000000000087e0 <XML_ParserFree@@Base>:
+    87e0:	f3 0f 1e fa          	endbr64
+    87e4:	48 85 ff             	test   %rdi,%rdi
+    87e7:	0f 84 e6 04 00 00    	je     8cd3 <XML_ParserFree@@Base+0x4f3>
+    87ed:	55                   	push   %rbp
+    87ee:	48 89 e5             	mov    %rsp,%rbp
+    87f1:	41 57                	push   %r15
+    87f3:	41 56                	push   %r14
+    87f5:	41 55                	push   %r13
+    87f7:	41 54                	push   %r12
+    87f9:	49 89 fc             	mov    %rdi,%r12
+    87fc:	53                   	push   %rbx
+    87fd:	48                   	rex.W
+    87fe:	83                   	.byte 0x83
+    87ff:	ec                   	in     (%dx),%al

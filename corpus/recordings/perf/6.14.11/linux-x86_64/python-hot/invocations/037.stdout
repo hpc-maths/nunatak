@@ -1,0 +1,21 @@
+
+/lib/x86_64-linux-gnu/libz.so.1:     file format elf64-x86-64
+
+
+Disassembly of section .text:
+
+000000000000afb0 <deflateSetDictionary@@Base>:
+    afb0:	f3 0f 1e fa          	endbr64
+    afb4:	48 85 ff             	test   %rdi,%rdi
+    afb7:	0f 84 0f 03 00 00    	je     b2cc <deflateSetDictionary@@Base+0x31c>
+    afbd:	55                   	push   %rbp
+    afbe:	48 89 e5             	mov    %rsp,%rbp
+    afc1:	41 57                	push   %r15
+    afc3:	41 56                	push   %r14
+    afc5:	41 55                	push   %r13
+    afc7:	49 89 fd             	mov    %rdi,%r13
+    afca:	41 54                	push   %r12
+    afcc:	53                   	push   %rbx
+    afcd:	48                   	rex.W
+    afce:	83                   	.byte 0x83
+    afcf:	ec                   	in     (%dx),%al

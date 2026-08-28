@@ -1,0 +1,97 @@
+
+/lib/x86_64-linux-gnu/libexpat.so.1:     file format elf64-x86-64
+
+DYNAMIC SYMBOL TABLE:
+0000000000000000      DF *UND*	0000000000000000 (GLIBC_2.2.5) getenv
+0000000000000000      DF *UND*	0000000000000000 (GLIBC_2.38) __isoc23_strtoul
+0000000000000000      DF *UND*	0000000000000000 (GLIBC_2.2.5) free
+0000000000000000      DF *UND*	0000000000000000 (GLIBC_2.2.5) __errno_location
+0000000000000000  w   D  *UND*	0000000000000000  Base        _ITM_deregisterTMCloneTable
+0000000000000000      DF *UND*	0000000000000000 (GLIBC_2.36) arc4random_buf
+0000000000000000      DF *UND*	0000000000000000 (GLIBC_2.2.5) strlen
+0000000000000000      DF *UND*	0000000000000000 (GLIBC_2.4)  __stack_chk_fail
+0000000000000000      DF *UND*	0000000000000000 (GLIBC_2.2.5) __assert_fail
+0000000000000000      DF *UND*	0000000000000000 (GLIBC_2.2.5) fputs
+0000000000000000      DF *UND*	0000000000000000 (GLIBC_2.2.5) memset
+0000000000000000      DF *UND*	0000000000000000 (GLIBC_2.2.5) memcmp
+0000000000000000  w   D  *UND*	0000000000000000  Base        __gmon_start__
+0000000000000000      DF *UND*	0000000000000000 (GLIBC_2.14) memcpy
+0000000000000000      DF *UND*	0000000000000000 (GLIBC_2.2.5) malloc
+0000000000000000      DF *UND*	0000000000000000 (GLIBC_2.2.5) realloc
+0000000000000000      DF *UND*	0000000000000000 (GLIBC_2.2.5) memmove
+0000000000000000      DF *UND*	0000000000000000 (GLIBC_2.2.5) fwrite
+0000000000000000      DF *UND*	0000000000000000 (GLIBC_2.3.4) __fprintf_chk
+0000000000000000  w   D  *UND*	0000000000000000  Base        _ITM_registerTMCloneTable
+0000000000000000  w   DF *UND*	0000000000000000 (GLIBC_2.2.5) __cxa_finalize
+0000000000000000      DO *UND*	0000000000000000 (GLIBC_2.2.5) stderr
+000000000000b010 g    DF .text	0000000000000019  Base        XML_FreeContentModel
+000000000000a1d0 g    DF .text	0000000000000011  Base        XML_SetEndDoctypeDeclHandler
+000000000000ae30 g    DF .text	000000000000001d  Base        XML_GetParsingStatus
+000000000000b050 g    DF .text	000000000000001b  Base        XML_MemRealloc
+000000000000b460 g    DF .text	000000000000002d  Base        XML_SetBillionLaughsAttackProtectionActivationThreshold
+000000000000b3d0 g    DF .text	000000000000000c  Base        XML_ExpatVersion
+000000000000a3f0 g    DF .text	000000000000003e  Base        XML_SetHashSalt
+000000000000a1b0 g    DF .text	0000000000000011  Base        XML_SetStartDoctypeDeclHandler
+000000000000b490 g    DF .text	0000000000000023  Base        XML_SetReparseDeferralEnabled
+0000000000009170 g    DF .text	0000000000000a6a  Base        XML_ExternalEntityParserCreate
+000000000000a700 g    DF .text	000000000000032a  Base        XML_GetBuffer
+000000000000afa0 g    DF .text	0000000000000063  Base        XML_GetCurrentColumnNumber
+000000000000a130 g    DF .text	0000000000000011  Base        XML_SetEndCdataSectionHandler
+000000000000a110 g    DF .text	0000000000000011  Base        XML_SetStartCdataSectionHandler
+000000000000aea0 g    DF .text	0000000000000035  Base        XML_GetCurrentByteCount
+000000000000b090 g    DF .text	000000000000005a  Base        XML_DefaultCurrent
+000000000000b3e0 g    DF .text	0000000000000014  Base        XML_ExpatVersionInfo
+000000000000aee0 g    DF .text	0000000000000043  Base        XML_GetInputContext
+000000000000a2b0 g    DF .text	0000000000000011  Base        XML_SetExternalEntityRefHandler
+000000000000a000 g    DF .text	0000000000000016  Base        XML_GetSpecifiedAttributeCount
+0000000000009c60 g    DF .text	000000000000002d  Base        XML_SetUserData
+000000000000b0f0 g    DF .text	00000000000002db  Base        XML_ErrorString
+000000000000a040 g    DF .text	0000000000000015  Base        XML_SetElementHandler
+000000000000a230 g    DF .text	0000000000000018  Base        XML_SetNamespaceDeclHandler
+000000000000a020 g    DF .text	0000000000000016  Base        XML_GetIdAttributeIndex
+000000000000a350 g    DF .text	0000000000000011  Base        XML_SetAttlistDeclHandler
+0000000000009c30 g    DF .text	0000000000000021  Base        XML_SetReturnNSTriplet
+000000000000a310 g    DF .text	0000000000000018  Base        XML_SetUnknownEncodingHandler
+000000000000a0f0 g    DF .text	0000000000000018  Base        XML_SetCdataSectionHandler
+000000000000a190 g    DF .text	0000000000000018  Base        XML_SetDoctypeDeclHandler
+000000000000a150 g    DF .text	0000000000000018  Base        XML_SetDefaultHandler
+000000000000a090 g    DF .text	0000000000000011  Base        XML_SetCharacterDataHandler
+0000000000009110 g    DF .text	000000000000000d  Base        XML_ParserCreate
+000000000000a3b0 g    DF .text	0000000000000035  Base        XML_SetParamEntityParsing
+000000000000b070 g    DF .text	0000000000000019  Base        XML_MemFree
+000000000000a330 g    DF .text	0000000000000011  Base        XML_SetElementDeclHandler
+000000000000b030 g    DF .text	000000000000001b  Base        XML_MemMalloc
+000000000000a250 g    DF .text	0000000000000011  Base        XML_SetStartNamespaceDeclHandler
+000000000000a430 g    DF .text	00000000000002c8  Base        XML_ParseBuffer
+0000000000009bf0 g    DF .text	0000000000000038  Base        XML_UseForeignDTD
+0000000000008720 g    DF .text	00000000000000b3  Base        XML_SetEncoding
+0000000000009be0 g    DF .text	000000000000000e  Base        XML_UseParserAsHandlerArg
+000000000000a270 g    DF .text	0000000000000011  Base        XML_SetEndNamespaceDeclHandler
+000000000000a070 g    DF .text	0000000000000011  Base        XML_SetEndElementHandler
+000000000000af30 g    DF .text	0000000000000063  Base        XML_GetCurrentLineNumber
+000000000000a390 g    DF .text	0000000000000011  Base        XML_SetXmlDeclHandler
+000000000000a0b0 g    DF .text	0000000000000011  Base        XML_SetProcessingInstructionHandler
+000000000000a060 g    DF .text	000000000000000e  Base        XML_SetStartElementHandler
+000000000000a2f0 g    DF .text	0000000000000011  Base        XML_SetSkippedEntityHandler
+000000000000ad20 g    DF .text	0000000000000103  Base        XML_ResumeParser
+000000000000a370 g    DF .text	0000000000000011  Base        XML_SetEntityDeclHandler
+00000000000087e0 g    DF .text	00000000000004f4  Base        XML_ParserFree
+000000000000a290 g    DF .text	0000000000000011  Base        XML_SetNotStandaloneHandler
+0000000000009100 g    DF .text	000000000000000b  Base        XML_ParserCreate_MM
+0000000000009120 g    DF .text	0000000000000044  Base        XML_ParserCreateNS
+000000000000a1f0 g    DF .text	0000000000000011  Base        XML_SetUnparsedEntityDeclHandler
+0000000000009c90 g    DF .text	0000000000000343  Base        XML_SetBase
+0000000000009fe0 g    DF .text	000000000000001b  Base        XML_GetBase
+000000000000a2d0 g    DF .text	0000000000000018  Base        XML_SetExternalEntityRefHandlerArg
+000000000000a0d0 g    DF .text	0000000000000011  Base        XML_SetCommentHandler
+000000000000ac80 g    DF .text	000000000000009d  Base        XML_StopParser
+000000000000ae50 g    DF .text	0000000000000016  Base        XML_GetErrorCode
+000000000000b400 g    DF .text	000000000000000c  Base        XML_GetFeatureList
+000000000000a170 g    DF .text	0000000000000018  Base        XML_SetDefaultHandlerExpand
+000000000000b410 g    DF .text	0000000000000041  Base        XML_SetBillionLaughsAttackProtectionMaximumAmplification
+000000000000aa30 g    DF .text	0000000000000243  Base        XML_Parse
+0000000000008120 g    DF .text	00000000000005f2  Base        XML_ParserReset
+000000000000a210 g    DF .text	0000000000000011  Base        XML_SetNotationDeclHandler
+000000000000ae70 g    DF .text	0000000000000028  Base        XML_GetCurrentByteIndex
+
+

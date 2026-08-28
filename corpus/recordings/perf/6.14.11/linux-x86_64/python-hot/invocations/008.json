@@ -1,0 +1,9 @@
+{
+  "argv": [
+    "objdump",
+    "-t",
+    "/usr/bin/python3"
+  ],
+  "exit_code": 0,
+  "captured": true
+}

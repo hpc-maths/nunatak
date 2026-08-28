@@ -1,0 +1,18 @@
+
+/lib/x86_64-linux-gnu/libz.so.1:     file format elf64-x86-64
+
+
+Disassembly of section .text:
+
+000000000000d110 <deflateParams@@Base>:
+    d110:	f3 0f 1e fa          	endbr64
+    d114:	48 85 ff             	test   %rdi,%rdi
+    d117:	0f 84 13 02 00 00    	je     d330 <deflateParams@@Base+0x220>
+    d11d:	55                   	push   %rbp
+    d11e:	48 89 e5             	mov    %rsp,%rbp
+    d121:	41 56                	push   %r14
+    d123:	41 55                	push   %r13
+    d125:	41 54                	push   %r12
+    d127:	49 89 fc             	mov    %rdi,%r12
+    d12a:	53                   	push   %rbx
+    d12b:	48 83 7f 40 00       	cmpq   $0x0,0x40(%rdi)

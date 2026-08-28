@@ -34,7 +34,7 @@ from nunatak.exit_codes import (
     FAILURE_BEFORE_LAUNCH,
     STRICT_VIOLATION,
 )
-from nunatak.collect import mpip, powermetrics, stacks
+from nunatak.collect import interpreter, mpip, powermetrics, stacks
 from nunatak.ingestion import powermetrics_plist
 from nunatak.ingestion import mpip_report, rank_counting
 from nunatak.pivot import (
@@ -81,6 +81,7 @@ def collection_command(
     preload: str | None = None,
     call_graph: str | None = None,
     frequency: int | None = None,
+    python_perf: bool = False,
 ) -> list[str]:
     """The launch the orchestrator actually runs for an MPI command.
 
@@ -102,6 +103,8 @@ def collection_command(
         shim += ["--preload", preload]
     if call_graph is not None:
         shim += ["--call-graph", call_graph]
+    if python_perf:
+        shim += ["--python-perf"]
     return plan.wrap([*shim, "--"])
 
 
@@ -139,6 +142,33 @@ def _settle_stacks(args, executor, config, command, sampling, console):
         name="call-stacks-unavailable",
         message=decision.detail,
         remedy=decision.remedy,
+    )
+
+
+def _python_path(executor, command, console):
+    """The CPython trampoline decision: (collection environment or
+    None, shim flag, degradation or None).
+
+    Decided once on the orchestrator, like the stack ladder: the
+    environment rides the non-MPI collection, the flag rides the rank
+    shim, and a CPython too old for trampolines is a named loss - the
+    native frames keep their attribution, the Python story does not
+    exist.
+    """
+    target = interpreter.detect(executor, command)
+    if target is None:
+        return None, False, None
+    if target.trampolines:
+        console.info(
+            f"CPython {target.release}: Python frames exposed to perf "
+            "(PYTHONPERFSUPPORT=1)"
+        )
+        return interpreter.environment(), True, None
+    return None, False, Degradation(
+        name="python-hotspots-unavailable",
+        message=f"CPython {target.release} predates the perf trampolines: "
+        "Python functions stay invisible, only native frames are attributed",
+        remedy="use CPython 3.12 or newer",
     )
 
 
@@ -391,6 +421,17 @@ def execute(args, command: list[str], console: Console) -> int:
     if ladder_degradation is not None:
         console.degradation(ladder_degradation)
         degradations = degradations + [ladder_degradation]
+    collect_env, python_perf = None, False
+    if executor.system == "Linux" and (
+        (plan.mpi and bool(plan.application)) or
+        (adapter is not None and adapter.tool == "perf")
+    ):
+        collect_env, python_perf, python_degradation = _python_path(
+            executor, command, console
+        )
+        if python_degradation is not None:
+            console.degradation(python_degradation)
+            degradations = degradations + [python_degradation]
     if plan.mpi and plan.application:
         # Both collection layers live inside the ranks: an outer record
         # would fight the ranks' events for the same physical counters
@@ -430,6 +471,7 @@ def execute(args, command: list[str], console: Console) -> int:
             collection_command(
                 plan, directory / COLLECT_DIR, config, preload=mpip_library,
                 call_graph=call_graph, frequency=frequency,
+                python_perf=python_perf,
             ),
             capture=False,
         ).exit_code
@@ -495,6 +537,8 @@ def execute(args, command: list[str], console: Console) -> int:
                 if rider
                 else {}
             )
+            if adapter.tool == "perf" and collect_env is not None:
+                extras["env"] = collect_env
             if rider:
                 pass_dir.mkdir(parents=True, exist_ok=True)
             pass_start = _now()

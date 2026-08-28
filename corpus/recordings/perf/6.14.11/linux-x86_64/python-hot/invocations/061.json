@@ -1,0 +1,8 @@
+{
+  "argv": [
+    "/bin/cat",
+    "/tmp/perf-3696126.map"
+  ],
+  "exit_code": 0,
+  "captured": true
+}

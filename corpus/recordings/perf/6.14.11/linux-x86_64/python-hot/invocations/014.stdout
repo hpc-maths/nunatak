@@ -1,0 +1,23 @@
+
+/usr/bin/python3:     file format elf64-x86-64
+
+
+Disassembly of section .text:
+
+00000000005cc950 <PyImport_ImportModuleLevelObject@@Base>:
+  5cc950:	f3 0f 1e fa          	endbr64
+  5cc954:	55                   	push   %rbp
+  5cc955:	48 89 e5             	mov    %rsp,%rbp
+  5cc958:	41 57                	push   %r15
+  5cc95a:	41 56                	push   %r14
+  5cc95c:	41 55                	push   %r13
+  5cc95e:	41 54                	push   %r12
+  5cc960:	53                   	push   %rbx
+  5cc961:	48 83 ec 78          	sub    $0x78,%rsp
+  5cc965:	44 89 45 9c          	mov    %r8d,-0x64(%rbp)
+  5cc969:	64                   	fs
+  5cc96a:	48                   	rex.W
+  5cc96b:	8b                   	.byte 0x8b
+  5cc96c:	04 25                	add    $0x25,%al
+  5cc96e:	e8                   	.byte 0xe8
+  5cc96f:	ff                   	.byte 0xff

@@ -1,0 +1,20 @@
+
+/lib/x86_64-linux-gnu/libc.so.6:     file format elf64-x86-64
+
+
+Disassembly of section .text:
+
+00000000001654d0 <getaddrinfo@@GLIBC_2.2.5>:
+  1654d0:	f3 0f 1e fa          	endbr64
+  1654d4:	55                   	push   %rbp
+  1654d5:	48 89 e5             	mov    %rsp,%rbp
+  1654d8:	41 57                	push   %r15
+  1654da:	41 56                	push   %r14
+  1654dc:	41 55                	push   %r13
+  1654de:	41 54                	push   %r12
+  1654e0:	49 89 f4             	mov    %rsi,%r12
+  1654e3:	53                   	push   %rbx
+  1654e4:	48 89 d3             	mov    %rdx,%rbx
+  1654e7:	48 81 ec f8 0a 00 00 	sub    $0xaf8,%rsp
+  1654ee:	48                   	rex.W
+  1654ef:	89                   	.byte 0x89

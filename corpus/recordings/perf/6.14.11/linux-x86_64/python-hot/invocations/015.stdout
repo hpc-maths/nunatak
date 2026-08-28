@@ -1,0 +1,20 @@
+
+/usr/bin/python3:     file format elf64-x86-64
+
+
+Disassembly of section .text:
+
+0000000000619e00 <PyLong_FromString@@Base>:
+  619e00:	f3 0f 1e fa          	endbr64
+  619e04:	55                   	push   %rbp
+  619e05:	48 89 e5             	mov    %rsp,%rbp
+  619e08:	41 57                	push   %r15
+  619e0a:	41 56                	push   %r14
+  619e0c:	41 55                	push   %r13
+  619e0e:	41 54                	push   %r12
+  619e10:	53                   	push   %rbx
+  619e11:	48 83 ec 58          	sub    $0x58,%rsp
+  619e15:	85 d2                	test   %edx,%edx
+  619e17:	0f 95 c1             	setne  %cl
+  619e1a:	83 fa 01             	cmp    $0x1,%edx
+  619e1d:	0f 9e c0             	setle  %al

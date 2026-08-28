@@ -1,0 +1,20 @@
+
+/usr/bin/python3:     file format elf64-x86-64
+
+
+Disassembly of section .text:
+
+0000000000564940 <_PyEval_EvalFrameDefault@@Base>:
+  564940:	f3 0f 1e fa          	endbr64
+  564944:	55                   	push   %rbp
+  564945:	48 89 e5             	mov    %rsp,%rbp
+  564948:	41 57                	push   %r15
+  56494a:	41 56                	push   %r14
+  56494c:	41 55                	push   %r13
+  56494e:	41 54                	push   %r12
+  564950:	53                   	push   %rbx
+  564951:	48 81 ec 78 01 00 00 	sub    $0x178,%rsp
+  564958:	48 85 ff             	test   %rdi,%rdi
+  56495b:	0f                   	.byte 0xf
+  56495c:	84 1c 04             	test   %bl,(%rsp,%rax,1)
+  56495f:	ed                   	in     (%dx),%eax

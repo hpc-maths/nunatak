@@ -42,6 +42,13 @@
    :members:
 ```
 
+## Interpreted applications
+
+```{eval-rst}
+.. automodule:: nunatak.collect.interpreter
+   :members:
+```
+
 ## Recording corpus
 
 ```{eval-rst}

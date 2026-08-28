@@ -269,6 +269,29 @@ consent from a login node - there is no silent default in either
 direction. This is a different switch from `--no-source`, which keeps
 text out of the report: two risks, two controls.
 
+## Python applications
+
+```sh
+nunatak run -- python3 solver.py
+nunatak run -- mpirun -n 8 python3 solver.py
+```
+
+From CPython 3.12 on, naming the interpreter in the command is enough:
+nunatak sets `PYTHONPERFSUPPORT=1` in the launch environment and the
+interpreter publishes a small trampoline per Python function in a perf
+map - the one door through which perf sees Python frames inside native
+call stacks, with no line of the application touched. Anything else
+that writes a perf map (Numba, a JIT) enters through the same door.
+
+The maps live in each node's `/tmp`, keyed by PID: they are retrieved
+into the Run as collection artifacts - inside every sampling MPI rank
+too - because they are artifacts of the Run or they are lost, and the
+addresses they name exist nowhere else. A CPython older than 3.12 is
+the named degradation `python-hotspots-unavailable`: the native frames
+keep their attribution, the Python story does not exist. `doctor`
+announces the path a Python command will take on its `python-target`
+row.
+
 ## Exit codes
 
 The application's code is propagated in the general case. Reserved codes,

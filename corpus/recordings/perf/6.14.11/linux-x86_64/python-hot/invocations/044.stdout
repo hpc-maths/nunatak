@@ -1,0 +1,20 @@
+
+/lib/x86_64-linux-gnu/libexpat.so.1:     file format elf64-x86-64
+
+
+Disassembly of section .text:
+
+000000000000a700 <XML_GetBuffer@@Base>:
+    a700:	f3 0f 1e fa          	endbr64
+    a704:	48 85 ff             	test   %rdi,%rdi
+    a707:	0f 84 53 02 00 00    	je     a960 <XML_GetBuffer@@Base+0x260>
+    a70d:	55                   	push   %rbp
+    a70e:	89 f0                	mov    %esi,%eax
+    a710:	48 89 e5             	mov    %rsp,%rbp
+    a713:	41 56                	push   %r14
+    a715:	41 55                	push   %r13
+    a717:	41 54                	push   %r12
+    a719:	53                   	push   %rbx
+    a71a:	48 89 fb             	mov    %rdi,%rbx
+    a71d:	85 f6                	test   %esi,%esi
+    a71f:	0f                   	.byte 0xf

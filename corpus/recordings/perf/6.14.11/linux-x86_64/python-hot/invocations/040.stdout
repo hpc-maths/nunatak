@@ -1,0 +1,19 @@
+
+/lib/x86_64-linux-gnu/libexpat.so.1:     file format elf64-x86-64
+
+
+Disassembly of section .text:
+
+0000000000009170 <XML_ExternalEntityParserCreate@@Base>:
+    9170:	f3 0f 1e fa          	endbr64
+    9174:	55                   	push   %rbp
+    9175:	48 89 e5             	mov    %rsp,%rbp
+    9178:	41 57                	push   %r15
+    917a:	41 56                	push   %r14
+    917c:	41 55                	push   %r13
+    917e:	41 54                	push   %r12
+    9180:	53                   	push   %rbx
+    9181:	48 89 fb             	mov    %rdi,%rbx
+    9184:	48 81 ec 08 01 00 00 	sub    $0x108,%rsp
+    918b:	48 89 75 90          	mov    %rsi,-0x70(%rbp)
+    918f:	64                   	fs

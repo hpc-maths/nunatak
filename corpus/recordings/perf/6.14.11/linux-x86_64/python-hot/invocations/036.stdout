@@ -1,0 +1,20 @@
+
+/lib/x86_64-linux-gnu/libz.so.1:     file format elf64-x86-64
+
+
+Disassembly of section .text:
+
+00000000000122a0 <inflateSync@@Base>:
+   122a0:	f3 0f 1e fa          	endbr64
+   122a4:	55                   	push   %rbp
+   122a5:	48 89 e5             	mov    %rsp,%rbp
+   122a8:	41 57                	push   %r15
+   122aa:	41 56                	push   %r14
+   122ac:	41 55                	push   %r13
+   122ae:	41 54                	push   %r12
+   122b0:	53                   	push   %rbx
+   122b1:	48 83 ec 18          	sub    $0x18,%rsp
+   122b5:	64 48 8b 04 25 28 00 	mov    %fs:0x28,%rax
+   122bc:	00 00 
+   122be:	48                   	rex.W
+   122bf:	89                   	.byte 0x89
