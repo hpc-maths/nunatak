@@ -112,6 +112,18 @@ def _usable(output: Path) -> bool:
     )
 
 
+def _launch(command: Sequence[str], environment: Mapping[str, str]) -> int:
+    """Start the application - possibly under a collector - and wait.
+
+    `close_fds=False` is the whole point: the MPI runtime hands each rank
+    its PMI channel as an inherited descriptor, and Python's default
+    would close it before `MPI_Init` ever sees it.
+    """
+    return subprocess.run(
+        list(command), env=environment, close_fds=False
+    ).returncode
+
+
 def measure(
     directory: Path,
     command: Sequence[str],
@@ -139,7 +151,7 @@ def measure(
         environment, preload, Path(directory), python_perf=python_perf
     )
     if identity is None:
-        return subprocess.run(list(command), env=application).returncode
+        return _launch(command, application)
 
     rank_dir = Path(directory) / f"rank-{identity.rank}"
     rank_dir.mkdir(parents=True, exist_ok=True)
@@ -163,18 +175,18 @@ def measure(
             sampling = False
             exit_code = None
     if not sampling and version is not None and exit_code is None:
-        exit_code = subprocess.run(
+        exit_code = _launch(
             [
                 "perf", "stat", "-x,", "-e", ",".join(COUNTING_EVENTS),
                 "-o", str(output), "--", *command,
             ],
-            env=application,
-        ).returncode
+            application,
+        )
         if not _usable(output):
             output.unlink(missing_ok=True)
             exit_code = None
     if exit_code is None:
-        exit_code = subprocess.run(list(command), env=application).returncode
+        exit_code = _launch(command, application)
 
     (rank_dir / RANK_META).write_text(
         json.dumps(

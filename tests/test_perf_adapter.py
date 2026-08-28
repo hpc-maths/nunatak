@@ -40,6 +40,25 @@ def test_collect_records_then_extracts_what_nunatak_consumes(tmp_path):
     assert (tmp_path / "collect" / "perf-buildid-list.txt").read_text() == "deadbeef /opt/solver\n"
 
 
+def test_the_record_hands_the_launcher_channel_to_the_application(tmp_path):
+    # perf record starts the application, so inside an MPI rank it must
+    # inherit the descriptors the launcher opened - the PMI channel
+    # among them.
+    executor = (
+        ScriptedExecutor()
+        .on("perf")  # record
+        .on("perf", stdout="sample lines\n")  # script
+        .on("perf", stdout="deadbeef /opt/solver\n")  # buildid-list
+    )
+    PerfAdapter().collect(
+        ["./solver"], tmp_path / "collect", executor, frequency=997
+    )
+
+    record, script, buildid = executor.inheritances
+    assert record is True
+    assert (script, buildid) == (False, False)
+
+
 def test_darwin_gets_the_temporal_collector():
     executor = (
         ScriptedExecutor(system="Darwin")

@@ -75,6 +75,7 @@ class Executor:
         env: dict[str, str] | None = None,
         cwd: str | None = None,
         on_line: Callable[[str], None] | None = None,
+        inherit_descriptors: bool = False,
     ) -> Invocation:
         """Run `argv` and report what happened.
 
@@ -83,6 +84,10 @@ class Executor:
         line as it arrives, without its newline - live progress for the
         slow tools - and never changes what the Invocation carries: the
         caller parses the same complete output either way.
+        `inherit_descriptors=True` hands the child every descriptor this
+        process holds: MPI runtimes pass the PMI channel to each rank as
+        an inherited descriptor, so anything that starts the application
+        from inside a rank must not close it.
         """
         raise NotImplementedError
 
@@ -134,7 +139,10 @@ class SubprocessExecutor(Executor):
             return None
         return None
 
-    def run(self, argv, capture=True, env=None, cwd=None, on_line=None):
+    def run(
+        self, argv, capture=True, env=None, cwd=None, on_line=None,
+        inherit_descriptors=False,
+    ):
         """Execute `argv` as a subprocess."""
         if on_line is not None and capture:
             return self._streamed(argv, env, cwd, on_line)
@@ -146,6 +154,7 @@ class SubprocessExecutor(Executor):
                 errors="replace",
                 env=env,
                 cwd=cwd,
+                close_fds=not inherit_descriptors,
             )
         except FileNotFoundError:
             return Invocation(
