@@ -77,6 +77,27 @@ def supports(version: str) -> bool:
     return (int(match.group(1)), int(match.group(2))) >= MINIMUM_VERSION
 
 
+# A JIT map module, and the symbol shape CPython trampolines publish in
+# it: `py::<qualified name>:<file>`, perf appending `+0x<symoff>`.
+_MAP_DSO = re.compile(r"/tmp/perf-\d+\.map(\+0x[0-9a-fA-F]+)?$")
+_SYMOFF = re.compile(r"\+0x[0-9a-fA-F]+$")
+
+
+def _python_name(symbol: str, dso: str) -> tuple[str, str] | None:
+    """The (function, file) a map frame names, None for a native frame.
+
+    The name is kept at parse time or lost forever: the map's addresses
+    belong to a JIT, they mean nothing once the process is gone.
+    """
+    if not _MAP_DSO.search(dso) or not symbol.startswith("py::"):
+        return None
+    text = _SYMOFF.sub("", symbol)[len("py::"):]
+    function, separator, file = text.rpartition(":")
+    if not separator:
+        return None
+    return function, file
+
+
 def _location(dso: str) -> tuple[str, int | None]:
     """Normalize perf's `module+0xoffset` into `(module, offset)`.
 
@@ -102,13 +123,18 @@ def parse_samples(text: str):
     unparsed = []
     pending: tuple[re.Match, str] | None = None
     frames: list[tuple[str, int | None]] = []
+    python: list[tuple[int, str, str]] = []
 
     def close():
         if pending is None:
             return
         if frames:
             samples.append(
-                _sample(pending[0], *frames[0], callers=tuple(frames[1:]))
+                _sample(
+                    pending[0], *frames[0],
+                    callers=tuple(frames[1:]),
+                    python_frames=tuple(python),
+                )
             )
         else:
             # A header whose unwind produced nothing has no location: it
@@ -119,18 +145,27 @@ def parse_samples(text: str):
     for line in text.splitlines():
         if not line.strip():
             close()
-            pending, frames = None, []
+            pending, frames, python = None, [], []
             continue
         frame = _FRAME.match(line)
         if frame is not None and pending is not None:
+            named = _python_name(frame.group("symbol"), frame.group("dso"))
+            if named is not None:
+                python.append((len(frames), *named))
             frames.append(_location(frame.group("dso")))
             continue
         close()
-        pending, frames = None, []
+        pending, frames, python = None, [], []
         match = _SAMPLE.match(line)
         if match is not None:
             module, offset = _location(match.group("dso"))
-            samples.append(_sample(match, module, offset))
+            named = _python_name(match.group("symbol"), match.group("dso"))
+            samples.append(
+                _sample(
+                    match, module, offset,
+                    python_frames=((0, *named),) if named is not None else (),
+                )
+            )
             continue
         header = _HEADER.match(line)
         if header is not None:
@@ -146,6 +181,7 @@ def _sample(
     module: str,
     offset: int | None,
     callers: tuple[tuple[str, int | None], ...] = (),
+    python_frames: tuple[tuple[int, str, str], ...] = (),
 ) -> Sample:
     """Build a Sample from a matched line."""
     return Sample(
@@ -157,6 +193,7 @@ def _sample(
         module=module,
         offset=offset,
         callers=callers,
+        python_frames=python_frames,
     )
 
 

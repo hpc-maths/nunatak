@@ -292,6 +292,18 @@ keep their attribution, the Python story does not exist. `doctor`
 announces the path a Python command will take on its `python-target`
 row.
 
+**Interpreter time belongs to the Python function it interprets.** A
+sample landing in CPython's own frames - `_PyEval_EvalFrameDefault`,
+the allocator - is folded onto the innermost Python frame above it: the
+Hotspot is `axpy` at `(file, function)` grain, function-level
+resolution, no physical identity (only native code has one). A native
+extension leaf (numpy, pybind11, Cython) stays a native Hotspot with
+the Python caller visible in its recorded stack: interpreter frames are
+never Hotspots, extension Hotspots never stop being native. The
+trampoline names exist only in the collector's text - the map's
+addresses belong to a JIT - so they are kept at parse time and written
+on the stack frames, where the report's callers view shows them.
+
 ## Exit codes
 
 The application's code is propagated in the general case. Reserved codes,
