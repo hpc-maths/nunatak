@@ -1,9 +1,8 @@
 {
   "argv": [
-    "/usr/lib/llvm-19/bin/llvm-readelf",
-    "-S",
-    "workload"
+    "/usr/local/opt/llvm/bin/llvm-symbolizer",
+    "--version"
   ],
-  "exit_code": 0,
+  "exit_code": 127,
   "captured": true
 }

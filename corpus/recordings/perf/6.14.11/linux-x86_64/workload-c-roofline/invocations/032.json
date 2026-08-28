@@ -1,0 +1,8 @@
+{
+  "argv": [
+    "/usr/lib/llvm-20/bin/llvm-mca",
+    "--mcpu=help"
+  ],
+  "exit_code": 1,
+  "captured": true
+}

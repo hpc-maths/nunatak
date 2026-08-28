@@ -22,7 +22,7 @@ ENTRY = (
     / "corpus"
     / "recordings"
     / "calibration"
-    / "v0"
+    / "v1"
     / "linux-x86_64"
     / "epyc-7702"
 )
@@ -55,7 +55,7 @@ def executor_with(*kernel_outputs, compile_exit=0):
     executor = ScriptedExecutor().on("cc", stdout=CC_VERSION)
     executor.on("cc", exit_code=compile_exit)
     for output in kernel_outputs:
-        executor.on("kernel-v0", stdout=output)
+        executor.on("kernel", stdout=output)
     return executor
 
 
@@ -128,19 +128,20 @@ class TestCalibrate:
             .on("cc", stdout=CC_VERSION)
             .on("cc", stderr="unknown option -march=native", exit_code=1)
             .on("cc", exit_code=0)
-            .on("kernel-v0", stdout=FMA_DP.replace("fma_dp", "triad"))
+            .on("kernel", stdout=FMA_DP.replace("fma_dp", "triad"))
         )
         kernel.calibrate(executor, runner_machine(), Config(), directory=tmp_path)
         flags = [argv[2] for argv in executor.calls if argv[0] == "cc" and len(argv) > 2]
         assert flags == ["-march=native", "-mcpu=native"]
 
     def test_an_existing_binary_is_reused_not_rebuilt(self, tmp_path):
-        binary = tmp_path / "kernel-v0"
+        binary = tmp_path / "kernel" / "v1" / "kernel"
+        binary.parent.mkdir(parents=True)
         binary.write_bytes(b"\x7fELF")
         executor = (
             ScriptedExecutor()
             .on("cc", stdout=CC_VERSION)
-            .on("kernel-v0", stdout=FMA_DP.replace("fma_dp", "triad"))
+            .on("kernel", stdout=FMA_DP.replace("fma_dp", "triad"))
         )
         kernel.calibrate(executor, runner_machine(), Config(), directory=tmp_path)
         assert ["cc", "--version"] in executor.calls
@@ -256,16 +257,16 @@ class TestReplayedCalibration:
         ]
         assert all(c.quality is Quality.MEASURED for c in ceilings)
         dram, dp, sp = ceilings
-        assert dram.value == 1.012428e11
+        assert dram.value == 1.443587e11
         assert dram.unit == "byte/s"
-        assert dp.value == 1.171888e12
-        assert sp.value == 2.343294e12
+        assert dp.value == 1.171278e12
+        assert sp.value == 2.341047e12
 
     def test_the_replayed_maxima_match_the_recorded_repetitions(self, tmp_path):
         rates = {}
         for record in sorted((ENTRY / "invocations").glob("*.json")):
             argv = json.loads(record.read_text())["argv"]
-            if "kernel-v0" in argv[0]:
+            if "kernel" in argv[0]:
                 run = kernel.parse(record.with_suffix(".stdout").read_text())
                 rates[run.kernel] = max(run.rates)
         executor = corpus.ReplayExecutor(ENTRY)
@@ -321,9 +322,9 @@ class TestCalibrateVerb:
         report = json.loads(capsys.readouterr().out)
         assert report["cached"] is False
         values = {c["name"]: c["value"] for c in report["ceilings"]}
-        assert values["dram_bandwidth"] == 1.012428e11
-        assert values["flops_dp"] == 1.171888e12
-        assert values["flops_sp"] == 2.343294e12
+        assert values["dram_bandwidth"] == 1.443587e11
+        assert values["flops_dp"] == 1.171278e12
+        assert values["flops_sp"] == 2.341047e12
 
         # Same Machine, fresh replay: the cached profile answers and no
         # recording is consumed.
@@ -371,7 +372,7 @@ class TestFirstRunCalibration:
         maxima = {}
         for record in sorted((FULL_ENTRY / "invocations").glob("*.json")):
             argv = json.loads(record.read_text())["argv"]
-            if "kernel-v0" in Path(argv[0]).name:
+            if Path(argv[0]).name == "kernel":
                 run = kernel.parse(record.with_suffix(".stdout").read_text())
                 maxima[run.kernel] = max(run.rates)
         return maxima
@@ -444,7 +445,7 @@ DARWIN_ENTRY = (
     / "corpus"
     / "recordings"
     / "calibration"
-    / "v0"
+    / "v1"
     / "darwin-arm64"
     / "apple-m5-max"
 )
@@ -468,8 +469,8 @@ class TestReplayedDarwinCalibration:
 
     Two facts of the platform travel with the recording: Xcode 16's
     clang accepts `-march=native` (one build attempt, not two), and
-    /proc/loadavg does not exist, so the load pollution signal is
-    honestly absent rather than guessed."""
+    the load signal now reaches macOS through getloadavg(3) - the
+    pollution channel the /proc-less platforms were missing."""
 
     def test_the_recorded_calibration_replays_into_measured_ceilings(
         self, tmp_path
@@ -485,15 +486,15 @@ class TestReplayedDarwinCalibration:
         ]
         assert all(c.quality is Quality.MEASURED for c in ceilings)
         dram, dp, sp = ceilings
-        assert dram.value == 3.665209e11
-        assert dp.value == 6.422745e11
-        assert sp.value == 1.277932e12
+        assert dram.value == 3.655209e11
+        assert dp.value == 6.064984e11
+        assert sp.value == 1.264527e12
 
-    def test_the_kernel_self_reports_a_neon_build_without_a_load(self):
+    def test_the_kernel_self_reports_a_neon_build_with_a_load(self):
         for record in sorted((DARWIN_ENTRY / "invocations").glob("*.json")):
             argv = json.loads(record.read_text())["argv"]
-            if "kernel-v0" in argv[0]:
+            if "kernel" in argv[0]:
                 run = kernel.parse(record.with_suffix(".stdout").read_text())
                 assert run.isa == "neon"
                 assert run.threads == 18
-                assert run.load is None
+                assert run.load is not None and run.load > 0

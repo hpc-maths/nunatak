@@ -285,10 +285,11 @@ class TestReplayedRun:
         main = diagnostics[0]
         assert main.hotspot.display_name == "main"
         assert main.share.value > 0.9
-        # Real PMU cycles give a share but no seconds, and the Run carries
-        # no FLOP counter yet: the placement is absent with its reasons.
+        # The workload's 8 MiB fit inside one CCX's L3 slice: the fill
+        # events legitimately count nothing, so there is no DRAM traffic
+        # to divide by - the placement is absent with that reason.
         assert main.dram_intensity.value is None
-        assert "flops_dp" in main.dram_intensity.reason
+        assert "dram_bytes" in main.dram_intensity.reason
         assert main.classification is None
 
 

@@ -1,10 +1,7 @@
 {
   "argv": [
-    "/tmp/nunatak-xdg-roofline/nunatak/machines/kernel-v0",
-    "triad",
-    "32",
-    "5",
-    "300"
+    "cc",
+    "--version"
   ],
   "exit_code": 0,
   "captured": true

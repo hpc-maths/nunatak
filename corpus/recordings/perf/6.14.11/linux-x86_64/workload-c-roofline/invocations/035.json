@@ -1,0 +1,9 @@
+{
+  "argv": [
+    "/usr/lib/llvm-20/bin/llvm-mca",
+    "--mcpu=znver2",
+    "/tmp/nunatak-capture-roofline2/.nunatak/workload-20260828-104243/collect/loops/0.s"
+  ],
+  "exit_code": 0,
+  "captured": true
+}

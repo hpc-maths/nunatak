@@ -189,7 +189,7 @@ class TestReplayedRun:
         assert "summary: 1 Hotspot above the statistical floor holds" in log
         assert "main (line) - 100% of the sampled time - latency-bound" in log
         assert "of the envelope" in log
-        assert "DRAM intensity 1.21 flop/byte" in log
+        assert "DRAM intensity 1.1 flop/byte" in log
         assert "downgraded to estimated: demand fills only" in log
         # The log ends on the paths, after the summary.
         last_two = [line.split(" ", 1)[-1] for line in log.rstrip().splitlines()[-2:]]

@@ -1,0 +1,19 @@
+
+/lib/x86_64-linux-gnu/libc.so.6:     file format elf64-x86-64
+
+
+Disassembly of section .text:
+
+000000000011f2a0 <wordexp@@GLIBC_2.2.5>:
+  11f2a0:	f3 0f 1e fa          	endbr64
+  11f2a4:	41 57                	push   %r15
+  11f2a6:	41 56                	push   %r14
+  11f2a8:	49 89 f6             	mov    %rsi,%r14
+  11f2ab:	41 55                	push   %r13
+  11f2ad:	49 89 fd             	mov    %rdi,%r13
+  11f2b0:	41 54                	push   %r12
+  11f2b2:	55                   	push   %rbp
+  11f2b3:	53                   	push   %rbx
+  11f2b4:	48 81 ec 28 01 00 00 	sub    $0x128,%rsp
+  11f2bb:	48 8b 5e 08          	mov    0x8(%rsi),%rbx
+  11f2bf:	89                   	.byte 0x89

@@ -1,9 +1,10 @@
-kernel fma_sp
+kernel triad
 isa avx2
 threads 32
-load 6.70
-rep 0 2.338993e+12
-rep 1 2.339445e+12
-rep 2 2.337686e+12
-rep 3 2.340693e+12
-rep 4 2.340953e+12
+load 4.15
+bytes 6442450944
+rep 0 9.799263e+10
+rep 1 1.011662e+11
+rep 2 1.023527e+11
+rep 3 1.008048e+11
+rep 4 1.015978e+11
