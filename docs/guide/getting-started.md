@@ -292,6 +292,18 @@ keep their attribution, the Python story does not exist. `doctor`
 announces the path a Python command will take on its `python-target`
 row.
 
+**Below 3.12, py-spy stands in** - on Linux, for non-MPI runs. It
+samples the interpreter from outside, temporally: the same
+`(file, function)` Hotspots with full resolution, and the named loss
+`python-counters-unavailable` - no hardware counters ride a temporal
+sampler, upgrading to 3.12 restores the counter path. The application's
+exit code is still propagated: py-spy reports its own (0 even when the
+application failed), so a shell wrapper witnesses the real one. The two
+flows are never fused into one stack: two clocks, two triggers, merging
+them would be double counting dressed as measurement. Without py-spy,
+an old CPython loses the Python story by name
+(`python-hotspots-unavailable`).
+
 **Interpreter time belongs to the Python function it interprets.** A
 sample landing in CPython's own frames - `_PyEval_EvalFrameDefault`,
 the allocator - is folded onto the innermost Python frame above it: the

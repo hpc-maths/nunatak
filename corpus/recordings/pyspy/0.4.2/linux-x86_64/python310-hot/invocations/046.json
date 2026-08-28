@@ -1,0 +1,8 @@
+{
+  "argv": [
+    "py-spy",
+    "--version"
+  ],
+  "exit_code": 0,
+  "captured": true
+}

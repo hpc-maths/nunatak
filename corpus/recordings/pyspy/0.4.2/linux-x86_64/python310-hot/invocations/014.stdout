@@ -1,0 +1,20 @@
+
+/tmp/uv-pythons/cpython-3.10-linux-x86_64-gnu/bin/python3.10:     file format elf64-x86-64
+
+
+Disassembly of section .text:
+
+000000000032b350 <_Py_dg_dtoa>:
+  32b350:	55                   	push   %rbp
+  32b351:	48 89 e5             	mov    %rsp,%rbp
+  32b354:	41 57                	push   %r15
+  32b356:	41 56                	push   %r14
+  32b358:	41 55                	push   %r13
+  32b35a:	41 54                	push   %r12
+  32b35c:	53                   	push   %rbx
+  32b35d:	48 81 ec d8 00 00 00 	sub    $0xd8,%rsp
+  32b364:	4c 89 85 30 ff ff ff 	mov    %r8,-0xd0(%rbp)
+  32b36b:	48                   	rex.W
+  32b36c:	89                   	.byte 0x89
+  32b36d:	95                   	xchg   %eax,%ebp
+  32b36e:	10 ff                	adc    %bh,%bh

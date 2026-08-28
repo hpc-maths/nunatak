@@ -1,0 +1,11 @@
+{
+  "argv": [
+    "objdump",
+    "--disassemble",
+    "--start-address=0x3cb30",
+    "--stop-address=0x3cb50",
+    "/lib/x86_64-linux-gnu/libm.so.6"
+  ],
+  "exit_code": 0,
+  "captured": true
+}

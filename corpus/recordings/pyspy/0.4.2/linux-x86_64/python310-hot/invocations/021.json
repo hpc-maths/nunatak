@@ -1,0 +1,9 @@
+{
+  "argv": [
+    "objdump",
+    "-t",
+    "/lib/x86_64-linux-gnu/libutil.so.1"
+  ],
+  "exit_code": 0,
+  "captured": true
+}

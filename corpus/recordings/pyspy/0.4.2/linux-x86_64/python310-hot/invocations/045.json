@@ -1,0 +1,8 @@
+{
+  "argv": [
+    "python3.10",
+    "--version"
+  ],
+  "exit_code": 0,
+  "captured": true
+}

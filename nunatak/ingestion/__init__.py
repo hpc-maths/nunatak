@@ -230,6 +230,8 @@ def ingest(
         return _ingest_sample(directory, node, rank, pass_index)
     if tool == "xctrace":
         return _ingest_xctrace(directory, node, rank, pass_index)
+    if tool == "py-spy":
+        return _ingest_pyspy(directory, version, node, rank, pass_index)
     if tool != "perf" or not perf_script.supports(version):
         return [], [], [
             Degradation(
@@ -269,6 +271,60 @@ def ingest(
         )
     return (
         measurements_from_samples(samples, module_ids, node, rank, pass_index),
+        stacks_from_samples(samples, node, rank, pass_index),
+        degradations,
+    )
+
+
+def _ingest_pyspy(
+    directory: Path, version: str, node: str, rank: int | None, pass_index: int
+) -> tuple[list[Measurement], list[Stack], list[Degradation]]:
+    """Ingestion of py-spy's raw collapsed stacks - the temporal
+    fallback where the trampolines do not exist.
+
+    Every frame is Python, so the lines become Samples whose folding
+    yields the same `(file, function)` Hotspots the trampoline path
+    does; the recorded rate turns hit counts back into time.
+    """
+    import json
+
+    from nunatak.collect import pyspy as pyspy_adapter
+    from nunatak.ingestion import pyspy_raw
+
+    if not pyspy_raw.supports(version):
+        return [], [], [
+            Degradation(
+                name="ingestion-unsupported",
+                message=f"no parser for py-spy {version}; raw outputs kept in the Run",
+                remedy="upgrade nunatak",
+            )
+        ]
+    raw_path = directory / pyspy_adapter.RAW_OUTPUT
+    if not raw_path.is_file():
+        return [], [], [
+            Degradation(
+                name="python-sampling-missing",
+                message="py-spy produced no stacks; no Measurement for this Run",
+                remedy="check the py-spy messages above",
+            )
+        ]
+    rate = 100
+    meta_path = directory / pyspy_adapter.META_OUTPUT
+    if meta_path.is_file():
+        rate = int(json.loads(meta_path.read_text()).get("rate", rate))
+    samples, unparsed = pyspy_raw.parse_samples(raw_path.read_text(), rate)
+    degradations = []
+    if unparsed:
+        degradations.append(
+            Degradation(
+                name="python-sampling-unparsed",
+                message=f"{len(unparsed)} py-spy line(s) not recognized "
+                f"(first: {unparsed[0][:80]!r})",
+                remedy="report this line format; the other stacks are ingested",
+            )
+        )
+    return (
+        measurements_from_samples(samples, {}, node, rank, pass_index),
         stacks_from_samples(samples, node, rank, pass_index),
         degradations,
     )

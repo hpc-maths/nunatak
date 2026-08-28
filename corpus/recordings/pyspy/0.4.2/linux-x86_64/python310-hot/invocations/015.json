@@ -1,0 +1,11 @@
+{
+  "argv": [
+    "objdump",
+    "--disassemble",
+    "--start-address=0x31b9e0",
+    "--stop-address=0x31ba00",
+    "/tmp/uv-pythons/cpython-3.10-linux-x86_64-gnu/bin/python3.10"
+  ],
+  "exit_code": 0,
+  "captured": true
+}
