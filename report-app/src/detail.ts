@@ -13,6 +13,7 @@
 import type { Derived, HotspotEntry, LoopFacts, Payload } from "./data";
 import { downgrades, esc, flops, percent, qualityBadge, resolutionBadge, sig } from "./format";
 import { rowQuality } from "./inventory";
+import { markdown } from "./markdown";
 import { roofline } from "./roofline";
 
 // A source line carrying at least this share of the Hotspot's samples
@@ -174,7 +175,7 @@ function advice(entry: HotspotEntry): string {
       ? ` - ${esc(item.model)}${item.provider !== null ? ` via ${esc(item.provider)}` : ""}`
       : "";
   return `<div class="advice"><div class="eyebrow blockhead">Advice${author}</div>
-    <pre class="advice-text">${esc(item.text ?? "")}</pre>
+    <div class="advice-text">${markdown(item.text ?? "")}</div>
     <div class="small muted blocknote">Written by a language model from the facts above and the source extract: advice to weigh, never a measurement - it lives beside the pivot and is not reproducible.</div>
   </div>`;
 }
