@@ -52,10 +52,16 @@ def machine(dram=1.0e11, flops=1.0e12, quality=Quality.MEASURED) -> Machine:
     )
 
 
-def hotspot(name="main") -> Hotspot:
+def hotspot(name="main", file=None) -> Hotspot:
+    """A named Hotspot; `file` makes it the line-level one a source
+    extract can attach to."""
     return Hotspot(
-        logical_identity=LogicalIdentity(module="/app/solver", name=name),
-        resolution_level=ResolutionLevel.FUNCTION,
+        logical_identity=LogicalIdentity(
+            module="/app/solver", name=name, source_file=file
+        ),
+        resolution_level=(
+            ResolutionLevel.LINE if file else ResolutionLevel.FUNCTION
+        ),
     )
 
 

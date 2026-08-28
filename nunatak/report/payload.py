@@ -269,21 +269,21 @@ def _loop(run: Run, hotspot: Hotspot) -> dict | None:
 def _source(run: Run, hotspot: Hotspot) -> dict | None:
     """The embedded source extract of one Hotspot, reason included.
 
-    None when the Run carries no extract for it - a Hotspot without
-    line-level attribution, or a pre-extraction Run.
+    None when the Run carries no extract for the Hotspot's own file - a
+    Hotspot without line-level attribution, or a pre-extraction Run.
     """
-    for extract in run.source_extracts:
-        if extract.hotspot == hotspot:
-            return {
-                "file": extract.file,
-                "resolved_path": extract.resolved_path,
-                "start_line": extract.start_line,
-                "end_line": extract.end_line,
-                "text": extract.text,
-                "truncated": extract.truncated,
-                "reason": extract.reason,
-            }
-    return None
+    extract = run.source_of(hotspot)
+    if extract is None:
+        return None
+    return {
+        "file": extract.file,
+        "resolved_path": extract.resolved_path,
+        "start_line": extract.start_line,
+        "end_line": extract.end_line,
+        "text": extract.text,
+        "truncated": extract.truncated,
+        "reason": extract.reason,
+    }
 
 
 def _relative_error(run: Run, hotspot: Hotspot, time_base: str | None) -> float | None:

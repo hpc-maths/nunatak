@@ -23,7 +23,7 @@ at most about 400 words.
 - ceiling dram_bandwidth: 100 Gbyte/s
 - ceiling flops_dp: 1 TFLOP/s
 
-## Diagnostic for `axpy` (function level)
+## Diagnostic for `axpy` (line level)
 - share of the sampled time: 100%
 - classification: latency-bound
 - achieved 1.2 GFLOP/s of 24 GFLOP/s attainable: 5% of the envelope

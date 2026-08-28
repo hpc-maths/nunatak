@@ -20,7 +20,16 @@ from nunatak.pivot import (
     ResolutionLevel,
     SourceExtract,
 )
-from tests.test_analysis import balanced, hotspot, measurement, run_with
+from tests.test_analysis import balanced, measurement, run_with
+from tests.test_analysis import hotspot as _hotspot
+
+SOURCE_FILE = "/src/app.c"
+
+
+def hotspot(name="main"):
+    """Line-level: a Hotspot without its own file earns no prompt."""
+    return _hotspot(name, file=SOURCE_FILE)
+
 
 SNAPSHOT = Path(__file__).parent / "snapshots" / "explanation-prompt.md"
 
@@ -37,7 +46,11 @@ def detail(spot, offset, value, frames, counter="task-clock"):
 
 def extract_for(spot, text="for (int i = 0; i < n; i++)\n    a[i] = b[i] + 3.0 * c[i];"):
     return SourceExtract(
-        hotspot=spot, file="/src/app.c", start_line=4, end_line=5, text=text
+        hotspot=spot,
+        file=spot.logical_identity.source_file,
+        start_line=4,
+        end_line=5,
+        text=text,
     )
 
 
@@ -95,7 +108,9 @@ class TestEligibility:
     def test_an_absent_extract_keeps_its_recorded_reason(self):
         spot = hotspot()
         refused = SourceExtract(
-            hotspot=spot, file="/src/app.c", reason="line table fingerprints disagree"
+            hotspot=spot,
+            file=SOURCE_FILE,
+            reason="line table fingerprints disagree",
         )
         _, (asked, withheld) = prompts_of(
             [measurement(spot, "task-clock", 2e9, "ns")],
@@ -178,6 +193,27 @@ class TestContent:
         prompt = asked[0].prompt
         assert "- line 5: 70%" in prompt
         assert "- line 6: 30%" in prompt
+
+    def test_the_source_is_the_hotspots_own_file(self):
+        # A Hotspot carries one extract per file its addresses reach -
+        # the physical function's, and one per hot inline frame. Pairing
+        # the sampled lines with an inline frame's text would caption
+        # them with someone else's code.
+        spot = hotspot()
+        inlined = SourceExtract(
+            hotspot=spot,
+            file="/usr/include/c++/v1/__iterator/wrap_iter.h",
+            start_line=61,
+            end_line=89,
+            text="++__i_;",
+        )
+        _, (asked, _) = prompts_of(
+            [measurement(spot, "task-clock", 2e9, "ns")],
+            source_extracts=[inlined, extract_for(spot)],
+        )
+        prompt = asked[0].prompt
+        assert f"## Source (`{SOURCE_FILE}`, lines 4-5)" in prompt
+        assert "wrap_iter.h" not in prompt
 
     def test_the_source_rides_with_its_place(self):
         spot = hotspot()

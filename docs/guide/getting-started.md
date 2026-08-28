@@ -84,8 +84,11 @@ package, not a recompile.
 
 For every Hotspot attributed at line level, the run embeds a **source
 extract** - never a whole file: the body of the physical function and
-its hot inline frames, a few context lines around. The file is searched
-in three steps: the path DWARF recorded, then the `--source-map OLD=NEW`
+its hot inline frames, a few context lines around. Inlining spreads a
+Hotspot over several files, so there is one extract per file its
+addresses reach; what the report and the model are shown is the one the
+Hotspot is named after, because the sampled lines stated beside the
+text are that file's. The file is searched in three steps: the path DWARF recorded, then the `--source-map OLD=NEW`
 rewriting (repeatable flag, or a `[source_map]` table in
 `nunatak.toml`), then a basename search under the repository root. On
 multiple ambiguous matches nunatak does not choose: the Hotspot stays

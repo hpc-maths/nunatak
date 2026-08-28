@@ -101,9 +101,7 @@ def requests(
                 )
             )
             continue
-        extract = next(
-            (e for e in run.source_extracts if e.hotspot == hotspot), None
-        )
+        extract = run.source_of(hotspot)
         if extract is None:
             withheld.append(
                 Withheld(

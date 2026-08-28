@@ -19,6 +19,8 @@ from nunatak.explain.prompt import SYSTEM_PROMPT, Request
 from tests.support import ScriptedExecutor
 from tests.test_analysis import hotspot
 
+SOURCE_FILE = "/src/app.c"
+
 FIXTURES = Path(__file__).parent / "fixtures"
 ANSWER = (FIXTURES / "pi-json-answer.txt").read_text()
 PROVIDER_ERROR = (FIXTURES / "pi-json-provider-error.txt").read_text()
@@ -211,10 +213,10 @@ class TestVerb:
         from nunatak.pivot import SourceExtract, write_run
         from tests.test_analysis import measurement, run_with
 
-        spot = hotspot("axpy")
+        spot = hotspot("axpy", file=SOURCE_FILE)
         run = run_with([measurement(spot, "task-clock", 2e9, "ns")])
         run.source_extracts = [
-            SourceExtract(hotspot=spot, file="/src/app.c", text="a[i] = x;")
+            SourceExtract(hotspot=spot, file=SOURCE_FILE, text="a[i] = x;")
         ]
         directory = tmp_path / "run"
         write_run(directory, run)
@@ -239,10 +241,10 @@ class TestRunAttempt:
         from nunatak.pivot import SourceExtract
         from tests.test_analysis import measurement, run_with
 
-        spot = hotspot("axpy")
+        spot = hotspot("axpy", file=SOURCE_FILE)
         run = run_with([measurement(spot, "task-clock", 2e9, "ns")])
         run.source_extracts = [
-            SourceExtract(hotspot=spot, file="/src/app.c", text="y[i] = a * x[i];")
+            SourceExtract(hotspot=spot, file=SOURCE_FILE, text="y[i] = a * x[i];")
         ]
         return run
 
@@ -350,12 +352,12 @@ class TestReplayedExplain:
         from nunatak.pivot import SourceExtract, write_run
         from tests.test_analysis import measurement, run_with
 
-        spot = hotspot("axpy")
+        spot = hotspot("axpy", file=SOURCE_FILE)
         run = run_with([measurement(spot, "task-clock", 2e9, "ns")])
         run.source_extracts = [
             SourceExtract(
                 hotspot=spot,
-                file="/src/app.c",
+                file=SOURCE_FILE,
                 start_line=4,
                 end_line=5,
                 text="for (int i = 0; i < n; i++) y[i] = a * x[i] + y[i];",
@@ -384,10 +386,10 @@ class TestReplayedExplain:
         from nunatak.pivot import SourceExtract, write_run
         from tests.test_analysis import measurement, run_with
 
-        spot = hotspot("axpy")
+        spot = hotspot("axpy", file=SOURCE_FILE)
         run = run_with([measurement(spot, "task-clock", 2e9, "ns")])
         run.source_extracts = [
-            SourceExtract(hotspot=spot, file="/src/app.c", text="y[i] = a * x[i];")
+            SourceExtract(hotspot=spot, file=SOURCE_FILE, text="y[i] = a * x[i];")
         ]
         directory = tmp_path / "run"
         write_run(directory, run)
