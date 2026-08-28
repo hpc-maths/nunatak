@@ -63,14 +63,20 @@ def attempt(run, diagnostics, directory, executor, config, console, cwd):
         "tens of seconds per Hotspot"
     )
 
+    on_token = console.live if console.is_terminal and len(asked) == 1 else None
+
     def progress(outcome):
-        """One line per completed call, as it completes."""
+        """One line per completed call; the streamed text is its own."""
+        if on_token is not None:
+            console.live_done()
         if isinstance(outcome, Failure):
             console.error(f"{outcome.hotspot.display_name}: {outcome.error}")
-        else:
+        elif on_token is None:
             console.info(f"{outcome.hotspot.display_name}: advice received")
 
-    explanations, failures = generate(executor, located, asked, on_done=progress)
+    explanations, failures = generate(
+        executor, located, asked, on_done=progress, on_token=on_token
+    )
     if not explanations:
         first = failures[0].error if failures else "no answer"
         return Degradation(
@@ -147,15 +153,22 @@ def execute(args, console: Console) -> int:
         "tens of seconds per Hotspot"
     )
 
+    # One request on a terminal streams the answer as the model writes
+    # it; several run in parallel, whose interleaving would be soup.
+    on_token = console.live if console.is_terminal and len(asked) == 1 else None
+
     def progress(outcome):
-        """One line per completed call, as it completes."""
+        """One line per completed call; the streamed text is its own."""
+        if on_token is not None:
+            console.live_done()
         if isinstance(outcome, Failure):
             console.error(f"{outcome.hotspot.display_name}: {outcome.error}")
-        else:
+        elif on_token is None:
             console.info(f"{outcome.hotspot.display_name}: advice received")
 
     explanations, failures = generate(
-        executor, located, asked, model=args.model, on_done=progress
+        executor, located, asked, model=args.model, on_done=progress,
+        on_token=on_token,
     )
 
     if args.record:

@@ -55,6 +55,24 @@ class Console:
         """A failure, red on a terminal."""
         self._write(f"error: {message}", _RED)
 
+    def live(self, fragment: str) -> None:
+        """A fragment of live model output, written raw - terminal only.
+
+        Outside a terminal the fragments are dropped, never soup in a
+        job log: the completed lines say everything the log needs, and
+        the streamed text is display, not a different truth.
+        """
+        if not self.is_terminal:
+            return
+        if self.use_color:
+            fragment = f"{_DIM}{fragment}{_RESET}"
+        print(fragment, end="", file=self.stream, flush=True)
+
+    def live_done(self) -> None:
+        """Close the streamed passage with a newline, terminal only."""
+        if self.is_terminal:
+            print(file=self.stream)
+
     def degradation(self, degradation: Degradation) -> None:
         """Announce a named degradation before the run, with the way forward."""
         message = f"degraded [{degradation.name}]: {degradation.message}"

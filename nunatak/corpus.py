@@ -101,9 +101,11 @@ class RecordingExecutor(Executor):
         """The recording machine's identification block, for the meta."""
         return self.inner.cpuinfo()
 
-    def run(self, argv, capture=True, env=None, cwd=None):
+    def run(self, argv, capture=True, env=None, cwd=None, on_line=None):
         """Run through the wrapped executor and persist the invocation."""
-        invocation = self.inner.run(argv, capture=capture, env=env, cwd=cwd)
+        invocation = self.inner.run(
+            argv, capture=capture, env=env, cwd=cwd, on_line=on_line
+        )
         with self._lock:
             stem = self.entry / INVOCATIONS / f"{self._counter:03d}"
             self._counter += 1
@@ -182,8 +184,12 @@ class ReplayExecutor(Executor):
         unknown."""
         return self.meta.get("cpuinfo")
 
-    def run(self, argv, capture=True, env=None, cwd=None):
-        """Serve the next recording for this program instead of running it."""
+    def run(self, argv, capture=True, env=None, cwd=None, on_line=None):
+        """Serve the next recording for this program instead of running it.
+
+        A streaming caller gets the recorded lines through its callback:
+        the display path replays exactly like the parsing path.
+        """
         with self._lock:
             queue = self._queues.get(os.path.basename(argv[0]))
             if not queue:
@@ -198,6 +204,9 @@ class ReplayExecutor(Executor):
         if capture and record["captured"]:
             stdout = record_path.with_suffix(".stdout").read_text()
             stderr = record_path.with_suffix(".stderr").read_text()
+            if on_line is not None:
+                for line in stdout.splitlines():
+                    on_line(line)
         return Invocation(
             argv=tuple(argv),
             exit_code=record["exit_code"],

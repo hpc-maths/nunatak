@@ -395,3 +395,72 @@ class TestReplayedExplain:
         assert principal(["explain", str(directory), "--replay", str(ENTRY)]) == 0
         assert "withheld" in capsys.readouterr().err
         assert store.read(directory) is None
+
+
+class TestStreaming:
+    """The answer's text reaches the terminal as the model writes it."""
+
+    def test_only_the_answers_text_streams_never_the_thinking(self):
+        executor = ScriptedExecutor().on("pi", stdout=ANSWER)
+        seen = []
+        generate(executor, PI, [request()], on_token=seen.append)
+        assert "".join(seen) == "Hello!"
+
+    def test_the_streamed_call_parses_the_same_answer(self):
+        executor = ScriptedExecutor().on("pi", stdout=ANSWER)
+        explanations, _ = generate(
+            executor, PI, [request()], on_token=lambda _: None
+        )
+        assert explanations[0].advice == "Hello!"
+
+    def test_a_replayed_entry_streams_its_recorded_lines(self, tmp_path):
+        from nunatak.corpus import RecordingExecutor, ReplayExecutor
+        from nunatak.collect.execution import SubprocessExecutor
+
+        from nunatak import corpus
+
+        recording = RecordingExecutor(SubprocessExecutor(), tmp_path)
+        recording.run(["/bin/echo", "one\ntwo"])
+        corpus.write_meta(tmp_path, ["echo"], [])
+        lines = []
+        replay = ReplayExecutor(tmp_path)
+        replayed = replay.run(["/bin/echo", "ignored"], on_line=lines.append)
+        assert lines == ["one", "two"]
+        assert replayed.stdout == "one\ntwo\n"
+
+
+class TestConsoleStream:
+    def test_fragments_reach_a_terminal_raw(self, monkeypatch):
+        console, stream = terminal_console(monkeypatch)
+        console.live("Hel")
+        console.live("lo")
+        console.live_done()
+        assert stream.getvalue() == "Hello\n"
+
+    def test_outside_a_terminal_fragments_are_dropped(self):
+        sink = io.StringIO()
+        console = Console(stream=sink)
+        console.live("noise")
+        console.live_done()
+        assert sink.getvalue() == ""
+
+    def test_the_live_path_reports_the_same_invocation(self):
+        from nunatak.collect.execution import SubprocessExecutor
+
+        lines = []
+        invocation = SubprocessExecutor().run(
+            ["/bin/sh", "-c", "echo one; echo warn >&2; echo two; exit 3"],
+            on_line=lines.append,
+        )
+        assert lines == ["one", "two"]
+        assert invocation.stdout == "one\ntwo\n"
+        assert invocation.stderr == "warn\n"
+        assert invocation.exit_code == 3
+
+    def test_a_missing_program_fails_the_same_way_streamed(self):
+        from nunatak.collect.execution import SubprocessExecutor
+
+        invocation = SubprocessExecutor().run(
+            ["/nonexistent-tool"], on_line=lambda _: None
+        )
+        assert invocation.exit_code == 127

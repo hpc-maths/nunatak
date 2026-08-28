@@ -36,12 +36,15 @@ class ScriptedExecutor(Executor):
         self._responses[program].append((exit_code, stdout, stderr))
         return self
 
-    def run(self, argv, capture=True, env=None, cwd=None):
+    def run(self, argv, capture=True, env=None, cwd=None, on_line=None):
         """Record the call and serve the next canned response."""
         self.calls.append(list(argv))
         self.environments.append(env)
         queue = self._responses.get(os.path.basename(argv[0]))
         exit_code, stdout, stderr = queue.popleft() if queue else (0, "", "")
+        if on_line is not None and capture and stdout:
+            for line in stdout.splitlines():
+                on_line(line)
         return Invocation(
             argv=tuple(argv),
             exit_code=exit_code,
