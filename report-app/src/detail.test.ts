@@ -206,6 +206,34 @@ test("the hot loop states its facts and its bounds", () => {
   expect(html).not.toContain("Indirect accesses");
 });
 
+test("a composite loop fact stays whole in its own column", () => {
+  // The frame lists align a percentage in a narrow column; a fact whose
+  // value is a phrase must not be squeezed into it.
+  const item = entry({
+    loop: {
+      start_offset: 0x10,
+      end_offset: 0x20,
+      instructions: 11,
+      flops_per_iteration: 0,
+      vector_fp: 0,
+      scalar_fp: 0,
+      vector_ratio: null,
+      vector_width_bits: null,
+      loaded_bytes: 8,
+      stored_bytes: 0,
+      gathers: 0,
+      l1_intensity: derived(0, "static analysis"),
+      cycle_bounds: null,
+      bounds_reason: "unknown microarchitecture",
+    },
+  });
+  const html = detail(payload(item), item);
+  expect(html).toContain(
+    '<span class="num fact-value">8 loaded, 0 stored</span>'
+  );
+  expect(html).not.toContain('<span class="num pc-right">8 loaded');
+});
+
 test("absent bounds say why and a scalar loop wears its zero", () => {
   const item = entry({
     loop: {
