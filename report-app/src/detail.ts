@@ -105,8 +105,11 @@ function sourceLines(entry: HotspotEntry): string {
   return `<div class="small muted">No source to show: ${esc(reason)}.</div>`;
 }
 
+// The loop facts are label and value, not the name/bar/share of the
+// frame lists: a composite value like "8 loaded, 0 stored" does not fit
+// a column sized for a percentage.
 function loopFact(label: string, value: string): string {
-  return `<div class="iframe-row"><span>${label}</span><span></span><span class="num pc-right">${value}</span></div>`;
+  return `<div class="fact-row"><span>${label}</span><span class="num fact-value">${value}</span></div>`;
 }
 
 function loop(entry: HotspotEntry): string {
@@ -149,7 +152,7 @@ function loop(entry: HotspotEntry): string {
         ? `<div class="small muted">No cycle bounds: ${esc(facts.bounds_reason)}.</div>`
         : "";
   return `<div><div class="eyebrow blockhead">Hot loop, from the machine code</div>
-    <div class="iframe-list">${rows.join("")}</div>
+    <div class="fact-list">${rows.join("")}</div>
     ${bounds}
     <div class="small muted blocknote">Static analysis of the instruction stream: insensitive to cache reuse, estimated at best - never measured. The L1 intensity is what the code demands; the DRAM intensity beside it is what memory actually served.</div>
   </div>`;

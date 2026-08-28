@@ -587,6 +587,24 @@ table.tab tr.row:hover td {
   text-align: right;
 }
 
+/* Label and value, the value column sized to what it holds: these facts
+   carry composite values, not the percentages the frame lists align. */
+.fact-list {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+.fact-row {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 4px 16px;
+  align-items: baseline;
+  font-size: 12.5px;
+}
+.fact-value {
+  text-align: right;
+}
+
 /* The model's advice: visibly apart from the facts - an accent border,
    a tinted ground, never the plain surface a measurement sits on. */
 .advice {
