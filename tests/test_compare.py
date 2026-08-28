@@ -210,3 +210,67 @@ class TestUnit:
         one = run_of([measurement(hotspot(), "task-clock", 2e9, "ns")])
         other = run_of([measurement(hotspot(), "cycles", 4e9, "cycle")])
         assert compare(one, other).unit is None
+
+
+class TestVerb:
+    """The compare verb: terminal first level, full diff for machines."""
+
+    @staticmethod
+    def written(tmp_path, name, value, function="axpy"):
+        from nunatak.pivot import write_run
+
+        run = run_of([measurement(hotspot(function), "task-clock", value, "ns")])
+        run.name = name
+        directory = tmp_path / name
+        write_run(directory, run)
+        return directory
+
+    def test_the_json_diff_carries_verdicts_for_a_ci(self, tmp_path, capsys):
+        import json as json_module
+
+        from nunatak.cli import principal
+
+        before = self.written(tmp_path, "before", 2.0e9)
+        after = self.written(tmp_path, "after", 1.94e9)
+        assert principal(["compare", str(before), str(after), "--json"]) == 0
+        payload = json_module.loads(capsys.readouterr().out)
+        assert payload["unit"] == "ns"
+        delta = payload["deltas"][0]
+        assert delta["function"] == "axpy"
+        assert delta["significant"] is False
+        assert delta["combined_error"] > abs(delta["change"])
+        assert payload["total"]["change"] == delta["change"]
+        assert payload["findings"] == []
+
+    def test_the_terminal_says_when_a_delta_is_not_a_difference(
+        self, tmp_path, capsys
+    ):
+        from nunatak.cli import principal
+
+        before = self.written(tmp_path, "before", 2.0e9)
+        after = self.written(tmp_path, "after", 1.94e9)
+        assert principal(["compare", str(before), str(after)]) == 0
+        err = capsys.readouterr().err
+        assert "compare: before -> after" in err
+        assert "not a difference" in err
+        assert "2 s -> 1.94 s" in err
+
+    def test_an_unreadable_run_is_a_125(self, tmp_path, capsys):
+        from nunatak.cli import principal
+
+        good = self.written(tmp_path, "good", 2.0e9)
+        assert principal(["compare", str(tmp_path / "absent"), str(good)]) == 125
+
+    def test_findings_arrive_as_warnings(self, tmp_path, capsys):
+        import json as json_module
+
+        from nunatak.cli import principal
+
+        before = self.written(tmp_path, "before", 2.0e9)
+        after = self.written(tmp_path, "after", 2.0e9)
+        manifest = json_module.loads((after / "manifest.json").read_text())
+        manifest["run"]["command"] = ["./solver", "--other-mesh"]
+        (after / "manifest.json").write_text(json_module.dumps(manifest))
+        assert principal(["compare", str(before), str(after)]) == 0
+        err = capsys.readouterr().err
+        assert "not directly comparable [different-commands]" in err
