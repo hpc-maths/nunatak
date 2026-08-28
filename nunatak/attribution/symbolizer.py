@@ -132,24 +132,49 @@ class Symbolizer:
         command line and answers with one JSON entry per address, so the
         chains come back keyed by the offset each entry names. `env`
         carries the debuginfod controls; None inherits the process's.
+
+        The tool speaks the module's own file addresses, so the image
+        base is added on the way in and taken back off the way out: the
+        chains stay keyed the way every caller reads them.
         """
+        base = _image_base(executor, module)
         argv = [self.path, "--output-style=JSON", f"--obj={module}"]
-        argv += [hex(offset) for offset in sorted(set(offsets))]
+        argv += [hex(base + offset) for offset in sorted(set(offsets))]
         invocation = executor.run(argv, env=env)
         if not invocation.stdout:
             reason = (invocation.stderr or "").strip()
             return ModuleSymbolization(
                 error=reason or f"llvm-symbolizer exited with {invocation.exit_code}"
             )
-        return _parse(invocation.stdout)
+        return _parse(invocation.stdout, base)
 
 
-def _frame(entry: dict) -> Frame | None:
+def _image_base(executor: Executor, module: str) -> int:
+    """The address `module` counts its own sections from.
+
+    ELF puts executables and shared objects alike at zero, so an offset
+    is already a file address there and this costs nothing. A 64-bit
+    Mach-O executable is based at 4 GiB: an offset handed over unshifted
+    lands outside every section, which llvm-symbolizer answers with an
+    empty record - an attribution that collapses silently, without an
+    error to declare. The base is read where the disassembler reads it,
+    from the Mach-O header symbol.
+    """
+    if executor.system != "Darwin":
+        return 0
+    from nunatak.attribution import atos
+
+    table = atos.symbol_table(executor, module)
+    return table[0] if table is not None else 0
+
+
+def _frame(entry: dict, base: int) -> Frame | None:
     """Build a Frame from one symbolizer JSON record, None for the empty
     record llvm-symbolizer emits when no symbol covers the address.
 
     An empty file name and a line of 0 both mean "unknown" in the tool's
-    output and become None: 0 is not a line number.
+    output and become None: 0 is not a line number. `base` comes back off
+    the symbol start: it keys the physical identity, stated as an offset.
     """
     function = entry.get("FunctionName") or ""
     if not function:
@@ -160,16 +185,17 @@ def _frame(entry: dict) -> Frame | None:
         file=entry.get("FileName") or None,
         line=entry.get("Line") or None,
         declaration_line=entry.get("StartLine") or None,
-        start_address=int(start, 16) if start else None,
+        start_address=int(start, 16) - base if start else None,
     )
 
 
-def _parse(stdout: str) -> ModuleSymbolization:
+def _parse(stdout: str, base: int) -> ModuleSymbolization:
     """Parse llvm-symbolizer JSON output into per-offset chains.
 
     A successful invocation prints one array with one entry per requested
     address; an unreadable module prints a single bare object carrying an
-    `Error` member instead.
+    `Error` member instead. `base` is the image base the addresses were
+    shifted by, subtracted here so the chains come back module-relative.
     """
     chains: dict[int, AttributionChain] = {}
     error = None
@@ -187,8 +213,8 @@ def _parse(stdout: str) -> ModuleSymbolization:
             if "Error" in entry:
                 error = entry["Error"].get("Message") or "symbolization failed"
                 continue
-            frames = (_frame(record) for record in entry.get("Symbol", []))
-            chains[int(entry["Address"], 16)] = AttributionChain(
+            frames = (_frame(record, base) for record in entry.get("Symbol", []))
+            chains[int(entry["Address"], 16) - base] = AttributionChain(
                 frames=tuple(frame for frame in frames if frame is not None)
             )
     return ModuleSymbolization(chains=chains, error=error)

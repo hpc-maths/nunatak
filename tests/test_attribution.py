@@ -4,8 +4,10 @@ Every fixture below is the verbatim stdout of llvm-symbolizer 19.1.7
 (Ubuntu 25.04, x86_64) invoked with `--output-style=JSON --obj=...` on a
 workload compiled with `gcc -O2 -g` (variants: without `-g`, stripped):
 these tests exercise the parser against real tool output, never against
-our idea of it. The end of the file replays a corpus entry recorded on
-the same machine through the whole `run` pipeline.
+our idea of it. The Mach-O fixtures are the same tool and the platform's
+own `nm`, on an arm64 macOS 26 workload built with `clang -O2 -g` and
+`dsymutil`. The end of the file replays a corpus entry recorded on the
+same machine through the whole `run` pipeline.
 """
 
 import json
@@ -113,6 +115,27 @@ CXX = (
     '"/tmp/symshapes/cxx.cpp","StartLine":1}]}]'
 )
 
+# A 64-bit Mach-O executable is based at 4 GiB, which `nm -n` prints on
+# the header symbol; `kernel` is inlined into `main` at 0x350.
+NM_MACHO = """\
+0000000100000000 T __mh_execute_header
+0000000100000328 T _main
+"""
+
+MACHO = (
+    '[{"Address":"0x100000328","ModuleName":"workload","Symbol":[{"Column":0,'
+    '"Discriminator":0,"FileName":"/tmp/machoshapes/workload.c","FunctionName":'
+    '"main","Line":4,"StartAddress":"0x100000328","StartFileName":'
+    '"/tmp/machoshapes/workload.c","StartLine":3}]},'
+    '{"Address":"0x100000350","ModuleName":"workload","Symbol":[{"Column":47,'
+    '"Discriminator":0,"FileName":"/tmp/machoshapes/workload.c","FunctionName":'
+    '"kernel","Line":1,"StartAddress":"0x100000350","StartFileName":'
+    '"/tmp/machoshapes/workload.c","StartLine":1},{"Column":45,'
+    '"Discriminator":0,"FileName":"/tmp/machoshapes/workload.c","FunctionName":'
+    '"main","Line":6,"StartAddress":"0x100000328","StartFileName":'
+    '"/tmp/machoshapes/workload.c","StartLine":3}]}]'
+)
+
 VERSION = "llvm-symbolizer\nUbuntu LLVM version 19.1.7\n  Optimized build.\n"
 
 def symbolize(stdout, offsets, exit_code=0, stderr=""):
@@ -196,6 +219,43 @@ class TestInvocation:
             "--obj=workload",
         ]
         assert argv[3:] == ["0x10c0", "0x10e8", "0x10f0"]
+
+
+class TestMachO:
+    """The image base rides in and comes back off."""
+
+    def symbolize(self, offsets):
+        executor = (
+            ScriptedExecutor(system="Darwin")
+            .on("nm", stdout=NM_MACHO)
+            .on("llvm-symbolizer", stdout=MACHO)
+        )
+        return SYMBOLIZER.symbolize(executor, "workload", offsets), executor
+
+    def test_the_offsets_are_shifted_to_the_modules_file_addresses(self):
+        _, executor = self.symbolize([0x328, 0x350])
+        nm, symbolizer = executor.calls
+        assert nm == ["nm", "-n", "workload"]
+        assert symbolizer[3:] == ["0x100000328", "0x100000350"]
+
+    def test_the_chains_come_back_keyed_by_offset(self):
+        outcome, _ = self.symbolize([0x328, 0x350])
+        assert sorted(outcome.chains) == [0x328, 0x350]
+
+    def test_the_symbol_start_comes_back_module_relative(self):
+        # It keys the function-grain physical identity, which every
+        # other reader states as an offset.
+        outcome, _ = self.symbolize([0x350])
+        chain = outcome.chains[0x350]
+        assert [frame.function for frame in chain.frames] == ["kernel", "main"]
+        assert chain.physical.start_address == 0x328
+        assert chain.frames[0].start_address == 0x350
+
+    def test_an_elf_host_shifts_nothing_and_asks_no_base(self):
+        outcome, executor = symbolize(BATCH, [0x10C0, 0x10E8, 0x10F0])
+        (argv,) = executor.calls
+        assert argv[3:] == ["0x10c0", "0x10e8", "0x10f0"]
+        assert sorted(outcome.chains) == [0x10C0, 0x10E8, 0x10F0]
 
 
 def unresolved(module, offset, value, tid=1, module_id="deadbeef", samples=None):
