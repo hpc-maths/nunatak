@@ -1,0 +1,236 @@
+70d5126a7000 b py::_find_and_load:<frozen importlib._bootstrap>
+70d5126a7010 b py::_ModuleLockManager.__enter__:<frozen importlib._bootstrap>
+70d5126a7020 b py::_get_module_lock:<frozen importlib._bootstrap>
+70d5126a7030 b py::_ModuleLock.acquire:<frozen importlib._bootstrap>
+70d5126a7040 b py::_BlockingOnManager.__enter__:<frozen importlib._bootstrap>
+70d5126a7050 b py::_WeakValueDictionary.setdefault:<frozen importlib._bootstrap>
+70d5126a7060 b py::_WeakValueDictionary.__init__.<locals>.KeyedRef.__new__:<frozen importlib._bootstrap>
+70d5126a7070 b py::_WeakValueDictionary.__init__.<locals>.KeyedRef.__init__:<frozen importlib._bootstrap>
+70d5126a7080 b py::_BlockingOnManager.__exit__:<frozen importlib._bootstrap>
+70d5126a7090 b py::_WeakValueDictionary.__init__.<locals>.KeyedRef.remove:<frozen importlib._bootstrap>
+70d5126a70a0 b py::_find_and_load_unlocked:<frozen importlib._bootstrap>
+70d5126a70b0 b py::_find_spec:<frozen importlib._bootstrap>
+70d5126a70c0 b py::_ImportLockContext.__enter__:<frozen importlib._bootstrap>
+70d5126a70d0 b py::BuiltinImporter.find_spec:<frozen importlib._bootstrap>
+70d5126a70e0 b py::_ImportLockContext.__exit__:<frozen importlib._bootstrap>
+70d5126a70f0 b py::FrozenImporter.find_spec:<frozen importlib._bootstrap>
+70d5126a7100 b py::_call_with_frames_removed:<frozen importlib._bootstrap>
+70d5126a7110 b py::spec_from_loader:<frozen importlib._bootstrap>
+70d5126a7120 b py::ModuleSpec.__init__:<frozen importlib._bootstrap>
+70d5126a7130 b py::FrozenImporter._resolve_filename:<frozen importlib._bootstrap>
+70d5126a7140 b py::_load_unlocked:<frozen importlib._bootstrap>
+70d5126a7150 b py::module_from_spec:<frozen importlib._bootstrap>
+70d5126a7160 b py::FrozenImporter.create_module:<frozen importlib._bootstrap>
+70d5126a7170 b py::_new_module:<frozen importlib._bootstrap>
+70d5126a7180 b py::_init_module_attrs:<frozen importlib._bootstrap>
+70d5126a7190 b py::ModuleSpec.parent:<frozen importlib._bootstrap>
+70d5126a71a0 b py::ModuleSpec.has_location:<frozen importlib._bootstrap>
+70d5126a71b0 b py::FrozenImporter.exec_module:<frozen importlib._bootstrap>
+70d5126a71c0 b py::<module>:<frozen io>
+70d5126a71d0 b py::<module>:<frozen abc>
+70d5126a71e0 b py::abstractclassmethod:<frozen abc>
+70d5126a71f0 b py::abstractstaticmethod:<frozen abc>
+70d5126a7200 b py::abstractproperty:<frozen abc>
+70d5126a7210 b py::_requires_builtin.<locals>._requires_builtin_wrapper:<frozen importlib._bootstrap>
+70d5126a7220 b py::BuiltinImporter.is_package:<frozen importlib._bootstrap>
+70d5126a7230 b py::BuiltinImporter.create_module:<frozen importlib._bootstrap>
+70d5126a7240 b py::BuiltinImporter.exec_module:<frozen importlib._bootstrap>
+70d5126a7250 b py::_verbose_message:<frozen importlib._bootstrap>
+70d5126a7260 b py::_ModuleLockManager.__exit__:<frozen importlib._bootstrap>
+70d5126a7270 b py::_ModuleLock.release:<frozen importlib._bootstrap>
+70d5126a7280 b py::_get_module_lock.<locals>.cb:<frozen importlib._bootstrap>
+70d5126a7290 b py::ABCMeta:<frozen abc>
+70d5126a72a0 b py::ABC:<frozen abc>
+70d5126a72b0 b py::ABCMeta.__new__:<frozen abc>
+70d5126a72c0 b py::IOBase:<frozen io>
+70d5126a72d0 b py::RawIOBase:<frozen io>
+70d5126a72e0 b py::BufferedIOBase:<frozen io>
+70d5126a72f0 b py::TextIOBase:<frozen io>
+70d5126a7300 b py::ABCMeta.register:<frozen abc>
+70d5126a7310 b py::ABCMeta.__subclasscheck__:<frozen abc>
+70d5126a7320 b py::BufferedIncrementalDecoder.__init__:<frozen codecs>
+70d5126a7330 b py::IncrementalDecoder.__init__:<frozen codecs>
+70d5126a7340 b py::IncrementalEncoder.__init__:<frozen codecs>
+70d5126a7350 b py::<module>:<frozen site>
+70d5126a7360 b py::<module>:<frozen os>
+70d5126a7370 b py::<module>:<frozen stat>
+70d5126a7380 b py::<module>:<frozen _collections_abc>
+70d5126a7390 b py::_get_framelocalsproxy:<frozen _collections_abc>
+70d5126a73a0 b py::<lambda>:<frozen _collections_abc>
+70d5126a73b0 b py::_coro:<frozen _collections_abc>
+70d5126a73c0 b py::_ag:<frozen _collections_abc>
+70d5126a73d0 b py::Hashable:<frozen _collections_abc>
+70d5126a73e0 b py::abstractmethod:<frozen abc>
+70d5126a73f0 b py::Awaitable:<frozen _collections_abc>
+70d5126a7400 b py::Coroutine:<frozen _collections_abc>
+70d5126a7410 b py::Coroutine.__subclasshook__:<frozen _collections_abc>
+70d5126a7420 b py::_check_methods:<frozen _collections_abc>
+70d5126a7430 b py::AsyncIterable:<frozen _collections_abc>
+70d5126a7440 b py::AsyncIterator:<frozen _collections_abc>
+70d5126a7450 b py::AsyncGenerator:<frozen _collections_abc>
+70d5126a7460 b py::AsyncGenerator.__subclasshook__:<frozen _collections_abc>
+70d5126a7470 b py::Iterable:<frozen _collections_abc>
+70d5126a7480 b py::Iterator:<frozen _collections_abc>
+70d5126a7490 b py::Iterator.__subclasshook__:<frozen _collections_abc>
+70d5126a74a0 b py::Reversible:<frozen _collections_abc>
+70d5126a74b0 b py::Generator:<frozen _collections_abc>
+70d5126a74c0 b py::Generator.__subclasshook__:<frozen _collections_abc>
+70d5126a74d0 b py::Sized:<frozen _collections_abc>
+70d5126a74e0 b py::Container:<frozen _collections_abc>
+70d5126a74f0 b py::Collection:<frozen _collections_abc>
+70d5126a7500 b py::Buffer:<frozen _collections_abc>
+70d5126a7510 b py::_CallableGenericAlias:<frozen _collections_abc>
+70d5126a7520 b py::Callable:<frozen _collections_abc>
+70d5126a7530 b py::Set:<frozen _collections_abc>
+70d5126a7540 b py::Collection.__subclasshook__:<frozen _collections_abc>
+70d5126a7550 b py::MutableSet:<frozen _collections_abc>
+70d5126a7560 b py::Mapping:<frozen _collections_abc>
+70d5126a7570 b py::MappingView:<frozen _collections_abc>
+70d5126a7580 b py::KeysView:<frozen _collections_abc>
+70d5126a7590 b py::ItemsView:<frozen _collections_abc>
+70d5126a75a0 b py::ValuesView:<frozen _collections_abc>
+70d5126a75b0 b py::MutableMapping:<frozen _collections_abc>
+70d5126a75c0 b py::Sequence:<frozen _collections_abc>
+70d5126a75d0 b py::Reversible.__subclasshook__:<frozen _collections_abc>
+70d5126a75e0 b py::_DeprecateByteStringMeta:<frozen _collections_abc>
+70d5126a75f0 b py::ByteString:<frozen _collections_abc>
+70d5126a7600 b py::_DeprecateByteStringMeta.__new__:<frozen _collections_abc>
+70d5126a7610 b py::MutableSequence:<frozen _collections_abc>
+70d5126a7620 b py::<module>:<frozen posixpath>
+70d5126a7630 b py::_lock_unlock_module:<frozen importlib._bootstrap>
+70d5126a7640 b py::<module>:<frozen genericpath>
+70d5126a7650 b py::ALLOW_MISSING:<frozen genericpath>
+70d5126a7660 b py::_get_exports_list:<frozen os>
+70d5126a7670 b py::_exists:<frozen os>
+70d5126a7680 b py::_add:<frozen os>
+70d5126a7690 b py::_Environ:<frozen os>
+70d5126a76a0 b py::_createenviron:<frozen os>
+70d5126a76b0 b py::_Environ.__init__:<frozen os>
+70d5126a76c0 b py::_fscodec:<frozen os>
+70d5126a76d0 b py::_wrap_close:<frozen os>
+70d5126a76e0 b py::PathLike:<frozen os>
+70d5126a76f0 b py::<module>:<frozen _sitebuiltins>
+70d5126a7700 b py::Quitter:<frozen _sitebuiltins>
+70d5126a7710 b py::_Printer:<frozen _sitebuiltins>
+70d5126a7720 b py::_Helper:<frozen _sitebuiltins>
+70d5126a7730 b py::main:<frozen site>
+70d5126a7740 b py::removeduppaths:<frozen site>
+70d5126a7750 b py::makepath:<frozen site>
+70d5126a7760 b py::join:<frozen posixpath>
+70d5126a7770 b py::_get_sep:<frozen posixpath>
+70d5126a7780 b py::abspath:<frozen posixpath>
+70d5126a7790 b py::normcase:<frozen posixpath>
+70d5126a77a0 b py::venv:<frozen site>
+70d5126a77b0 b py::dirname:<frozen posixpath>
+70d5126a77c0 b py::venv.<locals>.<genexpr>:<frozen site>
+70d5126a77d0 b py::isfile:<frozen genericpath>
+70d5126a77e0 b py::check_enableusersite:<frozen site>
+70d5126a77f0 b py::addusersitepackages:<frozen site>
+70d5126a7800 b py::_trace:<frozen site>
+70d5126a7810 b py::getusersitepackages:<frozen site>
+70d5126a7820 b py::getuserbase:<frozen site>
+70d5126a7830 b py::_getuserbase:<frozen site>
+70d5126a7840 b py::Mapping.get:<frozen _collections_abc>
+70d5126a7850 b py::_Environ.__getitem__:<frozen os>
+70d5126a7860 b py::_createenviron.<locals>.encode:<frozen os>
+70d5126a7870 b py::_getuserbase.<locals>.joinuser:<frozen site>
+70d5126a7880 b py::expanduser:<frozen posixpath>
+70d5126a7890 b py::Mapping.__contains__:<frozen _collections_abc>
+70d5126a78a0 b py::_createenviron.<locals>.decode:<frozen os>
+70d5126a78b0 b py::_get_path:<frozen site>
+70d5126a78c0 b py::_get_implementation:<frozen site>
+70d5126a78d0 b py::isdir:<frozen genericpath>
+70d5126a78e0 b py::addsitepackages:<frozen site>
+70d5126a78f0 b py::getsitepackages:<frozen site>
+70d5126a7900 b py::addsitedir:<frozen site>
+70d5126a7910 b py::addpackage:<frozen site>
+70d5126a7920 b py::search_function:/usr/lib/python3.13/encodings/__init__.py
+70d5126a7930 b py::normalize_encoding:/usr/lib/python3.13/encodings/__init__.py
+70d5126a7940 b py::PathFinder.find_spec:<frozen importlib._bootstrap_external>
+70d5126a7950 b py::PathFinder._get_spec:<frozen importlib._bootstrap_external>
+70d5126a7960 b py::PathFinder._path_importer_cache:<frozen importlib._bootstrap_external>
+70d5126a7970 b py::FileFinder.find_spec:<frozen importlib._bootstrap_external>
+70d5126a7980 b py::_path_stat:<frozen importlib._bootstrap_external>
+70d5126a7990 b py::_make_relax_case.<locals>._relax_case:<frozen importlib._bootstrap_external>
+70d5126a79a0 b py::_path_join:<frozen importlib._bootstrap_external>
+70d5126a79b0 b py::_path_isfile:<frozen importlib._bootstrap_external>
+70d5126a79c0 b py::_path_is_mode_type:<frozen importlib._bootstrap_external>
+70d5126a79d0 b py::FileFinder._get_spec:<frozen importlib._bootstrap_external>
+70d5126a79e0 b py::spec_from_file_location:<frozen importlib._bootstrap_external>
+70d5126a79f0 b py::_path_abspath:<frozen importlib._bootstrap_external>
+70d5126a7a00 b py::_path_isabs:<frozen importlib._bootstrap_external>
+70d5126a7a10 b py::_LoaderBasics.create_module:<frozen importlib._bootstrap_external>
+70d5126a7a20 b py::ModuleSpec.cached:<frozen importlib._bootstrap>
+70d5126a7a30 b py::_get_cached:<frozen importlib._bootstrap_external>
+70d5126a7a40 b py::cache_from_source:<frozen importlib._bootstrap_external>
+70d5126a7a50 b py::_path_split:<frozen importlib._bootstrap_external>
+70d5126a7a60 b py::_path_split.<locals>.<genexpr>:<frozen importlib._bootstrap_external>
+70d5126a7a70 b py::_LoaderBasics.exec_module:<frozen importlib._bootstrap_external>
+70d5126a7a80 b py::SourceLoader.get_code:<frozen importlib._bootstrap_external>
+70d5126a7a90 b py::_check_name.<locals>._check_name_wrapper:<frozen importlib._bootstrap_external>
+70d5126a7aa0 b py::FileLoader.get_filename:<frozen importlib._bootstrap_external>
+70d5126a7ab0 b py::SourceFileLoader.path_stats:<frozen importlib._bootstrap_external>
+70d5126a7ac0 b py::FileLoader.get_data:<frozen importlib._bootstrap_external>
+70d5126a7ad0 b py::_classify_pyc:<frozen importlib._bootstrap_external>
+70d5126a7ae0 b py::_unpack_uint32:<frozen importlib._bootstrap_external>
+70d5126a7af0 b py::_validate_timestamp_pyc:<frozen importlib._bootstrap_external>
+70d5126a7b00 b py::_compile_bytecode:<frozen importlib._bootstrap_external>
+70d5126a7b10 b py::<module>:/usr/lib/python3.13/encodings/utf_8_sig.py
+70d5126a7b20 b py::IncrementalEncoder:/usr/lib/python3.13/encodings/utf_8_sig.py
+70d5126a7b30 b py::IncrementalDecoder:/usr/lib/python3.13/encodings/utf_8_sig.py
+70d5126a7b40 b py::StreamWriter:/usr/lib/python3.13/encodings/utf_8_sig.py
+70d5126a7b50 b py::StreamReader:/usr/lib/python3.13/encodings/utf_8_sig.py
+70d5126a7b60 b py::getregentry:/usr/lib/python3.13/encodings/utf_8_sig.py
+70d5126a7b70 b py::CodecInfo.__new__:<frozen codecs>
+70d5126a7b80 b py::decode:/usr/lib/python3.13/encodings/utf_8_sig.py
+70d5126a7b90 b py::<module>:<string>
+70d5126a7ba0 b py::PathFinder._path_hooks:<frozen importlib._bootstrap_external>
+70d5126a7bb0 b py::zipimporter.__init__:<frozen zipimport>
+70d5126a7bc0 b py::FileFinder.path_hook.<locals>.path_hook_for_FileFinder:<frozen importlib._bootstrap_external>
+70d5126a7bd0 b py::_path_isdir:<frozen importlib._bootstrap_external>
+70d5126a7be0 b py::FileFinder.__init__:<frozen importlib._bootstrap_external>
+70d5126a7bf0 b py::FileFinder.__init__.<locals>.<genexpr>:<frozen importlib._bootstrap_external>
+70d5126a7c00 b py::FileFinder._fill_cache:<frozen importlib._bootstrap_external>
+70d5126a7c10 b py::<module>:/usr/lib/python3/dist-packages/_distutils_hack/__init__.py
+70d5126a7c20 b py::_TrivialRe:/usr/lib/python3/dist-packages/_distutils_hack/__init__.py
+70d5126a7c30 b py::DistutilsMetaFinder:/usr/lib/python3/dist-packages/_distutils_hack/__init__.py
+70d5126a7c40 b py::shim:/usr/lib/python3/dist-packages/_distutils_hack/__init__.py
+70d5126a7c50 b py::add_shim:/usr/lib/python3/dist-packages/_distutils_hack/__init__.py
+70d5126a7c60 b py::insert_shim:/usr/lib/python3/dist-packages/_distutils_hack/__init__.py
+70d5126a7c70 b py::<module>:<string>
+70d5126a7c80 b py::DistutilsMetaFinder.find_spec:/usr/lib/python3/dist-packages/_distutils_hack/__init__.py
+70d5126a7c90 b py::DistutilsMetaFinder.find_spec.<locals>.<lambda>:/usr/lib/python3/dist-packages/_distutils_hack/__init__.py
+70d5126a7ca0 b py::<module>:/usr/lib/python3.13/types.py
+70d5126a7cb0 b py::_cell_factory:/usr/lib/python3.13/types.py
+70d5126a7cc0 b py::_g:/usr/lib/python3.13/types.py
+70d5126a7cd0 b py::_c:/usr/lib/python3.13/types.py
+70d5126a7ce0 b py::_ag:/usr/lib/python3.13/types.py
+70d5126a7cf0 b py::_C:/usr/lib/python3.13/types.py
+70d5126a7d00 b py::DynamicClassAttribute:/usr/lib/python3.13/types.py
+70d5126a7d10 b py::_GeneratorWrapper:/usr/lib/python3.13/types.py
+70d5126a7d20 b py::<module>:/usr/lib/python3.13/importlib/__init__.py
+70d5126a7d30 b py::<module>:<frozen importlib.util>
+70d5126a7d40 b py::<module>:/usr/lib/python3.13/importlib/_abc.py
+70d5126a7d50 b py::_handle_fromlist:<frozen importlib._bootstrap>
+70d5126a7d60 b py::Loader:/usr/lib/python3.13/importlib/_abc.py
+70d5126a7d70 b py::_incompatible_extension_module_restrictions:<frozen importlib.util>
+70d5126a7d80 b py::_LazyModule:<frozen importlib.util>
+70d5126a7d90 b py::LazyLoader:<frozen importlib.util>
+70d5126a7da0 b py::<module>:<frozen importlib.machinery>
+70d5126a7db0 b py::setquit:<frozen site>
+70d5126a7dc0 b py::Quitter.__init__:<frozen _sitebuiltins>
+70d5126a7dd0 b py::setcopyright:<frozen site>
+70d5126a7de0 b py::_Printer.__init__:<frozen _sitebuiltins>
+70d5126a7df0 b py::sethelper:<frozen site>
+70d5126a7e00 b py::enablerlcompleter:<frozen site>
+70d5126a7e10 b py::execsitecustomize:<frozen site>
+70d5126a7e20 b py::<module>:/usr/lib/python3.13/sitecustomize.py
+70d5126a7e30 b py::<module>:/usr/lib/python3/dist-packages/apport_python_hook.py
+70d5126a7e40 b py::install:/usr/lib/python3/dist-packages/apport_python_hook.py
+70d5126a7e50 b py::execusercustomize:<frozen site>
+70d5126a7e60 b py::_read_directory:<frozen zipimport>
+70d5126a7e70 b py::FileLoader.__init__:<frozen importlib._bootstrap_external>
+70d5126a7e80 b py::<module>:/tmp/nunatak-capture-python/hot.py
+70d5126a7e90 b py::main:/tmp/nunatak-capture-python/hot.py
+70d5126a7ea0 b py::wave:/tmp/nunatak-capture-python/hot.py
+70d5126a7eb0 b py::axpy:/tmp/nunatak-capture-python/hot.py

@@ -1,0 +1,20 @@
+
+/lib/x86_64-linux-gnu/libz.so.1:     file format elf64-x86-64
+
+
+Disassembly of section .text:
+
+000000000000de20 <inflateBack@@ZLIB_1.2.0>:
+    de20:	f3 0f 1e fa          	endbr64
+    de24:	55                   	push   %rbp
+    de25:	48 89 e5             	mov    %rsp,%rbp
+    de28:	41 57                	push   %r15
+    de2a:	41 56                	push   %r14
+    de2c:	41 55                	push   %r13
+    de2e:	41 54                	push   %r12
+    de30:	53                   	push   %rbx
+    de31:	48 81 ec 98 00 00 00 	sub    $0x98,%rsp
+    de38:	48 89 7d a0          	mov    %rdi,-0x60(%rbp)
+    de3c:	f3                   	repz
+    de3d:	0f                   	.byte 0xf
+    de3e:	7e 0d                	jle    de4d <inflateBack@@ZLIB_1.2.0+0x2d>

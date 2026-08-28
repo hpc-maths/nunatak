@@ -1,0 +1,19 @@
+
+/lib/x86_64-linux-gnu/libexpat.so.1:     file format elf64-x86-64
+
+
+Disassembly of section .text:
+
+0000000000009c90 <XML_SetBase@@Base>:
+    9c90:	f3 0f 1e fa          	endbr64
+    9c94:	48 85 ff             	test   %rdi,%rdi
+    9c97:	0f 84 33 03 00 00    	je     9fd0 <XML_SetBase@@Base+0x340>
+    9c9d:	55                   	push   %rbp
+    9c9e:	48 89 e5             	mov    %rsp,%rbp
+    9ca1:	41 57                	push   %r15
+    9ca3:	49 89 ff             	mov    %rdi,%r15
+    9ca6:	41 56                	push   %r14
+    9ca8:	41 55                	push   %r13
+    9caa:	49 89 f5             	mov    %rsi,%r13
+    9cad:	41 54                	push   %r12
+    9caf:	53                   	push   %rbx

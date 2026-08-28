@@ -1,0 +1,19 @@
+
+/lib/x86_64-linux-gnu/libz.so.1:     file format elf64-x86-64
+
+
+Disassembly of section .text:
+
+0000000000008030 <adler32_z@@ZLIB_1.2.9>:
+    8030:	f3 0f 1e fa          	endbr64
+    8034:	55                   	push   %rbp
+    8035:	48 89 f8             	mov    %rdi,%rax
+    8038:	48 89 f1             	mov    %rsi,%rcx
+    803b:	48 c1 e8 10          	shr    $0x10,%rax
+    803f:	0f b7 c0             	movzwl %ax,%eax
+    8042:	48 89 e5             	mov    %rsp,%rbp
+    8045:	41 57                	push   %r15
+    8047:	44 0f b7 ff          	movzwl %di,%r15d
+    804b:	41 56                	push   %r14
+    804d:	41 55                	push   %r13
+    804f:	41                   	rex.B

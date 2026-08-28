@@ -1,0 +1,11 @@
+{
+  "argv": [
+    "objdump",
+    "--disassemble",
+    "--start-address=0x619e00",
+    "--stop-address=0x619e20",
+    "/usr/bin/python3"
+  ],
+  "exit_code": 0,
+  "captured": true
+}

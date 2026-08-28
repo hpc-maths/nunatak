@@ -1,0 +1,11 @@
+{
+  "argv": [
+    "objdump",
+    "--disassemble",
+    "--start-address=0x87e0",
+    "--stop-address=0x8800",
+    "/lib/x86_64-linux-gnu/libexpat.so.1"
+  ],
+  "exit_code": 0,
+  "captured": true
+}

@@ -498,6 +498,41 @@ def _explanation(executor: Executor, config: Config) -> CheckResult:
     return CheckResult(name="explanation", status="ok", detail=detail)
 
 
+def _python_target(executor: Executor, command: list[str]) -> CheckResult | None:
+    """The Python path this command would take, None for a native one.
+
+    Detection keys on the interpreter being named in the command, and
+    the interpreter answers for its own version: 3.12 opens the perf
+    trampolines, older CPythons lose the Python story by name - the
+    native frames keep theirs.
+    """
+    from nunatak.collect import interpreter
+
+    target = interpreter.detect(executor, command)
+    if target is None:
+        return None
+    if target.trampolines:
+        return CheckResult(
+            name="python-target",
+            status="ok",
+            detail=f"CPython {target.release}: Python frames exposed to "
+            "perf via trampolines (PYTHONPERFSUPPORT=1)",
+        )
+    degradation = Degradation(
+        name="python-hotspots-unavailable",
+        message=f"CPython {target.release} predates the perf trampolines: "
+        "Python functions stay invisible, only native frames are attributed",
+        remedy="use CPython 3.12 or newer",
+    )
+    return CheckResult(
+        name="python-target",
+        status="warning",
+        detail=degradation.message,
+        remedy=degradation.remedy,
+        degradation=degradation,
+    )
+
+
 def _call_stacks(
     executor: Executor, config: Config, command: list[str], cpu_model: str | None
 ) -> CheckResult | None:
@@ -592,6 +627,9 @@ def execute(args, command: list[str], console: Console) -> int:
         ladder = _call_stacks(executor, config, command, executor.cpu_model())
         if ladder is not None:
             checks.append(ladder)
+        python_target = _python_target(executor, command)
+        if python_target is not None:
+            checks.append(python_target)
 
     if args.json:
         report = {

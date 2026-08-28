@@ -8,6 +8,7 @@ versioned by detected tool version.
 
 from __future__ import annotations
 
+import os
 import re
 from pathlib import Path
 
@@ -137,9 +138,31 @@ class PerfAdapter:
                 break
         if script.exit_code == 0 and script.stdout is not None:
             (directory / SCRIPT_OUTPUT).write_text(script.stdout)
+            _retrieve_maps(executor, script.stdout, directory)
 
         buildids = executor.run([self.path, "buildid-list", "--input", str(data)])
         if buildids.exit_code == 0 and buildids.stdout is not None:
             (directory / BUILDID_OUTPUT).write_text(buildids.stdout)
 
         return record.exit_code, degradations
+
+
+# A perf map module as our `perf script` fields print it: JIT-published
+# symbols, local to the node, keyed by PID - `dsoff` appends the offset
+# to the module inside the parentheses.
+_PERF_MAP = re.compile(r"\((/tmp/perf-\d+\.map)(?:\+0x[0-9a-f]+)?\)")
+
+
+def _retrieve_maps(executor: Executor, script_text: str, directory: Path) -> None:
+    """Copy every perf map the samples reference next to the recording.
+
+    The maps are written by a JIT - CPython trampolines, Numba - into
+    the node's /tmp, keyed by PID: they are artifacts of the Run or
+    they are lost, /tmp not surviving the job and the addresses they
+    name existing nowhere else. Inside an MPI rank this runs on the
+    rank's node, which is exactly the retrieval the maps demand.
+    """
+    for path in sorted(set(_PERF_MAP.findall(script_text))):
+        content = executor.run(["/bin/cat", path])
+        if content.exit_code == 0 and content.stdout:
+            (directory / os.path.basename(path)).write_text(content.stdout)

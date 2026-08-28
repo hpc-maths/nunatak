@@ -1,0 +1,20 @@
+
+/usr/bin/python3:     file format elf64-x86-64
+
+
+Disassembly of section .text:
+
+0000000000608b30 <PyUnicode_Format@@Base>:
+  608b30:	f3 0f 1e fa          	endbr64
+  608b34:	55                   	push   %rbp
+  608b35:	48 89 e5             	mov    %rsp,%rbp
+  608b38:	41 57                	push   %r15
+  608b3a:	41 56                	push   %r14
+  608b3c:	41 55                	push   %r13
+  608b3e:	41 54                	push   %r12
+  608b40:	53                   	push   %rbx
+  608b41:	48 81 ec 18 01 00 00 	sub    $0x118,%rsp
+  608b48:	48 85 ff             	test   %rdi,%rdi
+  608b4b:	0f 94 c2             	sete   %dl
+  608b4e:	48                   	rex.W
+  608b4f:	85                   	.byte 0x85

@@ -1,0 +1,19 @@
+
+/usr/bin/python3:     file format elf64-x86-64
+
+
+Disassembly of section .text:
+
+0000000000477fd5 <_Py_GetConfigsAsDict@@Base>:
+  477fd5:	f3 0f 1e fa          	endbr64
+  477fd9:	55                   	push   %rbp
+  477fda:	48 89 e5             	mov    %rsp,%rbp
+  477fdd:	41 57                	push   %r15
+  477fdf:	41 56                	push   %r14
+  477fe1:	41 55                	push   %r13
+  477fe3:	41 54                	push   %r12
+  477fe5:	53                   	push   %rbx
+  477fe6:	48 83 ec 18          	sub    $0x18,%rsp
+  477fea:	e8 21 3d 0b 00       	call   52bd10 <PyDict_New@@Base>
+  477fef:	49 89 c5             	mov    %rax,%r13
+  477ff2:	48 85 c0             	test   %rax,%rax

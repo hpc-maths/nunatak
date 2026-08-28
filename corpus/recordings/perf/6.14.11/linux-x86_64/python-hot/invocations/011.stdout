@@ -1,0 +1,14 @@
+
+/usr/bin/python3:     file format elf64-x86-64
+
+
+Disassembly of section .text:
+
+0000000000737570 <_PyUnicode_ToNumeric@@Base>:
+  737570:	f3 0f 1e fa          	endbr64
+  737574:	81 ff a9 04 01 00    	cmp    $0x104a9,%edi
+  73757a:	0f 87 86 00 00 00    	ja     737606 <_PyUnicode_ToNumeric@@Base+0x96>
+  737580:	81 ff 06 01 01 00    	cmp    $0x10106,%edi
+  737586:	0f 87 1f 03 00 00    	ja     7378ab <_PyUnicode_ToNumeric@@Base+0x33b>
+  73758c:	81                   	.byte 0x81
+  73758d:	ff 59 1c             	lcall  *0x1c(%rcx)

@@ -1,0 +1,21 @@
+
+/lib/x86_64-linux-gnu/libz.so.1:     file format elf64-x86-64
+
+
+Disassembly of section .text:
+
+00000000000088c0 <crc32_z@@ZLIB_1.2.9>:
+    88c0:	f3 0f 1e fa          	endbr64
+    88c4:	48 85 f6             	test   %rsi,%rsi
+    88c7:	0f 84 ab 0a 00 00    	je     9378 <crc32_z@@ZLIB_1.2.9+0xab8>
+    88cd:	55                   	push   %rbp
+    88ce:	48 89 f1             	mov    %rsi,%rcx
+    88d1:	f7 d7                	not    %edi
+    88d3:	48 89 e5             	mov    %rsp,%rbp
+    88d6:	41 57                	push   %r15
+    88d8:	41 56                	push   %r14
+    88da:	41 55                	push   %r13
+    88dc:	4c                   	rex.WR
+    88dd:	8d                   	.byte 0x8d
+    88de:	2d                   	.byte 0x2d
+    88df:	9d                   	popf

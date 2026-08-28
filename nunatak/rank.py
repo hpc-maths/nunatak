@@ -47,20 +47,28 @@ RANK_META = "rank.json"
 
 
 def application_environment(
-    environment: Mapping[str, str], preload: str | None, directory: Path
+    environment: Mapping[str, str],
+    preload: str | None,
+    directory: Path,
+    python_perf: bool = False,
 ) -> dict[str, str] | None:
     """The application's environment; None inherits the rank's untouched.
 
     mpiP is appended to `LD_PRELOAD`, never written over it - the site
     may already preload something - and its report is sent into the
     Run's collect directory, where ingestion will look for it.
+    `python_perf` turns the CPython trampolines on: decided once on the
+    orchestrator, applied here where the application actually starts.
     """
-    if not preload:
+    if not preload and not python_perf:
         return None
     composed = dict(environment)
-    existing = composed.get("LD_PRELOAD")
-    composed["LD_PRELOAD"] = f"{preload}:{existing}" if existing else preload
-    composed["MPIP"] = f"-f {directory}"
+    if python_perf:
+        composed["PYTHONPERFSUPPORT"] = "1"
+    if preload:
+        existing = composed.get("LD_PRELOAD")
+        composed["LD_PRELOAD"] = f"{preload}:{existing}" if existing else preload
+        composed["MPIP"] = f"-f {directory}"
     return composed
 
 
@@ -112,6 +120,7 @@ def measure(
     rank_threshold: int = 64,
     preload: str | None = None,
     call_graph: str | None = None,
+    python_perf: bool = False,
 ) -> int:
     """Run `command` in this rank, collecting around it, and return its
     exit code.
@@ -126,7 +135,9 @@ def measure(
     exactly once. A missing capability never prevents the run.
     """
     identity = rank_identity(environment)
-    application = application_environment(environment, preload, Path(directory))
+    application = application_environment(
+        environment, preload, Path(directory), python_perf=python_perf
+    )
     if identity is None:
         return subprocess.run(list(command), env=application).returncode
 
@@ -212,6 +223,10 @@ def main(argv: Sequence[str] | None = None) -> int:
         "--call-graph", default=None,
         help="stack mode the ladder settled on the orchestrator (lbr, fp, dwarf)",
     )
+    parser.add_argument(
+        "--python-perf", action="store_true",
+        help="expose CPython frames to perf (PYTHONPERFSUPPORT=1)",
+    )
     parser.add_argument("command", nargs=argparse.REMAINDER, help="the application")
     arguments = parser.parse_args(argv)
     command = arguments.command
@@ -227,6 +242,7 @@ def main(argv: Sequence[str] | None = None) -> int:
         rank_threshold=arguments.rank_threshold,
         preload=arguments.preload,
         call_graph=arguments.call_graph,
+        python_perf=arguments.python_perf,
     )
 
 

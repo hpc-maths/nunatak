@@ -1,0 +1,21 @@
+
+/lib/x86_64-linux-gnu/libm.so.6:     file format elf64-x86-64
+
+
+Disassembly of section .text:
+
+000000000003cb30 <fmaf128@@GLIBC_2.26>:
+   3cb30:	f3 0f 1e fa          	endbr64
+   3cb34:	55                   	push   %rbp
+   3cb35:	48 89 e5             	mov    %rsp,%rbp
+   3cb38:	41 57                	push   %r15
+   3cb3a:	41 56                	push   %r14
+   3cb3c:	41 55                	push   %r13
+   3cb3e:	41 54                	push   %r12
+   3cb40:	53                   	push   %rbx
+   3cb41:	48 81 ec c8 00 00 00 	sub    $0xc8,%rsp
+   3cb48:	0f 29 4d 80          	movaps %xmm1,-0x80(%rbp)
+   3cb4c:	66                   	data16
+   3cb4d:	0f                   	.byte 0xf
+   3cb4e:	6f                   	outsl  %ds:(%rsi),(%dx)
+   3cb4f:	75                   	.byte 0x75

@@ -1,0 +1,8 @@
+{
+  "argv": [
+    "ldd",
+    "/usr/bin/python3"
+  ],
+  "exit_code": 0,
+  "captured": true
+}

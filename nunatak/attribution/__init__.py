@@ -15,6 +15,7 @@ measured numbers.
 from __future__ import annotations
 
 import dataclasses
+import re
 
 from nunatak.attribution import inspection
 from nunatak.attribution.addr2line import Addr2Line
@@ -69,6 +70,9 @@ def locate_any(executor: Executor, config) -> Symbolizer | Addr2Line | None:
     return addr2line.locate(executor, config)
 
 
+_PERF_MAP_MODULE = re.compile(r"/tmp/perf-\d+\.map")
+
+
 def _symbolizable(module: str) -> bool:
     """Whether `module` is an on-disk object a symbolizer can open.
 
@@ -78,9 +82,13 @@ def _symbolizable(module: str) -> bool:
     macOS's `/usr/lib/dyld` is the same kind of entry wearing a real
     path: the on-disk file is a shared-cache stub whose symbols no tool
     loads, and declaring it unsymbolizable on every run would bury the
-    degradations that matter.
+    degradations that matter. A perf map (`/tmp/perf-<pid>.map`) is a
+    JIT's symbol table, not an object file: its names arrive with the
+    samples, a symbolizer has nothing to open.
     """
     if module == "/usr/lib/dyld":
+        return False
+    if _PERF_MAP_MODULE.fullmatch(module):
         return False
     return module.startswith("/") and not module.startswith("/proc/")
 
