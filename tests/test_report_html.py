@@ -16,6 +16,8 @@ from nunatak.pivot import write_run
 from nunatak.report import html
 from tests.test_analysis import balanced, hotspot, run_with
 
+SOURCE_FILE = "/src/app.c"
+
 
 @pytest.fixture
 def written_run(tmp_path, monkeypatch):
@@ -165,12 +167,12 @@ class TestNoSourceVariant:
 
         monkeypatch.chdir(tmp_path)
         directory = tmp_path / ".nunatak" / "solver-20260811-120000"
-        spot = hotspot()
+        spot = hotspot(file=SOURCE_FILE)
         run = run_with(balanced(spot, flops=1.6e10, bytes_=8.0e9, seconds=0.1))
         run.source_extracts = [
             SourceExtract(
                 hotspot=spot,
-                file="/src/app.c",
+                file=SOURCE_FILE,
                 text="double proprietary_kernel(void);",
                 start_line=12,
                 end_line=12,

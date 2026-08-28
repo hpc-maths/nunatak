@@ -509,3 +509,20 @@ class Run:
     source_extracts: list[SourceExtract] = field(default_factory=list)
     stacks: list[Stack] = field(default_factory=list)
     loop_analyses: list[LoopAnalysis] = field(default_factory=list)
+
+    def source_of(self, hotspot: Hotspot) -> SourceExtract | None:
+        """The extract of `hotspot`'s own file, None when it has none.
+
+        A Hotspot holds one extract per file its addresses reach: the
+        physical function's, and one more per hot inline frame. Only the
+        file the Hotspot is named after can caption it - the sampled
+        lines shown beside the text are that file's, and any other
+        extract would pair them with someone else's code.
+        """
+        source_file = hotspot.logical_identity.source_file
+        if source_file is None:
+            return None
+        for extract in self.source_extracts:
+            if extract.hotspot == hotspot and extract.file == source_file:
+                return extract
+        return None

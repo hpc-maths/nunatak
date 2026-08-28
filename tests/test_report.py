@@ -16,6 +16,8 @@ from nunatak import analysis, report
 from nunatak.pivot import AddressDetail, InlineFrame, Locus, SourceExtract, Stack, StackFrame
 from tests.test_analysis import aggregate, balanced, hotspot, measurement, ranked, run_with
 
+SOURCE_FILE = "/src/app.c"
+
 SNAPSHOT = Path(__file__).parent / "snapshots" / "report-payload-workload-c-roofline.json"
 ENTRY = (
     Path(__file__).resolve().parent.parent
@@ -30,7 +32,7 @@ ENTRY = (
 
 def frame(function, line=None, declaration_line=None):
     return InlineFrame(
-        function=function, file="/src/app.c", line=line, declaration_line=declaration_line
+        function=function, file=SOURCE_FILE, line=line, declaration_line=declaration_line
     )
 
 
@@ -49,12 +51,12 @@ def payload_of(measurements, **run_fields):
 
 class TestShape:
     def test_the_payload_is_json_serializable(self):
-        spot = hotspot()
+        spot = hotspot(file=SOURCE_FILE)
         payload = payload_of(
             [measurement(spot, "task-clock", 2e9, "ns")],
             address_details=[detail(spot, 0x10, 90.0, [frame("main", line=12)])],
             source_extracts=[
-                SourceExtract(hotspot=spot, file="/src/app.c", text="int main()")
+                SourceExtract(hotspot=spot, file=SOURCE_FILE, text="int main()")
             ],
         )
         json.dumps(payload)
@@ -277,10 +279,10 @@ class TestAdvice:
     facts; the withholding reason where advice cannot exist."""
 
     def test_stored_advice_joins_by_logical_identity(self):
-        spot = hotspot()
+        spot = hotspot(file=SOURCE_FILE)
         run = run_with([measurement(spot, "task-clock", 2e9, "ns")])
         run.source_extracts = [
-            SourceExtract(hotspot=spot, file="/src/app.c", text="x = 1;")
+            SourceExtract(hotspot=spot, file=SOURCE_FILE, text="x = 1;")
         ]
         explanations = {
             "generated": "2026-08-25T10:00:00+02:00",
@@ -312,12 +314,29 @@ class TestAdvice:
         assert advice["text"] is None
         assert "no source available" in advice["withheld"]
 
-    def test_eligible_but_never_generated_is_null(self):
-        spot = hotspot()
+    def test_the_source_shown_is_the_hotspots_own_file(self):
+        # The inline frames of a Hotspot have extracts of their own; the
+        # page states the sampled lines of the physical function, so it
+        # must show that file's text.
+        spot = hotspot(file=SOURCE_FILE)
         payload = payload_of(
             [measurement(spot, "task-clock", 2e9, "ns")],
             source_extracts=[
-                SourceExtract(hotspot=spot, file="/src/app.c", text="x = 1;")
+                SourceExtract(
+                    hotspot=spot, file="/usr/include/vector.h", text="__i_;"
+                ),
+                SourceExtract(hotspot=spot, file=SOURCE_FILE, text="x = 1;"),
+            ],
+        )
+        assert payload["hotspots"][0]["source"]["file"] == SOURCE_FILE
+        assert payload["hotspots"][0]["source"]["text"] == "x = 1;"
+
+    def test_eligible_but_never_generated_is_null(self):
+        spot = hotspot(file=SOURCE_FILE)
+        payload = payload_of(
+            [measurement(spot, "task-clock", 2e9, "ns")],
+            source_extracts=[
+                SourceExtract(hotspot=spot, file=SOURCE_FILE, text="x = 1;")
             ],
         )
         assert payload["hotspots"][0]["advice"] is None
@@ -328,10 +347,10 @@ class TestAdvice:
         from nunatak.explain import store as advice_store
         from nunatak.report import html
 
-        spot = hotspot()
+        spot = hotspot(file=SOURCE_FILE)
         run = run_with([measurement(spot, "task-clock", 2e9, "ns")])
         run.source_extracts = [
-            SourceExtract(hotspot=spot, file="/src/app.c", text="x = 1;")
+            SourceExtract(hotspot=spot, file=SOURCE_FILE, text="x = 1;")
         ]
         advice_store.write(
             tmp_path,
@@ -350,14 +369,14 @@ class TestAdvice:
 
 class TestWithoutSource:
     def test_the_variant_withholds_text_and_keeps_the_distribution(self):
-        spot = hotspot()
+        spot = hotspot(file=SOURCE_FILE)
         original = payload_of(
             [measurement(spot, "task-clock", 2e9, "ns")],
             address_details=[detail(spot, 0x10, 90.0, [frame("main", line=12)])],
             source_extracts=[
                 SourceExtract(
                     hotspot=spot,
-                    file="/src/app.c",
+                    file=SOURCE_FILE,
                     text="double proprietary_kernel(void);",
                     start_line=12,
                     end_line=12,
@@ -373,11 +392,11 @@ class TestWithoutSource:
         assert "proprietary_kernel" not in json.dumps(stripped)
 
     def test_the_input_payload_is_not_modified(self):
-        spot = hotspot()
+        spot = hotspot(file=SOURCE_FILE)
         original = payload_of(
             [measurement(spot, "task-clock", 2e9, "ns")],
             source_extracts=[
-                SourceExtract(hotspot=spot, file="/src/app.c", text="code();")
+                SourceExtract(hotspot=spot, file=SOURCE_FILE, text="code();")
             ],
         )
         report.payload.without_source(original)
@@ -386,10 +405,10 @@ class TestWithoutSource:
     def test_the_advice_goes_with_the_text(self):
         # The model saw the source and routinely quotes it back: the
         # shareable variant withholds the advice with its reason.
-        spot = hotspot()
+        spot = hotspot(file=SOURCE_FILE)
         run = run_with([measurement(spot, "task-clock", 2e9, "ns")])
         run.source_extracts = [
-            SourceExtract(hotspot=spot, file="/src/app.c", text="secret();")
+            SourceExtract(hotspot=spot, file=SOURCE_FILE, text="secret();")
         ]
         explanations = {
             "generated": "T",
