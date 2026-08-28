@@ -9,6 +9,8 @@ raw outputs stay in the Run for a later nunatak to ingest.
 
 from __future__ import annotations
 
+import os
+import re
 from pathlib import Path
 
 from nunatak.collect import events as counter_events
@@ -37,6 +39,45 @@ __all__ = ["Sample", "ingest", "measurements_from_samples", "stacks_from_samples
 _CLOCK_UNITS = {"cpu-clock": "ns", "task-clock": "ns", "wall-clock": "ns"}
 
 
+# What counts as the interpreter itself: CPython's binary or its shared
+# library. Only these fold - a native extension is an application
+# module like any other.
+_INTERPRETER_MODULE = re.compile(r"^(python(\d+(\.\d+)*)?|libpython[\w.]*)$")
+
+
+def _python_identity(sample: Sample) -> tuple[str, str] | None:
+    """The Python function this sample's time belongs to, or None.
+
+    The attribution chapter's rule: a hit in the interpreter folds onto
+    the innermost Python frame above it - the time of interpreting a
+    function belongs to that function, its exact sense - and a hit
+    inside a trampoline is that function directly. A native extension
+    leaf keeps its native identity, the Python caller staying visible
+    in the recorded stack: interpreter frames are never Hotspots,
+    extension Hotspots never stop being native.
+    """
+    if not sample.python_frames:
+        return None
+    position, function, file = min(sample.python_frames)
+    if position == 0:
+        return function, file
+    if _INTERPRETER_MODULE.match(os.path.basename(sample.module)):
+        return function, file
+    return None
+
+
+def _python_hotspot(function: str, file: str) -> Hotspot:
+    """A Hotspot at the Python grain: `(file, function)`, the identity
+    that survives everything an interpreter does to addresses. No
+    physical identity - only native code has one."""
+    return Hotspot(
+        logical_identity=LogicalIdentity(
+            module=file, name=function, source_file=file
+        ),
+        resolution_level=ResolutionLevel.FUNCTION,
+    )
+
+
 def measurements_from_samples(
     samples: list[Sample],
     module_ids: dict[str, str],
@@ -61,13 +102,17 @@ def measurements_from_samples(
         vendor = counter_events.canonical(sample.counter)
         counter = vendor.canonical if vendor is not None else sample.counter
         vendor_by_counter[counter] = vendor
-        key = (sample.module, sample.offset, sample.tid, counter)
+        python = _python_identity(sample)
+        if python is not None:
+            key = (python[1], None, sample.tid, counter, python[0])
+        else:
+            key = (sample.module, sample.offset, sample.tid, counter, None)
         entry = groups.setdefault(key, [0, 0])
         entry[0] += sample.period
         entry[1] += 1
 
     measurements = []
-    for (module, offset, tid, counter), (value, count) in groups.items():
+    for (module, offset, tid, counter, python_name), (value, count) in groups.items():
         module_id = module_ids.get(module)
         physical = (
             PhysicalIdentity(module_id=module_id, offset=offset)
@@ -77,7 +122,9 @@ def measurements_from_samples(
         vendor = vendor_by_counter.get(counter)
         measurements.append(
             Measurement(
-                hotspot=Hotspot(
+                hotspot=_python_hotspot(python_name, module)
+                if python_name is not None
+                else Hotspot(
                     logical_identity=LogicalIdentity(module=module),
                     resolution_level=ResolutionLevel.UNRESOLVED,
                     physical_identity=physical,
@@ -122,9 +169,19 @@ def stacks_from_samples(
             continue
         vendor = counter_events.canonical(sample.counter)
         counter = vendor.canonical if vendor is not None else sample.counter
+        # A map frame's name arrives with the sample and nowhere else:
+        # it is written on the frame now, where the attribution pass -
+        # which skips pseudo modules - will leave it standing.
+        named = {position: function for position, function, _ in sample.python_frames}
         frames = (
-            StackFrame(module=sample.module, offset=sample.offset),
-            *(StackFrame(module=m, offset=o) for m, o in sample.callers),
+            StackFrame(
+                module=sample.module, offset=sample.offset,
+                function=named.get(0),
+            ),
+            *(
+                StackFrame(module=m, offset=o, function=named.get(index + 1))
+                for index, (m, o) in enumerate(sample.callers)
+            ),
         )
         entry = groups.setdefault((sample.tid, counter, frames), [0, 0, vendor])
         entry[0] += sample.period

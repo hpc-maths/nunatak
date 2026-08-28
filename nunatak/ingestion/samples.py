@@ -13,6 +13,12 @@ class Sample:
     direct caller first - each frame normalized to `(module, offset)`
     like the hit itself. Empty when the recording carried no stacks:
     absence of evidence, never a claim that the function has no caller.
+
+    `python_frames` names the Python frames a JIT map identified inside
+    this sample, as `(position, function, file)` - position 0 the hit
+    itself, position n the n-th caller. The names exist only in the
+    collector's text: the map's addresses are JIT-ephemeral, and nothing
+    can re-symbolize them once the process is gone.
     """
 
     pid: int
@@ -23,3 +29,4 @@ class Sample:
     module: str
     offset: int | None
     callers: tuple[tuple[str, int | None], ...] = ()
+    python_frames: tuple[tuple[int, str, str], ...] = ()
