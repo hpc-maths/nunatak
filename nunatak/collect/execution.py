@@ -147,9 +147,16 @@ class SubprocessExecutor(Executor):
         if on_line is not None and capture:
             return self._streamed(argv, env, cwd, on_line)
         try:
+            # A captured invocation is a tool, and a tool never reads
+            # the user's stdin: llvm-mca, given no input file, blocks
+            # forever on an inherited terminal or pipe (measured with
+            # LLVM 20 - the whole run hangs after perf record). The
+            # application itself (capture=False) keeps its stdin:
+            # `nunatak run -- ./solver < input` must live.
             completed = subprocess.run(
                 argv,
                 capture_output=capture,
+                stdin=subprocess.DEVNULL if capture else None,
                 text=True,
                 errors="replace",
                 env=env,
@@ -187,6 +194,7 @@ class SubprocessExecutor(Executor):
         try:
             process = subprocess.Popen(
                 argv,
+                stdin=subprocess.DEVNULL,
                 stdout=subprocess.PIPE,
                 stderr=subprocess.PIPE,
                 text=True,
