@@ -1,0 +1,8 @@
+{
+  "argv": [
+    "/bin/cat",
+    "/tmp/nunatak-capture-python/.nunatak/python3.10-20260828-062713/collect/pyspy-exit"
+  ],
+  "exit_code": 0,
+  "captured": true
+}

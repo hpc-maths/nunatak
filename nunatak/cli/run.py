@@ -34,7 +34,7 @@ from nunatak.exit_codes import (
     FAILURE_BEFORE_LAUNCH,
     STRICT_VIOLATION,
 )
-from nunatak.collect import interpreter, mpip, powermetrics, stacks
+from nunatak.collect import interpreter, mpip, powermetrics, pyspy, stacks
 from nunatak.ingestion import powermetrics_plist
 from nunatak.ingestion import mpip_report, rank_counting
 from nunatak.pivot import (
@@ -145,31 +145,47 @@ def _settle_stacks(args, executor, config, command, sampling, console):
     )
 
 
-def _python_path(executor, command, console):
-    """The CPython trampoline decision: (collection environment or
-    None, shim flag, degradation or None).
+def _python_path(executor, config, command, console, mpi=False):
+    """The CPython collection decision: (collection environment or
+    None, shim flag, degradation or None, fallback collector or None).
 
-    Decided once on the orchestrator, like the stack ladder: the
-    environment rides the non-MPI collection, the flag rides the rank
-    shim, and a CPython too old for trampolines is a named loss - the
-    native frames keep their attribution, the Python story does not
-    exist.
+    Decided once on the orchestrator, like the stack ladder. From 3.12
+    the environment rides the non-MPI collection and the flag rides the
+    rank shim. Below 3.12 py-spy stands in where it can - temporal
+    sampling, Python Hotspots with full resolution, hardware Counters
+    unavailable - and its absence, or an MPI launch it does not cover,
+    is a named loss: the native frames keep their attribution, the
+    Python story does not exist.
     """
     target = interpreter.detect(executor, command)
     if target is None:
-        return None, False, None
+        return None, False, None, None
     if target.trampolines:
         console.info(
             f"CPython {target.release}: Python frames exposed to perf "
             "(PYTHONPERFSUPPORT=1)"
         )
-        return interpreter.environment(), True, None
+        return interpreter.environment(), True, None, None
+    if not mpi:
+        located = pyspy.locate(executor, config)
+        if located is not None:
+            console.info(
+                f"CPython {target.release} predates the perf trampolines: "
+                f"py-spy {located[1]} samples temporally"
+            )
+            return None, False, Degradation(
+                name="python-counters-unavailable",
+                message=f"CPython {target.release} predates the perf "
+                "trampolines; py-spy samples temporally: no hardware "
+                "counters for this Run",
+                remedy="CPython 3.12 or newer restores the counter path",
+            ), located
     return None, False, Degradation(
         name="python-hotspots-unavailable",
         message=f"CPython {target.release} predates the perf trampolines: "
         "Python functions stay invisible, only native frames are attributed",
-        remedy="use CPython 3.12 or newer",
-    )
+        remedy="install py-spy, or use CPython 3.12 or newer",
+    ), None
 
 
 def _pass_plan(args, snapshot, executor, console):
@@ -426,12 +442,19 @@ def execute(args, command: list[str], console: Console) -> int:
         (plan.mpi and bool(plan.application)) or
         (adapter is not None and adapter.tool == "perf")
     ):
-        collect_env, python_perf, python_degradation = _python_path(
-            executor, command, console
+        collect_env, python_perf, python_degradation, python_fallback = (
+            _python_path(
+                executor, config, command, console,
+                mpi=plan.mpi and bool(plan.application),
+            )
         )
         if python_degradation is not None:
             console.degradation(python_degradation)
             degradations = degradations + [python_degradation]
+        if python_fallback is not None:
+            # The fallback replaces the collector for this run: the
+            # Python story over the counter story, the loss declared.
+            adapter, version = python_fallback
     if plan.mpi and plan.application:
         # Both collection layers live inside the ranks: an outer record
         # would fight the ranks' events for the same physical counters
@@ -500,6 +523,10 @@ def execute(args, command: list[str], console: Console) -> int:
     elif adapter is not None:
         collectors = (Collector(tool=adapter.tool, version=version),)
         passes = _pass_plan(args, snapshot, executor, console)
+        if getattr(args, "multi_pass", False) and adapter.tool == "py-spy":
+            # A temporal sampler has no counter groups to split: one
+            # pass carries everything it can say.
+            passes = None
         if passes is None:
             gathered.append(
                 Degradation(

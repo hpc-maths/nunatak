@@ -1,0 +1,22 @@
+{
+  "argv": [
+    "py-spy",
+    "record",
+    "--subprocesses",
+    "--format",
+    "raw",
+    "--rate",
+    "997",
+    "--output",
+    "/tmp/nunatak-capture-python/.nunatak/python3.10-20260828-062713/collect/pyspy-raw.txt",
+    "--",
+    "sh",
+    "-c",
+    "\"$@\" && echo 0 > /tmp/nunatak-capture-python/.nunatak/python3.10-20260828-062713/collect/pyspy-exit || echo $? > /tmp/nunatak-capture-python/.nunatak/python3.10-20260828-062713/collect/pyspy-exit",
+    "sh",
+    "python3.10",
+    "hot.py"
+  ],
+  "exit_code": 0,
+  "captured": false
+}

@@ -1,0 +1,18 @@
+
+/lib/x86_64-linux-gnu/libc.so.6:     file format elf64-x86-64
+
+
+Disassembly of section .text:
+
+00000000000ff760 <glob@@GLIBC_2.27>:
+   ff760:	f3 0f 1e fa          	endbr64
+   ff764:	55                   	push   %rbp
+   ff765:	48 89 e5             	mov    %rsp,%rbp
+   ff768:	41 57                	push   %r15
+   ff76a:	41 56                	push   %r14
+   ff76c:	41 55                	push   %r13
+   ff76e:	41 54                	push   %r12
+   ff770:	53                   	push   %rbx
+   ff771:	48 81 ec f8 04 00 00 	sub    $0x4f8,%rsp
+   ff778:	48 89 bd 48 fb ff ff 	mov    %rdi,-0x4b8(%rbp)
+   ff77f:	48                   	rex.W

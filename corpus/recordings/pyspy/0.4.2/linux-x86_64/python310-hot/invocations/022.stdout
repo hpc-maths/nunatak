@@ -1,0 +1,12 @@
+
+/lib/x86_64-linux-gnu/libutil.so.1:     file format elf64-x86-64
+
+DYNAMIC SYMBOL TABLE:
+0000000000000000  w   D  *UND*	0000000000000000  Base        _ITM_deregisterTMCloneTable
+0000000000000000  w   D  *UND*	0000000000000000  Base        __gmon_start__
+0000000000000000  w   D  *UND*	0000000000000000  Base        _ITM_registerTMCloneTable
+0000000000000000  w   DF *UND*	0000000000000000 (GLIBC_2.2.5) __cxa_finalize
+0000000000000000 g    DO *ABS*	0000000000000000  GLIBC_2.2.5 GLIBC_2.2.5
+0000000000001100 g    DF .text	0000000000000005 (GLIBC_2.2.5) __libutil_version_placeholder
+
+

@@ -49,6 +49,16 @@
    :members:
 ```
 
+## py-spy fallback
+
+```{eval-rst}
+.. automodule:: nunatak.collect.pyspy
+   :members:
+
+.. automodule:: nunatak.ingestion.pyspy_raw
+   :members:
+```
+
 ## Recording corpus
 
 ```{eval-rst}

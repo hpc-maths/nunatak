@@ -1,0 +1,9 @@
+{
+  "argv": [
+    "/usr/lib/llvm-20/bin/llvm-readelf",
+    "-S",
+    "/tmp/uv-pythons/cpython-3.10-linux-x86_64-gnu/bin/python3.10"
+  ],
+  "exit_code": 0,
+  "captured": true
+}

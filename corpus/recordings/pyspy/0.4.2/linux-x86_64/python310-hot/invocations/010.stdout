@@ -1,0 +1,19 @@
+
+/tmp/uv-pythons/cpython-3.10-linux-x86_64-gnu/bin/python3.10:     file format elf64-x86-64
+
+
+Disassembly of section .text:
+
+000000000079de80 <ossl_aes_gcm_decrypt_avx512>:
+  79de80:	f3 0f 1e fa          	endbr64
+  79de84:	53                   	push   %rbx
+  79de85:	55                   	push   %rbp
+  79de86:	41 54                	push   %r12
+  79de88:	41 55                	push   %r13
+  79de8a:	41 56                	push   %r14
+  79de8c:	41 57                	push   %r15
+  79de8e:	48 8d 2c 24          	lea    (%rsp),%rbp
+  79de92:	48 81 ec 34 06 00 00 	sub    $0x634,%rsp
+  79de99:	48 83 e4 c0          	and    $0xffffffffffffffc0,%rsp
+  79de9d:	8b                   	.byte 0x8b
+  79de9e:	87 f0                	xchg   %esi,%eax

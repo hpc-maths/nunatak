@@ -1,0 +1,18 @@
+
+/tmp/uv-pythons/cpython-3.10-linux-x86_64-gnu/bin/python3.10:     file format elf64-x86-64
+
+
+Disassembly of section .text:
+
+00000000008c7430 <sqlite3VdbeExec>:
+  8c7430:	55                   	push   %rbp
+  8c7431:	48 89 e5             	mov    %rsp,%rbp
+  8c7434:	41 57                	push   %r15
+  8c7436:	41 56                	push   %r14
+  8c7438:	41 55                	push   %r13
+  8c743a:	41 54                	push   %r12
+  8c743c:	53                   	push   %rbx
+  8c743d:	48 81 ec f8 01 00 00 	sub    $0x1f8,%rsp
+  8c7444:	49 89 fd             	mov    %rdi,%r13
+  8c7447:	64 48 8b 04 25 28 00 	mov    %fs:0x28,%rax
+  8c744e:	00 00 

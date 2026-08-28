@@ -1,0 +1,18 @@
+
+/tmp/uv-pythons/cpython-3.10-linux-x86_64-gnu/bin/python3.10:     file format elf64-x86-64
+
+
+Disassembly of section .text:
+
+00000000002cb620 <_PyEval_EvalFrameDefault>:
+  2cb620:	55                   	push   %rbp
+  2cb621:	48 89 e5             	mov    %rsp,%rbp
+  2cb624:	41 57                	push   %r15
+  2cb626:	41 56                	push   %r14
+  2cb628:	41 55                	push   %r13
+  2cb62a:	41 54                	push   %r12
+  2cb62c:	53                   	push   %rbx
+  2cb62d:	48 81 ec a8 02 00 00 	sub    $0x2a8,%rsp
+  2cb634:	48 85 ff             	test   %rdi,%rdi
+  2cb637:	0f 84 79 03 00 00    	je     2cb9b6 <_PyEval_EvalFrameDefault+0x396>
+  2cb63d:	49 89 f4             	mov    %rsi,%r12

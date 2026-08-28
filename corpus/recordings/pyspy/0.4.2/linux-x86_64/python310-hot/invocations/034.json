@@ -1,0 +1,9 @@
+{
+  "argv": [
+    "objdump",
+    "-T",
+    "/lib/x86_64-linux-gnu/librt.so.1"
+  ],
+  "exit_code": 0,
+  "captured": true
+}

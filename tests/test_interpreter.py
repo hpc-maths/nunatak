@@ -124,19 +124,27 @@ class TestShim:
 class TestDoctorRow:
     def test_a_trampoline_capable_python_reads_ok(self):
         executor = ScriptedExecutor().on("python3", stdout="Python 3.12.4\n")
-        check = _python_target(executor, ["python3", "x.py"])
+        check = _python_target(executor, Config(), ["python3", "x.py"])
         assert check.status == "ok"
         assert "PYTHONPERFSUPPORT" in check.detail
 
-    def test_an_old_python_loses_the_python_story_by_name(self):
+    def test_an_old_python_with_pyspy_loses_only_the_counters(self):
         executor = ScriptedExecutor().on("python3", stdout="Python 3.10.12\n")
-        check = _python_target(executor, ["python3", "x.py"])
+        executor.on("py-spy", stdout="py-spy 0.4.2\n")
+        check = _python_target(executor, Config(), ["python3", "x.py"])
+        assert check.status == "warning"
+        assert "py-spy 0.4.2 stands in" in check.detail
+        assert check.degradation.name == "python-counters-unavailable"
+
+    def test_an_old_python_without_pyspy_loses_the_story_by_name(self):
+        executor = ScriptedExecutor().on("python3", stdout="Python 3.10.12\n")
+        check = _python_target(executor, Config(), ["python3", "x.py"])
         assert check.status == "warning"
         assert check.degradation.name == "python-hotspots-unavailable"
-        assert "3.12" in check.degradation.remedy
+        assert "py-spy" in check.degradation.remedy
 
     def test_a_native_command_has_no_row(self):
-        assert _python_target(ScriptedExecutor(), ["./solver"]) is None
+        assert _python_target(ScriptedExecutor(), Config(), ["./solver"]) is None
 
 
 class TestMapModule:

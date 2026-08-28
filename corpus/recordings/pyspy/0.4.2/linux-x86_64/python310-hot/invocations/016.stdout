@@ -1,0 +1,19 @@
+
+/tmp/uv-pythons/cpython-3.10-linux-x86_64-gnu/bin/python3.10:     file format elf64-x86-64
+
+
+Disassembly of section .text:
+
+00000000004d33a0 <_PySHA3_KeccakF1600_FastLoop_Absorb>:
+  4d33a0:	55                   	push   %rbp
+  4d33a1:	48 89 e5             	mov    %rsp,%rbp
+  4d33a4:	41 57                	push   %r15
+  4d33a6:	41 56                	push   %r14
+  4d33a8:	41 55                	push   %r13
+  4d33aa:	41 54                	push   %r12
+  4d33ac:	53                   	push   %rbx
+  4d33ad:	48 81 ec b0 00 00 00 	sub    $0xb0,%rsp
+  4d33b4:	4c 8b 3f             	mov    (%rdi),%r15
+  4d33b7:	4c 8b 4f 08          	mov    0x8(%rdi),%r9
+  4d33bb:	48 8b 47 10          	mov    0x10(%rdi),%rax
+  4d33bf:	48                   	rex.W

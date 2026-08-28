@@ -498,15 +498,19 @@ def _explanation(executor: Executor, config: Config) -> CheckResult:
     return CheckResult(name="explanation", status="ok", detail=detail)
 
 
-def _python_target(executor: Executor, command: list[str]) -> CheckResult | None:
+def _python_target(
+    executor: Executor, config: Config, command: list[str]
+) -> CheckResult | None:
     """The Python path this command would take, None for a native one.
 
     Detection keys on the interpreter being named in the command, and
     the interpreter answers for its own version: 3.12 opens the perf
-    trampolines, older CPythons lose the Python story by name - the
-    native frames keep theirs.
+    trampolines; below it py-spy stands in temporally - Python Hotspots
+    with full resolution, hardware Counters unavailable - and without
+    py-spy the Python story is lost by name, the native frames keeping
+    theirs.
     """
-    from nunatak.collect import interpreter
+    from nunatak.collect import interpreter, pyspy
 
     target = interpreter.detect(executor, command)
     if target is None:
@@ -518,11 +522,28 @@ def _python_target(executor: Executor, command: list[str]) -> CheckResult | None
             detail=f"CPython {target.release}: Python frames exposed to "
             "perf via trampolines (PYTHONPERFSUPPORT=1)",
         )
+    located = pyspy.locate(executor, config)
+    if located is not None:
+        degradation = Degradation(
+            name="python-counters-unavailable",
+            message=f"CPython {target.release} predates the perf "
+            "trampolines; py-spy samples temporally: no hardware "
+            "counters for this Run",
+            remedy="CPython 3.12 or newer restores the counter path",
+        )
+        return CheckResult(
+            name="python-target",
+            status="warning",
+            detail=f"py-spy {located[1]} stands in: temporal sampling, "
+            "no hardware counters",
+            remedy=degradation.remedy,
+            degradation=degradation,
+        )
     degradation = Degradation(
         name="python-hotspots-unavailable",
         message=f"CPython {target.release} predates the perf trampolines: "
         "Python functions stay invisible, only native frames are attributed",
-        remedy="use CPython 3.12 or newer",
+        remedy="install py-spy, or use CPython 3.12 or newer",
     )
     return CheckResult(
         name="python-target",
@@ -627,7 +648,7 @@ def execute(args, command: list[str], console: Console) -> int:
         ladder = _call_stacks(executor, config, command, executor.cpu_model())
         if ladder is not None:
             checks.append(ladder)
-        python_target = _python_target(executor, command)
+        python_target = _python_target(executor, config, command)
         if python_target is not None:
             checks.append(python_target)
 
