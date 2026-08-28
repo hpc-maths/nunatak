@@ -255,7 +255,12 @@ without reprofiling.
 
 The report shows the advice at the Hotspot's detail level, **labeled
 and visually apart from the facts** - an accent block naming the model
-that wrote it, never a plain cell a measurement could sit in. Where
+that wrote it, never a plain cell a measurement could sit in. The
+answer is asked for in markdown and rendered as markdown: its headings,
+lists and code sketches read as such. The subset rendered is the one the
+prompt asks for and no more - anything else stays the literal text the
+model wrote - and the whole answer is escaped before any markup is
+produced, so nothing it emits can become markup of the page. Where
 advice cannot exist, the same block carries the withholding reason; a
 Run whose advice was never generated nudges toward the verb. The
 `--no-source` variant withholds the advice along with the text: the

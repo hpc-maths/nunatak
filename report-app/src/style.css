@@ -617,12 +617,55 @@ table.tab tr.row:hover td {
 }
 
 .advice-text {
-  margin: 0;
   font-family: var(--sans);
   font-size: 13px;
   line-height: 1.5;
-  white-space: pre-wrap;
   overflow-wrap: anywhere;
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+}
+
+.advice-text > * {
+  margin: 0;
+}
+
+/* The block already carries a heading, so the model's own levels sit
+   below it: they separate its sections, they do not compete. */
+.md-head {
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 1.35;
+  margin-top: 3px;
+}
+
+.md-list {
+  padding-left: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.advice-text code {
+  font-family: var(--mono);
+  font-size: 12px;
+  background: var(--surface);
+  border-radius: 3px;
+  padding: 0 3px;
+}
+
+.md-code {
+  background: var(--surface);
+  border-radius: 4px;
+  padding: 9px 11px;
+  overflow-x: auto;
+}
+
+.md-code code {
+  background: none;
+  padding: 0;
+  white-space: pre;
+  line-height: 1.5;
 }
 
 /* Comparison verdicts: direction is color, but only when significant -
