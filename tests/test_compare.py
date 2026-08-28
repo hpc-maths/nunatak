@@ -274,3 +274,15 @@ class TestVerb:
         assert principal(["compare", str(before), str(after)]) == 0
         err = capsys.readouterr().err
         assert "not directly comparable [different-commands]" in err
+
+    def test_the_html_diff_lands_in_the_second_run(self, tmp_path, capsys):
+        from nunatak.cli import principal
+
+        before = self.written(tmp_path, "before", 2.0e9)
+        after = self.written(tmp_path, "after", 1.0e9)
+        assert principal(["compare", str(before), str(after)]) == 0
+        page = after / "compare.html"
+        assert page.is_file()
+        text = page.read_text(encoding="utf-8")
+        assert "nunatak-compare" in text
+        assert "nunatak - before vs after" in text

@@ -14,10 +14,12 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
+import nunatak
 from nunatak.compare import Comparison, Delta, Side, compare
 from nunatak.console import Console
 from nunatak.exit_codes import FAILURE_BEFORE_LAUNCH
 from nunatak.pivot import read_run
+from nunatak.report import html
 
 # The terminal is the first reading level, not the inventory: the
 # heaviest entities, then how many were left out.
@@ -41,8 +43,14 @@ def execute(args, console: Console) -> int:
     for line in lines(comparison):
         console.info(line)
 
+    payload = _payload(comparison, args.before, args.after)
+    # The HTML diff embeds exactly the JSON a CI consumes; it lands in
+    # the second Run's directory - this Run, against that reference. A
+    # missing bundle only loses the page, like report-unavailable.
+    if html.assets_available():
+        console.info(f"Report: {html.write_comparison(Path(args.after), payload)}")
     if args.json:
-        print(json.dumps(_payload(comparison, args.before, args.after)))
+        print(json.dumps(payload))
     return 0
 
 
@@ -93,8 +101,17 @@ def _quantity(value: float, unit: str | None) -> str:
 
 
 def _payload(comparison: Comparison, before: str, after: str) -> dict:
-    """The machine-readable diff: everything, verdicts included."""
+    """The machine-readable diff: everything, verdicts included.
+
+    The same payload feeds the CI (`--json`) and the HTML page, whose
+    mini-app dispatches on the format name: one shape, two consumers.
+    """
     return {
+        "format": {
+            "name": "nunatak-compare",
+            "schema": 1,
+            "generated_by": f"nunatak {nunatak.__version__}",
+        },
         "before": {"run": before, "name": comparison.before},
         "after": {"run": after, "name": comparison.after},
         "unit": comparison.unit,

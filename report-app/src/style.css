@@ -607,6 +607,27 @@ table.tab tr.row:hover td {
   overflow-wrap: anywhere;
 }
 
+/* Comparison verdicts: direction is color, but only when significant -
+   a delta within its sampling error stays muted whatever its sign. */
+.cmp-up {
+  color: var(--ember);
+  font-weight: 600;
+}
+
+.cmp-down {
+  color: var(--ok);
+  font-weight: 600;
+}
+
+.cmp-flat {
+  color: var(--muted);
+}
+
+.cmp-findings {
+  margin: 4px 0 0;
+  padding-left: 18px;
+}
+
 .foot {
   padding-top: 8px;
   padding-bottom: 28px;
