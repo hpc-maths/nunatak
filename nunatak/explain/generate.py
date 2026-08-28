@@ -78,16 +78,19 @@ def generate(
     requests: list[Request],
     model: str | None = None,
     on_done: Callable[[Explanation | Failure], None] | None = None,
+    on_token: Callable[[str], None] | None = None,
 ) -> tuple[list[Explanation], list[Failure]]:
     """Ask the model for every request, in parallel.
 
     Results come back in request order whatever the completion order;
     `on_done` fires as each call completes, for a terminal that shows
-    progress. `model` is passed to pi verbatim - nunatak never resolves
-    model patterns itself.
+    progress. `on_token` receives the answer's text as the model writes
+    it - the caller only passes it for a single request, since parallel
+    generations would interleave into soup. `model` is passed to pi
+    verbatim - nunatak never resolves model patterns itself.
     """
     def one(request: Request) -> Explanation | Failure:
-        outcome = _ask(executor, pi, request.prompt, model)
+        outcome = _ask(executor, pi, request.prompt, model, on_token)
         if isinstance(outcome, str):
             return Failure(hotspot=request.hotspot, error=outcome)
         text, served_model, served_provider = outcome
@@ -115,7 +118,11 @@ def generate(
 
 
 def _ask(
-    executor: Executor, pi: Pi, prompt: str, model: str | None
+    executor: Executor,
+    pi: Pi,
+    prompt: str,
+    model: str | None,
+    on_token: Callable[[str], None] | None = None,
 ) -> tuple[str, str | None, str | None] | str:
     """One model call: (text, model, provider) on success, the error
     sentence on failure."""
@@ -123,11 +130,32 @@ def _ask(
     if model is not None:
         argv += ["--model", model]
     argv.append(prompt)
-    invocation = executor.run(argv)
+    on_line = None
+    if on_token is not None:
+        on_line = lambda line: _delta(line, on_token)  # noqa: E731
+    invocation = executor.run(argv, on_line=on_line)
     if invocation.exit_code != 0:
         detail = (invocation.stderr or invocation.stdout or "").strip()
         return f"pi exited with {invocation.exit_code}: {detail[:500]}"
     return _parse(invocation.stdout or "")
+
+
+def _delta(line: str, on_token: Callable[[str], None]) -> None:
+    """Feed the answer's own text to the callback, as pi emits it.
+
+    Only `text_delta` fragments are the answer; `thinking_delta` is the
+    model's reasoning, which the advice never was and the terminal must
+    not pass off as it.
+    """
+    try:
+        event = json.loads(line)
+    except json.JSONDecodeError:
+        return
+    if event.get("type") != "message_update":
+        return
+    fragment = event.get("assistantMessageEvent", {})
+    if fragment.get("type") == "text_delta":
+        on_token(fragment.get("delta", ""))
 
 
 def _parse(stdout: str) -> tuple[str, str | None, str | None] | str:

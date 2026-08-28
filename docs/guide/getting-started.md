@@ -237,7 +237,9 @@ The verb is **separated from `run` by necessity**: measurement executes
 in a job, on compute nodes that generally have no network egress -
 `explain` is what runs from a login node afterwards. Calls go out **in parallel**
 (the observed latency is tens of seconds per Hotspot) with one progress
-line per answer, and provider errors - authentication, quota, network -
+line per answer - and when a single Hotspot is asked about on a
+terminal, **the answer streams as the model writes it**: the completed
+line still reaches a job log, the live text never does. Provider errors - authentication, quota, network -
 are surfaced verbatim, never mistaken for an empty answer: pi exits 0
 even when every attempt failed, so nunatak reads the event stream, the
 only honest witness.

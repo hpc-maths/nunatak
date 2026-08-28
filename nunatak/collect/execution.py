@@ -10,8 +10,10 @@ from __future__ import annotations
 import os
 import platform
 import subprocess
+import threading
 from dataclasses import dataclass
 from pathlib import Path
+from typing import Callable
 
 from nunatak.exit_codes import COMMAND_NOT_EXECUTABLE, COMMAND_NOT_FOUND
 
@@ -72,11 +74,15 @@ class Executor:
         capture: bool = True,
         env: dict[str, str] | None = None,
         cwd: str | None = None,
+        on_line: Callable[[str], None] | None = None,
     ) -> Invocation:
         """Run `argv` and report what happened.
 
         `capture=True` collects stdout/stderr; False leaves them attached
-        to the caller's streams.
+        to the caller's streams. `on_line` receives each captured stdout
+        line as it arrives, without its newline - live progress for the
+        slow tools - and never changes what the Invocation carries: the
+        caller parses the same complete output either way.
         """
         raise NotImplementedError
 
@@ -128,8 +134,10 @@ class SubprocessExecutor(Executor):
             return None
         return None
 
-    def run(self, argv, capture=True, env=None, cwd=None):
+    def run(self, argv, capture=True, env=None, cwd=None, on_line=None):
         """Execute `argv` as a subprocess."""
+        if on_line is not None and capture:
+            return self._streamed(argv, env, cwd, on_line)
         try:
             completed = subprocess.run(
                 argv,
@@ -156,4 +164,54 @@ class SubprocessExecutor(Executor):
             exit_code=completed.returncode,
             stdout=completed.stdout if capture else None,
             stderr=completed.stderr if capture else None,
+        )
+
+    def _streamed(self, argv, env, cwd, on_line):
+        """Run `argv` reading stdout line by line, feeding each line to
+        the callback as it arrives.
+
+        stderr is drained on its own thread: a tool chatty on both
+        streams must not deadlock against a full pipe buffer. The
+        Invocation carries the same complete output the plain path
+        would - streaming is display, never a different truth.
+        """
+        try:
+            process = subprocess.Popen(
+                argv,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+                text=True,
+                errors="replace",
+                env=env,
+                cwd=cwd,
+            )
+        except FileNotFoundError:
+            return Invocation(
+                argv=tuple(argv),
+                exit_code=COMMAND_NOT_FOUND,
+                stderr=f"{argv[0]}: command not found",
+            )
+        except (PermissionError, OSError) as error:
+            return Invocation(
+                argv=tuple(argv),
+                exit_code=COMMAND_NOT_EXECUTABLE,
+                stderr=f"{argv[0]}: {error}",
+            )
+        stderr_parts: list[str] = []
+        drain = threading.Thread(
+            target=lambda: stderr_parts.append(process.stderr.read()),
+            daemon=True,
+        )
+        drain.start()
+        stdout_parts: list[str] = []
+        for line in process.stdout:
+            stdout_parts.append(line)
+            on_line(line.rstrip("\n"))
+        exit_code = process.wait()
+        drain.join()
+        return Invocation(
+            argv=tuple(argv),
+            exit_code=exit_code,
+            stdout="".join(stdout_parts),
+            stderr="".join(stderr_parts),
         )
