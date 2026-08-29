@@ -7,7 +7,7 @@ author = "the nunatak authors"
 copyright = "2026, the nunatak authors"
 release = nunatak.__version__
 
-extensions = ["myst_parser", "sphinx.ext.autodoc"]
+extensions = ["myst_parser", "sphinx.ext.autodoc", "sphinxarg.ext"]
 
 # spec/ and adr/ are French design documents, not part of the site.
 exclude_patterns = ["_build", "spec", "adr", "brand"]
