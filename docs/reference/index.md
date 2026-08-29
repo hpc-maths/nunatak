@@ -12,4 +12,5 @@ it.
 commands
 configuration
 run-directory
+machine-readable
 ```
