@@ -334,30 +334,7 @@ of `--strict`.
 Without `--strict`, a degradation never fails the run. With it, any named
 degradation becomes an error - for scripted use and performance CI.
 
-## The Run directory
-
-```
-.nunatak/solver-20260809-142233/
-  manifest.json        machine snapshot, provenance, passes, degradations
-  pivot/               measurements, events, attribution detail, call paths (Parquet)
-  collect/             raw collector outputs (perf.data, perf script text)
-```
-
-The manifest is plain JSON, readable without nunatak. The pivot holds
-measured data only; analyses are recomputed on demand by later commands,
-so a Run remains fully exploitable years after being written.
-
-The attribution detail - the inlining chain and the weight of every
-sampled address of each named Hotspot - is part of the measured pivot:
-it is what lets a later command ventilate a Hotspot by line and by
-inline frame on a machine where the binary and the symbolizer no longer
-exist. It is detail *inside* a Hotspot, never a unit of analysis.
-
-The machine snapshot records the **allocation shape** alongside the
-hardware: the cores this job actually received (affinity mask) and its
-cgroup CPU and memory limits. A Machine is that couple, not a node - a
-job given 8 cores of a 128-core node is a different Machine than the
-whole node, and its ceilings will be measured for those 8 cores.
+## Machine ceilings
 
 Until a calibration has measured the Machine, the Run carries
 **theoretical FLOP/s ceilings**: the microarchitecture's per-cycle

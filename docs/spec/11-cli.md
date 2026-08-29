@@ -2,24 +2,6 @@
 
 Référence : [ADR 0007](../adr/0007-surface-cli.md).
 
-## Où vit l'état
-
-**Un Run est un répertoire auto-suffisant.** Ni registre, ni identifiant : le nom du dossier *est* l'identifiant. Un Run naît dans un job, atterrit sur `$SCRATCH`, puis est copié, archivé, joint à un ticket, envoyé à un collègue - un répertoire survit à tout cela, un identifiant dans un magasin local ne survit pas au premier `scp`.
-
-> **Tout ce qui décrit un Run vit dans le Run. Le cache global ne contient que ce qui est recalculable.** Perdre le cache coûte du temps, jamais une information.
-
-**Emplacement** : `.nunatak/PROJET-AAAAMMJJ-HHMMSS/`.
-
-Le nom du projet suit une cascade : celui déclaré dans `nunatak.toml`, sinon le nom du dépôt git, sinon le **nom de base du binaire cible réel**, `--name` l'emportant toujours. Attention au piège : dans `nunatak run -- mpirun -n 256 ./solveur`, le nom attendu est `solveur` et non `mpirun`. La machinerie qui voit à travers le lanceur existe déjà pour `doctor` ; on la réutilise.
-
-- clé `runs_dir` (défaut `.nunatak`) pour déplacer le parent, typiquement vers `$SCRATCH` ;
-- `-o` pour désigner exactement le répertoire du Run ;
-- `.nunatak/.gitignore` contenant `*` écrit automatiquement, sans toucher au `.gitignore` de l'utilisateur ;
-- `run` **affiche le chemin du Run à la fin**, le dossier étant caché ;
-- les commandes qui prennent un Run acceptent de ne pas en recevoir et prennent **le plus récent** de `runs_dir`. C'est le confort d'un registre sans en être un : « le plus récent » se lit sur les noms de dossiers, il n'y a aucun index à réparer.
-
-**Cache global** sous `$XDG_CACHE_HOME/nunatak`, **partagé entre nœuds** - un `TMPDIR` local au nœud serait le mauvais endroit, la Calibration devant survivre au job. Il contient les Calibrations par Machine, les sondes réseau construites par pile MPI, et les accords d'envoi de source.
-
 ## Ce que `doctor` vérifie
 
 - l'inventaire des trois catégories d'outils externes (chapitre 12) avec leurs **versions** ;
