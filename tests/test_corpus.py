@@ -115,3 +115,69 @@ def test_an_entry_written_before_the_model_reads_back_unknown(tmp_path):
     del meta["cpu_model"]
     (entry / "meta.json").write_text(json.dumps(meta))
     assert ReplayExecutor(entry).cpu_model() is None
+
+
+class TestToolStdin:
+    """A captured invocation is a tool, and a tool never reads the
+    user's stdin - llvm-mca without an input file blocks forever on an
+    inherited terminal (measured with LLVM 20). The application itself
+    keeps its stdin: redirecting a solver's input must keep working.
+
+    The tests hold an open pipe on descriptor 0 - the EOF that never
+    comes - so a regression hangs loudly instead of passing by luck on
+    a harness whose stdin is already closed."""
+
+    @staticmethod
+    def with_open_stdin(action):
+        import os
+
+        read_fd, write_fd = os.pipe()
+        saved = os.dup(0)
+        os.dup2(read_fd, 0)
+        try:
+            return action()
+        finally:
+            os.dup2(saved, 0)
+            for fd in (saved, read_fd, write_fd):
+                os.close(fd)
+
+    def test_a_stdin_reading_tool_returns_immediately(self):
+        from nunatak.collect.execution import SubprocessExecutor
+
+        invocation = self.with_open_stdin(
+            lambda: SubprocessExecutor().run(["/bin/sh", "-c", "cat; echo drained"])
+        )
+        assert invocation.exit_code == 0
+        assert invocation.stdout == "drained\n"
+
+    def test_the_streamed_path_takes_the_same_rule(self):
+        from nunatak.collect.execution import SubprocessExecutor
+
+        lines = []
+        invocation = self.with_open_stdin(
+            lambda: SubprocessExecutor().run(
+                ["/bin/sh", "-c", "cat; echo drained"], on_line=lines.append
+            )
+        )
+        assert invocation.exit_code == 0
+        assert lines == ["drained"]
+
+    def test_the_application_keeps_its_stdin(self):
+        import subprocess
+        import sys
+
+        # capture=False is the application: piped input must reach it.
+        script = (
+            "from nunatak.collect.execution import SubprocessExecutor;"
+            "import sys;"
+            "i = SubprocessExecutor().run(['/bin/sh', '-c', 'cat'], capture=False);"
+            "sys.exit(i.exit_code)"
+        )
+        completed = subprocess.run(
+            [sys.executable, "-c", script],
+            input="the solver's input\n",
+            capture_output=True,
+            text=True,
+        )
+        assert completed.returncode == 0
+        assert completed.stdout == "the solver's input\n"
