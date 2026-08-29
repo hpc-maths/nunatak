@@ -53,16 +53,6 @@ Ambiguïté assumée et documentée : une application sortant elle-même en 125 
 
 **Sans `--strict`, une dégradation ne fait jamais sortir en erreur.** Un run réussi avec un roofline estimé renvoie 0.
 
-## Configuration
-
-**Trois couches, par précédence croissante** : site, projet, drapeaux. Format TOML, `nunatak.toml` à la racine du dépôt - **jamais dans `pyproject.toml`**, l'application profilée étant rarement en Python.
-
-Elles servent deux besoins que la ligne de commande ne couvre pas : un **site** qui veut des défauts pour tous ses utilisateurs (provider local, `--no-source` systématique, chemin du `perf` utilisable, `runs_dir` vers `$SCRATCH`), un **projet** qui veut mémoriser sa correspondance de sources.
-
-**Le provider et le modèle n'y figurent jamais** : la configuration de Pi reste la source unique.
-
-**La configuration effective est enregistrée dans la Provenance, seuils de Qualité compris.** On peut régler un seuil, on ne peut pas le régler en douce.
-
 ## Sortie terminal
 
 C'est une sortie de première classe : sur un cluster, l'affichage de `run` atterrit dans un **fichier de log de job**, pas dans un terminal.

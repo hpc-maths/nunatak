@@ -10,4 +10,5 @@ it.
 :maxdepth: 1
 
 commands
+configuration
 ```
