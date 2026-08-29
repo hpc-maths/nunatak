@@ -20,21 +20,6 @@ Le nom du projet suit une cascade : celui déclaré dans `nunatak.toml`, sinon l
 
 **Cache global** sous `$XDG_CACHE_HOME/nunatak`, **partagé entre nœuds** - un `TMPDIR` local au nœud serait le mauvais endroit, la Calibration devant survivre au job. Il contient les Calibrations par Machine, les sondes réseau construites par pile MPI, et les accords d'envoi de source.
 
-## Les six verbes
-
-| Commande | Rôle |
-|---|---|
-| `nunatak run -- <commande>` | Mesure, analyse, rapport. Déterministe, sans réseau. |
-| `nunatak doctor [-- <commande>]` | Diagnostic. Construit la sonde réseau, recompile localement au besoin. Sans la commande cible, il ne peut pas inspecter le binaire. |
-| `nunatak explain [<run>]` | Génère ou régénère les Explications. |
-| `nunatak report [<run>]` | Régénère le rapport depuis le pivot. |
-| `nunatak compare <runA> <runB>` | Diff entre deux Runs. |
-| `nunatak calibrate` | Idempotente, respecte le cache, `--force` pour refaire. |
-
-**`report` n'est pas un doublon** : le Diagnostic n'est jamais persisté mais recalculé, donc régénérer est une opération réelle - après un `explain`, après une montée de version, ou pour produire une variante `--no-source` partageable sans reprofiler.
-
-**`calibrate` reste automatique au premier Run** ; l'exposer permet de la faire dans un petit job dédié plutôt qu'au début d'une grosse allocation.
-
 ## Ce que `doctor` vérifie
 
 - l'inventaire des trois catégories d'outils externes (chapitre 12) avec leurs **versions** ;
@@ -51,22 +36,6 @@ Le nom du projet suit une cascade : celui déclaré dans `nunatak.toml`, sinon l
 `doctor` **sonde les chemins et invoque les outils**. Constater une présence ne suffit pas.
 
 Un **sous-ensemble bon marché s'exécute automatiquement au début de `run`** - pas de construction, pas de benchmark, quelques dizaines de millisecondes. Il annonce ce qui sera dégradé **puis continue**.
-
-## Drapeaux
-
-| Drapeau | Effet |
-|---|---|
-| `--strict` | toute dégradation nommée devient une erreur |
-| `--no-source` | retire le texte du code du rapport ; les lignes et métriques restent |
-| `--source-map A=B` | correspondance de chemins de sources |
-| `--call-graph dwarf` | piles par recopie de pile, opt-in, coût annoncé, fréquence abaissée |
-| `--no-explain` | n'appelle pas le modèle |
-| `--name` | force le nom du projet |
-| `-o` | désigne le répertoire du Run |
-| `--json` | sortie machine, sur `doctor`, `run` et `compare` |
-| `--force` | sur `calibrate` |
-
-Le mode multi-passes et le backend kperf sont exposés comme options expertes, jamais par défaut.
 
 ## Codes de sortie
 

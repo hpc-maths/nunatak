@@ -14,5 +14,6 @@ nunatak run -- ./my_binary
 :maxdepth: 2
 
 guide/getting-started
+reference/index
 api
 ```
