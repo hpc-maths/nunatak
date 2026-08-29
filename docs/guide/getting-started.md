@@ -334,30 +334,6 @@ of `--strict`.
 Without `--strict`, a degradation never fails the run. With it, any named
 degradation becomes an error - for scripted use and performance CI.
 
-## Configuration
-
-Three TOML layers, by increasing precedence: site (`/etc/nunatak.toml`),
-project (`nunatak.toml` at the repository root), command-line flags.
-
-```toml
-name = "solver"          # Run naming; --name always wins
-runs_dir = "/scratch/me/runs"
-
-[tools]
-perf = "/opt/perf/bin/perf"
-llvm-symbolizer = "/usr/lib/llvm-19/bin/llvm-symbolizer"
-addr2line = "/usr/bin/addr2line"    # fallback when no LLVM answers
-
-[source_map]
-"/build/app" = "/home/me/app"    # where the build tree lives now
-
-[thresholds]
-coverage = 0.8           # multiplexing coverage below which a value degrades
-```
-
-Every effective value, thresholds included, is recorded in the Run's
-provenance: a threshold can be tuned, it cannot be tuned silently.
-
 ## The Run directory
 
 ```
