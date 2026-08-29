@@ -1,0 +1,13 @@
+{
+  "argv": [
+    "cc",
+    "-O3",
+    "-march=native",
+    "-pthread",
+    "/tmp/nunatak-kernel/nunatak/calibration/kernel.c",
+    "-o",
+    "/tmp/nunatak-kernel-xdg/nunatak/machines/kernel/v1/kernel"
+  ],
+  "exit_code": 0,
+  "captured": true
+}

@@ -1,13 +1,11 @@
 {
   "argv": [
-    "cc",
-    "-O3",
-    "-march=native",
-    "-pthread",
-    "/tmp/nunatak-cal/nunatak/calibration/kernel.c",
-    "-o",
-    "/tmp/nunatak-xdg-roofline/nunatak/machines/kernel-v0"
+    "git",
+    "-C",
+    "/tmp/nunatak-capture-roofline2",
+    "rev-parse",
+    "--show-toplevel"
   ],
-  "exit_code": 0,
+  "exit_code": 128,
   "captured": true
 }

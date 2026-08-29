@@ -1,8 +1,8 @@
 {
   "coverage": {
     "loci": 1,
-    "samples": 2051,
-    "seconds": 2.057171459,
+    "samples": 2123,
+    "seconds": 2.129388107,
     "time_base": "task-clock"
   },
   "degradations": [],
@@ -24,7 +24,7 @@
         "quality": "estimated",
         "reason": "FLOPs not split by precision on this microarchitecture; compared against the double-precision peak",
         "unit": "flop/s",
-        "value": 1222552201.955277
+        "value": 1181090233.7306986
       },
       "advice": null,
       "attainable": {
@@ -38,7 +38,7 @@
         "quality": "estimated",
         "reason": "demand fills only: hardware-prefetched traffic is not counted; FLOPs not split by precision on this microarchitecture; compared against the double-precision peak",
         "unit": "flop/s",
-        "value": 125142016143.04893
+        "value": 111991613924.51042
       },
       "callers": [],
       "classification": "latency-bound",
@@ -52,7 +52,7 @@
         "quality": "estimated",
         "reason": "demand fills only: hardware-prefetched traffic is not counted; FLOPs not split by precision on this microarchitecture; compared against the double-precision peak",
         "unit": "flop/byte",
-        "value": 1.209098100614674
+        "value": 1.0976449237423715
       },
       "envelope_fraction": {
         "formula": "achieved / attainable",
@@ -67,7 +67,7 @@
         "quality": "estimated",
         "reason": "FLOPs not split by precision on this microarchitecture; compared against the double-precision peak",
         "unit": "fraction",
-        "value": 0.009769318408277732
+        "value": 0.010546238172144118
       },
       "imbalance": {
         "formula": "max over Loci / min over Loci",
@@ -82,32 +82,32 @@
       "inclusive": null,
       "inline_frames": [
         {
-          "file": "/tmp/nunatak-capture-roofline/workload.c",
+          "file": "/tmp/nunatak-capture-roofline2/workload.c",
           "function": "axpy",
           "line": 4,
-          "share": 0.9990248659190639
+          "share": 0.9981158737635422
         },
         {
-          "file": "/tmp/nunatak-capture-roofline/workload.c",
+          "file": "/tmp/nunatak-capture-roofline2/workload.c",
           "function": "main",
           "line": 13,
-          "share": 0.0009751340809361287
+          "share": 0.0018841262364578427
         }
       ],
       "lines": [
         {
           "line": 18,
-          "share": 0.0009751340809361287
+          "share": 0.0018841262364578427
         },
         {
           "line": 20,
-          "share": 0.9990248659190639
+          "share": 0.9981158737635422
         }
       ],
       "loop": null,
-      "module": "/tmp/nunatak-capture-roofline/workload",
+      "module": "/tmp/nunatak-capture-roofline2/workload",
       "name": "main",
-      "relative_error": 0.022080920281275968,
+      "relative_error": 0.021703261485649127,
       "resolution_level": "line",
       "share": {
         "formula": "task-clock of the Hotspot / task-clock of the Run",
@@ -121,29 +121,29 @@
       },
       "source": {
         "end_line": 23,
-        "file": "/tmp/nunatak-capture-roofline/workload.c",
+        "file": "/tmp/nunatak-capture-roofline2/workload.c",
         "reason": null,
         "resolved_path": "RESOLVED",
         "start_line": 1,
         "text": "#include <stdio.h>\n#include <stdlib.h>\n\ndouble axpy(double *restrict a, const double *restrict b, const double *restrict c, int n) {\n    double s = 0.0;\n    for (int i = 0; i < n; i++)\n        a[i] = b[i] + 3.0 * c[i];\n    for (int i = 0; i < n; i += 512)\n        s += a[i];\n    return s;\n}\n\nint main(void) {\n    int n = 1 << 21;\n    double *a = malloc(n * sizeof(double));\n    double *b = malloc(n * sizeof(double));\n    double *c = malloc(n * sizeof(double));\n    for (int i = 0; i < n; i++) { b[i] = i * 0.5; c[i] = i * 0.25; a[i] = 0.0; }\n    double s = 0.0;\n    for (int r = 0; r < 600; r++) s += axpy(a, b, c, n);\n    printf(\"%f\\n\", s);\n    return 0;\n}",
         "truncated": false
       },
-      "source_file": "/tmp/nunatak-capture-roofline/workload.c"
+      "source_file": "/tmp/nunatak-capture-roofline2/workload.c"
     }
   ],
   "inline_view": [
     {
-      "file": "/tmp/nunatak-capture-roofline/workload.c",
+      "file": "/tmp/nunatak-capture-roofline2/workload.c",
       "function": "axpy",
       "line": 4,
-      "share": 0.9990248659190639,
+      "share": 0.9981158737635422,
       "sites": 1
     },
     {
-      "file": "/tmp/nunatak-capture-roofline/workload.c",
+      "file": "/tmp/nunatak-capture-roofline2/workload.c",
       "function": "main",
       "line": 13,
-      "share": 0.0009751340809361287,
+      "share": 0.0018841262364578427,
       "sites": 1
     }
   ],
@@ -156,21 +156,21 @@
         "quality": "measured",
         "reason": null,
         "unit": "byte/s",
-        "value": 103500300000.0
+        "value": 102029000000.0
       },
       {
         "name": "flops_dp",
         "quality": "measured",
         "reason": null,
         "unit": "flop/s",
-        "value": 1171261000000.0
+        "value": 1172305000000.0
       },
       {
         "name": "flops_sp",
         "quality": "measured",
         "reason": null,
         "unit": "flop/s",
-        "value": 2342391000000.0
+        "value": 2346279000000.0
       }
     ],
     "cpu_model": "REPLAY-HOST",

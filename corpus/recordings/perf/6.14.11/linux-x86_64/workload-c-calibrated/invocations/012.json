@@ -1,10 +1,7 @@
 {
   "argv": [
-    "/usr/lib/llvm-19/bin/llvm-symbolizer",
-    "--output-style=JSON",
-    "--obj=/tmp/nunatak-capture-full/workload",
-    "0x1174",
-    "0x1178"
+    "ldd",
+    "./workload"
   ],
   "exit_code": 0,
   "captured": true

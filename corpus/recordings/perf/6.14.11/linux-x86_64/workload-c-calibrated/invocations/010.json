@@ -1,11 +1,10 @@
 {
   "argv": [
-    "perf",
-    "script",
-    "--input",
-    "/tmp/nunatak-capture-full/.nunatak/workload-20260810-172746/collect/perf.data",
-    "--fields",
-    "comm,pid,tid,time,period,event,ip,sym,symoff,dso,dsoff"
+    "/tmp/nunatak-kernel-xdg2/nunatak/machines/kernel/v1/kernel",
+    "fma_sp",
+    "32",
+    "5",
+    "300"
   ],
   "exit_code": 0,
   "captured": true

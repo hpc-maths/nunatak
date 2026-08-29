@@ -1,0 +1,10 @@
+{
+  "argv": [
+    "perf",
+    "buildid-list",
+    "--input",
+    "/tmp/nunatak-capture-calibrated/.nunatak/workload-20260828-103803/collect/perf.data"
+  ],
+  "exit_code": 0,
+  "captured": true
+}

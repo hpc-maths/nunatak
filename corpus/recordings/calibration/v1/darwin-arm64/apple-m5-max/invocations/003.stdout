@@ -1,0 +1,9 @@
+kernel fma_dp
+isa neon
+threads 18
+load 3.29
+rep 0 5.752416e+11
+rep 1 6.064984e+11
+rep 2 5.899225e+11
+rep 3 5.934850e+11
+rep 4 5.891307e+11

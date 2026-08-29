@@ -1,0 +1,23 @@
+{
+  "argv": [
+    "/usr/lib/llvm-20/bin/llvm-symbolizer",
+    "--output-style=JSON",
+    "--obj=/tmp/nunatak-capture-roofline2/workload",
+    "0x1166",
+    "0x116b",
+    "0x1170",
+    "0x11c5",
+    "0x11cb",
+    "0x11cf",
+    "0x11d3",
+    "0x11d7",
+    "0x11db",
+    "0x11e1",
+    "0x1224",
+    "0x122a",
+    "0x1232",
+    "0x1235"
+  ],
+  "exit_code": 0,
+  "captured": true
+}

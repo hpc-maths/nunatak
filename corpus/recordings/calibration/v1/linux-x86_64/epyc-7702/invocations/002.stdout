@@ -1,0 +1,10 @@
+kernel triad
+isa avx2
+threads 32
+load 4.15
+bytes 6442450944
+rep 0 1.428792e+11
+rep 1 1.443587e+11
+rep 2 1.431836e+11
+rep 3 1.440774e+11
+rep 4 1.442787e+11

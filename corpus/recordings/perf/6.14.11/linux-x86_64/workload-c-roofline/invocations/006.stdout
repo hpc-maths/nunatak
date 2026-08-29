@@ -1,10 +1,5 @@
-kernel triad
-isa avx2
-threads 32
-load 4.15
-bytes 6442450944
-rep 0 1.015672e+11
-rep 1 1.032996e+11
-rep 2 1.029227e+11
-rep 3 1.031848e+11
-rep 4 1.035003e+11
+cc (Ubuntu 14.2.0-19ubuntu2) 14.2.0
+Copyright (C) 2024 Free Software Foundation, Inc.
+This is free software; see the source for copying conditions.  There is NO
+warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+

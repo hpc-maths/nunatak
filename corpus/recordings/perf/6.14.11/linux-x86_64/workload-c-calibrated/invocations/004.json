@@ -1,7 +1,8 @@
 {
   "argv": [
-    "cc",
-    "--version"
+    "/usr/lib/llvm-20/bin/llvm-readelf",
+    "-S",
+    "workload"
   ],
   "exit_code": 0,
   "captured": true

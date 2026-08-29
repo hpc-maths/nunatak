@@ -1,0 +1,69 @@
+
+/tmp/nunatak-capture-calibrated/workload:     file format elf64-x86-64
+
+
+Disassembly of section .text:
+
+00000000000010c0 <main>:
+    10c0:	f3 0f 1e fa          	endbr64
+    10c4:	53                   	push   %rbx
+    10c5:	bf 00 00 80 00       	mov    $0x800000,%edi
+    10ca:	e8 b1 ff ff ff       	call   1080 <malloc@plt>
+    10cf:	f2 0f 10 1d 49 0f 00 	movsd  0xf49(%rip),%xmm3        # 2020 <_IO_stdin_used+0x20>
+    10d6:	00 
+    10d7:	be 04 00 00 00       	mov    $0x4,%esi
+    10dc:	66 0f 6f 15 2c 0f 00 	movdqa 0xf2c(%rip),%xmm2        # 2010 <_IO_stdin_used+0x10>
+    10e3:	00 
+    10e4:	66 0f 6e e6          	movd   %esi,%xmm4
+    10e8:	48 89 c3             	mov    %rax,%rbx
+    10eb:	48 8d 90 00 00 80 00 	lea    0x800000(%rax),%rdx
+    10f2:	66 0f 14 db          	unpcklpd %xmm3,%xmm3
+    10f6:	66 0f 70 e4 00       	pshufd $0x0,%xmm4,%xmm4
+    10fb:	0f 1f 44 00 00       	nopl   0x0(%rax,%rax,1)
+    1100:	66 0f 6f c2          	movdqa %xmm2,%xmm0
+    1104:	48 83 c0 20          	add    $0x20,%rax
+    1108:	66 0f fe d4          	paddd  %xmm4,%xmm2
+    110c:	f3 0f e6 c8          	cvtdq2pd %xmm0,%xmm1
+    1110:	66 0f 59 cb          	mulpd  %xmm3,%xmm1
+    1114:	66 0f 70 c0 ee       	pshufd $0xee,%xmm0,%xmm0
+    1119:	f3 0f e6 c0          	cvtdq2pd %xmm0,%xmm0
+    111d:	66 0f 59 c3          	mulpd  %xmm3,%xmm0
+    1121:	0f 11 48 e0          	movups %xmm1,-0x20(%rax)
+    1125:	0f 11 40 f0          	movups %xmm0,-0x10(%rax)
+    1129:	48 39 c2             	cmp    %rax,%rdx
+    112c:	75 d2                	jne    1100 <main+0x40>
+    112e:	31 c9                	xor    %ecx,%ecx
+    1130:	66 0f ef c0          	pxor   %xmm0,%xmm0
+    1134:	66 66 2e 0f 1f 84 00 	data16 cs nopw 0x0(%rax,%rax,1)
+    113b:	00 00 00 00 
+    113f:	90                   	nop
+    1140:	48 89 d8             	mov    %rbx,%rax
+    1143:	66 0f ef d2          	pxor   %xmm2,%xmm2
+    1147:	66 66 2e 0f 1f 84 00 	data16 cs nopw 0x0(%rax,%rax,1)
+    114e:	00 00 00 00 
+    1152:	66 66 2e 0f 1f 84 00 	data16 cs nopw 0x0(%rax,%rax,1)
+    1159:	00 00 00 00 
+    115d:	0f 1f 00             	nopl   (%rax)
+    1160:	f2 0f 10 08          	movsd  (%rax),%xmm1
+    1164:	48 83 c0 08          	add    $0x8,%rax
+    1168:	f2 0f 58 c9          	addsd  %xmm1,%xmm1
+    116c:	66 0f 14 c9          	unpcklpd %xmm1,%xmm1
+    1170:	66 0f 58 ca          	addpd  %xmm2,%xmm1
+    1174:	66 0f 58 d1          	addpd  %xmm1,%xmm2
+    1178:	48 39 c2             	cmp    %rax,%rdx
+    117b:	75 e3                	jne    1160 <main+0xa0>
+    117d:	f2 0f 58 c2          	addsd  %xmm2,%xmm0
+    1181:	83 c1 01             	add    $0x1,%ecx
+    1184:	66 0f 15 d2          	unpckhpd %xmm2,%xmm2
+    1188:	f2 0f 58 c2          	addsd  %xmm2,%xmm0
+    118c:	83 f9 64             	cmp    $0x64,%ecx
+    118f:	75 af                	jne    1140 <main+0x80>
+    1191:	48 8d 35 6c 0e 00 00 	lea    0xe6c(%rip),%rsi        # 2004 <_IO_stdin_used+0x4>
+    1198:	bf 02 00 00 00       	mov    $0x2,%edi
+    119d:	b8 01 00 00 00       	mov    $0x1,%eax
+    11a2:	e8 e9 fe ff ff       	call   1090 <__printf_chk@plt>
+    11a7:	48 89 df             	mov    %rbx,%rdi
+    11aa:	e8 c1 fe ff ff       	call   1070 <free@plt>
+    11af:	31 c0                	xor    %eax,%eax
+    11b1:	5b                   	pop    %rbx
+    11b2:	c3                   	ret

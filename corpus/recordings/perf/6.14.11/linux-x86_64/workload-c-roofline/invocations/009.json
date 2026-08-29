@@ -1,22 +1,11 @@
 {
   "argv": [
-    "perf",
-    "record",
-    "--freq",
-    "997",
-    "-e",
-    "task-clock",
-    "-e",
-    "fp_ret_sse_avx_ops.all/period=4999999/",
-    "-e",
-    "ls_refills_from_sys.ls_mabresp_lcl_dram/period=100003/",
-    "-e",
-    "ls_refills_from_sys.ls_mabresp_rmt_dram/period=100003/",
-    "--output",
-    "/tmp/nunatak-capture-roofline/.nunatak/workload-20260810-195043/collect/perf.data",
-    "--",
-    "./workload"
+    "/tmp/nunatak-kernel-xdg3/nunatak/machines/kernel/v1/kernel",
+    "fma_dp",
+    "32",
+    "5",
+    "300"
   ],
   "exit_code": 0,
-  "captured": false
+  "captured": true
 }

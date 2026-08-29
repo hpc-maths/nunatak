@@ -36,13 +36,13 @@ exports[`the page renders the milestone Run 1`] = `
     <div>
       <span class="eyebrow">Synthesis</span>
       <h1>1 Hotspot above the statistical floor holds 100% of the sampled time.</h1>
-      <p class="muted coverage">2051 samples of task-clock over 2.06 s, across 1 locus.</p>
+      <p class="muted coverage">2123 samples of task-clock over 2.13 s, across 1 locus.</p>
     </div>
     
   <div class="finding">
     <span class="rank">Finding 1 · 100% of the sampled time</span>
     <div class="verdict"><span class="mono">main</span> is latency-bound. <span class="res">line</span></div>
-    <div class="ev"><div>Achieved <strong>1.22 GFLOP/s</strong> of 125 GFLOP/s attainable: 1.0% of the envelope.</div><div>DRAM intensity 1.21 flop/byte.</div><div>Line 20 of <span class="mono">workload.c</span> concentrates <strong>100%</strong> of its samples.</div><div class="why">Downgraded to estimated: demand fills only: hardware-prefetched traffic is not counted; FLOPs not split by precision on this microarchitecture; compared against the double-precision peak.</div></div>
+    <div class="ev"><div>Achieved <strong>1.18 GFLOP/s</strong> of 112 GFLOP/s attainable: 1% of the envelope.</div><div>DRAM intensity 1.1 flop/byte.</div><div>Line 20 of <span class="mono">workload.c</span> concentrates <strong>100%</strong> of its samples.</div><div class="why">Downgraded to estimated: demand fills only: hardware-prefetched traffic is not counted; FLOPs not split by precision on this microarchitecture; compared against the double-precision peak.</div></div>
     <button class="golink" data-go="0">Open the Hotspot and its roofline →</button>
   </div>
   <div class="neg">
@@ -62,8 +62,8 @@ exports[`the page renders the milestone Run 1`] = `
       <td><span class="fn">main</span><span class="mod">workload</span></td>
       <td class="barcell"><span class="bar"><i class="" style="width:100%"></i></span></td>
       <td class="r num">100%</td>
-      <td class="r num">1.22</td>
-      <td class="r num">1.21</td>
+      <td class="r num">1.18</td>
+      <td class="r num">1.1</td>
       <td class="r num">x 1</td>
       <td title="FLOPs not split by precision on this microarchitecture; compared against the double-precision peak; demand fills only: hardware-prefetched traffic is not counted"><span class="q q-estimated">estimated</span></td>
       <td><span class="res">line</span></td>
@@ -90,12 +90,12 @@ exports[`the page renders the milestone Run 1`] = `
       <thead><tr><th>frame</th><th>declared at</th><th class="num">share of time</th></tr></thead>
       <tbody><tr>
         <td class="mono">axpy </td>
-        <td class="small muted">/tmp/nunatak-capture-roofline/workload.c:4</td>
+        <td class="small muted">/tmp/nunatak-capture-roofline2/workload.c:4</td>
         <td class="num">100%</td>
       </tr><tr>
         <td class="mono">main </td>
-        <td class="small muted">/tmp/nunatak-capture-roofline/workload.c:13</td>
-        <td class="num">0.1%</td>
+        <td class="small muted">/tmp/nunatak-capture-roofline2/workload.c:13</td>
+        <td class="num">0.2%</td>
       </tr></tbody>
     </table>
     

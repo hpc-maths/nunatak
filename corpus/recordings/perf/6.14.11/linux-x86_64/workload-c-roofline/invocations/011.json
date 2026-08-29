@@ -1,9 +1,7 @@
 {
   "argv": [
-    "perf",
-    "buildid-list",
-    "--input",
-    "/tmp/nunatak-capture-roofline/.nunatak/workload-20260810-195043/collect/perf.data"
+    "objdump",
+    "--version"
   ],
   "exit_code": 0,
   "captured": true

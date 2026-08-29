@@ -1,0 +1,10 @@
+kernel triad
+isa neon
+threads 18
+load 3.29
+bytes 6442450944
+rep 0 3.470460e+11
+rep 1 3.583537e+11
+rep 2 3.603769e+11
+rep 3 3.655209e+11
+rep 4 3.619784e+11

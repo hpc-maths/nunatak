@@ -1,0 +1,11 @@
+{
+  "argv": [
+    "/tmp/nunatak-kernel-mac-xdg/nunatak/machines/kernel/v1/kernel",
+    "triad",
+    "18",
+    "5",
+    "300"
+  ],
+  "exit_code": 0,
+  "captured": true
+}

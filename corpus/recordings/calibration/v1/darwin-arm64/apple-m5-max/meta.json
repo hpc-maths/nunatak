@@ -1,0 +1,16 @@
+{
+  "created": "2026-08-28T08:59:42+02:00",
+  "command": [
+    "calibrate"
+  ],
+  "nunatak_version": "0.1.0.dev0",
+  "platform": {
+    "system": "Darwin",
+    "kernel": "25.5.0",
+    "architecture": "arm64"
+  },
+  "sampling_blocked": null,
+  "cpu_model": "Apple M5 Max",
+  "cpuinfo": null,
+  "collectors": []
+}

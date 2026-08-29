@@ -204,7 +204,7 @@ class TestReplayedRoofline:
         # sits within a period of the arithmetic truth.
         assert diagnostic.share.value > 0.9
         assert 2.4e9 < 503 * events.FLOP_PERIOD < 2.6e9
-        assert diagnostic.dram_intensity.value == pytest.approx(1.209, rel=0.01)
+        assert diagnostic.dram_intensity.value == pytest.approx(1.098, rel=0.01)
         assert diagnostic.dram_intensity.quality is Quality.ESTIMATED
         assert "prefetched" in diagnostic.dram_intensity.reason
         assert diagnostic.attainable.value is not None

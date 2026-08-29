@@ -1,8 +1,8 @@
 {
   "argv": [
-    "/usr/lib/llvm-19/bin/llvm-dwarfdump",
-    "--debug-line",
-    "/tmp/nunatak-capture-roofline/workload"
+    "objdump",
+    "-t",
+    "./workload"
   ],
   "exit_code": 0,
   "captured": true

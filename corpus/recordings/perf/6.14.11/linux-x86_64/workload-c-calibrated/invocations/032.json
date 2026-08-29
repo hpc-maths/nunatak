@@ -1,0 +1,10 @@
+{
+  "argv": [
+    "readelf",
+    "--wide",
+    "--symbols",
+    "/tmp/nunatak-capture-calibrated/workload"
+  ],
+  "exit_code": 0,
+  "captured": true
+}

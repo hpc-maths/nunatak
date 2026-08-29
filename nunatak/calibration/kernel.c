@@ -252,14 +252,10 @@ static double repetition(const char *kernel, int threads, double seconds) {
 }
 
 static double load_average(void) {
-    FILE *f = fopen("/proc/loadavg", "r");
-    if (f == NULL)
+    double load[1];
+    if (getloadavg(load, 1) != 1)
         return -1.0;
-    double load = -1.0;
-    if (fscanf(f, "%lf", &load) != 1)
-        load = -1.0;
-    fclose(f);
-    return load;
+    return load[0];
 }
 
 int main(int argc, char **argv) {

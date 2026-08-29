@@ -1,7 +1,7 @@
 {
   "argv": [
-    "/tmp/nunatak-xdg-full/nunatak/machines/kernel-v0",
-    "fma_sp",
+    "/tmp/nunatak-kernel-xdg2/nunatak/machines/kernel/v1/kernel",
+    "triad",
     "32",
     "5",
     "300"

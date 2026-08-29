@@ -581,9 +581,10 @@ Calibration runs the same embedded kernel through Apple's clang - NEON
 FMA chains, the triad sized from RAM - and it matters more here than
 anywhere: Apple Silicon exposes no rated frequency, so the theoretical
 table yields nothing and the measured Ceilings are the only ones the
-roofline will ever have. One honest absence rides along: macOS has no
-`/proc/loadavg`, so the concurrent-load pollution signal does not
-exist there - the dispersion signal still does.
+roofline will ever have. The concurrent-load pollution signal rides
+along here too: the kernel reads it through `getloadavg(3)`, which
+every platform nunatak calibrates on provides - `/proc` was never the
+point, the load was.
 
 The platform's limits are stated, never smoothed over: no per-Hotspot
 counter events exist, so the roofline placement needs `estimated`

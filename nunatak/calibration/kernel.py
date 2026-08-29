@@ -79,10 +79,17 @@ def build(executor: Executor, cc: str, directory: Path) -> Path | None:
     `-march=native` first; Apple's clang on arm64 only accepts
     `-mcpu=native`, hence the second attempt.
     """
-    binary = directory / f"kernel-v{machine_module.KERNEL_VERSION}"
+    # The version lives in the directory, never in the binary's name:
+    # replayed corpus entries match invocations by base name, so a
+    # bumped kernel keeps replaying yesterday's recordings, while the
+    # versioned directory still guarantees a stale cached build is
+    # never reused.
+    binary = (
+        directory / "kernel" / f"v{machine_module.KERNEL_VERSION}" / "kernel"
+    )
     if binary.is_file():
         return binary
-    directory.mkdir(parents=True, exist_ok=True)
+    binary.parent.mkdir(parents=True, exist_ok=True)
     for isa_flag in ("-march=native", "-mcpu=native"):
         invocation = executor.run(
             [cc, "-O3", isa_flag, "-pthread", str(_SOURCE), "-o", str(binary)]

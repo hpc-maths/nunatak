@@ -27,7 +27,7 @@ from nunatak.pivot.persistence import machine_from_dict, machine_to_dict
 # Bump when the calibration kernels change: Ceilings measured by
 # different kernels are not comparable, so a cached profile from another
 # kernel version is stale by definition.
-KERNEL_VERSION = 0
+KERNEL_VERSION = 1
 
 
 def _cgroup_directory(

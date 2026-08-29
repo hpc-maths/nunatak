@@ -1,0 +1,16 @@
+{
+  "created": "2026-08-28T06:48:32+00:00",
+  "command": [
+    "calibrate"
+  ],
+  "nunatak_version": "0.1.0.dev0",
+  "platform": {
+    "system": "Linux",
+    "kernel": "6.14.0-27-generic",
+    "architecture": "x86_64"
+  },
+  "sampling_blocked": null,
+  "cpu_model": "AMD EPYC 7702 64-Core Processor",
+  "cpuinfo": null,
+  "collectors": []
+}
