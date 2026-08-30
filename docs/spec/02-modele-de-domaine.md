@@ -1,6 +1,6 @@
 # 02 - Modèle de domaine
 
-Le glossaire de référence est [`CONTEXT.md`](../../CONTEXT.md). Il est **contraignant** : ces mots s'emploient tels quels dans le code, les messages de l'interface, le rapport et la documentation, et les termes proscrits qu'il liste ne s'emploient nulle part. Ce chapitre donne les relations et les invariants ; il ne recopie pas les définitions.
+Le glossaire de référence est [`docs/reference/glossary.md`](../reference/glossary.md). Il est **contraignant** : ces mots s'emploient tels quels dans le code, les messages de l'interface, le rapport et la documentation, et les termes proscrits qu'il liste ne s'emploient nulle part. Ce chapitre donne les relations et les invariants ; il ne recopie pas les définitions.
 
 ## Les entités et leurs liens
 

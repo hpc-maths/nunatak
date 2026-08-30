@@ -16,4 +16,5 @@ machine-readable
 quality
 resolution-levels
 exit-codes
+glossary
 ```
