@@ -28,7 +28,28 @@ TOC_OUTPUT = "xctrace-toc.xml"
 TRACE_BUNDLE = "xctrace.trace"
 
 _TABLE_XPATH = '/trace-toc/run[@number="1"]/data/table[@schema="time-profile"]'
+_PROCESS = re.compile(r"<process\b[^>]*>")
+_LAUNCHED = re.compile(r'type="launched"')
 _EXIT_STATUS = re.compile(r'return-exit-status="(\d+)"')
+
+
+def _target_status(toc: str) -> int | None:
+    """The exit status of the process xctrace launched.
+
+    A table of contents describes every process a trace saw, and only the
+    launched one is the application, so the status is read from that
+    element rather than from the first one the document happens to carry.
+
+    Read textually and not as a tree: an export can come back cut short,
+    and a truncated document still names the process at its head.
+    """
+    for match in _PROCESS.finditer(toc):
+        element = match.group(0)
+        if not _LAUNCHED.search(element):
+            continue
+        status = _EXIT_STATUS.search(element)
+        return int(status.group(1)) if status else None
+    return None
 
 
 class XctraceAdapter:
@@ -93,9 +114,26 @@ class XctraceAdapter:
         toc = executor.run([self.path, "export", "--input", str(trace), "--toc"])
         if toc.exit_code == 0 and toc.stdout is not None:
             (directory / TOC_OUTPUT).write_text(toc.stdout)
-            match = _EXIT_STATUS.search(toc.stdout)
-            if match is not None:
-                return int(match.group(1)), []
-        # No table of contents to answer for the target: the recording
-        # itself failed, and its own exit code is the honest one.
-        return record.exit_code, []
+            status = _target_status(toc.stdout)
+            if status is not None:
+                return status, []
+        # xctrace exits 0 only when its target did, so a successful
+        # recording answers for the target on its own.
+        if record.exit_code == 0:
+            return 0, []
+        # It failed, and without the table of contents there is no saying
+        # with which code: xctrace reports 54 for any failing target. Its
+        # code is what a shell will see, and the loss is declared rather
+        # than dressed up as the application's own status.
+        return record.exit_code, [
+            Degradation(
+                name="exit-status-unavailable",
+                message=(
+                    "the trace's table of contents did not name the launched "
+                    f"target's exit status; xctrace's own code "
+                    f"({record.exit_code}) stands, and it says the run failed, "
+                    "not with which code"
+                ),
+                remedy="run again: the table-of-contents export answers intermittently",
+            )
+        ]

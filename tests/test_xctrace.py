@@ -3,8 +3,10 @@
 The fixtures are verbatim from an Apple M5 Max on macOS 26.5.2 with
 Xcode's xctrace 16.0: the complete time-profile export of a
 seconds-long triad (reference-compressed rows, frames Instruments
-could not identify, the closing sentinel row) and the table of
-contents of a run whose target exited 7.
+could not identify, the closing sentinel row) and the head of the table
+of contents of a run whose target exited 7, kept short on purpose: an
+export can come back cut short, and the status has to be readable
+anyway.
 """
 
 import json
@@ -97,19 +99,49 @@ class TestAdapter:
         assert "--target-stdout" in record and record[-1] == "./fail"
         assert (tmp_path / "collect" / "xctrace-time-profile.xml").read_text() == PROFILE
 
-    def test_without_a_table_of_contents_the_recordings_exit_stands(
-        self, tmp_path
-    ):
+    def test_without_a_table_of_contents_the_loss_is_declared(self, tmp_path):
         executor = (
             ScriptedExecutor(system="Darwin")
             .on("xctrace", exit_code=54)
             .on("xctrace", stderr="no trace", exit_code=1)
             .on("xctrace", stderr="no trace", exit_code=1)
         )
-        exit_code, _ = XctraceAdapter().collect(
+        exit_code, degradations = XctraceAdapter().collect(
             ["./app"], tmp_path / "c", executor, frequency=997
         )
+        # 54 is how xctrace says its target failed, never an application
+        # code: it stands because nothing better is known, and it is not
+        # passed off as the application's own status.
         assert exit_code == 54
+        assert [d.name for d in degradations] == ["exit-status-unavailable"]
+
+    def test_a_successful_recording_answers_for_its_target(self, tmp_path):
+        executor = (
+            ScriptedExecutor(system="Darwin")
+            .on("xctrace", exit_code=0)
+            .on("xctrace", stderr="no trace", exit_code=1)
+            .on("xctrace", stderr="no trace", exit_code=1)
+        )
+        exit_code, degradations = XctraceAdapter().collect(
+            ["./app"], tmp_path / "c", executor, frequency=997
+        )
+        assert exit_code == 0
+        assert degradations == []
+
+    def test_only_the_launched_process_answers(self, tmp_path):
+        # A trace describes every process it saw. An attached one listed
+        # first would be read by an unanchored search.
+        toc = TOC_FAIL.replace(
+            '<process type="launched"',
+            '<process type="attached" return-exit-status="9" name="other" '
+            'pid="1" termination-reason="exit(9)"/>\n'
+            '                <process type="launched"',
+        )
+        exit_code, _ = XctraceAdapter().collect(
+            ["./fail"], tmp_path / "c", self.scripted(toc=toc, record_exit=54),
+            frequency=997,
+        )
+        assert exit_code == 7
 
     def test_detection_needs_the_real_banner_not_the_shim(self):
         executor = ScriptedExecutor(system="Darwin").on(
