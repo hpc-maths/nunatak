@@ -11,6 +11,8 @@ that fixes it.
 ```{toctree}
 :maxdepth: 1
 
+installing
+site-configuration
 kernel-permissions
 powermetrics
 ```
