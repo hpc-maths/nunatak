@@ -17,7 +17,7 @@ nunatak run -- ./my_binary
 Under construction. The full specification lives in
 [`docs/spec/`](docs/spec/), the architecture decisions in
 [`docs/adr/`](docs/adr/), and the reference glossary in
-[`CONTEXT.md`](CONTEXT.md).
+[`docs/reference/glossary.md`](docs/reference/glossary.md).
 
 ## License
 

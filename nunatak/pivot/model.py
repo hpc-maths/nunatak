@@ -1,8 +1,9 @@
 """Domain model of the measured pivot.
 
-The vocabulary is bound to the reference glossary (`CONTEXT.md`): the same
-words are used in the code, the interface and the documentation, and the
-terms it proscribes appear nowhere.
+The vocabulary is bound to the reference glossary, in
+`docs/reference/glossary.md`: the same words are used in the code, the
+interface and the documentation, and the terms it proscribes appear
+nowhere.
 
 The pivot holds measured data only; the Diagnostic, the roofline placement
 and any aggregate across Loci are recomputed on demand and never

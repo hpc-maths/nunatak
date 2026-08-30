@@ -46,7 +46,7 @@ Le reste se lit par chantier.
 | [0007](../adr/0007-surface-cli.md) | Surface CLI | 11 |
 | [0008](../adr/0008-strategie-test-ci.md) | Stratégie de test et CI | 13 |
 
-Le glossaire de référence est [`CONTEXT.md`](../../CONTEXT.md) à la racine du dépôt. Le chapitre 02 en donne les relations et les invariants ; il ne le remplace pas.
+Le glossaire de référence est [`docs/reference/glossary.md`](../reference/glossary.md). Le chapitre 02 en donne les relations et les invariants ; il ne le remplace pas.
 
 ## État
 
