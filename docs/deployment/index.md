@@ -14,5 +14,7 @@ that fixes it.
 installing
 site-configuration
 kernel-permissions
+mpi-stack
+debuginfod
 powermetrics
 ```
