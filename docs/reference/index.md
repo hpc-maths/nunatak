@@ -17,4 +17,5 @@ quality
 resolution-levels
 exit-codes
 glossary
+degradations
 ```
