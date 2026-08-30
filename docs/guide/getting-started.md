@@ -324,16 +324,6 @@ trampoline names exist only in the collector's text - the map's
 addresses belong to a JIT - so they are kept at parse time and written
 on the stack frames, where the report's callers view shows them.
 
-## Exit codes
-
-The application's code is propagated in the general case. Reserved codes,
-in the manner of `timeout`: **127** command not found, **126** found but
-not executable, **125** nunatak failure before launch, **121** violation
-of `--strict`.
-
-Without `--strict`, a degradation never fails the run. With it, any named
-degradation becomes an error - for scripted use and performance CI.
-
 ## Machine ceilings
 
 Until a calibration has measured the Machine, the Run carries

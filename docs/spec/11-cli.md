@@ -19,22 +19,6 @@ Référence : [ADR 0007](../adr/0007-surface-cli.md).
 
 Un **sous-ensemble bon marché s'exécute automatiquement au début de `run`** - pas de construction, pas de benchmark, quelques dizaines de millisecondes. Il annonce ce qui sera dégradé **puis continue**.
 
-## Codes de sortie
-
-**Le code de sortie de l'application est propagé** : nunatak observe, il ne masque pas. Sans cela, `nunatak run -- mpirun ./solveur && post_traitement` enchaînerait sur des résultats cassés.
-
-| Code | Signification |
-|---|---|
-| celui de l'application | cas général |
-| `127` | commande introuvable |
-| `126` | trouvée mais non exécutable |
-| `125` | échec de nunatak avant le lancement |
-| `121` | violation de `--strict` |
-
-Ambiguïté assumée et documentée : une application sortant elle-même en 125 est indiscernable d'un échec de nunatak. C'est le prix de la transparence, `timeout` le paie aussi, et la sortie JSON tranche quand il faut une certitude.
-
-**Sans `--strict`, une dégradation ne fait jamais sortir en erreur.** Un run réussi avec un roofline estimé renvoie 0.
-
 ## Sortie terminal
 
 C'est une sortie de première classe : sur un cluster, l'affichage de `run` atterrit dans un **fichier de log de job**, pas dans un terminal.

@@ -13,4 +13,7 @@ commands
 configuration
 run-directory
 machine-readable
+quality
+resolution-levels
+exit-codes
 ```
