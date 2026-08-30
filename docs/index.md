@@ -15,5 +15,6 @@ nunatak run -- ./my_binary
 
 guide/getting-started
 reference/index
+deployment/index
 api
 ```
