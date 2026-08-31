@@ -20,4 +20,8 @@ A new decision writes a new record. It does not edit an old one.
 0002-machine-characterisation
 0003-profiling-modes
 0004-source-attribution
+0005-packaging-and-distribution
+0006-html-report-design
+0007-cli-surface
+0008-test-and-ci-strategy
 ```

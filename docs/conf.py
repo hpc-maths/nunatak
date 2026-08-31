@@ -9,8 +9,9 @@ release = nunatak.__version__
 
 extensions = ["myst_parser", "sphinx.ext.autodoc", "sphinxarg.ext"]
 
-# spec/ and adr/ are French design documents, not part of the site.
-exclude_patterns = ["_build", "spec", "adr", "brand"]
+# spec/ is what remains of the French design document: the work that is
+# not built yet. It is not part of the site.
+exclude_patterns = ["_build", "spec", "brand"]
 
 html_theme = "furo"
 html_title = "nunatak"

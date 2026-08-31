@@ -1,6 +1,6 @@
 # 10 - Rapport
 
-Référence : [ADR 0006](../adr/0006-design-rapport-html.md). Prototype de référence sur la branche `prototype/rapport-html` (commit `6c5ec2f`).
+Référence : [ADR 0006](../development/decisions/0006-html-report-design.md). Prototype de référence sur la branche `prototype/rapport-html` (commit `6c5ec2f`).
 
 ## Contrainte
 
