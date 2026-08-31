@@ -48,4 +48,4 @@ Ces pistes ont été identifiées en chemin et écartées de la v1 sans que l'ar
 
 La spec est tenue si un développeur peut lancer nunatak sur son application sans la modifier, et obtenir un rapport qui lui dit où part son temps, contre quel plafond il bute, **et dans quelle mesure il peut croire ce qu'il lit**.
 
-Ce dernier point n'est pas un ornement : c'est ce qui distingue ce produit, et c'est ce que le chapitre 03 rend mécanique.
+Ce dernier point n'est pas un ornement : c'est ce qui distingue ce produit, et c'est ce que le site rend mécanique : [comment lire ce que nunatak dit](../guide/reading-what-nunatak-tells-you.md).

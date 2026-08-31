@@ -23,7 +23,7 @@ L'Explication est :
 | les extraits des frames inline chaudes | du source quand `--no-source` est actif |
 | la distribution des échantillons par ligne | un fait `indisponible` |
 
-**Pourquoi jamais d'assembleur** : le lui donner reviendrait à lui demander de diagnostiquer, ce que le principe 5 du chapitre 03 interdit. C'est aussi la classe d'entrée où son erreur est la moins détectable par l'utilisateur - personne ne relit 400 lignes de SASS pour vérifier une affirmation.
+**Pourquoi jamais d'assembleur** : le lui donner reviendrait à lui demander de diagnostiquer, ce que le principe « le moteur mesure, le modèle explique » interdit ([comment lire ce que nunatak dit](../guide/reading-what-nunatak-tells-you.md)). C'est aussi la classe d'entrée où son erreur est la moins détectable par l'utilisateur - personne ne relit 400 lignes de SASS pour vérifier une affirmation.
 
 **Sans source, pas d'Explication.** Le pipeline est « faits déterministes + source vers conseil » ; privé de source il ne produit que de la généralité, ce qui décrédibilise sa sortie. Le rapport affiche alors le Diagnostic, entier, et **la raison de l'absence** : pas de source disponible pour ce module, kernel compilé sans `-lineinfo`, Hotspot non résolu, sous le plancher statistique.
 

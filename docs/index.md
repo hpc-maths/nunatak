@@ -13,7 +13,7 @@ nunatak run -- ./my_binary
 ```{toctree}
 :maxdepth: 2
 
-guide/getting-started
+guide/index
 reference/index
 deployment/index
 development/index
