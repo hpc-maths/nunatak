@@ -29,7 +29,6 @@ Le reste se lit par chantier.
 | 10 | [Rapport](10-rapport.md) | mini-app TypeScript |
 | 11 | [Interface en ligne de commande](11-cli.md) | CLI, configuration |
 | 12 | [Packaging et distribution](12-packaging.md) | build, wheels, canaux |
-| 13 | [Tests et intégration continue](13-tests.md) | qualité |
 | 14 | [Feuille de route et angles morts](14-feuille-de-route.md) | pilotage |
 
 ## Correspondance avec les ADR
@@ -43,7 +42,7 @@ Le reste se lit par chantier.
 | [0005](../adr/0005-packaging-distribution.md) | Packaging et distribution | 12 |
 | [0006](../adr/0006-design-rapport-html.md) | Design du rapport HTML | 10 |
 | [0007](../adr/0007-surface-cli.md) | Surface CLI | 11 |
-| [0008](../adr/0008-strategie-test-ci.md) | Stratégie de test et CI | 13 |
+| [0008](../adr/0008-strategie-test-ci.md) | Stratégie de test et CI | - |
 
 Le glossaire de référence est [`docs/reference/glossary.md`](../reference/glossary.md). Le chapitre 02 en donne les relations et les invariants ; il ne le remplace pas.
 

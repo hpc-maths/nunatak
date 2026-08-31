@@ -63,7 +63,7 @@ Conséquences opérationnelles :
 
 Tout collecteur externe est **exécuté en sous-processus** et sa sortie parsée. Aucun n'est lié.
 
-C'est d'abord une contrainte de licence - lier du GPL rendrait l'œuvre combinée GPL, ce qu'interdit le choix BSD-3/MIT - mais c'est devenu un principe d'architecture à part entière, appliqué aussi à nos propres binaires, au pilotage du modèle de langage, et qui rend possible toute la stratégie de test du chapitre 13.
+C'est d'abord une contrainte de licence - lier du GPL rendrait l'œuvre combinée GPL, ce qu'interdit le choix BSD-3/MIT - mais c'est devenu un principe d'architecture à part entière, appliqué aussi à nos propres binaires, au pilotage du modèle de langage, et qui rend possible toute la [stratégie de test](../development/testing.md).
 
 ## 7. Ce qui varie est enregistré
 
