@@ -60,6 +60,20 @@ jobs:
       - run: npm run build
       - run: npm test
 
+  # The example programs the tutorial profiles. They compile on every
+  # tier-1 runner, which costs nothing and stops them rotting; that
+  # nunatak's counters agree with gemm's analytic figure is a tier-2
+  # question, needing a PMU this runner does not have.
+  examples:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: make -C examples
+      - name: they run, and gemm states its own rate
+        run: |
+          ./examples/stencil 512 3
+          ./examples/gemm 512 | grep -q "GFLOP/s analytic"
+
   # The documentation builds warning-free on every pull request; the
   # docs workflow deploys it from main.
   docs:

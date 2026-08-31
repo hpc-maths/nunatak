@@ -12,3 +12,6 @@ dist/
 .venv/
 .pytest_cache/
 docs/_build/
+examples/stencil
+examples/gemm
+examples/*.o
