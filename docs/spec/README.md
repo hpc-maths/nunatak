@@ -38,7 +38,7 @@ Le reste se lit par chantier.
 | [0001](../development/decisions/0001-pivot-data-model.md) | Modèle de données pivot | 02 |
 | [0002](../development/decisions/0002-machine-characterisation.md) | Caractérisation machine | 07 |
 | [0003](../development/decisions/0003-profiling-modes.md) | Modes de profiling et budget d'overhead | 05 |
-| [0004](../adr/0004-attribution-source.md) | Attribution vers le source | 06 |
+| [0004](../development/decisions/0004-source-attribution.md) | Attribution vers le source | 06 |
 | [0005](../adr/0005-packaging-distribution.md) | Packaging et distribution | 12 |
 | [0006](../adr/0006-design-rapport-html.md) | Design du rapport HTML | 10 |
 | [0007](../adr/0007-surface-cli.md) | Surface CLI | 11 |

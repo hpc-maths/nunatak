@@ -1,6 +1,6 @@
 # 06 - Attribution
 
-Référence : [ADR 0004](../adr/0004-attribution-source.md), révisé sur deux points par l'[ADR 0005](../adr/0005-packaging-distribution.md).
+Référence : [ADR 0004](../development/decisions/0004-source-attribution.md), révisé sur deux points par l'[ADR 0005](../adr/0005-packaging-distribution.md).
 
 L'attribution est la fondation du produit, pas un détail de présentation : sans elle il n'y a pas de source à montrer, donc pas d'Explication, pas de comparaison entre Runs, et un roofline dont les points ne désignent rien.
 
