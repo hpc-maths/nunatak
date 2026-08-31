@@ -35,9 +35,9 @@ Le reste se lit par chantier.
 
 | ADR | Sujet | Chapitres |
 |---|---|---|
-| [0001](../adr/0001-modele-de-donnees-pivot.md) | Modèle de données pivot | 02 |
-| [0002](../adr/0002-caracterisation-machine.md) | Caractérisation machine | 07 |
-| [0003](../adr/0003-modes-de-profiling.md) | Modes de profiling et budget d'overhead | 05 |
+| [0001](../development/decisions/0001-pivot-data-model.md) | Modèle de données pivot | 02 |
+| [0002](../development/decisions/0002-machine-characterisation.md) | Caractérisation machine | 07 |
+| [0003](../development/decisions/0003-profiling-modes.md) | Modes de profiling et budget d'overhead | 05 |
 | [0004](../adr/0004-attribution-source.md) | Attribution vers le source | 06 |
 | [0005](../adr/0005-packaging-distribution.md) | Packaging et distribution | 12 |
 | [0006](../adr/0006-design-rapport-html.md) | Design du rapport HTML | 10 |

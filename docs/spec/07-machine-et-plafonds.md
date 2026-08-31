@@ -1,6 +1,6 @@
 # 07 - Machine et plafonds
 
-Référence : [ADR 0002](../adr/0002-caracterisation-machine.md).
+Référence : [ADR 0002](../development/decisions/0002-machine-characterisation.md).
 
 ## Identité d'une Machine
 

@@ -1,6 +1,6 @@
 # 05 - Collecte
 
-Référence : [ADR 0003](../adr/0003-modes-de-profiling.md), [ADR 0005](../adr/0005-packaging-distribution.md).
+Référence : [ADR 0003](../development/decisions/0003-profiling-modes.md), [ADR 0005](../adr/0005-packaging-distribution.md).
 
 ## Le cadre imposé
 
