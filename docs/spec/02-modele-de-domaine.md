@@ -24,7 +24,7 @@ Persistée à part, régénérable sans reprofiler : l'Explication.
 
 ## Invariants
 
-Ces règles sont vérifiables et doivent être testées (chapitre 13).
+Ces règles sont vérifiables et doivent être testées ([stratégie de test](../development/testing.md)).
 
 **I1. Le pivot mesuré ne contient aucune conclusion.** Un Run porte des Hotspots, des Loci, des Mesures et des Événements. Il ne porte ni classification, ni placement roofline, ni conseil. Tout cela se recalcule.
 

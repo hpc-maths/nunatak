@@ -51,4 +51,4 @@ Le ticket 02 a établi qu'Apple Silicon n'expose ni compteur FLOPs ni bande pass
 - le repli théorique s'active quand le noyau ne peut pas tourner ;
 - la rétrogradation en `estimé` se déclenche en conditions polluées.
 
-**On teste des propriétés, jamais des chiffres** : la valeur d'un Plafond *est* la machine (chapitre 13).
+**On teste des propriétés, jamais des chiffres** : la valeur d'un Plafond *est* la machine ([stratégie de test](../development/testing.md)).
