@@ -19,4 +19,5 @@ A new decision writes a new record. It does not edit an old one.
 0001-pivot-data-model
 0002-machine-characterisation
 0003-profiling-modes
+0004-source-attribution
 ```
