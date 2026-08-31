@@ -38,7 +38,7 @@ Le produit se distingue sur trois points.
 
 **Langages profilés** : compilés (C, C++, Fortran, Rust) par le chemin DWARF, et Python par un chemin dédié.
 
-**Licence** : BSD-3 ou MIT. Cette contrainte est structurante et non cosmétique : elle impose que tout composant sous GPL soit **exécuté en sous-processus et jamais lié** (chapitre 04), et elle conditionne ce que la distribution peut embarquer (chapitre 12).
+**Licence** : BSD-3 ou MIT. Cette contrainte est structurante et non cosmétique : elle impose que tout composant sous GPL soit **exécuté en sous-processus et jamais lié** ([architecture](../development/architecture.md)), et elle conditionne ce que la distribution peut embarquer (chapitre 12).
 
 ## Hors périmètre v1
 

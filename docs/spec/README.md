@@ -21,7 +21,6 @@ Le reste se lit par chantier.
 | 01 | [Vision et périmètre](01-vision-et-perimetre.md) | tous |
 | 02 | [Modèle de domaine](02-modele-de-domaine.md) | tous |
 | 03 | [Principes transverses](03-principes-transverses.md) | tous |
-| 04 | [Architecture](04-architecture.md) | tous |
 | 05 | [Collecte](05-collecte.md) | orchestration des collecteurs |
 | 06 | [Attribution](06-attribution.md) | symbolisation, DWARF, Python, GPU |
 | 07 | [Machine et plafonds](07-machine-et-plafonds.md) | calibration |
@@ -37,7 +36,7 @@ Le reste se lit par chantier.
 
 | ADR | Sujet | Chapitres |
 |---|---|---|
-| [0001](../adr/0001-modele-de-donnees-pivot.md) | Modèle de données pivot | 02, 04 |
+| [0001](../adr/0001-modele-de-donnees-pivot.md) | Modèle de données pivot | 02 |
 | [0002](../adr/0002-caracterisation-machine.md) | Caractérisation machine | 07 |
 | [0003](../adr/0003-modes-de-profiling.md) | Modes de profiling et budget d'overhead | 05 |
 | [0004](../adr/0004-attribution-source.md) | Attribution vers le source | 06 |

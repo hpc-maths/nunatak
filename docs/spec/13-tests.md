@@ -8,7 +8,7 @@ Le principe « exec + parse » a une conséquence exploitable : **tout ce que nu
 
 > **On enregistre une fois sur du vrai matériel, on rejoue indéfiniment sans matériel.**
 
-Cela impose une contrainte d'architecture (chapitre 04) : **les adaptateurs doivent être substituables par une source d'enregistrements**.
+Cela impose une contrainte d'architecture ([architecture](../development/architecture.md)) : **les adaptateurs doivent être substituables par une source d'enregistrements**.
 
 **Le corpus se capture, il ne s'écrit pas.** Un corpus rédigé à la main ne teste que l'idée qu'on se fait des sorties d'outils, jamais leurs sorties réelles - c'est précisément l'erreur qui laisserait une CI verte sur un parseur cassé. Il est produit par un mode d'enregistrement de nunatak lui-même.
 
