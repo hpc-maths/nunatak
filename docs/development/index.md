@@ -11,4 +11,5 @@ chapter, in the pull request that writes the page replacing it.
 :maxdepth: 1
 
 architecture
+code-map
 ```
