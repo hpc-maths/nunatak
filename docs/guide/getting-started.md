@@ -19,67 +19,6 @@ On Linux, sampling is collected with `perf`. On other platforms, or when
 announced **before** launch as a named degradation with the way forward,
 and the Run simply carries fewer measurements.
 
-## Hotspot names
-
-Sampled addresses are attributed to their **physical function** - the
-thing with a symbol, an extent and an address, that you can recompile,
-isolate and compare - with `llvm-symbolizer` (LLVM 17 or newer, an
-external dependency that `doctor` locates and invokes). Compile with `-g`
-to reach line-level attribution; without it, the symbol table still
-names functions.
-
-Every Hotspot declares how far its attribution could go - its
-**resolution level**: `line`, `function`, `symbol` or `unresolved`. A
-failed attribution never degrades the measurement: that time really was
-spent at that address, and the Hotspot is displayed `module+0x3a1c`
-rather than being attached to the nearest symbol. Kernel and vdso
-samples stay unresolved by design.
-
-Without a usable LLVM, the platform's own fallback stands in -
-**GNU addr2line** (binutils) on Linux, **atos** on macOS - executed
-on what the machine offers, never redistributed, and declared
-second-choice by `doctor`. The fallback keeps the extent rule that the
-tool itself does not: GNU addr2line names an address in the gap between
-two functions after the preceding symbol, so the symbol table is read
-first and only covered addresses resolve. What it cannot offer is
-declared too: no staleness fingerprints (extracts are accepted as if
-unfingerprinted, like gcc's) and no loop analysis. Without either tool
-the run still measures - the names are simply missing, and the
-degradation says so.
-
-The LLVM window has **no upper bound**. The versions our test suites
-actually exercised are declared (17 to 20 today), and a newer major -
-LLVM publishes one every six months - earns a `doctor` warning, never a
-refusal: "not yet validated with this version of nunatak" means exactly
-that, and everything runs. Refusing would strand a user whose
-distribution moved before our release did, for a risk that is usually
-nonexistent - a parser that a new LLVM really breaks fails loudly, not
-silently.
-
-When `DEBUGINFOD_URLS` is in the environment, both symbolization paths
-fetch distribution-library debug information on their own - that is
-where a stripped `libc` or `libmpi` gets its names, never the user's
-code. nunatak adds the controls the ADR promises: the lookup only ever
-runs at analysis time (symbolization happens after the application
-exited), the client's 90-second default timeout is shortened to 10
-seconds so an unreachable server degrades names instead of hanging the
-analysis, and the whole thing can be turned off:
-
-```toml
-[debuginfod]
-enabled = true    # false strips DEBUGINFOD_URLS from symbolizer invocations
-timeout = 10      # seconds; an explicit DEBUGINFOD_TIMEOUT env wins
-```
-
-`doctor` reports the configured servers when there are any; their
-absence is the normal case, not a finding.
-
-`function` and `symbol` name the same situation - a name without a
-source position - but not the same remedy: `function` comes from the
-symbol table of a binary built without `-g`, `symbol` from the dynamic
-symbols of a stripped module, where the way forward is a debuginfo
-package, not a recompile.
-
 ## Source in the Run
 
 For every Hotspot attributed at line level, the run embeds a **source
