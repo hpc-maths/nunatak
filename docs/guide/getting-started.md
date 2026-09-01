@@ -343,6 +343,17 @@ repetitions, concurrent load, a kernel built without SIMD, a value far
 above the theoretical peak - downgrade the ceiling to `estimated` with
 the reason, they never discard it.
 
+The **network probe** - nunatak's own MPI binary, built by `doctor`
+against the site's stack and cached per stack - is launched **through
+the allocation's own launcher, before the application** - the only
+moment the network is ours - and its best repetition becomes the
+Machine's `network_bandwidth` and `network_latency` Ceilings. The probe
+counts its nodes and keeps the measurement honest: a single-node world
+measured shared memory, not the interconnect, and both Ceilings say so
+as a motivated downgrade. A run never compiles the probe: without a
+cached binary, `network-ceiling-unavailable` names `doctor` as the way
+forward. `--no-calibrate` skips the probe along with the calibration.
+
 ## Calibrating the Machine
 
 The calibration triggers by itself at the **first `run` on an unknown
@@ -478,6 +489,18 @@ double-precision peak says so too. An unknown microarchitecture
 samples time alone, and a kernel that rejects the event names degrades
 to time-only without ever running the application twice.
 
+When more events are counted than the PMU has counters, the kernel
+rotates them and reports each counter's **coverage**
+(`time_running / time_enabled`). A multiplexed value stays `measured`
+while its coverage clears `thresholds.coverage` (80% by default) - the
+kernel's extrapolation over most of the run is still the quantity -
+and is downgraded to `estimated` below it, with the numbers in the
+reason: "counters multiplexed: coverage 63% below the 80% threshold".
+Downgrading everything multiplexed would paint the report uniformly
+grey and strip the label of its discriminating power. The coverage
+itself rides every Measurement into the Run, whichever side of the
+threshold it falls on.
+
 ## macOS: the temporal mode
 
 macOS exposes no event-triggered sampling: `nunatak run` samples
@@ -545,106 +568,6 @@ images (first-launch code-signing work, measured on the corpus
 machine): the hits then keep their module names without offsets, and
 the run declares `sample-images-unavailable` with "run again" as the
 remedy.
-
-## MPI runs
-
-`nunatak run -- mpirun -n 8 ./solver` starts one launcher here and
-eight ranks wherever the scheduler placed them. Collection then has two
-layers, with two costs, and both live **inside the ranks** - nunatak
-interposes a small shim between the launcher and the application,
-without touching either. The **sampling layer** attributes Hotspots:
-each sampled rank records itself, counter group included, on its own
-node's counters. Below a threshold (64 ranks, `sampling.rank_threshold`
-in `nunatak.toml`) every rank samples; beyond it, sampling narrows to
-**rank 0 plus the first rank of each node** - Hotspots stay
-attributable everywhere the code runs, at a cost that stops growing
-with the job. The **counting layer** covers every other rank at
-constant cost: one `perf stat` around the whole rank - time, cycles,
-instructions - whose per-rank totals are what reveal load imbalance.
-They carry no Hotspot, and Hotspot-level Measurements on unsampled
-ranks are `unavailable`, **never extrapolated** from the sampled
-neighbours.
-
-When more events are counted than the PMU has counters, the kernel
-rotates them and reports each counter's **coverage**
-(`time_running / time_enabled`). A multiplexed value stays `measured`
-while its coverage clears `thresholds.coverage` (80% by default) - the
-kernel's extrapolation over most of the run is still the quantity -
-and is downgraded to `estimated` below it, with the numbers in the
-reason: "counters multiplexed: coverage 63% below the 80% threshold".
-Downgrading everything multiplexed would paint the report uniformly
-grey and strip the label of its discriminating power. The coverage
-itself rides every Measurement into the Run, whichever side of the
-threshold it falls on.
-
-The summary of an MPI run opens its topology right after the headline:
-`ranks: 128 (3 sampled); busiest rank 17 at 1.42x the mean; MPI holds
-23% of the time`. The imbalance factor is the busiest rank over the
-mean - a number stated, never judged; the per-Hotspot Diagnostic is
-where regimes are named. Unsampled ranks are listed among the
-admissions under "what this report does not say", by number.
-
-Each rank writes home before it exits, so a Run stays **one
-directory** whatever the number of ranks and nodes - the retrieval is
-done before the job epilogue, when the allocation still exists. A rank
-whose node has no usable `perf` runs bare and is declared by number
-(`counting-unavailable`); ranks that the world size announces but that
-left nothing behind are declared too (`counting-incomplete`). Silence
-about a missing rank would read as "nothing ran there".
-
-The shim propagates the application's exit code and never touches its
-stdout or stderr, and a launcher that fails to resolve its application
-is left alone: nunatak wraps a launch it understands, it never guesses.
-It hands the application every descriptor the launcher opened, too:
-MPICH and Intel MPI pass each rank its PMI channel as an inherited
-descriptor, and a shim that closed it would fail `MPI_Init` before the
-application had started.
-
-Nothing samples around the launcher: hardware events run on the ranks'
-own physical counters - an outer sampler holding the same PMCs
-corrupts what the ranks measure, a fact measured on real hardware, not
-a precaution. For the same reason a sampled rank does not also count:
-its time aggregate is recoverable from its own samples.
-
-The **network probe** is nunatak's own binary and binds to the site's
-MPI stack, whose ABIs are mutually incompatible - so it is never
-shipped built. `nunatak doctor` builds it with the site's `mpicc`
-(`tools.mpicc` to point elsewhere), preferably on a login node where
-the compilers are, and caches it per stack under
-`$XDG_CACHE_HOME/nunatak/probes`: on a cluster with modules, the MPI
-loaded today is rarely the job's. The identified stack - implementation,
-version, `mpicc` - is recorded in the Run's Provenance: a network
-analysis whose underlying stack is unknown is not interpretable.
-Without a usable `mpicc`, doctor announces
-`network-analysis-unavailable` and the run proceeds.
-
-An MPI run launches the cached probe **through the allocation's own
-launcher, before the application** - the only moment the network is
-ours - and its best repetition becomes the Machine's
-`network_bandwidth` and `network_latency` Ceilings. The probe counts
-its nodes and keeps the measurement honest: a single-node world
-measured shared memory, not the interconnect, and both Ceilings say so
-as a motivated downgrade. A run never compiles the probe: without a
-cached binary, `network-ceiling-unavailable` names `doctor` as the way
-forward. `--no-calibrate` skips the probe along with the calibration.
-
-The MPI side of the counting layer comes from **mpiP**, preloaded into
-every rank - `LD_PRELOAD`, appended to whatever the site already
-preloads, never recompiling the application. Its report lands in the
-Run and becomes per-rank Measurements: `mpi_time` and `app_time`
-(mpiP's wall-clock view of each rank) and `mpi_sent_bytes`. The library
-must be built against the site's MPI stack; nunatak looks for it in
-`tools.mpip` (`nunatak.toml`), then in `LD_LIBRARY_PATH` - which is how
-an environment module exposes it - then in its own cache. That cache
-is filled by **`doctor`**, like the probe's: the pinned mpiP source is
-downloaded once (checksum-verified; once fetched, it rebuilds offline
-forever) and compiled with the site's own `mpicc` and Fortran wrapper
-(`mpifort`, then `mpif77` - mpiP's build requires one) into the
-stack's cache entry. No wrapper, no network on a never-fetched login
-node, or a failed build: `mpi-analysis-unavailable` says which, with
-the modules/spack remedy - and the run always proceeds. An application
-that never reaches `MPI_Finalize` leaves no report, and the Run says
-that too (`mpi-report-missing`).
 
 ## Static loop analysis
 

@@ -3,7 +3,7 @@
 For whoever profiles an application: how to get what you need out of
 nunatak, and why it behaves as it does.
 
-Start with the page below. It teaches the vocabulary every other page
+Start with the first page below. It teaches the vocabulary every other page
 uses - what an estimated value is, what an unresolved Hotspot is, and why
 a missing capability is named rather than fatal.
 
@@ -11,5 +11,6 @@ a missing capability is named rather than fatal.
 :maxdepth: 1
 
 reading-what-nunatak-tells-you
+mpi/index
 getting-started
 ```
