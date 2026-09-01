@@ -19,30 +19,6 @@ On Linux, sampling is collected with `perf`. On other platforms, or when
 announced **before** launch as a named degradation with the way forward,
 and the Run simply carries fewer measurements.
 
-## Source in the Run
-
-For every Hotspot attributed at line level, the run embeds a **source
-extract** - never a whole file: the body of the physical function and
-its hot inline frames, a few context lines around. Inlining spreads a
-Hotspot over several files, so there is one extract per file its
-addresses reach; what the report and the model are shown is the one the
-Hotspot is named after, because the sampled lines stated beside the
-text are that file's. The file is searched in three steps: the path DWARF recorded, then the `--source-map OLD=NEW`
-rewriting (repeatable flag, or a `[source_map]` table in
-`nunatak.toml`), then a basename search under the repository root. On
-multiple ambiguous matches nunatak does not choose: the Hotspot stays
-without source, and the extract carries the reason instead of the text.
-
-A resolved file is checked against the **line-table fingerprint** the
-compiler recorded (clang emits an MD5 per source file by default): if
-you edited the file since the profiled binary was built, its lines have
-moved, and the extract is refused with that reason rather than shown
-wrong. Without a fingerprint - gcc emits none - the extract is accepted
-as-is.
-
-`--no-source` embeds no source text at all, for what must leave a
-sensitive site: line numbers and measurements are kept.
-
 ## Checking the environment
 
 ```sh
