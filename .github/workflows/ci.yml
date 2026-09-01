@@ -25,6 +25,11 @@ jobs:
   # presence is stubbed by conftest, so Node is not needed here.
   tests:
     name: tests (${{ matrix.os }}, py${{ matrix.python }})
+    # The suite runs in well under a minute; the ceiling exists so that a
+    # collector which never returns - measured on macOS, where xctrace
+    # hangs and leaves DTServiceHub orphaned - fails a job instead of
+    # holding a runner for an hour.
+    timeout-minutes: 15
     strategy:
       fail-fast: false
       matrix:

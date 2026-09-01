@@ -64,6 +64,13 @@ generally not exposed there**. Tier 1 checks that commands launch, that
 permissions are diagnosed correctly and that outputs parse. It does not
 check that a counter returns a true value.
 
+**One test launches the platform's real collector**, and the rest run
+without one. Wrapping a profiler around a process that exits immediately
+proves nothing the corpus does not prove, costs twelve seconds a test on
+macOS, and hangs often enough there to freeze a job - so the command-line
+tests take the documented no-collector path, and the real launch is
+covered once, by the recording test.
+
 **Tier 2, a self-hosted machine with real PMUs, nightly, non-blocking.**
 It runs the hermetic suite on real Linux, then what only hardware can
 verify:
