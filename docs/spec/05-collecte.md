@@ -59,9 +59,3 @@ Chaque Mesure porte son **nombre d'échantillons et son erreur relative**, décr
 Pas d'échantillonnage déclenché par événement. Le mode nominal est l'échantillonnage **temporel** - `xctrace` et son Time Profiler si Xcode est présent, `/usr/bin/sample` sinon - complété par `powermetrics` pour les agrégats par processus. Les Compteurs bruts par Hotspot y sont `indisponible` et le roofline reste estimé, l'intensité arithmétique L1 étant fournie par l'analyse statique (chapitre 08).
 
 kperf demeure un backend expert, opt-in, jamais automatique.
-
-## Contraintes d'orchestration
-
-- **`PYTHONPERFSUPPORT=1`** est posé dans l'environnement du lancement quand l'application est en Python 3.12 ou plus. Aucune ligne de code à toucher.
-- Les cartes de trampolines `/tmp/perf-<pid>.map` sont **locales à chaque nœud et indexées par PID** : elles doivent être rapatriées comme artefacts du Run **avant l'épilogue du job**, sans quoi les Hotspots Python d'un run multi-nœuds sont irrécupérables.
-- Les parseurs sont **versionnés par version d'outil détectée**. Un adaptateur qui ne reconnaît pas la version de son outil le déclare plutôt que de parser au hasard.
