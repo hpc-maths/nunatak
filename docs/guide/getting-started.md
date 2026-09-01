@@ -277,53 +277,6 @@ consent from a login node - there is no silent default in either
 direction. This is a different switch from `--no-source`, which keeps
 text out of the report: two risks, two controls.
 
-## Python applications
-
-```sh
-nunatak run -- python3 solver.py
-nunatak run -- mpirun -n 8 python3 solver.py
-```
-
-From CPython 3.12 on, naming the interpreter in the command is enough:
-nunatak sets `PYTHONPERFSUPPORT=1` in the launch environment and the
-interpreter publishes a small trampoline per Python function in a perf
-map - the one door through which perf sees Python frames inside native
-call stacks, with no line of the application touched. Anything else
-that writes a perf map (Numba, a JIT) enters through the same door.
-
-The maps live in each node's `/tmp`, keyed by PID: they are retrieved
-into the Run as collection artifacts - inside every sampling MPI rank
-too - because they are artifacts of the Run or they are lost, and the
-addresses they name exist nowhere else. A CPython older than 3.12 is
-the named degradation `python-hotspots-unavailable`: the native frames
-keep their attribution, the Python story does not exist. `doctor`
-announces the path a Python command will take on its `python-target`
-row.
-
-**Below 3.12, py-spy stands in** - on Linux, for non-MPI runs. It
-samples the interpreter from outside, temporally: the same
-`(file, function)` Hotspots with full resolution, and the named loss
-`python-counters-unavailable` - no hardware counters ride a temporal
-sampler, upgrading to 3.12 restores the counter path. The application's
-exit code is still propagated: py-spy reports its own (0 even when the
-application failed), so a shell wrapper witnesses the real one. The two
-flows are never fused into one stack: two clocks, two triggers, merging
-them would be double counting dressed as measurement. Without py-spy,
-an old CPython loses the Python story by name
-(`python-hotspots-unavailable`).
-
-**Interpreter time belongs to the Python function it interprets.** A
-sample landing in CPython's own frames - `_PyEval_EvalFrameDefault`,
-the allocator - is folded onto the innermost Python frame above it: the
-Hotspot is `axpy` at `(file, function)` grain, function-level
-resolution, no physical identity (only native code has one). A native
-extension leaf (numpy, pybind11, Cython) stays a native Hotspot with
-the Python caller visible in its recorded stack: interpreter frames are
-never Hotspots, extension Hotspots never stop being native. The
-trampoline names exist only in the collector's text - the map's
-addresses belong to a JIT - so they are kept at parse time and written
-on the stack frames, where the report's callers view shows them.
-
 ## Machine ceilings
 
 Until a calibration has measured the Machine, the Run carries

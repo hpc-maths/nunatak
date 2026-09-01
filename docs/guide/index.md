@@ -12,5 +12,6 @@ a missing capability is named rather than fatal.
 
 reading-what-nunatak-tells-you
 mpi/index
+python/index
 getting-started
 ```
