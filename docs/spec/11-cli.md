@@ -1,6 +1,6 @@
 # 11 - Interface en ligne de commande
 
-Référence : [ADR 0007](../adr/0007-surface-cli.md).
+Référence : [ADR 0007](../development/decisions/0007-cli-surface.md).
 
 ## Ce que `doctor` vérifie
 

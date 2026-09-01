@@ -2,7 +2,7 @@
 
 nunatak est un profileur zéro-instrumentation pour le calcul haute performance. Il orchestre des collecteurs existants, place les unités de calcul sur un roofline, diagnostique les goulots d'étranglement CPU, GPU, mémoire et réseau, et fait expliquer les résultats par un modèle de langage.
 
-Ce document est **normatif** : il dit ce qu'il faut construire. Il ne dit pas pourquoi. Chaque chapitre renvoie aux ADR de `docs/adr/`, qui portent le raisonnement, les options écartées et leurs raisons. Un désaccord sur une décision se règle en relisant l'ADR, pas en réinterprétant la spec.
+Ce document est **normatif** : il dit ce qu'il faut construire. Il ne dit pas pourquoi. Chaque chapitre renvoie aux décisions de `docs/development/decisions/`, qui portent le raisonnement, les options écartées et leurs raisons. Un désaccord sur une décision se règle en relisant l'ADR, pas en réinterprétant la spec.
 
 ## Comment lire
 
@@ -39,10 +39,10 @@ Le reste se lit par chantier.
 | [0002](../development/decisions/0002-machine-characterisation.md) | Caractérisation machine | 07 |
 | [0003](../development/decisions/0003-profiling-modes.md) | Modes de profiling et budget d'overhead | 05 |
 | [0004](../development/decisions/0004-source-attribution.md) | Attribution vers le source | 06 |
-| [0005](../adr/0005-packaging-distribution.md) | Packaging et distribution | 12 |
-| [0006](../adr/0006-design-rapport-html.md) | Design du rapport HTML | 10 |
-| [0007](../adr/0007-surface-cli.md) | Surface CLI | 11 |
-| [0008](../adr/0008-strategie-test-ci.md) | Stratégie de test et CI | - |
+| [0005](../development/decisions/0005-packaging-and-distribution.md) | Packaging et distribution | 12 |
+| [0006](../development/decisions/0006-html-report-design.md) | Design du rapport HTML | 10 |
+| [0007](../development/decisions/0007-cli-surface.md) | Surface CLI | 11 |
+| [0008](../development/decisions/0008-test-and-ci-strategy.md) | Stratégie de test et CI | - |
 
 Le glossaire de référence est [`docs/reference/glossary.md`](../reference/glossary.md). Le chapitre 02 en donne les relations et les invariants ; il ne le remplace pas.
 

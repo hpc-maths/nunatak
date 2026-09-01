@@ -1,6 +1,6 @@
 # 12 - Packaging et distribution
 
-Référence : [ADR 0005](../adr/0005-packaging-distribution.md).
+Référence : [ADR 0005](../development/decisions/0005-packaging-and-distribution.md).
 
 ## Le principe organisateur
 
