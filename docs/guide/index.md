@@ -14,5 +14,6 @@ reading-what-nunatak-tells-you
 mpi/index
 python/index
 attribution/index
+source/index
 getting-started
 ```

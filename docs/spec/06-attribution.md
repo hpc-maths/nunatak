@@ -45,9 +45,6 @@ Le chemin macOS sert la **boucle de développement courte**, pas le verdict de r
 
 ## Source
 
-- **Recherche** : le chemin DWARF tel quel, puis une correspondance fournie par l'utilisateur (`--source-map`), puis une recherche par nom de base sous la racine du dépôt. **En cas de correspondances multiples ambiguës, on ne choisit pas** : le Hotspot reste sans source, avec la raison.
-- **Vérification de péremption** : l'empreinte MD5 de la table de lignes DWARF 5, émise par défaut par clang. Empreinte présente et discordante, le source n'est **ni affiché ni envoyé**, et le rapport dit pourquoi. Sans cette règle, un développeur ayant édité son code depuis le run verrait un rapport pointant des lignes qui ont bougé.
-- **Seuls les extraits nécessaires sont embarqués** dans le Run : corps de la fonction physique, frames inline chaudes, quelques lignes de contexte. Jamais les fichiers entiers.
 - **Deux commutateurs distincts**, parce que ce sont deux risques différents : `--no-source` retire le texte du **rapport** ; un **accord explicite et mémorisé par projet** est demandé au premier usage d'un provider **distant**. Aucun accord si le provider configuré dans Pi est local.
 
 ## Stabilité inter-passes
