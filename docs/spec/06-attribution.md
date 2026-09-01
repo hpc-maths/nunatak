@@ -4,39 +4,6 @@ Référence : [ADR 0004](../development/decisions/0004-source-attribution.md), r
 
 L'attribution est la fondation du produit, pas un détail de présentation : sans elle il n'y a pas de source à montrer, donc pas d'Explication, pas de comparaison entre Runs, et un roofline dont les points ne désignent rien.
 
-## Grain
-
-**Le Hotspot est la fonction physique** : ce qui a un symbole, une étendue et une adresse, donc quelque chose que l'utilisateur peut recompiler, isoler et comparer.
-
-Les **lignes** et la **chaîne d'inlining complète** sont conservées comme **détail interne**, jamais comme unités d'analyse - une frame inline n'est rien d'autre qu'une ligne venue d'un autre fichier.
-
-Les deux positions extrêmes échouent symétriquement : au grain de la fonction physique seule, le rapport annonce « `operator()<Mesh, Field, 2>` : 80 % » et n'apprend rien sur du code à templates ; au grain de la frame inline la plus interne, il annonce « `operator[]` : 40 % », c'est-à-dire du bruit ayant l'apparence d'un diagnostic.
-
-**Vue transverse obligatoire** : « temps par frame inline, tous Hotspots confondus », en vue secondaire. Elle rattrape la routine d'en-tête inlinée en douze endroits, invisible autrement, et elle est **la seule vue stable à travers une recompilation** puisqu'elle ne dépend pas du choix d'inlining du compilateur. C'est à ce titre l'unité de comparaison entre Runs.
-
-## Niveaux de résolution
-
-| Niveau | Condition |
-|---|---|
-| `ligne` | DWARF complet, dans le binaire ou en debuginfo séparé |
-| `fonction` | pas de DWARF mais `.symtab` présent |
-| `symbole` | seul `.dynsym`, ou kernel GPU sans information de ligne |
-| `non résolu` | adresse dans un trou entre symboles |
-
-**Règle d'étendue** : une adresse n'est attribuée que si elle tombe dans `[st_value, st_value + st_size)` d'un symbole. Une adresse dans un trou devient un Hotspot non résolu affiché `libfoo.so+0x3a1c`, **jamais rattachée au symbole précédent**.
-
-Le niveau de résolution conditionne l'envoi au modèle : un Hotspot non résolu n'a pas de source, donc pas d'Explication, et le rapport dit pourquoi.
-
-## Symbolisation
-
-**Chemin nominal** : LLVM, déclaré en dépendance externe `llvm@19:` et non embarqué. On récupère de perf les adresses brutes, la carte des mappages et les build-id, et on symbolise soi-même.
-
-**Repli** : sous-processus système, `llvm-symbolizer` ou `addr2line` sur Linux, `atos` sur macOS. Ces deux derniers sont exécutables mais **jamais redistribuables**, respectivement pour cause de GPL et d'appartenance à Xcode.
-
-La symbolisation ne porte que sur l'**ensemble des adresses distinctes** issu de l'agrégation, soit quelques milliers à quelques dizaines de milliers : son coût n'est un critère de choix pour aucune option.
-
-**Ordre de recherche des informations de debug** : sections du binaire, `.gnu_debuglink`, `/usr/lib/debug/.build-id/`, puis **debuginfod** si `DEBUGINFOD_URLS` est renseigné. debuginfod est utilisé s'il est configuré et joignable, jamais requis, **jamais pendant l'exécution profilée** (uniquement à l'analyse), désactivable, avec un délai d'attente court.
-
 ## Piles d'appels
 
 Elles servent à trois choses : rattacher les feuilles de bibliothèque au code utilisateur (sans quoi un `dgemm` chaud dans OpenBLAS est un Hotspot sans source), donner un temps inclusif, et reconstituer les piles mixtes Python. **Elles n'entrent pas dans l'identité du Hotspot.**
