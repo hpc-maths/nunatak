@@ -15,6 +15,7 @@ run-directory
 machine-readable
 quality
 resolution-levels
+classifications
 exit-codes
 glossary
 degradations
