@@ -31,19 +31,6 @@ Les seuls leviers sont la fréquence d'échantillonnage, le nombre de lancements
 
 Sans cet ordre, c'est la configuration du collecteur qui déciderait en silence de ce que l'utilisateur perd.
 
-## Deux couches, deux coûts
-
-| Couche | Ce qu'elle donne | Coût | Portée |
-|---|---|---|---|
-| **Comptage** | agrégats par rang : temps, cycles, instructions, volumes MPI | constant, quelques dizaines d'octets par rang | **tous** les rangs |
-| **Échantillonnage** | Compteurs bruts attribués à des Hotspots | proportionnel | sous-ensemble au-delà du seuil |
-
-Au-delà d'un seuil de l'ordre de 64 rangs, l'échantillonnage porte sur **un rang par nœud plus le rang 0** ; en deçà, tout est échantillonné.
-
-**La couche de comptage n'a rien à attribuer** : elle ne produit pas de Hotspot. C'est elle qui révèle le déséquilibre de charge et les volumes MPI, et c'est pourquoi une part importante du temps d'un run peut n'avoir aucun Hotspot associé sans que ce soit une lacune.
-
-Les Mesures au niveau Hotspot sur les Loci non échantillonnés sont `indisponible`, **jamais extrapolées**.
-
 ## Plancher statistique
 
 Chaque Mesure porte son **nombre d'échantillons et son erreur relative**, décroissante en `1/racine(n)`.
