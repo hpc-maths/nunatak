@@ -60,7 +60,7 @@ Un développeur d'application scientifique qui sait lire un profil mais n'est pa
 
 Dans cet ordre, et en cas de conflit c'est cet ordre qui tranche :
 
-1. **Honnêteté** - ne jamais présenter comme sûr ce qui ne l'est pas. Le chapitre 03 en fait un mécanisme.
+1. **Honnêteté** - ne jamais présenter comme sûr ce qui ne l'est pas. Le site en fait un mécanisme : [comment lire ce que nunatak dit](../guide/reading-what-nunatak-tells-you.md).
 2. **Robustesse** - fonctionner en mode dégradé plutôt que refuser.
 3. **Maintenabilité** - le produit doit survivre à dix ans d'évolution des outils qu'il orchestre.
 4. **Simplicité d'usage** - une commande, pas une méthodologie.

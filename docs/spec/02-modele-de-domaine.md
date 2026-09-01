@@ -34,7 +34,7 @@ Ces règles sont vérifiables et doivent être testées ([stratégie de test](..
 
 **I4. La Qualité d'une Métrique dérivée est la pire de ses entrées**, propagée automatiquement le long du Linéage. Elle ne se fixe jamais à la main.
 
-**I5. Une Métrique dérivée ne peut combiner des Compteurs bruts de Passes différentes que si l'identité physique de leur module est identique dans ces Passes.** Sinon, refus - pas de rétrogradation (chapitre 03).
+**I5. Une Métrique dérivée ne peut combiner des Compteurs bruts de Passes différentes que si l'identité physique de leur module est identique dans ces Passes.** Sinon, refus - pas de rétrogradation ([comment lire ce que nunatak dit](../guide/reading-what-nunatak-tells-you.md)).
 
 **I6. L'Analyse statique de boucle ne produit jamais la Qualité « mesuré ».** C'est un modèle, pas une mesure de la machine.
 

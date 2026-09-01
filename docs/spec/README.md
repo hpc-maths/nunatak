@@ -6,11 +6,10 @@ Ce document est **normatif** : il dit ce qu'il faut construire. Il ne dit pas po
 
 ## Comment lire
 
-Trois chapitres sont à lire par tout le monde, dans l'ordre, avant le reste :
+Deux chapitres sont à lire par tout le monde, dans l'ordre, avant le reste :
 
 1. [Vision et périmètre](01-vision-et-perimetre.md) - ce qu'est le produit, et surtout ce qu'il n'est pas.
 2. [Modèle de domaine](02-modele-de-domaine.md) - le vocabulaire. Il est contraignant : les mêmes mots dans le code, l'interface et la documentation.
-3. [Principes transverses](03-principes-transverses.md) - **le chapitre le plus important**. L'honnêteté du produit y est un mécanisme, pas une intention, et il traverse tous les autres chapitres.
 
 Le reste se lit par chantier.
 
@@ -20,7 +19,6 @@ Le reste se lit par chantier.
 |---|---|---|
 | 01 | [Vision et périmètre](01-vision-et-perimetre.md) | tous |
 | 02 | [Modèle de domaine](02-modele-de-domaine.md) | tous |
-| 03 | [Principes transverses](03-principes-transverses.md) | tous |
 | 05 | [Collecte](05-collecte.md) | orchestration des collecteurs |
 | 06 | [Attribution](06-attribution.md) | symbolisation, DWARF, Python, GPU |
 | 07 | [Machine et plafonds](07-machine-et-plafonds.md) | calibration |
