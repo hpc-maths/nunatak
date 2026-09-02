@@ -36,67 +36,6 @@ function level with a bare symbol table, symbol level on a stripped
 binary - **before** any compute time is spent, with the remedy when one
 exists (`-g`, or keeping the symbol table).
 
-## Multi-pass runs
-
-`nunatak run` executes the application **once**; event groups that do
-not fit the PMU are multiplexed by the kernel. `--multi-pass` is the
-explicit expert opt-in that reruns the application once per counter
-group instead - relaunching an application inside an allocation the
-user pays for is never a decision the tool takes alone:
-
-```sh
-nunatak run --multi-pass -- ./solver
-```
-
-The groups are semantic - one measurement concern per pass (`flops`
-and `memory` on Zen and Neoverse; `flops_dp`, `flops_sp` and `memory`
-on Intel) -
-and each is small enough that no counter is ever multiplexed: exact
-counts, which is what the extra executions buy. A **witness** -
-work-proportional where cycles count time-at-frequency: the
-retired-FLOP count on Zen, retired instructions on Intel (on their
-dedicated fixed counter) and on Neoverse (the one architectural,
-non-speculative count those cores offer) - is replicated in each pass
-and compared at the end: within the threshold, cross-pass quantities - the DRAM intensity
-fusing one pass's FLOPs with another's bytes - stay exactly what they
-claim; beyond it, the application did different work in different
-passes (a convergence criterion, dynamic scheduling, non-deterministic
-MPI) and every fused quantity is downgraded to **estimated** with the
-reason, while the run declares `passes-inconsistent`. Fusing silently
-would produce a wrong arithmetic intensity wearing the face of an
-exact measurement - the worst outcome for a user who paid for several
-executions. Neither the time base nor cycles qualifies as witness, measured on
-the corpus machine: the same work took 69% more cpu-seconds on a first
-pass - the frequency governor ramping up - and a memory-bound run cost
-4.8e9 then 6.9e9 cycles back to back, while the retired-FLOP count came
-back identical to the unit. On Zen, an application without floating
-point gets a vacuous witness - the honest amount of evidence available;
-the instruction witnesses of Intel and Neoverse have no vacuous case.
-
-The threshold is configuration, recorded in the Run and used by every
-later analysis of it:
-
-```toml
-[passes]
-witness = 0.05    # witness spread beyond which fusion is estimated
-```
-
-A module whose build-id changed between passes was **recompiled
-mid-run**: an invalidity, not an uncertainty. Its Hotspots keep
-separate physical identities, are presented per pass, never fused,
-never placed (`module-recompiled-between-passes`) - and comparing two
-versions is two Runs, never two passes. The whole invocation stays **one Run**: every
-Measurement keeps its pass of origin, each pass is its own entry in the
-manifest, and replicated counters only count their reference pass in
-every analysis - the seconds stay one execution's worth.
-
-If the application exits non-zero on the first pass, the remaining
-passes are skipped (`passes-skipped`): relaunching a failure spends the
-allocation on reproducing it. On an unknown microarchitecture there is
-nothing to split and a single time-only pass runs
-(`multi-pass-unavailable`); MPI runs are not covered yet and fall back
-the same way.
-
 ## Static loop analysis
 
 Every measuring run also reads the machine code of its Hotspots: the
