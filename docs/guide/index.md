@@ -19,5 +19,6 @@ report/index
 compare/index
 explanations/index
 machine/index
+macos/index
 getting-started
 ```
