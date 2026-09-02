@@ -22,5 +22,6 @@ machine/index
 macos/index
 stacks/index
 counter-groups
+multi-pass/index
 getting-started
 ```
