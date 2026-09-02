@@ -22,7 +22,13 @@ nunatak = "nunatak.cli:principal"
 # hatchling is a test dependency: the suite drives the real wheel
 # builder against the report-asset build hook.
 dev = ["pytest>=8", "hatchling"]
-docs = ["sphinx>=8", "myst-parser>=4", "furo>=2024", "sphinx-argparse>=0.5"]
+docs = [
+    "sphinx>=8",
+    "myst-parser>=4",
+    "furo>=2024",
+    "sphinx-argparse>=0.5",
+    "sphinx-design>=0.6",
+]
 
 [tool.hatch.version]
 path = "nunatak/__init__.py"
