@@ -56,6 +56,9 @@ Chaque Mesure porte son **nombre d'échantillons et son erreur relative**, décr
 
 ## macOS
 
-Pas d'échantillonnage déclenché par événement. Le mode nominal est l'échantillonnage **temporel** - `xctrace` et son Time Profiler si Xcode est présent, `/usr/bin/sample` sinon - complété par `powermetrics` pour les agrégats par processus. Les Compteurs bruts par Hotspot y sont `indisponible` et le roofline reste estimé, l'intensité arithmétique L1 étant fournie par l'analyse statique (chapitre 08).
+Documenté sur le site : [macOS](../guide/macos/index.md) - mode temporel,
+les deux rungs, l'analyse statique qui fournit l'intensité L1, les
+agrégats `powermetrics`.
 
-kperf demeure un backend expert, opt-in, jamais automatique.
+Reste à construire : **kperf**, backend expert, opt-in, jamais
+automatique.
