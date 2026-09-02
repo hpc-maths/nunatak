@@ -23,5 +23,6 @@ macos/index
 stacks/index
 counter-groups
 multi-pass/index
+static-loop-analysis
 getting-started
 ```
