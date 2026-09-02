@@ -14,9 +14,12 @@ nunatak run -- ./my_binary
 
 ## Status
 
-Under construction. The full specification lives in
-[`docs/spec/`](docs/spec/), the architecture decisions in
-[`docs/adr/`](docs/adr/), and the reference glossary in
+Under construction, and there is no released package yet. The
+documentation is published at
+[hpc-maths.github.io/nunatak](https://hpc-maths.github.io/nunatak/) and
+built from [`docs/`](docs/); the architecture decisions are in
+[`docs/development/decisions/`](docs/development/decisions/) and the
+reference glossary in
 [`docs/reference/glossary.md`](docs/reference/glossary.md).
 
 ## License
