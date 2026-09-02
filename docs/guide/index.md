@@ -15,5 +15,6 @@ mpi/index
 python/index
 attribution/index
 source/index
+report/index
 getting-started
 ```
