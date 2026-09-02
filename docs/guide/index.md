@@ -19,10 +19,10 @@ report/index
 compare/index
 explanations/index
 machine/index
-macos/index
 stacks/index
 counter-groups
 multi-pass/index
 static-loop-analysis
+macos/index
 getting-started
 ```
