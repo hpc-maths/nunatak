@@ -1,14 +1,17 @@
 # 10 - Rapport
 
-Référence : [ADR 0006](../development/decisions/0006-html-report-design.md). Prototype de référence sur la branche `prototype/rapport-html` (commit `6c5ec2f`).
+Référence : [ADR 0006](../development/decisions/0006-html-report-design.md).
 
-## Modes et tiroirs
-- L'**assembleur** est un bloc dépliable dans le détail, avec le rappel qu'il n'est jamais envoyé au modèle.
+Ce qui est construit et documenté a rejoint le site : les trois niveaux
+de lecture, le vocabulaire d'incertitude, la page auto-contenue et
+`compare.html` sont dans [Reading a
+report](../guide/report/index.md), qui publie deux artefacts réels. Les
+trois pièges de rendu constatés sur le prototype - la diagonale mémoire
+qui traversait le plafond de calcul, le graphe en largeur fluide qui
+emporte sa typographie, les étiquettes illisibles sans halo - sont dans
+l'ADR 0006, et le premier est aujourd'hui un invariant testé.
 
-## Pièges vérifiés au rendu
+## Reste à construire
 
-Trois défauts constatés sur le prototype, invisibles à la lecture du code :
-
-1. la première version du graphe **n'était pas un roofline** : les diagonales mémoire traversaient le plafond de calcul au lieu de s'arrêter au point de rupture. À couvrir par un test unitaire sur l'enveloppe ;
-2. un graphe en largeur fluide **emporte sa typographie** et devient disproportionné : il doit être borné à sa taille naturelle ;
-3. les étiquettes croisent nécessairement des lignes en plan log-log : un **halo de la couleur du fond** les garde lisibles sans déplacer le trait.
+- **Le tiroir assembleur** dans le détail d'un Hotspot, dépliable, avec
+  le rappel qu'il n'est jamais envoyé au modèle.
