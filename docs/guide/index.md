@@ -20,5 +20,6 @@ compare/index
 explanations/index
 machine/index
 macos/index
+stacks/index
 getting-started
 ```
