@@ -36,51 +36,6 @@ function level with a bare symbol table, symbol level on a stripped
 binary - **before** any compute time is spent, with the remedy when one
 exists (`-g`, or keeping the symbol table).
 
-## Static loop analysis
-
-Every measuring run also reads the machine code of its Hotspots: the
-sampled address distribution names the **innermost hot loop**, a
-disassembler reads the physical function, and the instruction stream
-is counted per iteration - vector versus scalar floating point, the
-width used, the bytes each iteration loads and stores, the gathers.
-Two flavors exist. On Linux the disassembler is GNU objdump over
-x86-64 AT&T (the same tool, and the same measured reason, as the
-frame-pointer probing). On macOS it is Xcode's llvm-objdump over
-Mach-O aarch64 - the Linux refusal of llvm-objdump names an ELF
-mechanism with no Mach-O counterpart - with function extents from
-`nm`'s symbol starts and a NEON classifier (no gathers to count: NEON
-has none). These counts cover the CQA/MAQAO use cases without MAQAO,
-survive everywhere a disassembler can read, and are **facts of the
-code, blind to cache reuse**: nothing derived from them is ever
-`measured` - a static analysis cannot be (invariant I6).
-
-The analysis needs the binary readable where the run executes; a Run
-replayed elsewhere simply carries none. A function whose samples fall
-outside every loop has nothing to analyze, and another ISA than the
-classifier's yields no counts rather than guesses - the fact is
-unavailable and not transmitted. Only a missing GNU objdump is declared
-(`loop-analysis-unavailable`).
-
-On top of the counts, **cycle bounds** come from llvm-mca's scheduling
-model: what the execution ports allow per iteration, and what the
-simulated steady state reaches - dependency chains are the gap between
-the two (a gather loop shows 1.8 cycles on the ports and 103 in steady
-state: the latency chain speaking). Their availability rule is
-mechanical, because LLVM can list the `-mcpu` models it knows: a
-microarchitecture absent from the installed LLVM's list leaves the
-bounds `unavailable` with « install LLVM 19 or newer » as the reason -
-the counts survive - and a present one yields bounds `estimated`,
-naming the model used. The exact listing fed to llvm-mca is persisted
-next to the Run's raw artifacts: the input of an estimate is part of
-explaining it.
-
-The report's Hotspot detail states these facts in a « Hot loop » block:
-the vectorization ratio and width, the bytes each iteration moves, the
-gathers, the L1 intensity and the cycle bounds - every derived quantity
-`estimated` with its reason, absent bounds saying why. The L1 intensity
-is what the code demands; the DRAM intensity beside it is what memory
-actually served - the gap between the two is cache reuse speaking.
-
 ## What the analysis says
 
 The analysis engine is a **pure function of (pivot, Machine)**: nothing
