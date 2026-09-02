@@ -18,6 +18,31 @@ def in_tmp_cwd(tmp_path, monkeypatch):
     return tmp_path
 
 
+@pytest.fixture(autouse=True)
+def without_a_collector(isolated_site_config):
+    """No CPU collector on this host, for the whole module.
+
+    What these tests check is the command line: exit codes, the Run
+    directory, the JSON payloads, the naming cascade. None of it depends
+    on a collector, and launching the platform's real profiler around a
+    process that exits immediately costs twelve seconds a test on macOS -
+    where `xctrace` also hangs often enough to freeze a CI job, leaving
+    `xctrace` and `DTServiceHub` orphaned. The runs below take the
+    documented no-collector path instead, which is a Run with fewer
+    measurements and a named degradation.
+
+    Collection itself is covered where it belongs: by the recorded corpus
+    everywhere, by one real `--record` launch in test_corpus, and by the
+    hardware tier on a machine with real PMUs.
+    """
+    isolated_site_config.write_text(
+        "[tools]\n"
+        'perf = "/nonexistent/perf"\n'
+        'xctrace = "/nonexistent/xctrace"\n'
+        'sample = "/nonexistent/sample"\n'
+    )
+
+
 def run_json(capsys, extra=()):
     code = principal(["run", "--json", *extra, "--", *OK])
     summary = json.loads(capsys.readouterr().out)

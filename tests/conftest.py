@@ -3,9 +3,13 @@ import pytest
 
 @pytest.fixture(autouse=True)
 def isolated_site_config(monkeypatch, tmp_path_factory):
-    """Keep the developer's /etc/nunatak.toml out of every test."""
-    missing = tmp_path_factory.mktemp("site") / "nunatak.toml"
-    monkeypatch.setenv("NUNATAK_SITE_CONFIG", str(missing))
+    """Keep the developer's /etc/nunatak.toml out of every test.
+
+    Returns the path the cascade will read, which does not exist yet: a
+    test that wants site-wide settings writes them there."""
+    site = tmp_path_factory.mktemp("site") / "nunatak.toml"
+    monkeypatch.setenv("NUNATAK_SITE_CONFIG", str(site))
+    return site
 
 
 @pytest.fixture(autouse=True)
