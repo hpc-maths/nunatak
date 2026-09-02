@@ -23,7 +23,6 @@ Le reste se lit par chantier.
 | 06 | [Attribution](06-attribution.md) | symbolisation, DWARF, Python, GPU |
 | 07 | [Machine et plafonds](07-machine-et-plafonds.md) | calibration |
 | 08 | [Analyse déterministe](08-analyse.md) | moteur d'analyse |
-| 09 | [Explication](09-explication.md) | couche LLM |
 | 10 | [Rapport](10-rapport.md) | mini-app TypeScript |
 | 11 | [Interface en ligne de commande](11-cli.md) | CLI, configuration |
 | 12 | [Packaging et distribution](12-packaging.md) | build, wheels, canaux |

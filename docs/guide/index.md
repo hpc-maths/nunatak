@@ -17,5 +17,6 @@ attribution/index
 source/index
 report/index
 compare/index
+explanations/index
 getting-started
 ```
