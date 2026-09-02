@@ -22,7 +22,7 @@ Le produit se distingue sur trois points.
 
 - **Ce n'est pas un traceur.** Il ne produit pas une trace exhaustive de tous les événements d'exécution. Le flux d'Événements existe (lancements GPU, appels MPI) mais il alimente la timeline et l'analyse réseau, pas une reconstruction complète.
 - **Ce n'est pas un débogueur de correction.** Il mesure la performance, pas la justesse.
-- **Ce n'est pas un tableau de bord.** Il n'y a ni serveur, ni base de données, ni historique persistant. Un Run est un répertoire (chapitre 11).
+- **Ce n'est pas un tableau de bord.** Il n'y a ni serveur, ni base de données, ni historique persistant. Un Run est un répertoire ([the Run directory](../reference/run-directory.md)).
 - **Ce n'est pas un remplaçant d'Instruments sur macOS.** Le chemin macOS sert la boucle de développement courte, pas le verdict de référence (chapitre 06).
 
 ## Périmètre de la v1
@@ -47,14 +47,14 @@ Reporté, sans que rien dans l'architecture ne l'empêche :
 - GPU Intel (Level Zero, VTune) ;
 - NCCL et RCCL, Dask, `torch.distributed`, Julia ;
 - Windows ;
-- tableau de bord web persistant avec historique et comparaison de plusieurs Runs. Seul un diff ponctuel entre **deux** Runs entre en v1 (chapitre 11).
+- tableau de bord web persistant avec historique et comparaison de plusieurs Runs. Seul un diff ponctuel entre **deux** Runs entre en v1 ([Comparing two Runs](../guide/compare/index.md)).
 
 ## L'utilisateur visé
 
 Un développeur d'application scientifique qui sait lire un profil mais n'est pas expert en microarchitecture. Il travaille sur son portable et exécute sur un cluster. Il a un temps de calcul limité et payé, ce qui a deux conséquences directes :
 
 - **on ne relance jamais son application d'autorité** (chapitre 05) ;
-- **on lui dit ce qui manquera avant de consommer son allocation, pas après** (chapitre 11).
+- **on lui dit ce qui manquera avant de consommer son allocation, pas après** ([commands](../reference/commands.md)).
 
 ## Priorités de conception
 
