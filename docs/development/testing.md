@@ -56,8 +56,8 @@ their permissions, and MPI at scale.
 **Tier 1, hosted runners, blocking.** Six combinations - `ubuntu-latest`,
 `ubuntu-24.04-arm` and `macos-15`, each with CPython 3.10 and 3.14, the
 ends of upstream's support window. It replays both corpora, builds the
-wheel, builds the report application, and builds this documentation with
-warnings as errors.
+wheel, builds the report application, runs the explanation layer against
+a real pi, and builds this documentation with warnings as errors.
 
 A reserve worth writing down: these are virtual machines, and **PMUs are
 generally not exposed there**. Tier 1 checks that commands launch, that
@@ -102,6 +102,17 @@ snapshot. Every change to what the model sees becomes a diff read in
 review, which is the only executable guarantee against the most dangerous
 class of bug here: source sent under `--no-source`, a Hotspot below the
 floor, assembler leaking. The quality of the advice blocks nothing.
+
+What a snapshot cannot see is whether pi still answers the way the parser
+expects. A tier-1 lane therefore runs the real pi against a **stub
+model**: the tests start an endpoint on loopback that speaks the OpenAI
+protocol, and a placeholder key is enough because the server ignores it.
+No API key, no network, no model download, and what runs live is
+everything except the model - the process, the hardening flags, the event
+stream, the four parallel calls, the provider-error path, and the rule
+that a loopback provider is local and needs no agreement. The lane opts
+in with `-m pi`, and a missing pi fails it rather than skipping: a lane
+that silently skips is a lane that rots.
 
 **The report** is snapshot-tested on HTML produced from a frozen pivot,
 with a few browser paths for what is interactive, and one unit test on

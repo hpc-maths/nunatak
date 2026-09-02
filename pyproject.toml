@@ -41,8 +41,11 @@ testpaths = ["tests"]
 # and opt in with `-m hardware` on a machine with real PMUs. The llvm
 # lane runs the real LLVM tools against the frozen-binaries corpus:
 # nightly on tier 2, and with candidate versions by the version watch.
-addopts = "-m 'not hardware and not llvm'"
+# The pi lane needs Node and pi on PATH, nothing else: it is tier 1 and
+# blocking, in its own job because installing pi is its own step.
+addopts = "-m 'not hardware and not llvm and not pi'"
 markers = [
     "hardware: needs real PMUs and a compiler; run with -m hardware (tier 2)",
     "llvm: needs a real LLVM install; run with -m llvm (nightly and version watch)",
+    "pi: needs a real pi install (Node); run with -m pi (tier 1, own job)",
 ]

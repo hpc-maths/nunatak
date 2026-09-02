@@ -79,6 +79,30 @@ jobs:
           ./examples/stencil 512 3
           ./examples/gemm 512 | grep -q "GFLOP/s analytic"
 
+  # The explanation layer against the real pi, with the model stood in
+  # for: the tests start a loopback endpoint that speaks the OpenAI
+  # protocol, so this lane needs no API key, no network and no model.
+  # What it checks is what a snapshot cannot - that pi still starts,
+  # honours its hardening flags and answers in the event shape the
+  # parser reads. The version is pinned because a blocking lane has to
+  # be reproducible; the recorded corpus is pi 0.84.1, so this lane also
+  # states that 0.84.3 is exercised.
+  explanation:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+      - run: npm install -g @earendil-works/pi-coding-agent@0.84.3
+      - run: pi --version
+      - run: python -m pip install --upgrade pip
+      - run: pip install --group dev -e .
+      - run: python -m pytest -q -m pi
+
   # The documentation builds warning-free on every pull request; the
   # docs workflow deploys it from main.
   docs:
