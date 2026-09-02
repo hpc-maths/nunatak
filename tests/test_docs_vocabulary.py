@@ -12,6 +12,7 @@ import re
 from pathlib import Path
 
 from nunatak import exit_codes
+from nunatak.pivot import model
 from nunatak.pivot.model import Quality, ResolutionLevel
 
 REFERENCE = Path(__file__).resolve().parents[1] / "docs" / "reference"
@@ -45,3 +46,15 @@ def test_every_reserved_exit_code_is_documented():
         if name.isupper() and isinstance(value, int)
     }
     assert documented == reserved
+
+
+def test_every_entity_of_the_diagram_is_one_the_pivot_has():
+    """The glossary draws the domain model. An entity drawn there and
+    absent from the pivot would be a promise the format does not keep."""
+    page = (REFERENCE / "glossary.md").read_text()
+    diagram = page.split("```")[1]
+    # The parenthesised text is commentary, not an entity name.
+    drawn = set(re.findall(r"\b[A-Z][a-z]+\b", re.sub(r"\([^)]*\)", "", diagram)))
+    assert drawn, "the glossary draws no diagram"
+    for entity in drawn:
+        assert hasattr(model, entity), entity

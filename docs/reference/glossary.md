@@ -7,6 +7,27 @@ entry lists under _Avoid_ appear nowhere.
 
 It fixes the vocabulary, never the implementation.
 
+## How the entities relate
+
+```
+Run ─┬─ Machine (shared, cached between Runs)
+     │     └─ Ceiling*         (carries a Quality)
+     ├─ Provenance             (code, dependencies, effective configuration)
+     ├─ Pass*
+     ├─ Hotspot* ─┬─ physical identity   (native only)
+     │            ├─ logical identity
+     │            ├─ resolution level
+     │            └─ internal detail: lines, inlining chain
+     ├─ Locus*     (node > rank > thread, or node > device > stream)
+     ├─ Measurement*  (Hotspot x Locus, carries a Quality, its samples, its Pass)
+     │     └─ raw counter | derived metric (with its lineage)
+     └─ Event*
+```
+
+Recomputed on demand and never persisted: the Diagnostic, the static loop
+analysis, every aggregate across Loci. Persisted apart from the pivot and
+regenerable without profiling again: the Explanation.
+
 ## Language
 
 **Hotspot**:

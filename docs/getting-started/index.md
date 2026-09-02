@@ -10,6 +10,7 @@ are about to see.
 ```{toctree}
 :maxdepth: 1
 
+what-nunatak-is
 installing
 the-example-programs
 tutorial

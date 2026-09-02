@@ -23,6 +23,7 @@ from nunatak.cli import doctor
 ROOT = Path(__file__).resolve().parents[1]
 SECTION = ROOT / "docs" / "getting-started"
 INDEX = (SECTION / "index.md").read_text()
+SCOPE = (SECTION / "what-nunatak-is.md").read_text()
 INSTALL = (SECTION / "installing.md").read_text()
 EXAMPLES = (SECTION / "the-example-programs.md").read_text()
 SOURCES = ROOT / "examples"
@@ -87,3 +88,20 @@ def test_the_section_opens_the_site_and_lists_its_pages():
     for page in ("installing", "the-example-programs"):
         assert page in INDEX, page
     assert "getting-started/the-example-programs" in (SOURCES / "README.md").read_text()
+
+
+def test_the_scope_page_opens_the_section_and_refuses_four_things():
+    entries = [line.strip() for line in INDEX.splitlines()]
+    assert entries.index("what-nunatak-is") < entries.index("installing")
+    for refusal in ("Not a tracer", "Not a correctness debugger", "Not a dashboard"):
+        assert f"**{refusal}.**" in SCOPE, refusal
+    assert "Not a replacement for Instruments" in SCOPE
+
+
+def test_the_scope_page_promises_nothing_unbuilt():
+    """The site documents what runs: the GPU rows of the specification
+    are a design, and a coverage table is exactly where they would leak
+    out as a promise."""
+    assert "designed and not built" in flowed(SCOPE)
+    for collector in ("nsys", "ncu", "rocprofv3"):
+        assert collector not in SCOPE, collector

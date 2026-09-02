@@ -8,6 +8,23 @@ boundary below follows from that.
 calls into the components described here. No decision lives there that a
 second front end would have to reimplement.
 
+## Design priorities
+
+In this order, and where two of them conflict the order settles it:
+
+1. **Honesty** - never present as certain what is not. The site makes it
+   a mechanism rather than an intention: [how to read what nunatak tells
+   you](../guide/reading-what-nunatak-tells-you.md) is that priority
+   written down, and the labels it describes exist because of it.
+2. **Robustness** - degrade rather than refuse.
+3. **Maintainability** - the product has to outlive ten years of change
+   in the tools it orchestrates.
+4. **Simplicity of use** - one command, not a methodology.
+
+Development cost is not a criterion in that arbitration. It is the
+priority order, not the licence or the language, that the boundaries
+below are answerable to.
+
 ## The one boundary that matters
 
 **The measured pivot.** Everything upstream of it writes into it and
