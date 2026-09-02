@@ -16,5 +16,6 @@ python/index
 attribution/index
 source/index
 report/index
+compare/index
 getting-started
 ```
