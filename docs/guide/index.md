@@ -18,5 +18,6 @@ source/index
 report/index
 compare/index
 explanations/index
+machine/index
 getting-started
 ```
