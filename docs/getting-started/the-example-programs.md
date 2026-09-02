@@ -30,7 +30,8 @@ array and one pass over the grid: the same number of floating-point
 operations, half the traffic. Measured on one core of an EPYC 7702,
 4.51 s before and 3.45 s after, a gain of 23.5% - large enough to clear
 the sampling error of a four-second Run, which is what makes it worth
-measuring rather than asserting.
+measuring rather than asserting. [The tutorial](tutorial.md) finds that
+defect from the measurements and applies the fix step by step.
 
 ## `gemm`, to check nunatak against
 
