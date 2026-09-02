@@ -21,5 +21,6 @@ explanations/index
 machine/index
 macos/index
 stacks/index
+counter-groups
 getting-started
 ```
