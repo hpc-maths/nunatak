@@ -100,56 +100,6 @@ are named by the same attribution pass as the leaves, extent rule
 included: a return address in a gap keeps its honest `module+0x...`.
 Without recorded paths both say so - unknown is not zero.
 
-## Machine ceilings
-
-Until a calibration has measured the Machine, the Run carries
-**theoretical FLOP/s ceilings**: the microarchitecture's per-cycle
-capability, crossed with the exposed frequency and scaled to the
-allocation. They are always of quality `estimated`, with the reason -
-and an unknown microarchitecture yields no ceiling at all rather than
-an extrapolation. Memory-bandwidth ceilings only exist measured.
-
-**Measured ceilings** come from an embedded microbenchmark kernel -
-a STREAM-style triad for memory bandwidth, FMA chains in intrinsics for
-the FLOP/s peaks - compiled locally with whatever compiler the machine
-offers and run as a separate process, never inside the Python
-interpreter. A ceiling is the **maximum of its repetitions**, never
-their mean: it is an upper bound. Polluted conditions - dispersed
-repetitions, concurrent load, a kernel built without SIMD, a value far
-above the theoretical peak - downgrade the ceiling to `estimated` with
-the reason, they never discard it.
-
-The **network probe** - nunatak's own MPI binary, built by `doctor`
-against the site's stack and cached per stack - is launched **through
-the allocation's own launcher, before the application** - the only
-moment the network is ours - and its best repetition becomes the
-Machine's `network_bandwidth` and `network_latency` Ceilings. The probe
-counts its nodes and keeps the measurement honest: a single-node world
-measured shared memory, not the interconnect, and both Ceilings say so
-as a motivated downgrade. A run never compiles the probe: without a
-cached binary, `network-ceiling-unavailable` names `doctor` as the way
-forward. `--no-calibrate` skips the probe along with the calibration.
-
-## Calibrating the Machine
-
-The calibration triggers by itself at the **first `run` on an unknown
-Machine**, before the application launches - the only moment the node
-is truly yours. The profile is cached (keyed by hardware plus
-allocation shape) and reused by every later Run on the same Machine.
-
-```sh
-nunatak calibrate            # spend the budget in a dedicated job
-nunatak calibrate --force    # recalibrate despite a cached profile
-nunatak run --no-calibrate -- ./solver   # skip it: ceilings stay theoretical
-```
-
-Ceilings are measured in priority order within a ~60 s budget - memory
-bandwidth and the double-precision peak first, because without them
-there is no roofline. A partial profile stays exploitable; whatever was
-not measured keeps its theoretical, `estimated` value. When nothing can
-be measured (no compiler on the machine), nothing is cached: the next
-run tries again.
-
 ## Multi-pass runs
 
 `nunatak run` executes the application **once**; event groups that do
