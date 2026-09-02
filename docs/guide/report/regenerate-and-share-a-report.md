@@ -52,27 +52,17 @@ Explanations: .nunatak/stencil-20260901-121746/explanations.json
 regenerate the report to include them: nunatak report .nunatak/stencil-20260901-121746
 ```
 
-## Compare two Runs
+## Get the comparison page
 
 ```sh
 nunatak compare <before> <after>
 ```
 
-The terminal carries the verdict and the page carries the table:
-
-```
-compare: stencil-before-20260901-132849 -> stencil-fixed-20260901-132928
-total: 8.53 s -> 6.17 s: -27.7% (significant, sampling error ±1.4%)
-  update (kernels.c) 2.98 s -> 3.27 s: +9.8% (significant, sampling error ±2.7%)
-  reaction (kernels.c) 3.11 s -> 2.86 s: -8.0% (significant, sampling error ±2.5%)
-  laplacian (kernels.c) vanished (was 2.42 s)
-Report: .nunatak/stencil-fixed-20260901-132928/compare.html
-```
-
-That is `examples/stencil` before and after the fix its own report points
-at: the laplacian computed where it is used, so one array and one pass
-over the grid disappear. `update` grew because it absorbed that work, and
-the run still lost 27.7% of its time.
+Each comparison writes `compare.html` into the second Run's directory -
+this Run, against that reference - and it reads with the three levels
+this subject already described. The verb itself, its verdicts and its
+`--json` payload belong to [Comparing two
+Runs](../compare/compare-two-runs.md).
 
 ## When no page is written
 
