@@ -8,19 +8,19 @@ those ranks, and they have two different costs.
 
 | Layer | What it gives | Cost | Scope |
 |---|---|---|---|
-| **Counting** | per-rank aggregates: time, cycles, instructions, and mpiP's MPI time and volumes | constant, a few dozen bytes per rank | **every** rank |
-| **Sampling** | Counters attributed to Hotspots | proportional to the ranks that do it | all of them below the threshold, a subset beyond |
+| Counting | per-rank aggregates: time, cycles, instructions, and mpiP's MPI time and volumes | constant, a few dozen bytes per rank | every rank |
+| Sampling | Counters attributed to Hotspots | proportional to the ranks that do it | all of them below the threshold, a subset beyond |
 
 The counting layer has nothing to attribute and produces no Hotspot.
 It is what reveals load imbalance and the MPI share, and it is why a
 large part of a run's time can carry no Hotspot without anything being
 missing.
 
-The MPI half of the counting layer comes from **mpiP**, preloaded
-into every rank with `LD_PRELOAD` - appended to whatever the site
-already preloads, and the application is never recompiled. Its report
-becomes three per-rank Measurements: `mpi_time` and `app_time`, mpiP's
-wall-clock view of each rank, and `mpi_sent_bytes`.
+The MPI half of the counting layer comes from mpiP, preloaded into every
+rank with `LD_PRELOAD`, appended to whatever the site already preloads.
+The application is never recompiled. mpiP's report becomes three per-rank
+Measurements: `mpi_time` and `app_time`, its wall-clock view of each
+rank, and `mpi_sent_bytes`.
 
 ## Beyond the threshold, sampling narrows to one rank per node
 
@@ -31,8 +31,8 @@ stay attributable everywhere the code runs, at a cost that stops growing
 with the job.
 
 What the other ranks lose is stated rather than filled in. Their
-Hotspot-level Measurements are `unavailable`, **never extrapolated** from
-a sampled neighbour, and the summary names them. Eight ranks on one node,
+Hotspot-level Measurements are `unavailable`, never extrapolated from a
+sampled neighbour, and the summary names them. Eight ranks on one node,
 with the threshold lowered to four, leave one sampled rank and seven
 declarations:
 

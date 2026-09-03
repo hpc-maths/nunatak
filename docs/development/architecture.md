@@ -12,14 +12,14 @@ second front end would have to reimplement.
 
 In this order, and where two of them conflict the order settles it:
 
-1. **Honesty** - never present as certain what is not. The site makes it
-   a mechanism rather than an intention: [how to read what nunatak tells
+1. Honesty: never present as certain what is not. The site makes it a
+   mechanism rather than an intention: [how to read what nunatak tells
    you](../guide/reading-what-nunatak-tells-you.md) is that priority
    written down, and the labels it describes exist because of it.
-2. **Robustness** - degrade rather than refuse.
-3. **Maintainability** - the product has to outlive ten years of change
-   in the tools it orchestrates.
-4. **Simplicity of use** - one command, not a methodology.
+2. Resilience: degrade rather than refuse.
+3. Maintainability: the product has to outlive ten years of change in
+   the tools it orchestrates.
+4. Simplicity of use: one command, not a methodology.
 
 Development cost is not a criterion in that arbitration. It is the
 priority order, not the licence or the language, that the boundaries
@@ -27,9 +27,9 @@ below are answerable to.
 
 ## The one boundary that matters
 
-**The measured pivot.** Everything upstream of it writes into it and
-never reads an analysis back; everything downstream reads it and never
-modifies it.
+That boundary is the measured pivot. Everything upstream of it writes
+into it and never reads an analysis back; everything downstream reads it
+and never modifies it.
 
 ```
    collect  ->  ingestion  ->  attribution  ->  [ PIVOT ]  ->  analysis
@@ -54,11 +54,11 @@ is what keeps a Run analysable years later.
 | `launch` | sees through the launcher: what `mpirun -n 8 ./solver` really runs, which is what names the Run and what `doctor` inspects |
 | `rank` | the shim interposed between launcher and application, so that each rank records itself and writes home before the job's epilogue |
 | `collect` | decides which collectors run, with which parameters, on which ranks, in how many passes; composes the launch environment; retrieves artifacts from every node |
-| `ingestion` | one parser per tool and version. **Address normalisation happens here**: no absolute address crosses this boundary, only `(module identity, offset)` |
+| `ingestion` | one parser per tool and version. Address normalisation happens here: no absolute address crosses this boundary, only `(module identity, offset)` |
 | `attribution` | symbolization, inlining chains, the extent rule, source resolution and its staleness check. The densest component |
 | `probe`, `calibration` | our own binaries, built locally and run as separate processes |
 
-An **adapter** knows one tool: how to detect it and its version, how to
+An adapter knows one tool: how to detect it and its version, how to
 build its command line, and what it produces. It knows nothing about the
 pivot. Four exist today - `perf`, `xctrace`, `sample`, `pyspy` - and
 adding one touches an adapter and a parser, nothing else.
@@ -108,16 +108,14 @@ events inside a hot loop.
 
 Judge any change to the shape against these:
 
-1. **Adding a collector** touches an adapter and a parser.
-2. **A new version of a tool** adds a parser without modifying the old
-   ones.
-3. **Replaying the downstream on recorded output** needs no hardware and
-   no collector, which is why adapters must be substitutable by a source
-   of recordings.
-4. **Regenerating a report or an explanation** needs the Run alone,
-   neither the application nor the machine that produced it.
-5. **Degrading per component**: a missing collector removes
-   measurements, never the run.
+1. Adding a collector touches an adapter and a parser.
+2. A new version of a tool adds a parser without modifying the old ones.
+3. Replaying the downstream on recorded output needs no hardware and no
+   collector, which is why adapters must be substitutable by a source of
+   recordings.
+4. Regenerating a report or an explanation needs the Run alone, neither
+   the application nor the machine that produced it.
+5. A missing collector removes measurements, never the run.
 
 ## What is deliberately left open
 

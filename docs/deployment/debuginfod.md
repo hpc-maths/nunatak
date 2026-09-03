@@ -13,12 +13,12 @@ control.
 
 ## What nunatak guarantees about it
 
-**It never runs while the application does.** Symbolization happens after
+It never runs while the application does. Symbolization happens after
 the application has exited, so a lookup cannot slow a measurement or
 touch its overhead budget. That is a property of the pipeline, not a
 setting.
 
-**It cannot hang an analysis.** The client's own default timeout is 90
+It cannot hang an analysis. The client's own default timeout is 90
 seconds per lookup. nunatak writes 10 instead, so an unreachable server
 costs the names of a few distribution libraries rather than the analysis.
 

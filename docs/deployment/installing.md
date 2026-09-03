@@ -1,6 +1,6 @@
 # Installing nunatak for a team
 
-**There is no released package yet.** nunatak is not on PyPI, not on
+There is no released package yet. nunatak is not on PyPI, not on
 conda-forge and not in spack, and there is no tagged release. What
 follows is how to install the development version for a group of users,
 and it is what the whole of this site documents.
@@ -8,8 +8,8 @@ and it is what the whole of this site documents.
 ## Build a wheel once, install it everywhere
 
 The report is a compiled TypeScript application, built into the wheel by
-the packaging hook. **Node is needed where the wheel is built, and
-nowhere else** - not on the login node your users work from, not on the
+the packaging hook. Node is needed where the wheel is built, and
+nowhere else - not on the login node your users work from, not on the
 compute nodes.
 
 ```sh
@@ -32,8 +32,8 @@ skips the hook, which costs the HTML report: `doctor` then declares
 `report-unavailable`, and `npm install && npm run build` in `report-app/`
 fixes it in place.
 
-**The Python that runs nunatak has nothing to do with the Python of the
-application being profiled.** They are different processes, and the
+The Python that runs nunatak has nothing to do with the Python of the
+application being profiled. They are different processes, and the
 version thresholds that matter for Python profiling are the
 application's. Pick the interpreter for the module or environment you
 publish; nunatak itself needs 3.10 or newer and depends only on

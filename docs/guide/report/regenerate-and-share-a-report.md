@@ -27,7 +27,7 @@ same measurements - and on a machine that only received the directory.
 nunatak report --no-source
 ```
 
-This writes `report-no-source.html` **next to** the full report, never
+This writes `report-no-source.html` next to the full report, never
 in its place, and the source text is stripped from the payload before
 the page exists: the file you send out never contained a line of code. A
 toggle inside the page would be a trap, hiding text that stays embedded.

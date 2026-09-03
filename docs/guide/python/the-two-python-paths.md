@@ -70,6 +70,6 @@ everything it samples, which is what keeps the `ptrace` lawful under
 yama's default scope: a profiler may always read its descendants, while
 attaching to a sibling is refused on a stock kernel.
 
-**The two flows are never fused into one stack.** Two clocks, two
-triggers: merging a temporal sample with an event-triggered one would be
-double counting dressed as measurement.
+The two flows are never fused into one stack. Two clocks, two triggers:
+merging a temporal sample with an event-triggered one would be double
+counting dressed as measurement.

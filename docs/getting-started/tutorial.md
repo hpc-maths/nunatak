@@ -40,8 +40,8 @@ missing  call-stacks        frame pointers kept in 44% of prologues (12 probed a
                             -> recompile with -fno-omit-frame-pointer, libraries included, to walk stacks at sampling cost
 ```
 
-Read the `missing` rows before the `ok` ones. **A named degradation is
-not an error**: the run proceeds and the Run carries fewer measurements.
+Read the `missing` rows before the `ok` ones. A named degradation is not
+an error: the run proceeds and the Run carries fewer measurements.
 This one will have no call stacks, which costs the callers of each
 Hotspot and the inclusive time, and no advice from a language model.
 Two of the rows are about MPI, which this program does not use - an
@@ -104,10 +104,9 @@ summary: 5 Hotspots above the statistical floor hold 100% of the sampled time (7
 
 Two more lines follow: the Run's directory and the path of its report.
 
-**Three kernels, about a third of the time each.** That is the first
-fact, and it is the one the rest of the page acts on: there is no single
-hot spot to attack, so whatever is done has to change how the three work
-together.
+Three kernels, about a third of the time each. That is the first fact,
+and the rest of the page acts on it: there is no single hot spot to
+attack, so whatever you do has to change how the three work together.
 
 The `(line)` beside each name is the resolution level, and it says the
 Hotspot has a source position. The last two rows are what a report looks
@@ -135,7 +134,7 @@ hot loop. The chart carries this Hotspot's point, the machine's compute
 peak, its bandwidth diagonal, and the other Hotspots as pale points for
 scale.
 
-**Then read the downgrade reason carried by the intensity**, because it
+Then read the downgrade reason carried by the intensity, because it
 disqualifies the verdict above it. `laplacian` is placed at 154
 flop/byte, and that value is labelled estimated, `demand fills only:
 hardware-prefetched traffic is not counted`.
@@ -145,9 +144,9 @@ five doubles and writes one for four additions and a multiply. What happened is 
 rather than hidden - on this microarchitecture the DRAM counters see
 demand fills only, a stencil is perfectly prefetched, so most of the
 traffic is invisible, the intensity comes out enormous and the
-classification lands on `latency-bound`. **The classification is
-correct arithmetic on incomplete inputs**, and the label that says so is
-attached to the number that carries the incompleteness.
+classification lands on `latency-bound`. The classification is correct
+arithmetic on incomplete inputs, and the label that says so is attached
+to the number that carries the incompleteness.
 
 This is the lesson worth more than the verdict: read what a number is
 worth before acting on it. A profiler that had quietly reported
@@ -182,10 +181,10 @@ across one expression, which is what a memory-bound kernel looks like
 from the sampler's side: no single instruction is guilty.
 
 The loop facts sit beside it, read from the machine code rather than
-from the source: **10 instructions, 5 flops and 48 bytes per
-iteration** - 40 loaded, 8 stored - which is an L1 intensity of 0.104
-flop/byte, and **no vector floating-point instruction at all**. Four
-scalar FP operations where the compiler could have used SIMD.
+from the source: 10 instructions, 5 flops and 48 bytes per iteration, 40
+loaded and 8 stored, an L1 intensity of 0.104 flop/byte. Not one vector
+floating-point instruction. Four scalar FP operations where the compiler
+could have used SIMD.
 
 Now open `update` and read its first line: it reads `lap[j * n + i]`,
 the array `laplacian` has just written. The two functions sweep the same
@@ -194,9 +193,9 @@ only to carry values from the first to the second. That is 128 MiB
 written and read back per time step, sixty times over, for values that
 were in a register a moment earlier.
 
-**Nothing in the classification says this.** The time split, the source
-and the traffic say it, which is why step 4 stopped at what the numbers
-are worth.
+Nothing in the classification says this. The time split, the source and
+the traffic say it, which is why step 4 stopped at what the numbers are
+worth.
 
 ## 6. Change five lines and run again
 
@@ -248,10 +247,9 @@ no longer exists, `update` grew because it absorbed that work, and the
 sum of the two is a quarter of the run.
 
 That pair was measured in a session where the program took 8.53 s rather
-than the 7.15 s above. **Two Runs are compared to each other, never to a
-number from another session** - which is why both sides of a comparison
-are measured on one machine, with one command line, close together in
-time.
+than the 7.15 s above. Two Runs are compared to each other, never to a
+number from another session, which is why both sides of a comparison are
+measured on one machine, with one command line, close together in time.
 
 The verdict is arithmetic, and it cuts the other way too. Profile the
 same unchanged binary twice and the diff says so of every row:

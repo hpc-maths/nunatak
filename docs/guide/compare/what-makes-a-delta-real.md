@@ -8,8 +8,8 @@ different in the first place.
 
 ## The unit is the function you edit
 
-A row is a **logical function, inlining included** - the pair (function,
-source file) - never the physical symbol. Optimise a function and the
+A row is a logical function, inlining included: the pair (function,
+source file), never the physical symbol. Optimise a function and the
 next build inlines it: the symbol leaves the binary and its time melts
 into its caller, so a symbol-grained diff announces the disappearance of
 the code you just improved and a regression in whatever called it.

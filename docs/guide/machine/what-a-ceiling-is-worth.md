@@ -24,7 +24,7 @@ rather than the whole node's.
 
 ## An upper bound, not an average
 
-A ceiling is the **maximum of its repetitions**, never their mean: 5
+A ceiling is the maximum of its repetitions, never their mean: 5
 repetitions of 300 ms per kernel, and the best one wins. An average would
 answer a different question - what the machine typically does - and a
 roofline compared against typical performance would place a perfectly

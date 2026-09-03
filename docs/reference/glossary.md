@@ -1,7 +1,7 @@
 # Glossary
 
 The domain model of nunatak, and the words this project uses. It is
-**binding**: these terms appear as they stand in the code, in the
+binding: these terms appear as they stand in the code, in the
 interface, in the report and in this documentation, and the terms each
 entry lists under _Avoid_ appear nowhere.
 
@@ -35,9 +35,9 @@ The atomic unit of analysis - the thing placed on the roofline, diagnosed,
 and given to the LLM. A function on CPU (DWARF symbol), a kernel grouped by
 name on GPU, a frame on Python. Discoverable without instrumentation by
 every collector. It carries two identities of different scopes: a
-**physical** identity `(module build-id or LC_UUID, offset)`, which
+physical identity `(module build-id or LC_UUID, offset)`, which
 aggregates samples inside a Run and only exists for native code; and a
-**logical** identity `(module, demangled name, source file)`, which is
+logical identity `(module, demangled name, source file)`, which is
 displayed, feeds the LLM, allows comparison between Runs, and transposes to
 GPU and Python alike. Lines and the inlining chain are internal details of
 the Hotspot, never a unit of analysis.
@@ -56,7 +56,7 @@ across loci (sum, mean, min/max, imbalance) is computed on demand, never
 stored. A Measurement also carries what is needed to judge its own
 solidity: its sample count and the relative error that follows from it, its
 coverage ratio when counters were multiplexed, and its Pass of origin.
-A Measurement without a Hotspot is **Locus-level**: a whole-Locus aggregate
+A Measurement without a Hotspot is Locus-level: a whole-Locus aggregate
 from the counting layer - one rank's time, cycles, instructions, MPI
 volumes - which has nothing to attribute. It is still one value at one
 Locus, never an aggregation across Loci.
@@ -76,11 +76,11 @@ counters and its formula (its lineage).
 _Avoid_: metric alone (always say raw or derived), KPI, indicator
 
 **Arithmetic intensity**:
-The horizontal axis of the roofline, in FLOP per byte. There are **two,
-never interchangeable**, and confusing them is a fault. The **DRAM
-intensity** relates FLOPs to the traffic actually exchanged with main
+The horizontal axis of the roofline, in FLOP per byte. There are two,
+never interchangeable, and confusing them is a fault. The DRAM
+intensity relates FLOPs to the traffic actually exchanged with main
 memory: it is measured from raw counters, it depends on cache reuse, and it
-is the one of the classic roofline. The **L1 intensity** relates FLOPs to
+is the one of the classic roofline. The L1 intensity relates FLOPs to
 the bytes requested by the instruction stream: it is derived from static
 loop analysis, it says nothing about cache reuse, and it exists even where
 no counter is available - which is what makes a roofline possible on Apple
@@ -91,7 +91,7 @@ _Avoid_: arithmetic intensity unqualified (always DRAM or L1), AI, operational i
 The examination of the disassembled binary of a hot inner loop, without
 executing it: vectorization rate and width, memory access pattern, cycle
 bounds on the execution-port side and on the dependency-chain side, L1
-arithmetic intensity. It produces **facts**, not Measurements: they have no
+arithmetic intensity. It produces facts, not Measurements: they have no
 Locus, no sample count, and come from no collector. It carries a Quality,
 which depends on how fine the scheduling model of the target
 microarchitecture is.
@@ -116,14 +116,14 @@ coverage threshold, Hotspot below the statistical floor, inconsistent
 passes in multi-pass mode, per-line distribution from a line table blurred
 by optimization, static-loop-analysis bounds on a microarchitecture with an
 approximate scheduling model. Any new approximation must attach to it
-rather than invent its own vocabulary. It does **not** cover the two
+rather than invent its own vocabulary. It does not cover the two
 neighbouring cases: attribution failure, which belongs to the resolution
 level, and invalidity, which is refused instead of downgraded.
 _Avoid_: degradation (reserved for the functional degradation when a collector is missing), warning
 
 **Resolution level**:
 How far the attribution of a Hotspot could go: "line", "function", "symbol"
-or "unresolved". An attribute of the Hotspot, **distinct from Quality**:
+or "unresolved". An attribute of the Hotspot, distinct from Quality:
 when attribution fails, the Measurement stays exact - that time really was
 spent at that address - and it is the identity that degrades, not the
 value. It conditions what the user sees and what goes to the LLM: without
@@ -159,8 +159,8 @@ code (commit, clean or dirty tree, patch of uncommitted changes), the
 runtime dependencies (libraries actually loaded, with their build-id), and
 the build-time ones (environment modules, compilation options read from the
 binary). Lives in the Run manifest, never in the measured pivot. It is
-best-effort and never blocks a Run, and it is **descriptive, not
-certifying**: it records what it observes and does not guarantee that the
+best-effort and never blocks a Run, and it is descriptive, not
+certifying: it records what it observes and does not guarantee that the
 binary derives from the commit.
 _Avoid_: metadata, environment, reproducibility (it does not guarantee it), context
 

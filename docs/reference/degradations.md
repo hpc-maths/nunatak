@@ -4,7 +4,7 @@ A degradation is a capability nunatak could not use. It is named,
 announced before the run rather than after, and it never stops the run:
 the Run simply carries fewer measurements.
 
-**A degradation is not an error.** Under `--strict` it becomes one, and
+A degradation is not an error. Under `--strict` it becomes one, and
 the run exits 121; that is what the flag is for.
 
 Every entry below says the same four things: what is lost, what is still

@@ -66,7 +66,7 @@ run inside the ranks - every rank counts, and sampling narrows to rank 0
 plus the first rank of each node beyond 64 ranks.
 [Profile an MPI job](../mpi/profile-an-mpi-job.md) moves that threshold.
 
-**Ask for the shape you profile.** Hardware plus allocation shape is what
+Ask for the shape you profile. Hardware plus allocation shape is what
 identifies a Machine, so the ceilings measured by a two-node job are the
 ones a two-node job reuses, and a single-node calibration is not the
 envelope of the job above.

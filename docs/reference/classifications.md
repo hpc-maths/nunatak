@@ -7,7 +7,7 @@ engine and printed beside its name:
   reaction (line) - 38% of the sampled time - latency-bound
 ```
 
-**A classification states a regime, never a cause.** Every entry below
+A classification states a regime, never a cause. Every entry below
 says the same four things: what the verdict means, the evidence it stands
 on, what it does not say, and where to look next. Each name is an anchor,
 so `classifications.html#memory-bound` is where a verdict leads.
@@ -17,7 +17,7 @@ that holds wins.
 
 ## imbalance
 
-The most-loaded Locus of this Hotspot carries at least **2.0x** the time
+The most-loaded Locus of this Hotspot carries at least 2.0x the time
 of the least-loaded one. It is stated before any roofline placement: a
 lopsided Hotspot has to be rebalanced before its position on the roofline
 means anything, because that position is an average over Loci that did
@@ -35,7 +35,7 @@ line, which say whether the time is lopsided everywhere or only here.
 
 ## latency-bound
 
-The achieved rate is below **half** of what the roofline attains at this
+The achieved rate is below half of what the roofline attains at this
 Hotspot's arithmetic intensity. Neither the compute peak nor the
 bandwidth diagonal explains where the time went.
 

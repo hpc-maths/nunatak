@@ -31,7 +31,7 @@ A file named by DWARF is searched in this order, and the first hit wins:
 | the basename | one file of that name under the git top level, else the working directory |
 
 The search skips hidden directories and the Runs themselves. When it
-finds several files of the right name, **nunatak does not choose**: the
+finds several files of the right name, nunatak does not choose: the
 Hotspot keeps its measurements and loses its text, and the reason names
 how many candidates there were and where it looked.
 
@@ -49,9 +49,9 @@ build, and its line numbers no longer point at the code that ran.
 
 Absent fingerprint, no verdict. gcc emits none, so refusing on a guess
 would punish every gcc build for a mismatch that may not exist. The
-guarantee is therefore exact and narrow: **a mismatch is caught when the
-compiler made it catchable**, and the report says which extracts carry
-that assurance.
+guarantee is therefore exact and narrow. A mismatch is caught when the
+compiler made it catchable, and the report says which extracts carry that
+assurance.
 
 The checksums are read by the `llvm-dwarfdump` that sits beside the
 located `llvm-symbolizer`. On the fallback path there is no dwarfdump,

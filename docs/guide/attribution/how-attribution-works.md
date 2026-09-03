@@ -5,7 +5,7 @@ name it chooses decides what the whole report is about.
 
 ## The unit is the physical function
 
-An address is attributed to its **physical function**: the thing with a
+An address is attributed to its physical function: the thing with a
 symbol, an extent and an address, which you can recompile, isolate and
 compare. Lines and the full inlining chain are recorded too, as detail
 inside the Hotspot rather than as units of their own - a line moves when

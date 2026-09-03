@@ -95,9 +95,9 @@ def test_the_section_opens_the_site_and_lists_its_pages():
 def test_the_scope_page_opens_the_section_and_refuses_four_things():
     entries = [line.strip() for line in INDEX.splitlines()]
     assert entries.index("what-nunatak-is") < entries.index("installing")
-    for refusal in ("Not a tracer", "Not a correctness debugger", "Not a dashboard"):
-        assert f"**{refusal}.**" in SCOPE, refusal
-    assert "Not a replacement for Instruments" in SCOPE
+    for refusal in ("not a tracer", "not a correctness debugger", "not a dashboard"):
+        assert refusal in flowed(SCOPE), refusal
+    assert "does not replace" in flowed(SCOPE) and "Instruments" in SCOPE
 
 
 def test_the_scope_page_promises_nothing_unbuilt():
@@ -124,7 +124,7 @@ def test_the_two_compared_rates_are_within_the_claimed_margin():
     counters, analytic = (
         float(value)
         for value in re.search(
-            r"\*\*([\d.]+) GFLOP/s from the counters against ([\d.]+) GFLOP/s",
+            r"([\d.]+) GFLOP/s from the counters against ([\d.]+) GFLOP/s",
             page,
         ).groups()
     )

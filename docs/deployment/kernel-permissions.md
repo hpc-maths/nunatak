@@ -5,7 +5,7 @@ machine your users do not administer, that decision is yours.
 
 ## What nunatak needs
 
-`kernel.perf_event_paranoid` at **2 or below**. That is the whole
+`kernel.perf_event_paranoid` at 2 or below. That is the whole
 requirement.
 
 | Level | What nunatak can do |
@@ -45,7 +45,7 @@ rather than deduced it.
 
 ## What nunatak does not need
 
-**`kernel.kptr_restrict` can stay as it is.** It hides kernel symbol
+`kernel.kptr_restrict` can stay as it is. It hides kernel symbol
 addresses, and nunatak leaves kernel samples unresolved by design: an
 address it cannot attribute to a physical function is displayed as
 `module+0x...` rather than named after a neighbour. Relaxing it would

@@ -1,6 +1,6 @@
 # Install nunatak
 
-**There is no released package yet**: nothing on PyPI, nothing on
+There is no released package yet: nothing on PyPI, nothing on
 conda-forge, no spack entry and no tag. Install from the repository.
 
 ## Build the wheel, then install it
@@ -24,11 +24,11 @@ which costs the HTML report: `doctor` declares `report-unavailable`, and
 `npm install && npm run build` in `report-app/` fixes it without
 reinstalling anything.
 
-**The interpreter you install into has nothing to do with the one you
-profile.** They are separate processes, and the Python version that
-decides what a profiled Python application shows is the application's.
-Installing nunatak for a whole team is
-[Deployment's own page](../deployment/installing.md).
+The interpreter you install into has nothing to do with the one you
+profile. They are separate processes, and the Python version that decides
+what a profiled Python application shows is the application's. Installing
+nunatak for a whole team is [Deployment's own
+page](../deployment/installing.md).
 
 ## Check what this machine can measure
 

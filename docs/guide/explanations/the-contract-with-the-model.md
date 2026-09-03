@@ -107,7 +107,7 @@ review.
 | a quantity the analysis declared unavailable | an absence is the report's to state, not the model's to narrate around |
 | the source of a Hotspot the Run does not carry | deprived of source, the model produces generality |
 
-**No source, no explanation.** The Hotspot is withheld by name before
+No source, no explanation. The Hotspot is withheld by name before
 anything is sent, and the report shows its Diagnostic entire with the
 reason in place of the advice: `--no-source` was active, the file was not
 found, the extract was refused as stale, the Hotspot is unresolved. Vague
