@@ -194,8 +194,8 @@ _Avoid_: benchmark (the benchmark is the tool, the Calibration is the operation)
 The deterministic, reproducible verdict produced by the analysis engine for
 a Hotspot: its roofline placement (arithmetic intensity, achieved
 performance vs ceilings) and its classification (memory-bound,
-compute-bound, latency-bound, imbalance). Recomputed on demand from the measured pivot
-+ the Machine, never persisted. It constitutes the "facts" given to the
+compute-bound, latency-bound, imbalance). Recomputed on demand from the
+measured pivot + the Machine, never persisted. It constitutes the "facts" given to the
 LLM.
 _Avoid_: verdict, analysis, result, bottleneck (the bottleneck is a conclusion of the Diagnostic)
 

@@ -74,8 +74,9 @@ grid 4096 x 4096, 60 steps, 7.15 s (140.8 Mcell/s), checksum ...
 `stencil-before-<date>-<time>` reads as itself three weeks later, a bare
 timestamp does not. The program's own stdout is untouched and its exit
 code is propagated, so `nunatak run -- ./stencil && ./next_step` behaves
-like the bare command. On a Machine nunatak has not measured before, the run first
-spends up to 60 seconds on the ceilings its roofline needs and says so;
+like the bare command. On a Machine nunatak has not measured before, the
+run first spends up to 60 seconds on the ceilings its roofline needs and
+says so;
 [Calibrate the Machine](../guide/machine/calibrate-the-machine.md) is
 that step, and it happens once per machine.
 
@@ -140,11 +141,11 @@ flop/byte, and that value is labelled estimated, `demand fills only:
 hardware-prefetched traffic is not counted`.
 
 154 flop/byte for a 5-point stencil is not credible: the kernel reads
-five doubles and writes one for four additions and a multiply. What happened is stated
-rather than hidden - on this microarchitecture the DRAM counters see
-demand fills only, a stencil is perfectly prefetched, so most of the
-traffic is invisible, the intensity comes out enormous and the
-classification lands on `latency-bound`. The classification is correct
+five doubles and writes one for four additions and a multiply. What
+happened is stated rather than hidden. On this microarchitecture the DRAM
+counters see demand fills only, and a stencil is perfectly prefetched, so
+most of the traffic is invisible: the intensity comes out enormous and
+the classification lands on `latency-bound`. The classification is correct
 arithmetic on incomplete inputs, and the label that says so is attached
 to the number that carries the incompleteness.
 
