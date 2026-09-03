@@ -153,3 +153,14 @@ def test_both_tutorials_close_the_section():
     assert entries.index("tutorial") < entries.index("check-the-counters")
     assert entries.index("the-example-programs") < entries.index("tutorial")
     assert "check-the-counters" in (SECTION / "the-example-programs.md").read_text()
+
+
+def test_the_counter_page_shows_the_html_output_and_its_roofline():
+    """The check ends on a chart, so the page has to reach the page that
+    draws it - and the artifact it links has to exist."""
+    assert "_static/example-report.html" in COUNTERS
+    assert (ROOT / "docs" / "_static" / "example-report.html").is_file()
+    page = flowed(COUNTERS)
+    assert "roofline" in page
+    for element in ("ridge point", "double-precision peak", "pale points"):
+        assert element in page, element

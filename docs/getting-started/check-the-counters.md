@@ -69,7 +69,40 @@ Repeat it on each machine you profile on. It costs one run, and it is the
 only statement about the counters that does not come from the tool
 itself.
 
-## 4. What a disagreement means
+## 4. Open the report and look at the roofline
+
+```sh
+xdg-open .nunatak/gemm-*/report.html
+```
+
+The page is one file, with no server behind it, and its third level is
+one Hotspot at a time. Click `gemm` in the inventory: its detail carries
+the chart the rest of this page has been arguing about.
+
+The roofline holds four things. This Hotspot's point, at its measured
+rate and its measured arithmetic intensity. The machine's
+double-precision peak, as a horizontal roof - the 1.17 TFLOP/s the
+summary named. The memory bandwidth, as a diagonal that stops at the
+ridge point rather than crossing the roof. And the other placeable
+Hotspots, as pale points, for scale.
+
+Read the vertical distance between the point and the roof above it. That
+distance is the statement: what this kernel achieved, against what this
+machine allows at that intensity. The horizontal position is the DRAM
+intensity, which on this microarchitecture is `estimated` for the reason
+the summary printed - the counters see demand fills only - so the point
+is placed left or right of where it belongs, while its height is the rate
+you just checked against `2n^3`.
+
+You can see the page before running anything. The report of a real Run is
+published with this documentation - <a
+href="../_static/example-report.html">open it</a> - and although it
+profiles `stencil` rather than `gemm`, on the same machine, the chart and
+the three levels are the same.
+[Reading a report](../guide/report/index.md) is the subject that owns
+them.
+
+## 5. What a disagreement means
 
 The program's flop count is exact, so a disagreement is a statement about
 the counters rather than about the profile. Two shapes, and the
@@ -86,7 +119,7 @@ provenance, so the Run directory is itself the report: the disagreement,
 the microarchitecture it happened on, and the events that produced it
 travel together.
 
-## 5. Two figures not to read here
+## 6. Two figures not to read here
 
 `0.4% of the envelope` compares one core against the whole node. The
 1.17 TFLOP/s is this machine's double-precision peak across its 32
@@ -104,7 +137,7 @@ reuse, which is why [static loop
 analysis](../guide/static-loop-analysis.md) keeps them apart instead of
 averaging them into one number.
 
-## 6. What the code says about the same kernel
+## 7. What the code says about the same kernel
 
 The loop analysis reads `gemm`'s inner loop from the machine code and
 counts, per iteration: 164 instructions, 42 FLOPs, 67% of the
