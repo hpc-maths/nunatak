@@ -24,13 +24,17 @@ EXPLANATION = (SUBJECT / "the-three-reading-levels.md").read_text()
 PUBLISHED = {
     "example-report.html": "nunatak-report",
     "example-compare.html": "nunatak-compare",
+    "example-gemm-report.html": "nunatak-report",
 }
 
 
-def test_both_artifacts_are_published_and_linked():
+def test_every_artifact_is_published_and_linked():
+    pages = "".join(
+        path.read_text() for path in (ROOT / "docs").rglob("*.md")
+    )
     for name in PUBLISHED:
         assert (STATIC / name).is_file(), f"{name} is documented and absent"
-        assert f"_static/{name}" in INDEX, f"{name} is published and unlinked"
+        assert f"_static/{name}" in pages, f"{name} is published and unlinked"
 
 
 def test_a_published_page_reaches_for_nothing():

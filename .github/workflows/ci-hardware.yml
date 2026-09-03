@@ -36,6 +36,28 @@ jobs:
       - run: .venv/bin/pip install --quiet --group dev -e .
       - run: npm ci && npm run build
         working-directory: report-app
+      # The artifacts the documentation publishes need a real PMU, so
+      # this station is the only place they can be produced. The job
+      # uploads them and a human commits them: nothing here pushes to
+      # the repository. Regenerating one is a workflow_dispatch away.
+      - name: the reports the documentation publishes
+        run: |
+          make -C examples
+          ./examples/gemm 2>&1 | tee gemm-bare.log
+          .venv/bin/nunatak run --name gemm -- ./examples/gemm 2>&1 | tee gemm-run.log
+          # .nunatak is a dot-directory, and upload-artifact skips those
+          # by default: the report is copied out rather than globbed.
+          cp .nunatak/gemm-*/report.html gemm-report.html
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: documentation-reports
+          path: |
+            gemm-report.html
+            gemm-bare.log
+            gemm-run.log
+          if-no-files-found: error
+
       - name: hermetic suite on real Linux
         run: .venv/bin/python -m pytest -q
       - name: what only hardware can verify
