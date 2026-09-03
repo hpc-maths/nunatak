@@ -37,12 +37,6 @@ information.
 It is deliberately not under a node-local `TMPDIR`: a Calibration has to
 outlive the job that measured it.
 
-The pivot holds measurements and nothing else. No classification, no
-roofline placement, no advice: everything derived is recomputed on
-demand, which is what keeps a Run analysable years after it was written,
-by a later version of nunatak, on a machine where the binary no longer
-exists.
-
 ## manifest.json
 
 Plain JSON, indented, readable without nunatak. That readability is the
@@ -67,6 +61,12 @@ quota and memory limit. A job given 8 cores of a 128-core node is a
 different Machine, and its Ceilings belong to those 8 cores.
 
 ## The pivot
+
+The pivot holds measurements and nothing else. No classification, no
+roofline placement, no advice: everything derived is recomputed on
+demand, which is what keeps a Run analysable years after it was written,
+by a later version of nunatak, on a machine where the binary no longer
+exists.
 
 Ten Parquet tables. `hotspots` and `loci` carry integer ids that the
 other tables reference; nothing else is joined by name.

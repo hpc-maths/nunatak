@@ -16,9 +16,10 @@ What comes out is a share, and a threshold decides.
 The sample is not random: functions under 64 bytes are runtime
 scaffolding whose prologues say nothing about how the application was
 compiled, and samples land in large functions, so the 8 largest
-functions of each module are the ones probed. Each module gets one vote, which is what
-keeps a large libc from outvoting the one binary being profiled, and the
-worst offender is named so the answer points at something actionable.
+functions of each module are the ones probed. Each module gets one vote,
+which is what keeps a large libc from outvoting the one binary being
+profiled, and the worst offender is named so the answer points at
+something actionable.
 
 A yes/no would have to invent the threshold anyway, and it would hide
 which module dragged the answer down.

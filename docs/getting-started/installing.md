@@ -72,6 +72,7 @@ mpiP, py-spy for Python below 3.12, Node and pi for the explanations.
 ## On macOS
 
 Sampling is temporal there and no per-Hotspot counter exists, so the
-roofline stays out of reach while the rest of the loop works. [macOS](../guide/macos/index.md) says what the
-platform can and cannot say, and `powermetrics` needs
+roofline stays out of reach while the rest of the loop works.
+[macOS](../guide/macos/index.md) says what the platform can and cannot
+say, and `powermetrics` needs
 [a sudoers rule](../deployment/powermetrics.md) to report power.
