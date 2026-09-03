@@ -9,6 +9,7 @@ floor. These tests keep the four in step.
 from __future__ import annotations
 
 import inspect
+import json
 import re
 import sys
 from pathlib import Path
@@ -18,6 +19,7 @@ if sys.version_info >= (3, 11):
 else:
     import tomli as tomllib
 
+from nunatak import summary
 from nunatak.cli import doctor
 from nunatak.collect.events import FLOP_PERIOD
 
@@ -26,6 +28,16 @@ SECTION = ROOT / "docs" / "getting-started"
 INDEX = (SECTION / "index.md").read_text()
 SCOPE = (SECTION / "what-nunatak-is.md").read_text()
 COUNTERS = (SECTION / "check-the-counters.md").read_text()
+
+
+def _gemm_payload():
+    """The payload of the report this page publishes and quotes."""
+    page = (ROOT / "docs" / "_static" / "example-gemm-report.html").read_text()
+    embedded = re.search(
+        r'<script[^>]*type="application/json"[^>]*>(.*?)</script>', page, re.S
+    )
+    assert embedded is not None, "the published gemm report carries no payload"
+    return json.loads(embedded.group(1))
 INSTALL = (SECTION / "installing.md").read_text()
 EXAMPLES = (SECTION / "the-example-programs.md").read_text()
 SOURCES = ROOT / "examples"
@@ -158,9 +170,65 @@ def test_both_tutorials_close_the_section():
 def test_the_counter_page_shows_the_html_output_and_its_roofline():
     """The check ends on a chart, so the page has to reach the page that
     draws it - and the artifact it links has to exist."""
-    assert "_static/example-report.html" in COUNTERS
-    assert (ROOT / "docs" / "_static" / "example-report.html").is_file()
+    assert "_static/example-gemm-report.html" in COUNTERS
+    assert (ROOT / "docs" / "_static" / "example-gemm-report.html").is_file()
     page = flowed(COUNTERS)
     assert "roofline" in page
     for element in ("ridge point", "double-precision peak", "pale points"):
         assert element in page, element
+
+
+def test_the_quoted_finding_is_the_published_runs_own():
+    """The page quotes the report it publishes, so the two cannot drift:
+    every number below is rebuilt through the summary renderer."""
+    payload = _gemm_payload()
+    coverage = payload["coverage"]
+    assert (
+        f"{coverage['samples']} samples of {coverage['time_base']}"
+        f" over {coverage['seconds']:.3g} s" in COUNTERS
+    )
+    hotspot = next(h for h in payload["hotspots"] if h["name"] == "gemm")
+    share = summary._percent(hotspot["share"]["value"])
+    assert (
+        f"  gemm ({hotspot['resolution_level']}) - {share} of the sampled time"
+        f" - {hotspot['classification']}" in COUNTERS
+    )
+    assert (
+        f"    achieved {summary._flops(hotspot['achieved']['value'])}"
+        f" of {summary._flops(hotspot['attainable']['value'])} attainable:"
+        f" {summary._percent(hotspot['envelope_fraction']['value'])}"
+        " of the envelope" in COUNTERS
+    )
+    intensity = hotspot["dram_intensity"]
+    assert f"    DRAM intensity {intensity['value']:.3g} flop/byte" in COUNTERS
+    assert f"downgraded to estimated: {intensity['reason']}" in COUNTERS
+
+
+def test_the_quoted_loop_facts_are_the_published_runs_own():
+    loop = next(
+        h for h in _gemm_payload()["hotspots"] if h["name"] == "gemm"
+    )["loop"]
+    page = flowed(COUNTERS)
+    assert f"{loop['instructions']} instructions" in page
+    assert f"{loop['flops_per_iteration']:.0f} FLOPs" in page
+    assert f"{loop['vector_width_bits']} bits" in page
+    assert f"{loop['loaded_bytes']} bytes loaded and {loop['stored_bytes']} stored" in page
+    assert f"{loop['l1_intensity']['value']:.3g} flop/byte" in page
+    assert f"{loop['cycle_bounds']['ports']} port-bound" in page
+    assert f"{loop['cycle_bounds']['steady_state']} in steady" in page
+
+
+def test_the_measured_ceiling_is_the_one_the_page_names():
+    peak = next(
+        c
+        for c in _gemm_payload()["machine"]["ceilings"]
+        if c["name"] == "flops_dp"
+    )
+    assert peak["quality"] == "measured"
+    assert f"{summary._flops(peak['value'])}" in COUNTERS
+
+
+def test_the_page_publishes_the_run_it_quotes():
+    payload = _gemm_payload()
+    assert payload["run"]["command"] == ["./examples/gemm"]
+    assert "_static/example-gemm-report.html" in COUNTERS
