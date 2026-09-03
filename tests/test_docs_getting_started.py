@@ -19,11 +19,13 @@ else:
     import tomli as tomllib
 
 from nunatak.cli import doctor
+from nunatak.collect.events import FLOP_PERIOD
 
 ROOT = Path(__file__).resolve().parents[1]
 SECTION = ROOT / "docs" / "getting-started"
 INDEX = (SECTION / "index.md").read_text()
 SCOPE = (SECTION / "what-nunatak-is.md").read_text()
+COUNTERS = (SECTION / "check-the-counters.md").read_text()
 INSTALL = (SECTION / "installing.md").read_text()
 EXAMPLES = (SECTION / "the-example-programs.md").read_text()
 SOURCES = ROOT / "examples"
@@ -105,3 +107,49 @@ def test_the_scope_page_promises_nothing_unbuilt():
     assert "designed and not built" in flowed(SCOPE)
     for collector in ("nsys", "ncu", "rocprofv3"):
         assert collector not in SCOPE, collector
+
+
+def test_the_analytic_flop_count_is_the_one_gemm_computes():
+    """The control's whole value is that this number is not measured."""
+    order = _default("gemm.c", "n")
+    assert f"`2 x {order}^3` is {2 * order**3}" in flowed(COUNTERS)
+    assert str(2 * order**3) in COUNTERS
+
+
+def test_the_two_compared_rates_are_within_the_claimed_margin():
+    """The page claims the counters and the program's clock agree to
+    better than 2%. The claim is arithmetic on two quoted numbers, so it
+    is checked rather than proofread."""
+    page = flowed(COUNTERS)
+    counters, analytic = (
+        float(value)
+        for value in re.search(
+            r"\*\*([\d.]+) GFLOP/s from the counters against ([\d.]+) GFLOP/s",
+            page,
+        ).groups()
+    )
+    assert abs(counters - analytic) / analytic < 0.02
+    assert "under 2% apart" in page
+
+
+def test_the_quoted_sampling_period_is_the_coded_one():
+    assert str(FLOP_PERIOD) in COUNTERS
+
+
+def test_the_quoted_loop_facts_are_the_published_ones():
+    """The same iteration is described on two pages; the loop analysis
+    page owns the table."""
+    published = flowed(
+        (ROOT / "docs" / "guide" / "static-loop-analysis.md").read_text()
+    )
+    page = flowed(COUNTERS)
+    for fact in ("164", "42", "656", "248", "38.8", "39.19"):
+        assert fact in published, fact
+        assert fact in page, fact
+
+
+def test_both_tutorials_close_the_section():
+    entries = [line.strip() for line in INDEX.splitlines()]
+    assert entries.index("tutorial") < entries.index("check-the-counters")
+    assert entries.index("the-example-programs") < entries.index("tutorial")
+    assert "check-the-counters" in (SECTION / "the-example-programs.md").read_text()
