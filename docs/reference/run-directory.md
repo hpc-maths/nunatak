@@ -68,8 +68,9 @@ demand, which is what keeps a Run analysable years after it was written,
 by a later version of nunatak, on a machine where the binary no longer
 exists.
 
-Ten Parquet tables. `hotspots` and `loci` carry integer ids that the
-other tables reference; nothing else is joined by name.
+Ten [Parquet](https://parquet.apache.org/) tables. `hotspots` and `loci`
+carry integer ids that the other tables reference; nothing else is joined
+by name.
 
 No absolute address is ever persisted. Every address is normalised at
 ingestion into `(module identity, offset)`, which is what makes ASLR and

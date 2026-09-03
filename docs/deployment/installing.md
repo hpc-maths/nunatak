@@ -1,16 +1,17 @@
 # Installing nunatak for a team
 
-There is no released package yet. nunatak is not on PyPI, not on
-conda-forge and not in spack, and there is no tagged release. What
+There is no released package yet. nunatak is not on
+[PyPI](https://pypi.org/), not on [conda-forge](https://conda-forge.org/)
+and not in [spack](https://spack.io/), and there is no tagged release. What
 follows is how to install the development version for a group of users,
 and it is what the whole of this site documents.
 
 ## Build a wheel once, install it everywhere
 
 The report is a compiled TypeScript application, built into the wheel by
-the packaging hook. Node is needed where the wheel is built, and
-nowhere else - not on the login node your users work from, not on the
-compute nodes.
+the packaging hook. [Node.js](https://nodejs.org/) is needed where the
+wheel is built, and nowhere else - not on the login node your users work
+from, not on the compute nodes.
 
 ```sh
 git clone https://github.com/hpc-maths/nunatak
@@ -46,12 +47,14 @@ what a run can measure:
 
 | Tool | Without it |
 |---|---|
-| `perf` | no sampling at all on Linux: `cpu-collection-unavailable` |
-| LLVM 19 or newer | no staleness fingerprints and no loop analysis; 17 and 18 symbolize completely and restrict only the loop analysis, and below that the platform's own `addr2line` or `atos` stands in |
-| GNU binutils | no `objdump`, so no loop analysis and no frame-pointer probing |
+| [`perf`](https://perfwiki.github.io/main/) | no sampling at all on Linux: `cpu-collection-unavailable` |
+| [LLVM](https://llvm.org/) 19 or newer | no staleness fingerprints and no loop analysis; 17 and 18 symbolize completely and restrict only the loop analysis, and below that the platform's own `addr2line` or `atos` stands in |
+| [GNU binutils](https://www.gnu.org/software/binutils/) | no `objdump`, so no loop analysis and no frame-pointer probing |
 
 Optional, each with its own named loss: `mpicc` for the network probe
-and mpiP, py-spy for Python below 3.12, Node and pi for the explanations.
+and [mpiP](https://github.com/LLNL/mpiP),
+[py-spy](https://github.com/benfred/py-spy) for Python below 3.12, Node
+and [pi](https://pi.dev) for the explanations.
 
 `perf` also needs the kernel to allow it. See
 [kernel permissions](kernel-permissions.md).

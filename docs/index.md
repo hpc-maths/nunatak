@@ -1,8 +1,12 @@
 # nunatak
 
 Zero-instrumentation profiler for high-performance computing. nunatak
-orchestrates existing collectors (`perf`, `nsys`, `rocprofv3`, `mpiP`,
-`xctrace`...), places compute units on a roofline, diagnoses CPU, GPU,
+orchestrates existing collectors
+([`perf`](https://perfwiki.github.io/main/),
+[`nsys`](https://developer.nvidia.com/nsight-systems),
+[`rocprofv3`](https://rocm.docs.amd.com/),
+[`mpiP`](https://github.com/LLNL/mpiP), `xctrace`...), places compute
+units on a roofline, diagnoses CPU, GPU,
 memory and network bottlenecks, and has the results explained by a
 language model.
 

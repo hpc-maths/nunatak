@@ -25,8 +25,9 @@ the answer is right. It is not a dashboard either. No server, no
 database, no persistent history: a Run is a directory, and the only
 comparison is a diff between two of them.
 
-It does not replace Instruments on macOS. The macOS path serves the short
-development loop rather than the reference verdict, and Instruments stays
+It does not replace [Instruments](https://developer.apple.com/xcode/) on
+macOS. The macOS path serves the short development loop rather than the
+reference verdict, and Instruments stays
 the better tool for interactive exploration, the system timeline, I/O and
 thermal behaviour.
 

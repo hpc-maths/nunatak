@@ -1,10 +1,10 @@
 # debuginfod
 
-debuginfod fetches debug information for the distribution's own
-libraries, so that a stripped `libc` or `libmpi` gets its function names
-instead of staying `unresolved`. It never helps with the user's own code,
-which is where a profile usually spends its time, so the gain is real and
-narrow.
+[debuginfod](https://sourceware.org/elfutils/Debuginfod.html) fetches
+debug information for the distribution's own libraries, so that a
+stripped `libc` or `libmpi` gets its function names instead of staying
+`unresolved`. It never helps with the user's own code, which is where a
+profile usually spends its time, so the gain is real and narrow.
 
 nunatak does not implement a client. Both symbolization paths consult
 debuginfod on their own when `DEBUGINFOD_URLS` is in the environment,

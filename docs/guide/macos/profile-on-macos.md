@@ -27,7 +27,7 @@ Linux.
 
 | Rung | Requirement | Counter | Grain |
 |---|---|---|---|
-| xctrace's Time Profiler | Xcode installed | `cpu-clock`, Running threads only | the exact leaf address of every sample |
+| xctrace's Time Profiler | [Xcode](https://developer.apple.com/xcode/) installed | `cpu-clock`, Running threads only | the exact leaf address of every sample |
 | `/usr/bin/sample` | present on every Mac | `wall-clock`, blocked threads included | function |
 
 The run picks the first that works and says which one it used. Call

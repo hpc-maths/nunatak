@@ -34,16 +34,19 @@ the `0%` in the third row is why `laplacian` gets the advice it gets: the
 wide floating-point datapath of that node is idle in that loop, whatever
 its DRAM traffic says.
 
-These counts cover the CQA and MAQAO use cases without MAQAO, and they
-survive anywhere a disassembler can read the binary.
+These counts cover the CQA and [MAQAO](https://www.maqao.org/) use cases
+without MAQAO, and they survive anywhere a disassembler can read the
+binary.
 
 ## Two disassemblers, and one refusal that does not travel
 
-On Linux the disassembler is GNU objdump over x86-64 AT&T syntax - the
-same tool, excluded for the same measured reason, that probes prologues
-for the call-stack ladder. On macOS it is Xcode's llvm-objdump over
-Mach-O aarch64, with function extents taken from `nm`'s symbol starts
-and a NEON classifier that counts no gathers, NEON having none.
+On Linux the disassembler is
+[GNU objdump](https://www.gnu.org/software/binutils/) over x86-64 AT&T
+syntax, the same tool, excluded for the same measured reason, that probes
+prologues for the call-stack ladder. On macOS it is
+[Xcode](https://developer.apple.com/xcode/)'s llvm-objdump over Mach-O
+aarch64, with function extents taken from `nm`'s symbol starts and a NEON
+classifier that counts no gathers, NEON having none.
 
 The Linux exclusion of llvm-objdump names an ELF mechanism - separate
 debug files whose empty sections it reads instead of the library's code -
@@ -66,7 +69,9 @@ number is the mistake the pair exists to prevent.
 
 ## Cycle bounds, and the gap that means dependencies
 
-On top of the counts, llvm-mca's scheduling model gives two bounds per
+On top of the counts,
+[llvm-mca](https://llvm.org/docs/CommandGuide/llvm-mca.html)'s scheduling
+model gives two bounds per
 iteration: what the execution ports allow, and what the simulated steady
 state reaches. The gap between them is dependency chains speaking. On the
 two loops above the gap is a fraction of a cycle - both are port-bound.
