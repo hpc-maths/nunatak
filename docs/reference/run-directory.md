@@ -37,7 +37,7 @@ information.
 It is deliberately not under a node-local `TMPDIR`: a Calibration has to
 outlive the job that measured it.
 
-**The pivot holds measurements and nothing else.** No classification, no
+The pivot holds measurements and nothing else. No classification, no
 roofline placement, no advice: everything derived is recomputed on
 demand, which is what keeps a Run analysable years after it was written,
 by a later version of nunatak, on a machine where the binary no longer
@@ -71,7 +71,7 @@ different Machine, and its Ceilings belong to those 8 cores.
 Ten Parquet tables. `hotspots` and `loci` carry integer ids that the
 other tables reference; nothing else is joined by name.
 
-**No absolute address is ever persisted.** Every address is normalised at
+No absolute address is ever persisted. Every address is normalised at
 ingestion into `(module identity, offset)`, which is what makes ASLR and
 function reordering irrelevant, and what makes two ranks that loaded a
 library at different addresses converge on the same Hotspot.

@@ -2,9 +2,9 @@
 
 `examples/gemm` performs exactly `2n^3` floating-point operations and
 prints its own rate from a wall clock. nunatak measures that same
-quantity from the hardware counters, independently. **The two have to
-agree**, and finding out whether they do on your machine is what tells
-you how much to believe every other FLOP figure the tool reports there.
+quantity from the hardware counters, independently. The two have to
+agree. Finding out whether they do on your machine tells you how much to
+believe every other FLOP figure the tool reports there.
 
 This runs on Linux, with `perf` and a FLOP counter. macOS exposes no
 per-Hotspot counter, so the check does not apply there -
@@ -39,8 +39,8 @@ The program prints its own line again, and it is slower:
 n = 2048, 4.120 s, 4.17 GFLOP/s analytic, 17179869184 flop, checksum ...
 ```
 
-**Compare the counters against the analytic rate of this run, not of the
-first one.** The 1.554 s above belongs to an execution nobody measured;
+Compare the counters against the analytic rate of this run, not of the
+first one. The 1.554 s above belongs to an execution nobody measured;
 the counters describe the execution that paid for them.
 
 That slowdown is one event's price. The FLOP counter takes a sample every
@@ -59,11 +59,11 @@ The summary's finding for `gemm` carries the rate the counters imply:
     achieved 4.25 GFLOP/s of 1.17 TFLOP/s attainable: 0.4% of the envelope
 ```
 
-**4.25 GFLOP/s from the counters against 4.17 GFLOP/s from the program's
-own clock: under 2% apart.** The counter path is right on this
+4.25 GFLOP/s from the counters against 4.17 GFLOP/s from the program's
+own clock: under 2% apart. The counter path is right on this
 microarchitecture, and every FLOP figure nunatak reports on it - the
 roofline placement, the arithmetic intensity, the classification that
-follows - stands on the path this check just exercised.
+follows - stands on the path this check exercised.
 
 Repeat it on each machine you profile on. It costs one run, and it is the
 only statement about the counters that does not come from the tool
@@ -75,11 +75,11 @@ The program's flop count is exact, so a disagreement is a statement about
 the counters rather than about the profile. Two shapes, and the
 [quality reference](../reference/quality.md) names both as proxies:
 
-- **counters well above the analytic rate**: the event counts work the
+- counters well above the analytic rate: the event counts work the
   processor started and did not retire, or counts an operation as several
   flops. A speculative FLOP event is the usual case.
-- **counters well below**: the event misses part of the work - FLOPs not
-  split by precision, or a vector operation counted once.
+- counters well below: the event misses part of the work, FLOPs not split
+  by precision or a vector operation counted once.
 
 A Run carries the machine, the events and their scaling in its
 provenance, so the Run directory is itself the report: the disagreement,
@@ -88,7 +88,7 @@ travel together.
 
 ## 5. Two figures not to read here
 
-**`0.4% of the envelope`** compares one core against the whole node. The
+`0.4% of the envelope` compares one core against the whole node. The
 1.17 TFLOP/s is this machine's double-precision peak across its 32
 cores, and `gemm` is single-threaded. Pinning the application does not
 narrow the envelope either: the Machine is snapshotted from nunatak's own
@@ -96,12 +96,13 @@ process, which stays unpinned, so the affinity mask that reaches the
 application never reaches the Machine. On a serial program, read the
 rate and the intensity, never the fraction.
 
-**The two arithmetic intensities.** The loop's own demand is 42 flops per
-904 bytes touched, 0.046 flop/byte, while a tiled `gemm` serves most of
-those bytes from cache rather than from memory. The gap between the L1
-intensity and the DRAM intensity beside it *is* the reuse, which is why
-[static loop analysis](../guide/static-loop-analysis.md) keeps them
-apart instead of averaging them into one number.
+The two arithmetic intensities answer two questions. The loop's own
+demand is 42 flops per 904 bytes touched, 0.046 flop/byte, while a tiled
+`gemm` serves most of those bytes from cache rather than from memory. The
+gap between the L1 intensity and the DRAM intensity beside it is the
+reuse, which is why [static loop
+analysis](../guide/static-loop-analysis.md) keeps them apart instead of
+averaging them into one number.
 
 ## 6. What the code says about the same kernel
 

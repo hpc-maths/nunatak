@@ -1,6 +1,6 @@
 # Exit codes
 
-**The application's own exit code is propagated.** nunatak observes; it
+The application's own exit code is propagated. nunatak observes; it
 never masks. Without that, `nunatak run -- ./solver && post_process`
 would chain on broken results.
 

@@ -11,12 +11,12 @@ Three layers, by increasing precedence:
 The project file is never `pyproject.toml`: the profiled application is
 rarely written in Python.
 
-The two files cover what a flag cannot. A **site** sets defaults for
+The two files cover what a flag cannot. A site sets defaults for
 everyone on the machine: a usable `perf`, a `runs_dir` on the shared
-filesystem, a local model provider. A **project** remembers what belongs
+filesystem, a local model provider. A project remembers what belongs
 to the code rather than to the invocation, typically its source map.
 
-**No provider and no model appear here.** pi's own configuration is the
+No provider and no model appear here. pi's own configuration is the
 single source of both, and nunatak neither duplicates nor overrides it;
 `tools.pi` points at the executable, like any other tool.
 

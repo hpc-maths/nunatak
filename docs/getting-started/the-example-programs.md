@@ -23,7 +23,7 @@ driver and a profiler has something to name:
 
 The three come out at roughly a third of the sampled time each.
 
-**It carries a defect on purpose.** `laplacian` and `update` sweep the
+It carries a defect on purpose. `laplacian` and `update` sweep the
 grid twice, through a `lap` array that exists only to carry values from
 one to the other. Computing the laplacian where it is used removes that
 array and one pass over the grid: the same number of floating-point
@@ -43,8 +43,8 @@ operations, so it prints its own rate from a wall clock:
 n = 2048, 1.554 s, 11.06 GFLOP/s analytic, 17179869184 flop, checksum ...
 ```
 
-**nunatak measures that same quantity from the hardware counters, and
-the two have to agree.** On an EPYC 7702 they do: 4.17 GFLOP/s from the
+nunatak measures that same quantity from the hardware counters, and the
+two have to agree. On an EPYC 7702 they do: 4.17 GFLOP/s from the
 program's clock against 4.25 GFLOP/s from the counters, under 2% apart,
 on a run under the profiler.
 

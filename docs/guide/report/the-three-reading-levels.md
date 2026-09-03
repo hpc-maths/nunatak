@@ -29,8 +29,8 @@ other, which the synthesis deliberately does not do.
 
 The **detail** is one Hotspot: its roofline, its source annotated with
 samples per line, the facts of its hot loop, and its advice. It
-**substitutes** the inventory rather than opening beside it - two levels
-visible at once is two levels read badly - and the way back is explicit.
+substitutes the inventory rather than opening beside it, since two levels
+visible at once is two levels read badly, and the way back is explicit.
 
 ## The roofline is drawn for one Hotspot at a time
 
@@ -46,7 +46,7 @@ at the ridge point instead of crossing the peak, which is a unit-tested
 invariant, because the prototype got it wrong in a way no code review
 would have caught.
 
-A Hotspot that cannot be placed says so **where the chart was expected**,
+A Hotspot that cannot be placed says so where the chart was expected,
 never as a blank:
 
 ```
@@ -64,10 +64,10 @@ where a name failed. The
 registers side by side.
 
 An estimated value carries its reason with it, in the finding and in the
-detail. And **an empty cell means the quantity is unavailable for that
-Hotspot, not that it is zero** - the inventory says exactly that under
-its last row, because a table of numbers with holes in it is read as
-zeros by anyone not warned.
+detail. An empty cell means the quantity is unavailable for that Hotspot,
+not that it is zero, and the inventory says exactly that under its last
+row: a table of numbers with holes in it is read as zeros by anyone not
+warned.
 
 ## The absences are part of the report
 
@@ -84,12 +84,13 @@ No advice generated for this Run. Generate it with nunatak explain from a
 machine with network access, then regenerate this report.
 ```
 
-## Which Run am I reading
+## Which Run are you reading
 
 The header names the Run, the command and the machine, and a drawer
 unfolds the rest: the code state, the collectors with their versions, the
-observed dependencies, and the **effective configuration** - the
-thresholds that actually applied. Never a dialog, never in the main view.
+observed dependencies, and the effective configuration, meaning the
+thresholds that actually applied. Never a dialog, never in the main
+view.
 
 That drawer is where "a recorded variation is no longer a hidden
 variation" becomes something you can click. A threshold can be tuned; it

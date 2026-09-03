@@ -63,9 +63,9 @@ def test_the_entries_are_in_the_order_the_engine_tries_them():
 
 
 def test_the_documented_thresholds_are_the_engine_s():
-    assert f"**{analysis.IMBALANCE_RATIO:.1f}x**" in PAGE
+    assert f"{analysis.IMBALANCE_RATIO:.1f}x" in PAGE
     assert analysis.LATENCY_FRACTION == 0.5
-    assert "below **half**" in PAGE
+    assert "below half" in PAGE
 
 
 def test_the_documented_ridge_is_the_one_the_envelope_uses():

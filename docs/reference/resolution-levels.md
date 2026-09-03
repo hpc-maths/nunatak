@@ -14,7 +14,7 @@ statement about identity, displayed as neutral text beside the name.
 without a source position - and they call for different actions, which is
 why they are two levels and not one.
 
-**An address is attributed only to a symbol that contains it**, inside
+An address is attributed only to a symbol that contains it, inside
 `[address, address + size)`. An address in the gap between two symbols
 stays `unresolved` rather than being named after the symbol that precedes
 it. Kernel and vdso addresses stay unresolved by design.

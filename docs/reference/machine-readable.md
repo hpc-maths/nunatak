@@ -45,7 +45,7 @@ Each delta:
 | `combined_error` | the two sides' sampling errors combined |
 | `significant` | `false` when the change is smaller than `combined_error` |
 
-**A CI reads `significant`, not `change`.** A 3% gain between two
+A CI reads `significant`, not `change`. A 3% gain between two
 Hotspots carrying 10% relative error is not a gain, and the payload says
 so rather than leaving the pipeline to reinvent the statistics.
 
@@ -71,7 +71,7 @@ apart.
 | `inline_view` | time by innermost inline frame, all Hotspots combined, absent when nothing was inlined |
 | `explanations` | when the advice was generated, absent when it never was |
 
-`--no-source` strips the payload **before the page exists**, so the
+`--no-source` strips the payload before the page exists, so the
 shared file never contained a line of code. A toggle in the page would
 have hidden text that stayed embedded.
 

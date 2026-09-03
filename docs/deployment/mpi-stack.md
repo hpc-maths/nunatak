@@ -1,7 +1,7 @@
 # The site's MPI stack
 
-Two of nunatak's pieces link against MPI: the **network probe**, which
-measures the interconnect's bandwidth and latency, and **mpiP**, which
+Two of nunatak's pieces link against MPI: the network probe, which
+measures the interconnect's bandwidth and latency, and mpiP, which
 gives the per-rank MPI times and volumes. The ABIs of OpenMPI, MPICH,
 Intel MPI and Cray MPICH are mutually incompatible, so neither is ever
 shipped built. Both are compiled with the site's own compilers, once per
@@ -33,7 +33,7 @@ between them. The identified stack is recorded in each Run's provenance:
 a network measurement whose underlying stack is unknown is not
 interpretable.
 
-**A run never builds anything.** Without a cached probe it declares
+A run never builds anything. Without a cached probe it declares
 `network-ceiling-unavailable` and names `doctor` as the way forward,
 because building inside an allocation the user pays for is not a
 decision the tool takes.
@@ -55,8 +55,8 @@ mpifort = "/opt/openmpi-5.0/bin/mpifort"
 
 mpiP's own build requires a Fortran wrapper: `tools.mpifort` wins, then
 the conventional names. Its source is pinned to one commit and verified
-against a checksum, fetched once. **Once fetched it rebuilds offline
-forever**, which matters on a login node with no outbound network: fetch
+against a checksum, fetched once. Once fetched it rebuilds offline
+forever, which matters on a login node with no outbound network: fetch
 it on a machine that has one, or install mpiP yourself and point
 `tools.mpip` at the library.
 

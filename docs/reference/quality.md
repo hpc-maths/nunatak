@@ -9,11 +9,11 @@ how much a number can be trusted, and nothing else.
 | `estimated` | a motivated downgrade, or a theoretical model |
 | `unavailable` | the quantity does not exist here, and that is not zero |
 
-**A derived quantity's Quality is the worst of its inputs**, propagated
+A derived quantity's Quality is the worst of its inputs, propagated
 along the lineage and never set by hand. A number displayed `measured` is
 measured end to end.
 
-**`estimated` always carries its reason**, and the reason is reachable
+`estimated` always carries its reason, and the reason is reachable
 wherever the value appears. The label alone is useless: it says a number
 is uncertain without saying what to do about it.
 

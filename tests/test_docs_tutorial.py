@@ -97,7 +97,7 @@ def test_the_quoted_loop_facts_are_the_measured_ones():
         f"{loop['instructions']} instructions, {loop['flops_per_iteration']:.0f} flops"
         f" and {total} bytes per iteration" in page
     )
-    assert f"{loop['loaded_bytes']} loaded, {loop['stored_bytes']} stored" in page
+    assert f"{loop['loaded_bytes']} loaded and {loop['stored_bytes']} stored" in page
     assert f"{loop['l1_intensity']['value']:.3g} flop/byte" in page
     assert loop["vector_fp"] == 0 and loop["scalar_fp"] == 4
 

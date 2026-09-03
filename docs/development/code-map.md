@@ -3,7 +3,7 @@
 A map of the package, generated from its own docstrings and grouped the
 way [the architecture](architecture.md) cuts it.
 
-**No module here is a public contract.** `nunatak` exports nothing but
+No module here is a public contract. `nunatak` exports nothing but
 `__version__`; what follows is for whoever changes the code, not for
 whoever imports it. Names, signatures and the split itself move without
 notice.

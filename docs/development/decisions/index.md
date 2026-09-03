@@ -3,7 +3,7 @@
 A dated record of the decisions that shaped nunatak, one file each: what
 was decided, what else was considered, and what followed.
 
-**These pages are not maintained.** Each one says what was decided on the
+These pages are not maintained. Each one says what was decided on the
 day it was written, and it is never rewritten afterwards - that is the
 whole point of keeping them. Where a record disagrees with the rest of
 this site, the rest of the site is right: a command may have been

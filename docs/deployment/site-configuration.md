@@ -31,11 +31,11 @@ mpip = "/opt/mpiP/lib/libmpiP.so"
 enabled = true
 ```
 
-**What does not belong in it**: `source_map`, which describes where a
+What does not belong in it: `source_map`, which describes where a
 project's build tree lives, and `name`, which names a project. Both
 follow the code, not the machine.
 
-**No model and no provider setting exists**, here or anywhere. pi's own
+No model and no provider setting exists, here or anywhere. pi's own
 configuration is the single source of both, and `tools.pi` points at the
 executable like any other tool.
 
