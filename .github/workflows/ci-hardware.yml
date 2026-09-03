@@ -43,15 +43,20 @@ jobs:
       - name: the reports the documentation publishes
         run: |
           make -C examples
+          ./examples/gemm 2>&1 | tee gemm-bare.log
           .venv/bin/nunatak run --name gemm -- ./examples/gemm 2>&1 | tee gemm-run.log
+          # .nunatak is a dot-directory, and upload-artifact skips those
+          # by default: the report is copied out rather than globbed.
+          cp .nunatak/gemm-*/report.html gemm-report.html
       - uses: actions/upload-artifact@v4
         if: always()
         with:
           name: documentation-reports
           path: |
-            .nunatak/gemm-*/report.html
+            gemm-report.html
+            gemm-bare.log
             gemm-run.log
-          if-no-files-found: warn
+          if-no-files-found: error
 
       - name: hermetic suite on real Linux
         run: .venv/bin/python -m pytest -q
