@@ -5,7 +5,8 @@ symbol, no address and no extent: it exists in the interpreter's data
 structures, not in the machine code perf samples. Which of the two paths
 around that a Run takes is decided by the interpreter's own version.
 
-Both of them are Linux's: they are built on perf and on `ptrace`. A
+Both of them are Linux's: they are built on
+[perf](https://perfwiki.github.io/main/) and on `ptrace`. A
 macOS Run samples through the platform's own collectors, which attribute
 native frames.
 

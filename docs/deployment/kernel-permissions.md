@@ -5,6 +5,7 @@ machine your users do not administer, that decision is yours.
 
 ## What nunatak needs
 
+[`perf`](https://perfwiki.github.io/main/) needs
 `kernel.perf_event_paranoid` at 2 or below. That is the whole
 requirement.
 

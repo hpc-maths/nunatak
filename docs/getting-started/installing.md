@@ -53,11 +53,13 @@ lost and what to do about it.
 
 ## What the machine has to provide
 
-nunatak orchestrates tools it never redistributes. On Linux, `perf`
-decides whether anything is sampled at all; LLVM 19 or newer decides
-whether Hotspots carry source positions, staleness fingerprints and loop
-facts; GNU binutils provides the `objdump` that the loop analysis and the
-frame-pointer probing read. What each absence costs is tabulated in
+nunatak orchestrates tools it never redistributes. On Linux,
+[`perf`](https://perfwiki.github.io/main/) decides whether anything is
+sampled at all; [LLVM](https://llvm.org/) 19 or newer decides whether
+Hotspots carry source positions, staleness fingerprints and loop facts;
+[GNU binutils](https://www.gnu.org/software/binutils/) provides the
+`objdump` that the loop analysis and the frame-pointer probing read. What
+each absence costs is tabulated in
 [Installing nunatak for a team](../deployment/installing.md), and
 `doctor` names it on the machine in front of you.
 
@@ -67,7 +69,10 @@ not something a user can install:
 hand to whoever administers the machine.
 
 Optional, each with its own named loss: `mpicc` for the network probe and
-mpiP, py-spy for Python below 3.12, Node and pi for the explanations.
+[mpiP](https://github.com/LLNL/mpiP),
+[py-spy](https://github.com/benfred/py-spy) for Python below 3.12,
+[Node.js](https://nodejs.org/) and [pi](https://pi.dev) for the
+explanations.
 
 ## On macOS
 

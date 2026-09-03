@@ -23,7 +23,7 @@ ok       python-target      CPython 3.13: Python frames exposed to perf via tram
 ```
 
 An older CPython prints one of two other rows, depending on whether
-py-spy is installed:
+[py-spy](https://github.com/benfred/py-spy) is installed:
 
 ```
 warning  python-target      py-spy 0.4.2 stands in: temporal sampling, no hardware counters

@@ -1,8 +1,10 @@
 # The site's MPI stack
 
-Two of nunatak's pieces link against MPI: the network probe, which
-measures the interconnect's bandwidth and latency, and mpiP, which
-gives the per-rank MPI times and volumes. The ABIs of OpenMPI, MPICH,
+Two of nunatak's pieces link against [MPI](https://www.mpi-forum.org/):
+the network probe, which measures the interconnect's bandwidth and
+latency, and [mpiP](https://github.com/LLNL/mpiP), which gives the
+per-rank MPI times and volumes. The ABIs of
+[Open MPI](https://www.open-mpi.org/), [MPICH](https://www.mpich.org/),
 Intel MPI and Cray MPICH are mutually incompatible, so neither is ever
 shipped built. Both are compiled with the site's own compilers, once per
 stack, and cached.
