@@ -50,7 +50,8 @@ on a run under the profiler.
 
 A disagreement is not a bad profile: it means the counter path is wrong
 for that microarchitecture, and catching that is what this program is
-for.
+for. [Check the counters against a rate you already
+know](check-the-counters.md) runs that comparison step by step.
 
 Its kernel is built at `-O3` rather than the `-O2` used elsewhere. At
 `-O2` gcc leaves the inner loop scalar and the kernel runs at a quarter
