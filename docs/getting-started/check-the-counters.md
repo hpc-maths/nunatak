@@ -79,20 +79,27 @@ The page is one file, with no server behind it, and its third level is
 one Hotspot at a time. Click `gemm` in the inventory: its detail carries
 the chart the rest of this page has been arguing about.
 
-The roofline holds four things. This Hotspot's point, at its measured
-rate and its measured arithmetic intensity. The machine's
-double-precision peak, as a horizontal roof - the 1.17 TFLOP/s the
-summary named. The memory bandwidth, as a diagonal that stops at the
-ridge point rather than crossing the roof. And the other placeable
-Hotspots, as pale points, for scale.
+The roofline holds four things:
+
+- this Hotspot's point, at its measured rate and its estimated
+  arithmetic intensity;
+- the machine's double-precision peak, as a horizontal roof - the
+  1.17 TFLOP/s the summary named;
+- the memory bandwidth, as a diagonal that stops at the ridge point
+  rather than crossing the roof;
+- the other placeable Hotspots, as pale points, for scale.
 
 Read the vertical distance between the point and the roof above it. That
 distance is the statement: what this kernel achieved, against what this
-machine allows at that intensity. The horizontal position is the DRAM
-intensity, which on this microarchitecture is `estimated` for the reason
-the summary printed - the counters see demand fills only - so the point
-is placed left or right of where it belongs, while its height is the rate
-you just checked against `2n^3`.
+machine allows at that intensity.
+
+The horizontal position asks for more care. It is the DRAM intensity, and
+on this microarchitecture that value is `estimated`: the counters see
+demand fills only, so whatever the hardware prefetched is invisible to
+them. Fewer bytes counted than the kernel moved means an intensity larger
+than the real one, so the point sits further right than it belongs. Its
+height is untouched, and that height is the rate you just checked against
+`2n^3`.
 
 You can see the page before running anything. The report of a real Run is
 published with this documentation - <a
